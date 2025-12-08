@@ -37,45 +37,8 @@
 #include "util/math/Vector3.h"
 #include "pulsar/Collider.h"
 
-namespace Pulsar::D2 {
-
-RectangleCollider::RectangleCollider(const Util::Math::Vector2<float> &position, const float width,
-    const float height, const Type type) : Collider(position), width(width), height(height), type(type) {}
-
-RectangleCollider::Side RectangleCollider::getOpposite(const Side side) {
-    if (side == NONE) {
-        return NONE;
-    }
-
-    // Flipping the side by using XOR operation on the first bit
-    // LEFT (0) <-> RIGHT (1), TOP (2) <-> BOTTOM (3)
-    return static_cast<Side>(side ^ 1);
-}
-
-float RectangleCollider::getWidth() const {
-    return width;
-}
-
-float RectangleCollider::getHeight() const {
-    return height;
-}
-
-void RectangleCollider::setWidth(const float width) {
-    RectangleCollider::width = width;
-}
-
-void RectangleCollider::setHeight(const float height) {
-    RectangleCollider::height = height;
-}
-
-void RectangleCollider::setSize(const float width, const float height) {
-    RectangleCollider::width = width;
-    RectangleCollider::height = height;
-}
-
-RectangleCollider::Type RectangleCollider::getType() const {
-    return type;
-}
+namespace Pulsar {
+namespace D2 {
 
 RectangleCollider::Side RectangleCollider::isColliding(const RectangleCollider &other) const {
     if (getPosition().getX() < other.getPosition().getX() + other.getWidth() &&
@@ -107,9 +70,10 @@ RectangleCollider::Side RectangleCollider::isColliding(const RectangleCollider &
             return LEFT;
         }
         return RIGHT;
-    }
+        }
 
     return NONE;
 }
 
+}
 }

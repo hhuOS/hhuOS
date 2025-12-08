@@ -35,24 +35,8 @@
 #include "pulsar/Entity.h"
 #include "pulsar/3d/Orientation.h"
 
-namespace Pulsar::D3 {
-
-Entity::Entity(const size_t tag, const Util::Math::Vector3<float> &position,
-    const Util::Math::Vector3<float> &rotation, const Util::Math::Vector3<float> &scale,
-    const SphereCollider &collider) : Pulsar::Entity(tag), position(position), scale(scale), collider(collider)
-{
-    setRotation(rotation);
-}
-
-void Entity::onCollisionEvent([[maybe_unused]] const CollisionEvent &event) {}
-
-const Util::Math::Vector3<float> &Entity::getPosition() const {
-    return position;
-}
-
-void Entity::setPosition(const Util::Math::Vector3<float> &position) {
-    Entity::position = position;
-}
+namespace Pulsar {
+namespace D3 {
 
 void Entity::translate(const Util::Math::Vector3<float> &translation) {
     setPosition(position + translation);
@@ -60,50 +44,6 @@ void Entity::translate(const Util::Math::Vector3<float> &translation) {
     if (hasCollider()) {
         collider.setPosition(position);
     }
-}
-
-const Util::Math::Vector3<float>& Entity::getUpVector() const {
-    return orientation.getUp();
-}
-
-const Util::Math::Vector3<float>& Entity::getRightVector() const {
-    return orientation.getRight();
-}
-
-const Util::Math::Vector3<float>& Entity::getFrontVector() const {
-    return orientation.getFront();
-}
-
-void Entity::translateLocal(const Util::Math::Vector3<float> &translation) {
-    translate(translation.rotate(getRotation()));
-}
-
-const Orientation& Entity::getOrientation() const {
-    return orientation;
-}
-
-const Util::Math::Vector3<float> &Entity::getRotation() const {
-    return orientation.getRotation();
-}
-
-void Entity::setFrontVector(const Util::Math::Vector3<float> &front) {
-    orientation.setFront(front);
-}
-
-void Entity::setRotation(const Util::Math::Vector3<float> &angle) {
-    orientation.setRotation(angle);
-}
-
-void Entity::rotate(const Util::Math::Vector3<float> &angle) {
-    orientation.rotate(angle);
-}
-
-const Util::Math::Vector3<float> &Entity::getScale() const {
-    return scale;
-}
-
-void Entity::setScale(const Util::Math::Vector3<float> &scale) {
-    Entity::scale = scale;
 }
 
 void Entity::update(const float delta) {
@@ -114,12 +54,5 @@ void Entity::update(const float delta) {
     onUpdate(delta);
 }
 
-bool Entity::hasCollider() const {
-    return collider.getRadius() != 0;
 }
-
-SphereCollider &Entity::getCollider() {
-    return collider;
-}
-
 }

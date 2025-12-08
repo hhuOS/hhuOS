@@ -38,7 +38,8 @@
 #include "util/graphic/Color.h"
 #include "pulsar/Resources.h"
 
-namespace Pulsar::D3 {
+namespace Pulsar {
+namespace D3 {
 
 const Texture Texture::INVALID_TEXTURE = Texture();
 
@@ -74,12 +75,5 @@ Texture::Texture(const Util::String &path) {
     delete[] textureData;
 }
 
-bool Texture::isValid() const {
-    return textureId != 0;
 }
-
-GLuint Texture::getTextureID() const {
-    return textureId;
-}
-
 }

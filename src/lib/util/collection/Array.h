@@ -131,13 +131,15 @@ public:
 
 private:
 
-    T* array;
+    T* array = nullptr;
     size_t capacity;
 };
 
 template <class T>
 Array<T>::Array(const size_t capacity) : capacity(capacity) {
-    array = new T[capacity];
+    if (capacity > 0) {
+        array = new T[capacity];
+    }
 }
 
 template <class T>
@@ -152,10 +154,12 @@ Array<T>::Array(std::initializer_list<T> list) : capacity(list.size()) {
 
 template <class T>
 Array<T>::Array(const Array &other) : capacity(other.capacity) {
-    array = new T[capacity];
+    if (capacity > 0) {
+        array = new T[capacity];
 
-    for (uint32_t i = 0; i < capacity; i++) {
-        array[i] = other.array[i];
+        for (size_t i = 0; i < capacity; i++) {
+            array[i] = other.array[i];
+        }
     }
 }
 
@@ -169,7 +173,7 @@ Array<T>& Array<T>::operator=(const Array &other) {
     capacity = other.capacity;
     array = new T[capacity];
 
-    for (uint32_t i = 0; i < capacity; i++) {
+    for (size_t i = 0; i < capacity; i++) {
         array[i] = other.array[i];
     }
 

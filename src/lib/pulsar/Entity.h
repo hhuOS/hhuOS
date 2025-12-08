@@ -57,7 +57,7 @@ class Entity : public Drawable {
 
 public:
     /// Create a new entity instance with the given tag.
-    explicit Entity(size_t tag);
+    explicit Entity(const size_t tag) : tag(tag) {}
 
     /// Initialize the entity. This method is called once when the entity is added to the scene.
     /// If the entity needs resources to be loaded or other setup to be done, it should be done here
@@ -77,19 +77,33 @@ public:
     /// This method is called once per frame after all entities have been updated.
     /// Some entities may choose not to draw anything (e.g. invisible entities like particle emitters),
     /// in which case they do not need to override this method.
-    void draw(Graphics &graphics) const override;
+    void draw(Graphics&) const override {}
 
     /// Get the tag of the entity.
-    size_t getTag() const;
+    size_t getTag() const {
+        return tag;
+    }
 
     /// Get the scene the entity belongs to.
     /// If the entity has not been added to a scene yet, this method will fire a panic.
-    Scene& getScene() const;
+    Scene& getScene() const {
+        if (scene == nullptr) {
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Entity: Not added to a scene yet!");
+        }
+
+        return *scene;
+    }
 
     /// Remove the entity from its scene.
     /// The entity will be deleted automatically, when the scene is next updated.
     /// If the entity is not part of a scene, this method will fire a panic.
-    void removeFromScene() const;
+    void removeFromScene() const {
+        if (scene == nullptr) {
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Entity: Not added to a scene yet!");
+        }
+
+        scene->removeEntity(this);
+    }
 
 private:
 

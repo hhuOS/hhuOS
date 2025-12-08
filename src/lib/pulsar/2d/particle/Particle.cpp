@@ -32,17 +32,10 @@
 
 #include "Particle.h"
 
-
 #include "util/math/Vector2.h"
-#include "pulsar/2d/particle/Emitter.h"
 
-namespace Pulsar::D2 {
-
-Particle::Particle(const size_t tag, Emitter &parent) : Entity(tag, parent.getPosition()), parent(parent) {}
-
-void Particle::initialize() {
-    parent.onParticleInitialization(*this);
-}
+namespace Pulsar {
+namespace D2 {
 
 void Particle::onUpdate(const float delta) {
     if (timeLimited) {
@@ -57,45 +50,5 @@ void Particle::onUpdate(const float delta) {
     sprite.rotate(rotationVelocity * delta);
 }
 
-void Particle::draw(Graphics &graphics) const {
-    sprite.draw(graphics, getPosition());
 }
-
-void Particle::onCollisionEvent(const CollisionEvent &event) {
-    parent.onParticleCollision(*this, event);
-}
-
-float Particle::getScale() const {
-    return sprite.getScale().getX();
-}
-
-void Particle::setScale(const float scale) {
-    sprite.setScale(scale);
-}
-
-float Particle::getAlpha() const {
-    return sprite.getAlpha();
-}
-
-void Particle::setAlpha(const float alpha) {
-    sprite.setAlpha(alpha);
-}
-
-float Particle::getRotationVelocity() const {
-    return rotationVelocity;
-}
-
-void Particle::setRotationVelocity(const float rotationVelocity) {
-    Particle::rotationVelocity = rotationVelocity;
-}
-
-void Particle::setTimeToLive(const Util::Time::Timestamp &timeToLive) {
-    Particle::timeToLive = timeToLive.toSecondsFloat<float>();
-    timeLimited = Particle::timeToLive > 0;
-}
-
-void Particle::setSprite(const Sprite &sprite) {
-    Particle::sprite = sprite;
-}
-
 }

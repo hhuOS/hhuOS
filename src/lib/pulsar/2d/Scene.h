@@ -35,7 +35,8 @@
 
 #include "pulsar/Scene.h"
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
 
 /// Base class for 2D scenes used in the game engine.
 /// It extends the base `Pulsar::Scene` class with 2D-specific behaviors.
@@ -64,7 +65,9 @@ public:
     /// before any entities are drawn on top of it. The background also scrolls along endlessly with the camera.
     /// If anything has been drawn in this method, it should return `true`.
     /// If no background is needed (i.e. the background is left black), it should return `false`.
-    virtual bool initializeBackground(Graphics &graphics);
+    virtual bool initializeBackground(Graphics&) {
+        return false;
+    }
 
     /// Initialize the scene. This method is called by the engine once when the scene is first loaded.
     /// It initializes the graphics context, calls the user-defined `initialize()` method and
@@ -84,6 +87,7 @@ public:
     void checkCollisions() final;
 };
 
+}
 }
 
 #endif

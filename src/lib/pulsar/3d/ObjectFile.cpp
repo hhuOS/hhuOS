@@ -39,7 +39,8 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/math/Math.h"
 
-namespace Pulsar::D3 {
+namespace Pulsar {
+namespace D3 {
 
 ObjectFile::ObjectFile(const Util::String &path) {
     Util::Io::FileInputStream fileStream(path);
@@ -184,28 +185,5 @@ ObjectFile::ObjectFile(const Util::String &path) {
     textureDrawOrder = textureDrawOrderList.toArray();
 }
 
-const Util::Array<Util::Math::Vector3<float>>& ObjectFile::getVertices() const {
-    return vertices;
 }
-
-const Util::Array<Util::Math::Vector3<float>> &ObjectFile::getVertexNormals() const {
-    return vertexNormals;
-}
-
-const Util::Array<Util::Math::Vector3<float>> &ObjectFile::getVertexTextures() const {
-    return vertexTextures;
-}
-
-const Util::Array<size_t> &ObjectFile::getVertexDrawOrder() const {
-    return vertexDrawOrder;
-}
-
-const Util::Array<size_t> &ObjectFile::getNormalDrawOrder() const {
-    return normalDrawOrder;
-}
-
-const Util::Array<size_t> &ObjectFile::getTextureDrawOrder() const {
-    return textureDrawOrder;
-}
-
 }

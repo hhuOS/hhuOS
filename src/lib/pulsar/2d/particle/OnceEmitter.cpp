@@ -34,11 +34,8 @@
 
 #include "pulsar/2d/particle/Emitter.h"
 
-namespace Pulsar::D2 {
-
-OnceEmitter::OnceEmitter(const size_t tag, const size_t particleTag, const Util::Math::Vector2<float> &position,
-    const uint32_t minEmissionRate, const uint32_t maxEmissionRate) :
-    Emitter(tag, particleTag, position, minEmissionRate, maxEmissionRate) {}
+namespace Pulsar {
+namespace D2 {
 
 void OnceEmitter::onUpdate(const float delta) {
     Emitter::onUpdate(delta);
@@ -51,4 +48,5 @@ void OnceEmitter::onUpdate(const float delta) {
     }
 }
 
+}
 }

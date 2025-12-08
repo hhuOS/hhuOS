@@ -38,6 +38,7 @@
 #include "audio/AudioBuffer.h"
 #include "util/graphic/Image.h"
 #include "util/base/String.h"
+#include "util/collection/HashMap.h"
 #include "tinygl/include/GL/gl.h"
 
 /// Provides resource management for game assets like images, 3D object files, textures, and audio buffers.
@@ -47,59 +48,130 @@
 /// These functions are used internally by the game engine and should not be called directly by game code.
 /// The engine provides higher-level abstractions for the resources managed here
 /// (e.g., `D2::Sprite` for images, `D3::Model` for 3D objects or `AudioTrack` for audio buffers).
-namespace Pulsar::Resources {
+namespace Pulsar {
+namespace Resources {
+
+static Util::HashMap<Util::String, const Util::Graphic::Image*> images;
+static Util::HashMap<Util::String, const D3::ObjectFile*> objectFiles;
+static Util::HashMap<Util::String, const D3::Texture*> textures;
+static Util::HashMap<Util::String, const AudioBuffer*> audioBuffers;
 
 /// Add an image resource with the specified key.
-void addImage(const Util::String &key, const Util::Graphic::Image *image);
+/// The image object must be allocated on the heap and the Resources namespace takes ownership of it.
+/// This means it will be automatically deleted when the resource is removed or when `clear()` is called.
+static void addImage(const Util::String &key, const Util::Graphic::Image *image) {
+    images.put(key, image);
+}
 
 /// Check if an image resource with the specified key exists.
-bool hasImage(const Util::String &key);
+static bool hasImage(const Util::String &key) {
+    return images.containsKey(key);
+}
 
 /// Retrieve the image resource associated with the specified key.
-const Util::Graphic::Image* getImage(const Util::String &key);
+static const Util::Graphic::Image* getImage(const Util::String &key) {
+    return images.get(key);
+}
 
 /// Delete the image resource associated with the specified key.
-void deleteImage(const Util::String &key);
+/// This also frees the heap memory allocated for the image.
+static void deleteImage(const Util::String &key) {
+    if (images.containsKey(key)) {
+        delete images.remove(key);
+    }
+}
 
 /// Add a 3D object file resource with the specified key.
-void addObjectFile(const Util::String &key, const D3::ObjectFile *objectFile);
+/// The object file object must be allocated on the heap and the Resources namespace takes ownership of it.
+/// This means it will be automatically deleted when the resource is removed or when `clear()` is called.
+static void addObjectFile(const Util::String &key, const D3::ObjectFile *objectFile) {
+    objectFiles.put(key, objectFile);
+}
 
 /// Check if a 3D object file resource with the specified key exists.
-bool hasObjectFile(const Util::String &key);
+static bool hasObjectFile(const Util::String &key) {
+    return objectFiles.containsKey(key);
+}
 
 /// Retrieve the 3D object file resource associated with the specified key.
-const D3::ObjectFile* getObjectFile(const Util::String &key);
+static const D3::ObjectFile* getObjectFile(const Util::String &key) {
+    return objectFiles.get(key);
+}
 
 /// Delete the 3D object file resource associated with the specified key.
-void deleteObjectFile(const Util::String &key);
+/// This also frees the heap memory allocated for the object file.
+static void deleteObjectFile(const Util::String &key) {
+    objectFiles.remove(key);
+}
 
 /// Add an OpenGL texture resource with the specified key.
-void addTexture(const Util::String &key, const D3::Texture *texture);
+/// The texture object must be allocated on the heap and the Resources namespace takes ownership of it.
+/// This means it will be automatically deleted when the resource is removed or when `clear()` is called.
+static void addTexture(const Util::String &key, const D3::Texture *texture) {
+    textures.put(key, texture);
+}
 
 /// Check if an OpenGL texture resource with the specified key exists.
-bool hasTexture(const Util::String &key);
+static bool hasTexture(const Util::String &key) {
+    return textures.containsKey(key);
+}
 
 /// Retrieve the OpenGL texture resource associated with the specified key.
-const D3::Texture* getTexture(const Util::String &key);
+static const D3::Texture* getTexture(const Util::String &key) {
+    return textures.get(key);
+}
 
 /// Delete the OpenGL texture resource associated with the specified key.
-void deleteTexture(const Util::String &key);
+/// This also frees the heap memory allocated for the texture object and disables it in OpenGL.
+static void deleteTexture(const Util::String &key) {
+    if (textures.containsKey(key)) {
+        const auto *texture = textures.remove(key);
+        glDisable(static_cast<GLint>(texture->getTextureID()));
+        delete texture;
+    }
+}
 
 /// Add an audio buffer resource with the specified key.
-void addAudioBuffer(const Util::String &key, const AudioBuffer *buffer);
+/// The audio buffer object must be allocated on the heap and the Resources namespace takes ownership of it.
+/// This means it will be automatically deleted when the resource is removed or when `clear()` is called.
+static void addAudioBuffer(const Util::String &key, const AudioBuffer *buffer) {
+    audioBuffers.put(key, buffer);
+}
 
 /// Check if an audio buffer resource with the specified key exists.
-bool hasAudioBuffer(const Util::String &key);
+static bool hasAudioBuffer(const Util::String &key) {
+    return audioBuffers.containsKey(key);
+}
 
 /// Retrieve the audio buffer resource associated with the specified key.
-const AudioBuffer* getAudioBuffer(const Util::String &key);
+static const AudioBuffer* getAudioBuffer(const Util::String &key) {
+    return audioBuffers.get(key);
+}
 
 /// Delete the audio buffer resource associated with the specified key.
-void deleteAudioBuffer(const Util::String &key);
+/// This also frees the heap memory allocated for the audio buffer.
+static void deleteAudioBuffer(const Util::String &key) {
+    if (audioBuffers.containsKey(key)) {
+        audioBuffers.remove(key);
+    }
+}
 
 /// Clear all resources managed by this namespace.
-void clear();
+/// This deletes all images, object files, textures and audio buffers, freeing their allocated memory.
+static void clear() {
+    for (const auto *image : images.getValues()) {
+        delete image;
+    }
+    images.clear();
 
+
+    for (const auto *objectFile : objectFiles.getValues()) {
+        delete objectFile;
+    }
+    objectFiles.clear();
+}
+
+}
 }
 
 #endif

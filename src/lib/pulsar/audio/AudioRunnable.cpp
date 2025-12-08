@@ -36,8 +36,6 @@
 
 namespace Pulsar {
 
-AudioRunnable::AudioRunnable(Util::Array<AudioChannel> &channels) : channels(channels) {}
-
 void AudioRunnable::run() {
     isRunning = true;
 
@@ -56,10 +54,6 @@ void AudioRunnable::run() {
             Util::Async::Thread::yield();
         }
     }
-}
-
-void AudioRunnable::stop() {
-    isRunning = false;
 }
 
 }

@@ -39,7 +39,8 @@ class Entity;
 }  // namespace D2
 }  // namespace Pulsar
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
 
 /// A component that can be attached to an entity to extend its functionality.
 /// Components are updated every frame by the entity they are attached to.
@@ -68,7 +69,9 @@ protected:
 
     /// Get the entity this component is attached to.
     /// This method allows subclasses to access the entity they are attached to.
-    Entity& getEntity() const;
+    Entity& getEntity() const {
+        return *entity;
+    }
 
 private:
 
@@ -77,6 +80,7 @@ private:
     Entity *entity = nullptr;
 };
 
+}
 }
 
 #endif

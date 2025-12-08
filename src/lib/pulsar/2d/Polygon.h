@@ -37,7 +37,8 @@
 #include "util/math/Vector2.h"
 #include "pulsar/2d/Entity.h"
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
 
 /// A 2D polygon entity, defined by a set of vertices.
 /// The vertices are defined in local space (i.e. relative to the position of the polygon), with (0,0) being the center.
@@ -47,12 +48,13 @@ class Polygon : public Entity {
 
 public:
     /// Create a new polygon instance with a set of vertices and a color (used to draw the outline of the polygon).
-    explicit Polygon(size_t tag, const Util::Math::Vector2<float> &position,
+    explicit Polygon(const size_t tag, const Util::Math::Vector2<float> &position,
         const Util::Array<Util::Math::Vector2<float>> &vertices,
-        const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE);
+        const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE) :
+        Entity(tag, position), vertices(vertices), color(color) {}
 
     /// Initialize the polygon (does nothing, since polygons have no resource to load or initialize).
-    void initialize() final;
+    void initialize() final {}
 
     /// Scale the polygon by the given factor (scales all vertices).
     void scale(float factor) const;
@@ -70,6 +72,7 @@ private:
     Util::Graphic::Color color;
 };
 
+}
 }
 
 #endif

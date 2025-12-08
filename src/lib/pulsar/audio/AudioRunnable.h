@@ -47,7 +47,7 @@ class AudioRunnable final : public Util::Async::Runnable {
 
 public:
     /// Create a new audio runnable that manages the specified array of audio channels.
-    explicit AudioRunnable(Util::Array<AudioChannel> &channels);
+    explicit AudioRunnable(Util::Array<AudioChannel> &channels) : channels(channels) {}
 
     /// Audio runnable is not copyable, so the copy constructor is deleted.
     AudioRunnable(const AudioRunnable &other) = delete;
@@ -62,7 +62,9 @@ public:
     /// Stop the runnable's main loop.
     /// This will cause the `run()` method to exit its loop and finish,
     /// stopping all audio channel updates for the game engine.
-    void stop();
+    void stop() {
+        isRunning = false;
+    }
 
 private:
 

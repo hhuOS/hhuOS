@@ -37,7 +37,8 @@
 #include "pulsar/2d/Entity.h"
 #include "pulsar/2d/collider/RectangleCollider.h"
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
 
 /// A collision event for 2D rectangle colliders.
 /// This event is triggered when two entities with rectangle colliders collide.
@@ -51,13 +52,17 @@ public:
     /// Create a new collision event instance.
     /// Collision events are created automatically by the scene when two rectangle colliders collide.
     /// Thus, this constructor is intended for internal use only.
-    CollisionEvent(Entity &other, RectangleCollider::Side side);
+    CollisionEvent(Entity &other, const RectangleCollider::Side side) : other(other), side(side) {}
 
     /// Get the other entity involved in the collision.
-    Entity& getCollidedWidth() const;
+    Entity& getCollidedWidth() const {
+        return other;
+    }
 
     /// Get the side of the rectangle collider that was hit during the collision.
-    RectangleCollider::Side getSide() const;
+    RectangleCollider::Side getSide() const {
+        return side;
+    }
 
 private:
 
@@ -65,6 +70,7 @@ private:
     const RectangleCollider::Side side;
 };
 
+}
 }
 
 #endif

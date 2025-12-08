@@ -38,7 +38,8 @@
 
 #include "pulsar/2d/particle/Emitter.h"
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
 
 /// A particle emitter that emits particles only once upon creation.
 /// After emitting the particles, it waits until all particles have expired before removing itself from the scene.
@@ -48,8 +49,9 @@ public:
     /// Create a new once emitter instance with its own tag and the tag for the particles it emits.
     /// The minimum and maximum emission rates define how many particles are emitted in total.
     /// The actual number of emitted particles is chosen randomly between these two values.
-    OnceEmitter(size_t tag, size_t particleTag, const Util::Math::Vector2<float> &position,
-		uint32_t minEmissionRate, uint32_t maxEmissionRate);
+    OnceEmitter(const size_t tag, const size_t particleTag, const Util::Math::Vector2<float> &position,
+        const uint32_t minEmissionRate, const uint32_t maxEmissionRate) :
+        Emitter(tag, particleTag, position, minEmissionRate, maxEmissionRate) {}
 
     /// Update the emitter state. This method is called automatically during the scene update cycle.
     /// On the first update, it emits the particles. Further updates just checks if all particles have expired
@@ -61,6 +63,7 @@ private:
     bool emitted = false;
 };
 
+}
 }
 
 #endif

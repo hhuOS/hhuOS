@@ -36,7 +36,8 @@
 #include "util/base/String.h"
 #include "tinygl/include/GL/gl.h"
 
-namespace Pulsar::D3 {
+namespace Pulsar {
+namespace D3 {
 
 /// Represents an OpenGL texture loaded from an image file for use in 3D rendering.
 /// The texture is loaded from the specified file path and assigned a unique OpenGL texture ID
@@ -51,10 +52,14 @@ public:
     explicit Texture(const Util::String &path);
 
     /// Check if the texture is valid (i.e. has a non-zero OpenGL texture ID).
-    bool isValid() const;
+    bool isValid() const {
+        return textureId != 0;
+    }
 
     /// Get the OpenGL texture ID assigned to this texture.
-    GLuint getTextureID() const;
+    GLuint getTextureID() const {
+        return textureId;
+    }
 
     /// A static invalid texture instance with ID = 0.
     static const Texture INVALID_TEXTURE;
@@ -64,6 +69,7 @@ private:
     GLuint textureId = 0;
 };
 
+}
 }
 
 #endif

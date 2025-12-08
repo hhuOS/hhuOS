@@ -35,7 +35,8 @@
 
 #include "pulsar/2d/component/Component.h"
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
 
 /// A component that updates the entity's position based on its velocity every frame.
 /// Each 2D entity has a velocity vector that determines how much its position should change per second.
@@ -55,6 +56,7 @@ protected:
     void update(float delta) override;
 };
 
+}
 }
 
 #endif

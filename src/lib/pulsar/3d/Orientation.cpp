@@ -33,13 +33,10 @@
 #include "Orientation.h"
 #include "lib/util/math/Math.h"
 
-namespace Pulsar::D3 {
+namespace Pulsar {
+namespace D3 {
 
 const Util::Math::Vector3<float> Orientation::WORLD_UP = Util::Math::Vector3<float>(0, 1, 0);
-
-Orientation::Orientation() {
-    reset();
-}
 
 void Orientation::setRotation(const Util::Math::Vector3<float> &angle) {
     rotation = angle % 360;
@@ -51,35 +48,13 @@ void Orientation::setRotation(const Util::Math::Vector3<float> &angle) {
     }
 
     front = Util::Math::Vector3<float>(
-            Util::Math::sine(Util::Math::toRadians(rotation.getZ())) * Util::Math::cosine(Util::Math::toRadians(rotation.getY())),
+            Util::Math::sine(Util::Math::toRadians(rotation.getZ())) *
+                Util::Math::cosine(Util::Math::toRadians(rotation.getY())),
             Util::Math::sine(Util::Math::toRadians(rotation.getY())),
-            -Util::Math::cosine(Util::Math::toRadians(rotation.getZ())) * Util::Math::cosine(Util::Math::toRadians(rotation.getY()))).normalize();
+            -Util::Math::cosine(Util::Math::toRadians(rotation.getZ())) *
+                Util::Math::cosine(Util::Math::toRadians(rotation.getY()))).normalize();
     right = front.crossProduct(WORLD_UP).normalize();
     up = right.crossProduct(front).normalize();
-}
-
-void Orientation::rotate(const Util::Math::Vector3<float> &angle) {
-    setRotation(rotation + angle);
-}
-
-void Orientation::reset() {
-    setRotation(Util::Math::Vector3<float>(0, 0, 0));
-}
-
-const Util::Math::Vector3<float>& Orientation::getRotation() const {
-    return rotation;
-}
-
-const Util::Math::Vector3<float>& Orientation::getUp() const {
-    return up;
-}
-
-const Util::Math::Vector3<float>& Orientation::getRight() const {
-    return right;
-}
-
-const Util::Math::Vector3<float>& Orientation::getFront() const {
-    return front;
 }
 
 void Orientation::setFront(const Util::Math::Vector3<float> &front) {
@@ -91,4 +66,5 @@ void Orientation::setFront(const Util::Math::Vector3<float> &front) {
     setRotation(rotation);
 }
 
+}
 }

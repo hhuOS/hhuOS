@@ -119,10 +119,14 @@ public:
     AudioHandle play(bool loop) const;
 
     /// Get the audio buffer associated with this track.
-    const AudioBuffer& getBuffer() const;
+    const AudioBuffer& getBuffer() const {
+        return *buffer;
+    }
 
     /// Get the unique ID of this audio track instance.
-    size_t getId() const;
+    size_t getId() const {
+        return id;
+    }
 
 private:
 

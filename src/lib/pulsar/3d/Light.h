@@ -39,7 +39,8 @@
 #include "util/math/Vector3.h"
 #include "util/graphic/Color.h"
 
-namespace Pulsar::D3 {
+namespace Pulsar {
+namespace D3 {
 
 /// An OpenGL light source in 3D space.
 /// TinyGL supports a maximum of 16 light sources (GL_LIGHT0 to GL_LIGHT15).
@@ -66,37 +67,56 @@ public:
     /// Create a new light instance with the given parameters.
     /// The index must be between 0 and 15 (inclusive) and is determined by the `D3::Scene` class,
     /// depending on how many lights are already present in the scene.
-    Light(uint8_t index, Type type, const Util::Math::Vector3<float> &position,
-        const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor);
+    Light(const uint8_t index, const Type type, const Util::Math::Vector3<float> &position,
+        const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor) :
+        index(index), type(type), position(position), diffuseColor(diffuseColor), specularColor(specularColor) {}
 
     /// Check if the light is valid (i.e., has a valid index).
-    bool isValid() const;
+    bool isValid() const {
+        return index != INVALID_INDEX;
+    }
 
     /// Get the index of the light source (0-15).
     /// This index corresponds to the OpenGL light enums (GL_LIGHT0 to GL_LIGHT15)
     /// and is used by the `Graphics` class to set up the light in OpenGL.
-    uint8_t getIndex() const;
+    uint8_t getIndex() const {
+        return index;
+    }
 
     /// Get the type of the light source (directional or point light).
-    Type getType() const;
+    Type getType() const {
+        return type;
+    }
 
     /// Get the position of the light source in 3D space, or its direction if it is a directional light.
-    const Util::Math::Vector3<float>& getPosition() const;
+    const Util::Math::Vector3<float>& getPosition() const {
+        return position;
+    }
 
     /// Set the position of the light source in 3D space, or its direction if it is a directional light.
-    void setPosition(const Util::Math::Vector3<float> &position);
+    void setPosition(const Util::Math::Vector3<float> &position) {
+        Light::position = position;
+    }
 
     /// Get the diffuse color of the light source.
-    const Util::Graphic::Color& getDiffuseColor() const;
+    const Util::Graphic::Color& getDiffuseColor() const {
+        return diffuseColor;
+    }
 
     /// Set the diffuse color of the light source.
-    void setDiffuseColor(const Util::Graphic::Color &diffuseColor);
+    void setDiffuseColor(const Util::Graphic::Color &diffuseColor) {
+        Light::diffuseColor = diffuseColor;
+    }
 
     /// Get the specular color of the light source.
-    const Util::Graphic::Color& getSpecularColor() const;
+    const Util::Graphic::Color& getSpecularColor() const {
+        return specularColor;
+    }
 
     /// Set the specular color of the light source.
-    void setSpecularColor(const Util::Graphic::Color &specularColor);
+    void setSpecularColor(const Util::Graphic::Color &specularColor) {
+        Light::specularColor = specularColor;
+    }
 
 private:
 
@@ -110,6 +130,7 @@ private:
     Util::Graphic::Color specularColor = Util::Graphic::Colors::WHITE;
 };
 
+}
 }
 
 #endif

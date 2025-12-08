@@ -34,14 +34,8 @@
 
 #include "pulsar/2d/particle/Particle.h"
 
-namespace Pulsar::D2 {
-
-Emitter::Emitter(const size_t tag, const size_t particleTag, const Util::Math::Vector2<float> &position,
-    const uint32_t minEmissionRate, const uint32_t maxEmissionRate, const Util::Time::Timestamp &emissionInterval,
-    const Util::Time::Timestamp &timeToLive) : Entity(tag, position), particleTag(particleTag),
-    timeLimited(timeToLive.toNanoseconds() > 0), timeToLive(timeToLive.toSecondsFloat<float>()),
-    minEmissionRate(minEmissionRate), maxEmissionRate(maxEmissionRate),
-    emissionInterval(emissionInterval.toSecondsFloat<float>()) {}
+namespace Pulsar {
+namespace D2 {
 
 void Emitter::onUpdate(const float delta) {
     if (timeLimited) {
@@ -77,10 +71,6 @@ void Emitter::emitParticles() {
     }
 }
 
-void Emitter::emitOnce() {
-    emitParticles();
-}
-
 void Emitter::destroy(const bool immediate) {
     timeToLive = 0;
     timeLimited = true;
@@ -94,32 +84,5 @@ void Emitter::destroy(const bool immediate) {
     }
 }
 
-uint32_t Emitter::getMinEmissionRate() const {
-    return minEmissionRate;
 }
-
-void Emitter::setMinEmissionRate(const uint32_t minEmissionRate) {
-    Emitter::minEmissionRate = minEmissionRate;
-}
-
-uint32_t Emitter::getMaxEmissionRate() const {
-    return maxEmissionRate;
-}
-
-void Emitter::setMaxEmissionRate(const uint32_t maxEmissionRate) {
-    Emitter::maxEmissionRate = maxEmissionRate;
-}
-
-float Emitter::getEmissionInterval() const {
-    return emissionInterval;
-}
-
-void Emitter::setEmissionTime(const float emissionInterval) {
-    Emitter::emissionInterval = emissionInterval;
-}
-
-size_t Emitter::getActiveParticles() const {
-    return activeParticles.size();
-}
-
 }

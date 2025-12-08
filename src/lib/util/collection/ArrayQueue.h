@@ -221,7 +221,7 @@ public:
 
 private:
 
-    T *elements;
+    T *elements = nullptr;
     size_t capacity;
 
     size_t head = 0;
@@ -230,7 +230,11 @@ private:
 };
 
 template<class T>
-ArrayQueue<T>::ArrayQueue(const size_t capacity) : elements(new T[capacity]), capacity(capacity) {}
+ArrayQueue<T>::ArrayQueue(const size_t capacity) : capacity(capacity) {
+    if (capacity > 0) {
+        elements = new T[capacity];
+    }
+}
 
 template<typename T>
 ArrayQueue<T>::~ArrayQueue() {

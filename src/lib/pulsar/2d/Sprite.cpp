@@ -41,7 +41,8 @@
 #include "pulsar/Graphics.h"
 #include "pulsar/Resources.h"
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
 
 Sprite::Sprite() {
     if (Resources::hasImage("empty")) {
@@ -90,60 +91,5 @@ Sprite::Sprite(const Util::Graphic::Color &color, float width, float height) {
     }
 }
 
-const Util::Graphic::Image& Sprite::getImage() const {
-    return *image;
 }
-
-const Util::Math::Vector2<float> &Sprite::getOriginalSize() const {
-    return size;
-}
-
-Util::Math::Vector2<float> Sprite::getSize() const {
-    return Util::Math::Vector2<float>(size.getX() * scale.getX(), size.getY() * scale.getY());
-}
-
-const Util::Math::Vector2<float> &Sprite::getScale() const {
-    return scale;
-}
-
-void Sprite::rotate(const float angle) {
-    rotationAngle += angle;
-}
-
-void Sprite::setRotation(const float angle) {
-    rotationAngle = angle;
-}
-
-float Sprite::getRotation() const {
-    return rotationAngle;
-}
-
-void Sprite::setAlpha(const float alpha) {
-    Sprite::alpha = alpha;
-}
-
-float Sprite::getAlpha() const {
-    return alpha;
-}
-
-void Sprite::setScale(const float scale) {
-    setScale(Util::Math::Vector2<float>(scale, scale));
-}
-
-void Sprite::setScale(const Util::Math::Vector2<float> &scale) {
-    Sprite::scale = scale;
-}
-
-void Sprite::flipX() {
-    xFlipped = !xFlipped;
-}
-
-void Sprite::setXFlipped(const bool flipped) {
-    xFlipped = flipped;
-}
-
-void Sprite::draw(const Graphics &graphics, const Util::Math::Vector2<float> &position) const {
-    graphics.drawImage2D(position, *image, xFlipped, alpha, scale, rotationAngle);
-}
-
 }

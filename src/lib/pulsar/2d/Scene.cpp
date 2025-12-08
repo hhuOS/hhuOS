@@ -40,11 +40,8 @@
 #include "lib/pulsar/Entity.h"
 #include "lib/pulsar/Graphics.h"
 
-namespace Pulsar::D2 {
-
-bool Scene::initializeBackground([[maybe_unused]] Graphics &graphics) {
-    return false;
-}
+namespace Pulsar {
+namespace D2 {
 
 void Scene::initializeScene(Graphics &graphics) {
     if (initializeBackground(graphics)) {
@@ -104,4 +101,5 @@ void Scene::checkCollisions() {
     }
 }
 
+}
 }

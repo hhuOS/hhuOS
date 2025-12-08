@@ -39,7 +39,8 @@
 #include "util/math/Vector3.h"
 #include "util/collection/Array.h"
 
-namespace Pulsar::D3 {
+namespace Pulsar {
+namespace D3 {
 
 /// A class to load and store 3D object data from an OBJ file.
 /// The class parses the file and stores vertices, vertex normals, vertex textures, and their respective draw orders.
@@ -50,26 +51,38 @@ public:
     explicit ObjectFile(const Util::String &path);
 
     /// Get the array of vertices, that define the shape of the 3D object.
-    const Util::Array<Util::Math::Vector3<float>>& getVertices() const;
+    const Util::Array<Util::Math::Vector3<float>>& getVertices() const {
+        return vertices;
+    }
 
     /// Get the array of vertex normals, that define the orientation of the 3D object's surfaces.
     /// These are used for lighting calculations during rendering.
-    const Util::Array<Util::Math::Vector3<float>>& getVertexNormals() const;
+    const Util::Array<Util::Math::Vector3<float>>& getVertexNormals() const {
+        return vertexNormals;
+    }
 
     /// Get the array of texture coordinates, that map 2D textures onto the 3D object's surfaces.
-    const Util::Array<Util::Math::Vector3<float>>& getVertexTextures() const;
+    const Util::Array<Util::Math::Vector3<float>>& getVertexTextures() const {
+        return vertexTextures;
+    }
 
     /// Get the draw order for the vertices, defining how the vertices are connected to form faces.
     /// Each entry in the returned array is an index into the vertices array.
-    const Util::Array<size_t>& getVertexDrawOrder() const;
+    const Util::Array<size_t>& getVertexDrawOrder() const {
+        return vertexDrawOrder;
+    }
 
     /// Get the draw order for the vertex normals.
     /// Each entry in the returned array is an index into the vertex normals array.
-    const Util::Array<size_t>& getNormalDrawOrder() const;
+    const Util::Array<size_t>& getNormalDrawOrder() const {
+        return normalDrawOrder;
+    }
 
     /// Get the draw order for the texture coordinates.
     /// Each entry in the returned array is an index into the vertex textures array.
-    const Util::Array<size_t>& getTextureDrawOrder() const;
+    const Util::Array<size_t>& getTextureDrawOrder() const {
+        return textureDrawOrder;
+    }
 
 private:
 
@@ -81,6 +94,7 @@ private:
     Util::Array<uint32_t> textureDrawOrder;
 };
 
+}
 }
 
 #endif

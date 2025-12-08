@@ -36,12 +36,6 @@
 
 namespace Pulsar {
 
-TextScreen::TextScreen(const Util::String &text, void(*onKeyPressed)(const Util::Io::Key &key),
-    const Util::Graphic::Color &fontColor, const Util::Graphic::Color &backgroundColor) :
-    text(text), onKeyPressed(onKeyPressed), fontColor(fontColor), backgroundColor(backgroundColor) {}
-
-void TextScreen::initialize() {}
-
 bool TextScreen::initializeBackground(Graphics &graphics) {
     const auto lines = text.split("\n");
     const auto centerX = graphics.getAbsoluteResolutionX() / 2;
@@ -58,12 +52,6 @@ bool TextScreen::initializeBackground(Graphics &graphics) {
     }
 
     return true;
-}
-
-void TextScreen::keyPressed(const Util::Io::Key &key) {
-    if (onKeyPressed != nullptr) {
-        onKeyPressed(key);
-    }
 }
 
 }

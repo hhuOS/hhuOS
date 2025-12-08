@@ -40,7 +40,12 @@ namespace Pulsar {
 
 Util::Async::IdGenerator AudioTrack::idGenerator;
 
-AudioTrack::AudioTrack(const Util::String &waveFilePath) : id(idGenerator.getNextId() ?: idGenerator.getNextId()) {
+AudioTrack::AudioTrack(const Util::String &waveFilePath) {
+    id = idGenerator.getNextId();
+    if (id == 0) {
+        id = idGenerator.getNextId();
+    }
+
     if (Resources::hasAudioBuffer(waveFilePath)) {
         buffer = Resources::getAudioBuffer(waveFilePath);
     } else {
@@ -55,14 +60,6 @@ AudioHandle AudioTrack::play(const bool loop) const {
     }
 
     return Game::getInstance().playAudioTrack(*this, loop);
-}
-
-const AudioBuffer& AudioTrack::getBuffer() const {
-    return *buffer;
-}
-
-size_t AudioTrack::getId() const {
-    return id;
 }
 
 }

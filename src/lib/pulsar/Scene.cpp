@@ -46,8 +46,6 @@ Scene::~Scene() {
     entities.clear();
 }
 
-void Scene::update([[maybe_unused]] float delta) {}
-
 void Scene::addEntity(Entity *object) {
     object->scene = this;
     addList.add(object);
@@ -85,30 +83,6 @@ void Scene::draw(Graphics &graphics) const {
     for (const auto *object : entities) {
         object->draw(graphics);
     }
-}
-
-void Scene::keyPressed([[maybe_unused]] const Util::Io::Key &key) {}
-
-void Scene::keyReleased([[maybe_unused]] const Util::Io::Key &key) {}
-
-void Scene::mouseButtonPressed([[maybe_unused]] Util::Io::MouseDecoder::Button button) {}
-
-void Scene::mouseButtonReleased([[maybe_unused]] Util::Io::MouseDecoder::Button button) {}
-
-void Scene::mouseMoved([[maybe_unused]] const Util::Math::Vector2<float> &relativeMovement) {}
-
-void Scene::mouseScrolled([[maybe_unused]] Util::Io::MouseDecoder::ScrollDirection direction) {}
-
-const Util::ArrayList<Entity*>& Scene::getEntities() const {
-    return entities;
-}
-
-Camera& Scene::getCamera() {
-    return camera;
-}
-
-uint32_t Scene::getObjectCount() const {
-    return entities.size();
 }
 
 }

@@ -37,7 +37,8 @@
 #include "pulsar/2d/component/Component.h"
 #include "pulsar/2d/event/TranslationEvent.h"
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
 
 void LinearMovementComponent::update(const float delta) {
     const auto newPosition = getEntity().getPosition() + getEntity().getVelocity() * delta;
@@ -49,4 +50,5 @@ void LinearMovementComponent::update(const float delta) {
     }
 }
 
+}
 }

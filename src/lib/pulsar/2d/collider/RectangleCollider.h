@@ -36,7 +36,8 @@
 #include "util/math/Vector2.h"
 #include "pulsar/Collider.h"
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
 
 /// A rectangular collider for 2D collision detection.
 /// Each collider has four sides: `LEFT`, `RIGHT`, `TOP` and `BOTTOM`.
@@ -83,29 +84,51 @@ public:
     RectangleCollider() = default;
 
     /// Create a new rectangle collider instance at the given position with the given size and type.
-    RectangleCollider(const Util::Math::Vector2<float> &position, float width, float height, Type type);
+    RectangleCollider(const Util::Math::Vector2<float> &position, const float width, const float height,
+        const Type type) : Collider(position), width(width), height(height), type(type) {}
 
     /// Get the opposite side of the given side.
     /// For example, the opposite side of `LEFT` is `RIGHT`.
-    static Side getOpposite(Side side);
+    static Side getOpposite(const Side side) {
+        if (side == NONE) {
+            return NONE;
+        }
+
+        // Flipping the side by using XOR operation on the first bit
+        // LEFT (0) <-> RIGHT (1), TOP (2) <-> BOTTOM (3)
+        return static_cast<Side>(side ^ 1);
+    }
 
     /// Get the width of the rectangle collider.
-    float getWidth() const;
+    float getWidth() const {
+        return width;
+    }
 
     /// Get the height of the rectangle collider.
-    float getHeight() const;
+    float getHeight() const {
+        return height;
+    }
 
     /// Set the width of the rectangle collider.
-    void setWidth(float width);
+    void setWidth(const float width) {
+        RectangleCollider::width = width;
+    }
 
     /// Set the height of the rectangle collider.
-    void setHeight(float height);
+    void setHeight(const float height) {
+        RectangleCollider::height = height;
+    }
 
     /// Set the width and height of the rectangle collider.
-    void setSize(float width, float height);
+    void setSize(const float width, const float height) {
+        RectangleCollider::width = width;
+        RectangleCollider::height = height;
+    }
 
     /// Get the type of the rectangle collider.
-    Type getType() const;
+    Type getType() const {
+        return type;
+    }
     
     /// Check if this rectangle collider is colliding with another rectangle collider (i.e., if the rectangles overlap).
     /// If a collision is detected, the side of this collider that is colliding with the other collider is returned.
@@ -120,6 +143,7 @@ private:
     Type type = NON_EXISTENT;
 };
 
+}
 }
 
 #endif

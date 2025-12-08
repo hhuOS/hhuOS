@@ -36,7 +36,8 @@
 #include "pulsar/Event.h"
 #include "pulsar/3d/Entity.h"
 
-namespace Pulsar::D3 {
+namespace Pulsar {
+namespace D3 {
 
 /// A collision event for 3D sphere colliders.
 /// This event is triggered when two entities with sphere colliders collide.
@@ -49,16 +50,19 @@ public:
     /// Create a new collision event instance.
     /// Collision events are created automatically by the scene when two sphere colliders collide.
     /// Thus, this constructor is intended for internal use only.
-    explicit CollisionEvent(Entity &other);
+    explicit CollisionEvent(Entity &other) : other(other) {}
 
     /// Get the other entity involved in the collision.
-    Entity& getCollidedWidth() const;
+    Entity& getCollidedWidth() const {
+        return other;
+    }
 
 private:
 
     Entity &other;
 };
 
+}
 }
 
 #endif

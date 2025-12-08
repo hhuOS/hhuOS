@@ -756,14 +756,6 @@ void Graphics::initializeGl() {
     glEnabled = true;
 }
 
-void Graphics::disableGl() {
-    glEnabled = false;
-}
-
-bool Graphics::isGlEnabled() const {
-    return glEnabled;
-}
-
 void Graphics::show() const {
     bufferedLfb.flush();
 
@@ -800,14 +792,6 @@ void Graphics::show() const {
     }
 }
 
-void Graphics::setColor(const Util::Graphic::Color &color) {
-    Graphics::color = color;
-}
-
-const Util::Graphic::Color& Graphics::getColor() const {
-    return color;
-}
-
 void Graphics::saveCurrentStateAsBackground() {
     if (backgroundBuffer == nullptr) {
         backgroundBuffer = new uint8_t[bufferedLfb.getPitch() * bufferedLfb.getResolutionY()];
@@ -820,30 +804,6 @@ void Graphics::saveCurrentStateAsBackground() {
 void Graphics::clearBackground() {
     delete backgroundBuffer;
     backgroundBuffer = nullptr;
-}
-
-const Camera& Graphics::getCamera() const {
-    return camera;
-}
-
-uint16_t Graphics::getAbsoluteResolutionX() const {
-    return bufferedLfb.getResolutionX();
-}
-
-uint16_t Graphics::getAbsoluteResolutionY() const {
-    return bufferedLfb.getResolutionY();
-}
-
-const Util::Math::Vector2<float>& Graphics::getDimensions() const {
-    return dimensions;
-}
-
-uint16_t Graphics::getTransformation() const {
-    return transformation;
-}
-
-float Graphics::getRelativeFontSize() const {
-    return FONT_SIZE / static_cast<float>(transformation);
 }
 
 void Graphics::clear(const Util::Graphic::Color &color) const {

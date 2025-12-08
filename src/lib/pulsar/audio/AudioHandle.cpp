@@ -34,8 +34,6 @@
 
 namespace Pulsar {
 
-AudioHandle::AudioHandle(AudioChannel &channel, const AudioTrack &track) : channel(&channel), trackId(track.getId()) {}
-
 bool AudioHandle::isPlaying() const {
     if (channel == nullptr || channel->getCurrentTrackId() != trackId) {
         return false;

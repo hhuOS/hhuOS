@@ -33,7 +33,7 @@
 #ifndef HHUOS_LIB_UTIL_SCENE_H
 #define HHUOS_LIB_UTIL_SCENE_H
 
-#include <stdint.h>
+#include <stddef.h>
 
 #include "util/collection/ArrayList.h"
 #include "util/io/key/Key.h"
@@ -107,25 +107,25 @@ public:
     /// Update the scene. This method is called once per frame with the time delta since the last frame.
     /// All scene-wide logic should be done here. However, entities are updated separately.
     /// Thus, implementing this method is optional, if all logic is handled by entities.
-    virtual void update(float delta);
+    virtual void update(float) {}
 
     /// Handle a key press event. Implementing this method is optional.
-    virtual void keyPressed(const Util::Io::Key &key);
+    virtual void keyPressed(const Util::Io::Key&) {}
 
     /// Handle a key release event. Implementing this method is optional.
-    virtual void keyReleased(const Util::Io::Key &key);
+    virtual void keyReleased(const Util::Io::Key&) {}
 
     /// Handle a mouse button press event. Implementing this method is optional.
-    virtual void mouseButtonPressed(Util::Io::MouseDecoder::Button button);
+    virtual void mouseButtonPressed(Util::Io::MouseDecoder::Button) {}
 
     /// Handle a mouse button release event. Implementing this method is optional.
-    virtual void mouseButtonReleased(Util::Io::MouseDecoder::Button button);
+    virtual void mouseButtonReleased(Util::Io::MouseDecoder::Button) {}
 
     /// Handle mouse movement events. Implementing this method is optional.
-    virtual void mouseMoved(const Util::Math::Vector2<float> &relativeMovement);
+    virtual void mouseMoved(const Util::Math::Vector2<float>&) {}
 
     /// Handle mouse scroll events. Implementing this method is optional.
-    virtual void mouseScrolled(Util::Io::MouseDecoder::ScrollDirection direction);
+    virtual void mouseScrolled(Util::Io::MouseDecoder::ScrollDirection) {}
 
     /// Add an entity to the scene. The entity will be initialized and updated automatically.
     /// The scene takes ownership of the entity and will delete it when the scene is destroyed
@@ -137,13 +137,6 @@ public:
     /// Removing the same entity multiple times is not allowed and will cause undefined behavior.
     void removeEntity(const Entity *object);
 
-    /// Get the camera associated with the scene.
-    Camera& getCamera();
-
-    /// Get the current number of entities in the scene.
-    /// This method is used by the engine for the statistics overlay.
-    uint32_t getObjectCount() const;
-
     /// Apply any pending additions or removals of entities.
     /// This method is called by the engine at the beginning of each frame.
     void applyChanges();
@@ -152,11 +145,24 @@ public:
     /// This method is called by the engine once per frame.
     void draw(Graphics &graphics) const;
 
+    /// Get the camera associated with the scene.
+    Camera& getCamera() {
+        return camera;
+    }
+
+    /// Get the current number of entities in the scene.
+    /// This method is used by the engine for the statistics overlay.
+    size_t getObjectCount() const {
+        return entities.size();
+    }
+
 protected:
 
     /// Get const access to the list of entities in the scene. This is mainly used by the `D2::Scene` and `D3::Scene`
     /// implementation to iterate over all entities for rendering and collision detection.
-    const Util::ArrayList<Entity*>& getEntities() const;
+    const Util::ArrayList<Entity*>& getEntities() const {
+        return entities;
+    }
 
 private:
 

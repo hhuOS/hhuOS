@@ -50,28 +50,4 @@ AudioBuffer::AudioBuffer(const Util::String &waveFilePath) : waveFilePath(waveFi
     size = waveFile.getDataSize();
 }
 
-Util::String AudioBuffer::getWaveFilePath() const {
-    return waveFilePath;
-}
-
-uint32_t AudioBuffer::getSamplesPerSecond() const {
-    return samplesPerSecond;
-}
-
-uint16_t AudioBuffer::getBitsPerSample() const {
-    return bitsPerSample;
-}
-
-uint16_t AudioBuffer::getNumChannels() const {
-    return numChannels;
-}
-
-uint32_t AudioBuffer::getSize() const {
-    return size;
-}
-
-const uint8_t* AudioBuffer::getSamples() const {
-    return samples;
-}
-
 }

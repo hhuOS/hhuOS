@@ -35,6 +35,7 @@
 
 #include <stddef.h>
 
+#include "component/Component.h"
 #include "util/collection/ArrayList.h"
 #include "util/math/Vector2.h"
 #include "pulsar/Entity.h"
@@ -44,11 +45,11 @@ namespace Pulsar {
 namespace D2 {
 class CollisionEvent;
 class TranslationEvent;
-class Component;
 }  // namespace D2
 }  // namespace Pulsar
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
 
 /// Base class for 2D entities for use in 2D scenes.
 /// It enhances the `Pulsar::Entity` class with 2D-specific properties like position, velocity and a collider.
@@ -66,8 +67,9 @@ public:
 
     /// Create a new 2D entity with the given tag, position and rectangle collider.
     /// The collider is optional and defaults to a collider of type `NONE`.
-    Entity(size_t tag, const Util::Math::Vector2<float> &position,
-        const RectangleCollider &collider = RectangleCollider());
+    Entity(const size_t tag, const Util::Math::Vector2<float> &position,
+        const RectangleCollider &collider = RectangleCollider()) :
+        Pulsar::Entity(tag), position(position), collider(collider) {}
 
     /// 2D entities are not copyable, as they manage components on the heap, so the copy constructor is deleted.
     Entity (const Entity &other) = delete;
@@ -76,20 +78,26 @@ public:
     Entity& operator=(const Entity &other) = delete;
 
     /// Destroy the 2D entity and clean up all its components.
-    ~Entity() override;
+    ~Entity() override {
+        for (const auto *component : components) {
+            delete component;
+        }
+    }
 
     /// This method is called whenever the entity is moved by a component (e.g. `LinearMovementComponent`),
     /// or via the `translate()` method. It is not called when the position is set directly via `setPosition()`.
     /// The entity may cancel the translation by calling `event.cancel()`, preventing the movement.
     /// The default implementation does nothing.
-    virtual void onTranslationEvent(TranslationEvent &event);
+    virtual void onTranslationEvent(TranslationEvent&) {}
 
     /// This method is called whenever the entity collides with another entity that has a collider.
     /// The default implementation does nothing.
-    virtual void onCollisionEvent(const CollisionEvent &event);
+    virtual void onCollisionEvent(const CollisionEvent&) {}
 
     /// Get the current position of the entity.
-    const Util::Math::Vector2<float>& getPosition() const;
+    const Util::Math::Vector2<float>& getPosition() const {
+        return position;
+    }
 
     /// Set the absolute position of the entity.
     /// This will NOT trigger a translation event, the entity will be moved directly.
@@ -97,11 +105,15 @@ public:
 
     /// Set the absolute x-coordinate of the entity.
     /// This will NOT trigger a translation event, the entity will be moved directly.
-    void setPositionX(float x);
+    void setPositionX(const float x) {
+        position = Util::Math::Vector2<float>(x, position.getY());
+    }
 
     /// Set the absolute y-coordinate of the entity.
     /// This will NOT trigger a translation event, the entity will be moved directly.
-    void setPositionY(float y);
+    void setPositionY(const float y) {
+        position = Util::Math::Vector2<float>(position.getX(), y);
+    }
 
     /// Move the entity relative to its current position by the given translation vector.
     /// This will trigger a translation event and the entity may cancel the movement.
@@ -109,36 +121,54 @@ public:
 
     /// Move the entity relative to its current position by the given x offset.
     /// This will trigger a translation event and the entity may cancel the movement.
-    void translateX(float x);
+    void translateX(const float x) {
+        translate(Util::Math::Vector2<float>(x, 0));
+    }
 
     /// Move the entity relative to its current position by the given y offset.
     /// This will trigger a translation event and the entity may cancel the movement.
-    void translateY(float y);
+    void translateY(const float y) {
+        translate(Util::Math::Vector2<float>(0, y));
+    }
 
     /// Get the current velocity of the entity.
-    const Util::Math::Vector2<float>& getVelocity() const;
+    const Util::Math::Vector2<float>& getVelocity() const {
+        return velocity;
+    }
 
     /// Set the velocity of the entity.
     /// The velocity only affects the entity if a movement component (e.g. `LinearMovementComponent`) is attached to it.
-    void setVelocity(const Util::Math::Vector2<float> &velocity);
+    void setVelocity(const Util::Math::Vector2<float> &velocity) {
+        Entity::velocity = velocity;
+    }
 
     /// Set the x-component of the entity's velocity.
     /// The velocity only affects the entity if a movement component (e.g. `LinearMovementComponent`) is attached to it.
-    void setVelocityX(float x);
+    void setVelocityX(const float x) {
+        velocity = Util::Math::Vector2<float>(x, velocity.getY());
+    }
 
     /// Set the y-component of the entity's velocity.
     /// The velocity only affects the entity if a movement component (e.g. `LinearMovementComponent`) is attached to it.
-    void setVelocityY(float y);
+    void setVelocityY(const float y) {
+        velocity = Util::Math::Vector2<float>(velocity.getX(), y);
+    }
 
     /// Check if the entity has a rectangle collider.
-    bool hasCollider() const;
+    bool hasCollider() const {
+        return collider.getType() != RectangleCollider::NON_EXISTENT;
+    }
 
     /// Get the rectangle collider of the entity for modification.
     /// If the entity has no collider, a panic is fired.
-    RectangleCollider& getCollider();
+    RectangleCollider& getCollider() {
+        return collider;
+    }
 
     /// Set the rectangle collider of the entity.
-    void setCollider(const RectangleCollider &collider);
+    void setCollider(const RectangleCollider &collider) {
+        Entity::collider = collider;
+    }
 
     /// Add a component to the entity.
     /// The component must be heap-allocated and the entity will take ownership of it and delete it upon destruction.
@@ -158,7 +188,9 @@ public:
 
     /// Check if the entity's position has changed since the last update.
     /// This method is used by the scene to determine if the entity needs to be re-evaluated for collisions.
-    bool hasPositionChanged() const;
+    bool hasPositionChanged() const {
+        return positionChanged;
+    }
 
 private:
 
@@ -171,6 +203,7 @@ private:
     Util::ArrayList<Component*> components;
 };
 
+}
 }
 
 #endif

@@ -35,7 +35,8 @@
 
 #include "util/math/Vector3.h"
 
-namespace Pulsar::D3 {
+namespace Pulsar {
+namespace D3 {
 
 /// Represents the orientation of an object in 3D space,
 /// including its rotation angles around the x, y, and z axes,
@@ -44,7 +45,9 @@ class Orientation {
 
 public:
     /// Create a new orientation instance with default rotation (0, 0, 0)
-    Orientation();
+    Orientation() {
+        reset();
+    }
 
     /// Set the rotation angles around the x, y, and z axes (in degrees).
     /// The up, right, and front direction vectors are updated accordingly.
@@ -52,22 +55,34 @@ public:
 
     /// Rotate the orientation by the given angles around the x, y, and z axes (in degrees).
     /// The up, right, and front direction vectors are updated accordingly.
-    void rotate(const Util::Math::Vector3<float> &angle);
+    void rotate(const Util::Math::Vector3<float> &angle) {
+        setRotation(rotation + angle);
+    }
 
     /// Reset the orientation to the default rotation (0, 0, 0).
-    void reset();
+    void reset() {
+        setRotation(Util::Math::Vector3<float>(0, 0, 0));
+    }
 
     /// Get the current rotation angles around the x, y, and z axes (in degrees).
-    const Util::Math::Vector3<float>& getRotation() const;
+    const Util::Math::Vector3<float>& getRotation() const {
+        return rotation;
+    }
 
     /// Get the up direction vector of the orientation.
-    const Util::Math::Vector3<float>& getUp() const;
+    const Util::Math::Vector3<float>& getUp() const {
+        return up;
+    }
 
     /// Get the right direction vector of the orientation.
-    const Util::Math::Vector3<float>& getRight() const;
+    const Util::Math::Vector3<float>& getRight() const {
+        return right;
+    }
 
     /// Get the front direction vector of the orientation.
-    const Util::Math::Vector3<float>& getFront() const;
+    const Util::Math::Vector3<float>& getFront() const {
+        return front;
+    }
 
     /// Set the front direction vector of the orientation.
     /// The rotation angles and other direction vectors are updated accordingly.
@@ -84,6 +99,7 @@ private:
     Util::Math::Vector3<float> front;
 };
 
+}
 }
 
 #endif

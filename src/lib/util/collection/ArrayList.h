@@ -296,7 +296,9 @@ private:
 
 template <class T>
 ArrayList<T>::ArrayList(const size_t capacity) : capacity(capacity) {
-    elements = new T[capacity];
+    if (capacity > 0) {
+        elements = new T[capacity];
+    }
 }
 
 template<typename T>

@@ -36,20 +36,8 @@
 #include "pulsar/2d/event/CollisionEvent.h"
 #include "pulsar/2d/event/TranslationEvent.h"
 
-namespace Pulsar::D2 {
-
-Entity::Entity(const size_t tag, const Util::Math::Vector2<float> &position, const RectangleCollider &collider) :
-    Pulsar::Entity(tag), position(position), collider(collider) {}
-
-Entity::~Entity() {
-    for (const auto *component : components) {
-        delete component;
-    }
-}
-
-void Entity::onTranslationEvent([[maybe_unused]] TranslationEvent &event) {}
-
-void Entity::onCollisionEvent([[maybe_unused]] const CollisionEvent &event) {}
+namespace Pulsar {
+namespace D2 {
 
 void Entity::translate(const Util::Math::Vector2<float> &translation) {
     const auto newPosition = position + translation;
@@ -61,14 +49,6 @@ void Entity::translate(const Util::Math::Vector2<float> &translation) {
     }
 }
 
-void Entity::translateX(const float x) {
-    translate(Util::Math::Vector2<float>(x, 0));
-}
-
-void Entity::translateY(const float y) {
-    translate(Util::Math::Vector2<float>(0, y));
-}
-
 void Entity::setPosition(const Util::Math::Vector2<float> &position) {
     Entity::position = position;
     if (hasCollider()) {
@@ -78,53 +58,9 @@ void Entity::setPosition(const Util::Math::Vector2<float> &position) {
     positionChanged = true;
 }
 
-void Entity::setPositionX(const float x) {
-    position = Util::Math::Vector2<float>(x, position.getY());
-}
-
-void Entity::setPositionY(const float y) {
-    position = Util::Math::Vector2<float>(position.getX(), y);
-}
-
-void Entity::setVelocity(const Util::Math::Vector2<float> &velocity) {
-    Entity::velocity = velocity;
-}
-
-void Entity::setVelocityX(const float x) {
-    velocity = Util::Math::Vector2<float>(x, velocity.getY());
-}
-
-void Entity::setVelocityY(const float y) {
-    velocity = Util::Math::Vector2<float>(velocity.getX(), y);
-}
-
-void Entity::setCollider(const RectangleCollider &collider) {
-    Entity::collider = collider;
-}
-
 void Entity::addComponent(Component *component) {
     component->entity = this;
     components.add(component);
-}
-
-const Util::Math::Vector2<float>& Entity::getPosition() const {
-    return position;
-}
-
-const Util::Math::Vector2<float>& Entity::getVelocity() const {
-    return velocity;
-}
-
-RectangleCollider& Entity::getCollider() {
-    if (!hasCollider()) {
-        Util::Panic::fire(Util::Panic::NULL_POINTER, "Entity: Has no collider!");
-    }
-
-    return collider;
-}
-
-bool Entity::hasCollider() const {
-    return collider.getType() != RectangleCollider::NON_EXISTENT;
 }
 
 void Entity::update(const float delta) {
@@ -187,8 +123,5 @@ void Entity::onCollision(const CollisionEvent &event) {
     onCollisionEvent(event);
 }
 
-bool Entity::hasPositionChanged() const {
-    return positionChanged;
 }
-
 }

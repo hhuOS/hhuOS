@@ -36,12 +36,12 @@
 #include <stddef.h>
 
 #include "util/time/Timestamp.h"
+#include "pulsar/2d/particle/Emitter.h"
 #include "pulsar/2d/Entity.h"
 #include "pulsar/2d/Sprite.h"
 
-namespace Pulsar::D2 {
-
-class Emitter;
+namespace Pulsar {
+namespace D2 {
 
 /// Represents a single particle in a particle system.
 /// Particles are created and managed by an `Emitter`. A particle has the following properties:
@@ -60,11 +60,13 @@ class Particle final : public Entity {
 
 public:
     /// Create a new particle instance with the given tag and reference to its parent emitter.
-    Particle(size_t tag, Emitter &parent);
+    Particle(const size_t tag, Emitter &parent) : Entity(tag, parent.getPosition()), parent(parent) {}
 
     /// Initialize the particle.
-    /// method calls the emitter's `onParticleInitialization()` method to set up the particle's initial properties.
-    void initialize() override;
+    /// This method calls the emitter's `onParticleInitialization()` method to set up the particle's initial properties.
+    void initialize() override {
+        parent.onParticleInitialization(*this);
+    }
 
     /// Update the particle's state. This method is called automatically each frame.
     /// It decreases the particle's time to live (if applicable) and calls the emitter's
@@ -73,40 +75,63 @@ public:
 
     /// Draw the particle using its sprite at its current position.
     /// The particle's current rotation angle and alpha transparency are applied during rendering.
-    void draw(Graphics &graphics) const override;
+    void draw(Graphics &graphics) const override {
+        sprite.draw(graphics, getPosition());
+    }
 
     /// Handle collision events. This method forwards the event to the emitter's
     /// `onParticleCollision()` method for custom collision handling.
-    void onCollisionEvent(const CollisionEvent &event) override;
+    void onCollisionEvent(const CollisionEvent &event) override {
+        parent.onParticleCollision(*this, event);
+    }
 
     /// Get the current scale of the particle's sprite.
-    float getScale() const;
+    float getScale() const {
+        return sprite.getScale().getX();
+    }
 
     /// Set the scale of the particle's sprite.
-    void setScale(float scale);
+    void setScale(const float scale) {
+        sprite.setScale(scale);
+    }
 
     /// Get the current alpha transparency of the particle's sprite.
-    float getAlpha() const;
+    float getAlpha() const {
+        return sprite.getAlpha();
+    }
 
     /// Set the alpha transparency of the particle's sprite.
-    void setAlpha(float alpha);
+    void setAlpha(const float alpha) {
+        sprite.setAlpha(alpha);
+    }
 
     /// Get the rotation velocity of the particle (in degrees per second).
-    float getRotationVelocity() const;
+    float getRotationVelocity() const {
+        return rotationVelocity;
+    }
 
     /// Set the rotation velocity of the particle (in degrees per second).
     /// A negative value will rotate the particle counter-clockwise.
-    void setRotationVelocity(float rotationVelocity);
+    void setRotationVelocity(const float rotationVelocity) {
+        Particle::rotationVelocity = rotationVelocity;
+    }
 
     /// Set the time to live for the particle.
     /// If the time is greater than zero, the particle will be removed from the scene after that duration.
     /// If the time is zero, the particle will live indefinitely until removed by other means.
-    void setTimeToLive(const Util::Time::Timestamp &timeToLive);
+    void setTimeToLive(const Util::Time::Timestamp &timeToLive) {
+        Particle::timeToLive = timeToLive.toSecondsFloat<float>();
+        timeLimited = Particle::timeToLive > 0;
+    }
 
     /// Set the sprite used to render the particle.
+    /// This sets the particle's scale, rotation, and alpha to the one defined by the sprite,
+    /// since they are properties of the sprite itself.
     /// The `Sprite` class has a constructor that allows creating a square sprite from a color and size.
     /// This allows easily creating simple particle sprites (i.e. colored square).
-    void setSprite(const Sprite &sprite);
+    void setSprite(const Sprite &sprite) {
+        Particle::sprite = sprite;
+    }
 
 private:
 
@@ -118,6 +143,7 @@ private:
     Emitter &parent;
 };
 
+}
 }
 
 #endif

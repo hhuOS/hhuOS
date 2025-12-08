@@ -49,17 +49,22 @@ public:
     explicit TextScreen(const Util::String &text,
         void(*onKeyPressed)(const Util::Io::Key &key) = nullptr,
         const Util::Graphic::Color &fontColor = Util::Graphic::Colors::WHITE,
-        const Util::Graphic::Color &backgroundColor = Util::Graphic::Colors::BLACK);
+        const Util::Graphic::Color &backgroundColor = Util::Graphic::Colors::BLACK) :
+        text(text), onKeyPressed(onKeyPressed), fontColor(fontColor), backgroundColor(backgroundColor) {}
 
     /// Initialize the scene.
     /// For this simple scene, this method does nothing.
-    void initialize() override;
+    void initialize() override {}
 
     /// Initialize the background by rendering the text centered on the screen.
     bool initializeBackground(Graphics &graphics) override;
 
     /// Handle key press events by invoking the callback function if provided.
-    void keyPressed(const Util::Io::Key &key) override;
+    void keyPressed(const Util::Io::Key &key) override {
+        if (onKeyPressed != nullptr) {
+            onKeyPressed(key);
+        }
+    }
 
 private:
 

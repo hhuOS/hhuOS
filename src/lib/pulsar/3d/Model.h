@@ -43,7 +43,8 @@
 #include "pulsar/3d/Texture.h"
 #include "pulsar/3d/ObjectFile.h"
 
-namespace Pulsar::D3 {
+namespace Pulsar {
+namespace D3 {
 
 /// A 3D model entity that can be rendered in a 3D scene.
 /// The model is loaded from an object file (.obj) and can optionally have a texture applied.
@@ -57,14 +58,18 @@ class Model : public Entity {
 
 public:
     /// Create a new 3D model instance, loaded from the given object file path, with no texture, but a solid color.
-    Model(size_t tag, const Util::String &modelPath, const Util::Math::Vector3<float> &position,
+    Model(const size_t tag, const Util::String &modelPath, const Util::Math::Vector3<float> &position,
         const Util::Math::Vector3<float> &rotation, const Util::Math::Vector3<float> &scale,
-        const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE);
+        const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE) : Entity(tag, position, rotation, scale,
+            SphereCollider(position, Util::Math::max(scale.getX(), scale.getY(), scale.getZ()))),
+        modelPath(modelPath), color(color) {}
 
     /// Create a new 3D model instance, loaded from the given object file path, with the specified texture (.bmp file).
-    Model(size_t tag, const Util::String &modelPath, const Util::String &texturePath,
+    Model(const size_t tag, const Util::String &modelPath, const Util::String &texturePath,
         const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation,
-        const Util::Math::Vector3<float> &scale);
+        const Util::Math::Vector3<float> &scale) : Entity(tag, position, rotation, scale,
+            SphereCollider(position, Util::Math::max(scale.getX(), scale.getY(), scale.getZ()))),
+        modelPath(modelPath), texturePath(texturePath) {}
 
     /// Initialize the model by loading the object file and texture (if provided).
     /// This method is called automatically by the engine when the model is added to a scene.
@@ -76,33 +81,53 @@ public:
 
     /// Get the vertices, that define the shape of the model.
     /// These are the 3D points that define the shape of the model.
-    const Util::Array<Util::Math::Vector3<float>>& getVertices() const;
+    const Util::Array<Util::Math::Vector3<float>>& getVertices() const {
+        return objectFile->getVertices();
+    }
 
     /// Get the vertex normals, that define the orientation of the model's surfaces.
     /// These normals are used for lighting calculations to determine how light interacts with the model's surface.
-    const Util::Array<Util::Math::Vector3<float>>& getVertexNormals() const;
+    const Util::Array<Util::Math::Vector3<float>>& getVertexNormals() const {
+        return objectFile->getVertexNormals();
+    }
 
     /// Get the vertex texture coordinates of the model.
     /// These coordinates map the texture image onto the model's surface.
-    const Util::Array<Util::Math::Vector3<float>>& getVertexTextures() const;
+    const Util::Array<Util::Math::Vector3<float>>& getVertexTextures() const {
+        return objectFile->getVertexTextures();
+    }
 
     /// Get the draw order of the model's vertices.
     /// Each entry in the returned array is an index into the vertices array.
-    const Util::Array<size_t>& getVertexDrawOrder() const;
+    const Util::Array<size_t>& getVertexDrawOrder() const {
+        return objectFile->getVertexDrawOrder();
+    }
 
     /// Get the draw order of the model's vertex normals.
     /// Each entry in the returned array is an index into the vertex normals array.
-    const Util::Array<size_t>& getNormalDrawOrder() const;
+    const Util::Array<size_t>& getNormalDrawOrder() const {
+        return objectFile->getNormalDrawOrder();
+    }
 
     /// Get the draw order of the model's texture coordinates.
     /// Each entry in the returned array is an index into the vertex textures array.
-    const Util::Array<size_t>& getTextureDrawOrder() const;
+    const Util::Array<size_t>& getTextureDrawOrder() const {
+        return objectFile->getTextureDrawOrder();
+    }
 
     /// Get the texture applied to the model.
-    const Texture& getTexture() const;
+    const Texture& getTexture() const {
+        if (texture ==  nullptr) {
+            return Texture::INVALID_TEXTURE;
+        }
+
+        return *texture;
+    }
 
     /// Get the solid color of the model (used if no texture is applied).
-    const Util::Graphic::Color& getColor() const;
+    const Util::Graphic::Color& getColor() const {
+        return color;
+    }
 
 private:
 
@@ -115,6 +140,7 @@ private:
     Util::Graphic::Color color;
 };
 
+}
 }
 
 #endif

@@ -246,10 +246,14 @@ public:
 
     /// Disable OpenGL rendering.
     /// This function is called automatically when a 2D scene is loaded and should not be called manually.
-    void disableGl();
+    void disableGl() {
+        glEnabled = false;
+    }
 
     /// Check if OpenGL rendering is enabled (i.e., if the current scene is a 3D scene).
-    bool isGlEnabled() const;
+    bool isGlEnabled() const {
+        return glEnabled;
+    }
 
     /// Clear the screen with the given color.
     /// For 2D scenes, using `Colors::BLACK` as the clear color is much faster than other colors.
@@ -263,14 +267,6 @@ public:
     /// This function is called automatically by the engine after each frame and should not be called manually.
     void update();
 
-    /// Set the current drawing color.
-    /// All subsequent drawing operations will use this color until it is changed again.
-    /// Images and textures are not affected by this color.
-    void setColor(const Util::Graphic::Color &color);
-
-    /// Get the current drawing color.
-    const Util::Graphic::Color& getColor() const;
-
     /// Save the current frame buffer state as the background.
     /// This is used by 2D scenes to optimize redrawing static backgrounds.
     /// The background will scroll automatically with the camera, repeating itself over and over again.
@@ -279,21 +275,41 @@ public:
     /// Clear the saved background.
     void clearBackground();
 
+    /// Get the current drawing color.
+    const Util::Graphic::Color& getColor() const {
+        return color;
+    }
+
+    /// Set the current drawing color.
+    /// All subsequent drawing operations will use this color until it is changed again.
+    /// Images and textures are not affected by this color.
+    void setColor(const Util::Graphic::Color &color) {
+        Graphics::color = color;
+    }
+
     /// Get the camera associated with the current scene.
-    const Camera& getCamera() const;
+    const Camera& getCamera() const {
+        return camera;
+    }
 
     /// Get the absolute horizontal screen resolution.
-    uint16_t getAbsoluteResolutionX() const;
+    uint16_t getAbsoluteResolutionX() const {
+        return bufferedLfb.getResolutionX();
+    }
 
     /// Get the absolute vertical screen resolution.
-    uint16_t getAbsoluteResolutionY() const;
+    uint16_t getAbsoluteResolutionY() const {
+        return bufferedLfb.getResolutionY();
+    }
 
     /// Get the dimensions of the game coordinate system.
     /// The game uses a virtual coordinate system ranging from (-1, -1) to (1, 1) for the entire screen.
     /// However, if the target screen resolution is not square,
     /// one axis will have a larger range to maintain the aspect ratio.
     /// For example, on a 800x600 screen, the coordinate system will range from (-1.33, -1) to (1.33, 1).
-    const Util::Math::Vector2<float>& getDimensions() const;
+    const Util::Math::Vector2<float>& getDimensions() const {
+        return dimensions;
+    }
 
     /// Get the screen transformation factor.
     /// This factor is used to scale from the game coordinate system to the actual screen resolution.
@@ -302,10 +318,14 @@ public:
     /// to get the corresponding pixel coordinate on the screen.
     /// The engine calculates the transformation factor by taking the smaller axis of the target screen resolution
     /// and dividing it by 2. For example, on a 800x600 screen, the transformation factor will be 300.
-    uint16_t getTransformation() const;
+    uint16_t getTransformation() const {
+        return transformation;
+    }
 
     /// Get the font size in game coordinates.
-    float getRelativeFontSize() const;
+    float getRelativeFontSize() const {
+        return FONT_SIZE / static_cast<float>(transformation);
+    }
 
     /// The font size in absolute pixels.
     static constexpr uint8_t FONT_SIZE = 8;

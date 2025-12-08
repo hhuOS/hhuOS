@@ -48,10 +48,14 @@ public:
 
     /// Cancel the event. This can be called by event handlers to prevent the action from being performed
     /// (e.g. prevent an entity from being moved by a `TranslationEvent`).
-    void cancel();
+    void cancel() {
+        canceled = true;
+    }
 
     /// Check if the event has been canceled.
-    bool isCanceled() const;
+    bool isCanceled() const {
+        return canceled;
+    }
 
 private:
 

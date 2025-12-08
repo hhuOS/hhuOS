@@ -41,19 +41,8 @@
 #include "pulsar/3d/collider/SphereCollider.h"
 #include "pulsar/3d/Texture.h"
 
-namespace Pulsar::D3 {
-
-Model::Model(const size_t tag, const Util::String &modelPath, const Util::Math::Vector3<float> &position,
-    const Util::Math::Vector3<float> &rotation, const Util::Math::Vector3<float> &scale,
-    const Util::Graphic::Color &color) : Entity(tag, position, rotation, scale,
-        SphereCollider(position, Util::Math::max(scale.getX(), scale.getY(), scale.getZ()))),
-    modelPath(modelPath), color(color) {}
-
-Model::Model(const size_t tag, const Util::String &modelPath, const Util::String &texturePath,
-    const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation,
-    const Util::Math::Vector3<float> &scale) : Entity(tag, position, rotation, scale,
-        SphereCollider(position, Util::Math::max(scale.getX(), scale.getY(), scale.getZ()))),
-    modelPath(modelPath), texturePath(texturePath) {}
+namespace Pulsar {
+namespace D3 {
 
 void Model::initialize() {
     if (!Resources::hasObjectFile(modelPath)) {
@@ -76,40 +65,5 @@ void Model::draw(Graphics &graphics) const {
     graphics.drawModel3D(*this);
 }
 
-const Util::Array<Util::Math::Vector3<float>> &Model::getVertices() const {
-    return objectFile->getVertices();
 }
-
-const Util::Array<Util::Math::Vector3<float>> &Model::getVertexNormals() const {
-    return objectFile->getVertexNormals();
-}
-
-const Util::Array<Util::Math::Vector3<float>> &Model::getVertexTextures() const {
-    return objectFile->getVertexTextures();
-}
-
-const Util::Array<size_t> &Model::getVertexDrawOrder() const {
-    return objectFile->getVertexDrawOrder();
-}
-
-const Util::Array<size_t> &Model::getNormalDrawOrder() const {
-    return objectFile->getNormalDrawOrder();
-}
-
-const Util::Array<size_t> &Model::getTextureDrawOrder() const {
-    return objectFile->getTextureDrawOrder();
-}
-
-const Texture& Model::getTexture() const {
-    if (texture ==  nullptr) {
-        return Texture::INVALID_TEXTURE;
-    }
-
-    return *texture;
-}
-
-const Util::Graphic::Color& Model::getColor() const {
-    return color;
-}
-
 }

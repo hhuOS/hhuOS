@@ -46,7 +46,8 @@ class CollisionEvent;
 }  // namespace D3
 }  // namespace Pulsar
 
-namespace Pulsar::D3 {
+namespace Pulsar {
+namespace D3 {
 
 /// Base class for 3D entities for use in 3D scenes.
 /// It enhances the `Pulsar::Entity` class with 3D-specific properties like position, rotation, scale and a collider.
@@ -58,18 +59,26 @@ class Entity : public Pulsar::Entity {
 public:
     /// Create a new 3D entity with the given tag, position, rotation, scale and sphere collider.
     /// The collider is optional and defaults to a collider with radius 0 (no collider).
-    Entity(size_t tag, const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation,
-        const Util::Math::Vector3<float> &scale, const SphereCollider &collider = SphereCollider());
+    Entity(const size_t tag, const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation,
+    const Util::Math::Vector3<float> &scale, const SphereCollider &collider = SphereCollider()) :
+    Pulsar::Entity(tag), position(position), scale(scale), collider(collider)
+    {
+        setRotation(rotation);
+    }
 
     /// This method is called whenever the entity collides with another entity that has a collider.
     /// The default implementation does nothing.
-    virtual void onCollisionEvent(const CollisionEvent &event);
+    virtual void onCollisionEvent(const CollisionEvent&) {}
 
     /// Get the current position of the entity in 3D space.
-    const Util::Math::Vector3<float>& getPosition() const;
+    const Util::Math::Vector3<float>& getPosition() const {
+        return position;
+    }
 
     /// Set the position of the entity in 3D space.
-    void setPosition(const Util::Math::Vector3<float> &position);
+    void setPosition(const Util::Math::Vector3<float> &position) {
+        Entity::position = position;
+    }
 
     /// Translate the entity by the given translation vector in world space,
     /// regardless of the entity's current orientation.
@@ -78,45 +87,71 @@ public:
     /// Translate the entity by the given translation vector in local space,
     /// taking into account the entity's current orientation.
     /// The given translation vector is rotated by the entity's rotation before applying it.
-    void translateLocal(const Util::Math::Vector3<float> &translation);
+    void translateLocal(const Util::Math::Vector3<float> &translation) {
+        translate(translation.rotate(getRotation()));
+    }
 
     /// Get the current orientation of the entity.
-    const Orientation& getOrientation() const;
+    const Orientation& getOrientation() const {
+        return orientation;
+    }
 
     /// Get the current upward pointing vector of the entity.
-    const Util::Math::Vector3<float>& getUpVector() const;
+    const Util::Math::Vector3<float>& getUpVector() const {
+        return orientation.getUp();
+    }
 
     /// Get the current right pointing vector of the entity.
-    const Util::Math::Vector3<float>& getRightVector() const;
+    const Util::Math::Vector3<float>& getRightVector() const {
+        return orientation.getRight();
+    }
 
     /// Get the current front pointing vector of the entity.
-    const Util::Math::Vector3<float>& getFrontVector() const;
+    const Util::Math::Vector3<float>& getFrontVector() const {
+        return orientation.getFront();
+    }
 
     /// Set the front vector of the entity, adjusting its orientation accordingly.
     /// This rotates the entity so that its front vector matches the given vector.
-    void setFrontVector(const Util::Math::Vector3<float> &front);
+    void setFrontVector(const Util::Math::Vector3<float> &front) {
+        orientation.setFront(front);
+    }
 
     /// Get the current rotation of the entity in degrees.
-    const Util::Math::Vector3<float>& getRotation() const;
+    const Util::Math::Vector3<float>& getRotation() const {
+        return orientation.getRotation();
+    }
 
     /// Set the rotation of the entity in degrees.
-    void setRotation(const Util::Math::Vector3<float> &angle);
+    void setRotation(const Util::Math::Vector3<float> &angle) {
+        orientation.setRotation(angle);
+    }
 
     /// Rotate the entity by the given angle in degrees.
-    void rotate(const Util::Math::Vector3<float> &angle);
+    void rotate(const Util::Math::Vector3<float> &angle) {
+        orientation.rotate(angle);
+    }
 
     /// Get the current scale of the entity.
-    const Util::Math::Vector3<float>& getScale() const;
+    const Util::Math::Vector3<float>& getScale() const {
+        return scale;
+    }
 
     /// Set the scale of the entity.
-    void setScale(const Util::Math::Vector3<float> &scale);
+    void setScale(const Util::Math::Vector3<float> &scale) {
+        Entity::scale = scale;
+    }
 
     /// Check if the entity has a collider.
-    bool hasCollider() const;
+    bool hasCollider() const {
+        return collider.getRadius() > 0;
+    }
 
     /// Get the sphere collider of the entity.
     /// If the entity has no collider, a sphere collider with radius 0 is returned.
-    SphereCollider& getCollider();
+    SphereCollider& getCollider() {
+        return collider;
+    }
 
     /// Update the entity.
     /// This method is called automatically every frame with the time delta since the last frame.
@@ -133,6 +168,7 @@ private:
     SphereCollider collider;
 };
 
+}
 }
 
 #endif

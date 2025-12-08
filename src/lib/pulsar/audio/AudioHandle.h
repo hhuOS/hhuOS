@@ -63,7 +63,7 @@ private:
 
     friend class Game;
 
-    explicit AudioHandle(AudioChannel &channel, const AudioTrack &track);
+    explicit AudioHandle(AudioChannel &channel, const AudioTrack &track) : channel(&channel), trackId(track.getId()) {}
 
     AudioChannel *channel = nullptr;
     size_t trackId = 0;

@@ -34,26 +34,21 @@
 
 #include "util/math/Math.h"
 
-namespace Pulsar::D2 {
-
-Polygon::Polygon(const size_t tag, const Util::Math::Vector2<float> &position,
-    const Util::Array<Util::Math::Vector2<float>> &vertices, const Util::Graphic::Color &color) :
-    Entity(tag, position), vertices(vertices), color(color) {}
-
-void Polygon::initialize() {}
+namespace Pulsar {
+namespace D2 {
 
 void Polygon::draw(Graphics &graphics) const {
     graphics.setColor(color);
     graphics.drawPolygon2D(getPosition(), vertices);
 }
 
-void Polygon::scale([[maybe_unused]] const float factor) const {
+void Polygon::scale(const float factor) const {
     for (auto &vertex : vertices) {
         vertex = vertex * factor;
     }
 }
 
-void Polygon::rotate([[maybe_unused]] const float angle) const {
+void Polygon::rotate(const float angle) const {
     const auto sine = Util::Math::sine(Util::Math::toRadians(angle));
     const auto cosine = Util::Math::cosine(Util::Math::toRadians(angle));
 
@@ -63,4 +58,5 @@ void Polygon::rotate([[maybe_unused]] const float angle) const {
     }
 }
 
+}
 }

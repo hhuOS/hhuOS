@@ -73,8 +73,4 @@ bool AudioChannel::update() {
     return true;
 }
 
-size_t AudioChannel::getCurrentTrackId() const {
-    return track.getId();
-}
-
 }

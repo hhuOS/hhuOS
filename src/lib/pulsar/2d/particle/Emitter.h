@@ -39,9 +39,15 @@
 #include "util/collection/ArrayList.h"
 #include "util/math/Random.h"
 #include "pulsar/2d/Entity.h"
-#include "pulsar/2d/particle/Particle.h"
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
+class Particle;
+} // namespace D2
+} // namespace Pulsar
+
+namespace Pulsar {
+namespace D2 {
 
 /// An emitter is an entity that emits particles over time. It works as a normal 2D entity and can be placed in a scene.
 /// Emitters can be time-limited, meaning they will stop emitting particles after a certain time
@@ -60,10 +66,13 @@ public:
     /// A value of 0 means particles are not emitted automatically and must be triggered manually via `emitOnce()`.
     /// The time to live parameter defines how long the emitter will emit particles.
     /// A time to live of 0 means the emitter will emit particles indefinitely.
-    Emitter(size_t tag, size_t particleTag, const Util::Math::Vector2<float> &position,
-        uint32_t minEmissionRate, uint32_t maxEmissionRate,
+    Emitter(const size_t tag, const size_t particleTag, const Util::Math::Vector2<float> &position,
+        const uint32_t minEmissionRate, const uint32_t maxEmissionRate,
         const Util::Time::Timestamp &emissionInterval = Util::Time::Timestamp::ofSeconds(0),
-        const Util::Time::Timestamp &timeToLive = Util::Time::Timestamp::ofSeconds(0));
+        const Util::Time::Timestamp &timeToLive = Util::Time::Timestamp::ofSeconds(0)) :
+        Entity(tag, position), particleTag(particleTag), timeLimited(timeToLive.toNanoseconds() > 0),
+        timeToLive(timeToLive.toSecondsFloat<float>()), minEmissionRate(minEmissionRate),
+        maxEmissionRate(maxEmissionRate), emissionInterval(emissionInterval.toSecondsFloat<float>()) {}
 
     /// Update the emitter and its particles. This method is called once per frame.
     /// It handles particle emission and updates all active particles.
@@ -80,7 +89,9 @@ public:
     /// Emit particles immediately based on the current emission rate settings.
     /// Particle emitters automatically emit particles during their update cycle,
     /// but this method allows for manual triggering of particle emission.
-    void emitOnce();
+    void emitOnce() {
+        emitParticles();
+    }
 
     /// Destroy the emitter.
     /// This method causes the emitter to stop emitting particles and removes it from the scene
@@ -107,25 +118,39 @@ public:
     virtual void onParticleDestruction(const Particle &particle) = 0;
 
     /// Get the minimum emission rate (particles per emission cycle).
-    uint32_t getMinEmissionRate() const;
+    uint32_t getMinEmissionRate() const {
+        return minEmissionRate;
+    }
 
     /// Set the minimum emission rate (particles per emission cycle).
-    void setMinEmissionRate(uint32_t minEmissionRate);
+    void setMinEmissionRate(const uint32_t minEmissionRate) {
+        Emitter::minEmissionRate = minEmissionRate;
+    }
 
     /// Get the maximum emission rate (particles per emission cycle).
-    uint32_t getMaxEmissionRate() const;
+    uint32_t getMaxEmissionRate() const {
+        return maxEmissionRate;
+    }
 
     /// Set the maximum emission rate (particles per emission cycle).
-    void setMaxEmissionRate(uint32_t maxEmissionRate);
+    void setMaxEmissionRate(const uint32_t maxEmissionRate) {
+        Emitter::maxEmissionRate = maxEmissionRate;
+    }
 
     /// Get the emission interval (time between emission cycles in seconds).
-    float getEmissionInterval() const;
+    float getEmissionInterval() const {
+        return emissionInterval;
+    }
 
     /// Set the emission interval (time between emission cycles in seconds).
-    void setEmissionTime(float emissionInterval);
+    void setEmissionTime(const float emissionInterval) {
+        Emitter::emissionInterval = emissionInterval;
+    }
 
     /// Get the number of currently active particles emitted by this emitter.
-    size_t getActiveParticles() const;
+    size_t getActiveParticles() const {
+        return activeParticles.size();
+    }
 
 private:
 
@@ -145,6 +170,7 @@ private:
     float timeSinceLastEmission = 0;
 };
 
+}
 }
 
 #endif

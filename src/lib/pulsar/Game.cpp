@@ -34,43 +34,10 @@ namespace Pulsar {
 
 Game* Game::instance = nullptr;
 
-Game::Game(const uint16_t screenTransformation, const Util::Math::Vector2<float> &screenDimensions) :
-    screenTransformation(screenTransformation),
-    screenDimensions(screenDimensions),
-    audioChannels(AUDIO_CHANNELS) {}
-
 Game::~Game() {
     while (!scenes.isEmpty()) {
         delete scenes.poll();
     }
-}
-
-Game& Game::getInstance() {
-    if (instance == nullptr) {
-        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Game engine not initialized!");
-    }
-
-    return *instance;
-}
-
-bool Game::isRunning() const {
-    return running;
-}
-
-void Game::stop() {
-    running = false;
-}
-
-Scene &Game::getCurrentScene() const {
-    return *scenes.peek();
-}
-
-void Game::pushScene(Scene *scene) {
-    scenes.add(scene);
-}
-
-void Game::switchToNextScene() {
-    sceneSwitched = true;
 }
 
 AudioHandle Game::playAudioTrack(const AudioTrack &track, bool loop = false) const {
@@ -89,14 +56,6 @@ void Game::stopAllAudioChannels() const {
     for (auto &channel : audioChannels) {
         channel.stop();
     }
-}
-
-uint16_t Game::getScreenTransformation() const {
-    return screenTransformation;
-}
-
-const Util::Math::Vector2<float>& Game::getScreenDimensions() const {
-    return screenDimensions;
 }
 
 void Game::initializeNextScene(Graphics &graphics) {

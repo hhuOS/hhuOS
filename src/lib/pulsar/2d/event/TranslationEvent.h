@@ -36,7 +36,8 @@
 #include "util/math/Vector2.h"
 #include "pulsar/CancelableEvent.h"
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
 
 /// A translation event for 2D entities.
 /// This event is triggered when an entity is about to be moved to a new position by a component attached to it,
@@ -51,16 +52,19 @@ public:
     /// Create a new translation event instance.
     /// Translation events are created automatically by components that move entities.
     /// Thus, this constructor is intended for internal use only.
-    explicit TranslationEvent(const Util::Math::Vector2<float> &targetPosition);
+    explicit TranslationEvent(const Util::Math::Vector2<float> &targetPosition) :  targetPosition(targetPosition) {}
 
     /// Get the target position the entity is being moved to.
-    const Util::Math::Vector2<float>& getTargetPosition() const;
+    const Util::Math::Vector2<float>& getTargetPosition() const {
+        return targetPosition;
+    }
 
 private:
 
     Util::Math::Vector2<float> targetPosition;
 };
 
+}
 }
 
 #endif

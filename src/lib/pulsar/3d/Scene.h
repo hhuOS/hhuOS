@@ -41,7 +41,8 @@
 #include "pulsar/3d/Light.h"
 #include "tinygl/include/GL/gl.h"
 
-namespace Pulsar::D3 {
+namespace Pulsar {
+namespace D3 {
 
 /// Base class for 3D scenes used in the game engine.
 /// It extends the base `Pulsar::Scene` class with 3D-specific behaviors (e.g. lighting).
@@ -110,31 +111,43 @@ public:
     /// Access the array of lights in the scene.
     /// This method is used by the `Graphics` class to manage OpenGL lights.
     /// It probably has no practical use for game developers.
-    const Util::Array<Light>& getLights() const;
+    const Util::Array<Light>& getLights() const {
+        return lights;
+    }
 
     /// Get the ambient light color of the scene.
-    const Util::Graphic::Color& getAmbientLight() const;
+    const Util::Graphic::Color& getAmbientLight() const {
+        return ambientLight;
+    }
 
     /// Get the current OpenGL render style of the scene.
-    GlRenderStyle getGlRenderStyle() const;
+    GlRenderStyle getGlRenderStyle() const {
+        return renderStyle;
+    }
 
     /// Set the OpenGL render style of the scene.
     void setGlRenderStyle(GlRenderStyle renderStyle);
 
     /// Get the current OpenGL shading model of the scene.
-    GlShadeModel getGlShadeModel() const;
+    GlShadeModel getGlShadeModel() const {
+        return shadeModel;
+    }
 
     /// Set the OpenGL shading model of the scene.
     void setGlShadeModel(GlShadeModel shadeModel);
 
     /// Check if lighting is enabled in the scene.
-    bool isLightingEnabled() const;
+    bool isLightingEnabled() const {
+        return lightEnabled;
+    }
 
     /// Enable or disable lighting in the scene.
     void setLightingEnabled(bool enabled);
 
     /// Get the background color of the scene (OpenGL clear color).
-    const Util::Graphic::Color& getBackgroundColor() const;
+    const Util::Graphic::Color& getBackgroundColor() const {
+        return backgroundColor;
+    }
 
     /// Set the background color of the scene (OpenGL clear color).
     void setBackgroundColor(const Util::Graphic::Color &backgroundColor);
@@ -167,6 +180,7 @@ private:
     GlShadeModel shadeModel = SMOOTH;
 };
 
+}
 }
 
 #endif

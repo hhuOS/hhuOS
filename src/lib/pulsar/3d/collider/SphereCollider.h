@@ -36,7 +36,8 @@
 #include "pulsar/Collider.h"
 #include "util/math/Vector3.h"
 
-namespace Pulsar::D3 {
+namespace Pulsar {
+namespace D3 {
 
 /// A spherical collider for 3D collision detection.
 /// Collisions with other sphere colliders can be detected by calling `isColliding()`.
@@ -49,21 +50,27 @@ public:
     SphereCollider() = default;
 
     /// Create a new sphere collider instance with a given radius at the specified position.
-    SphereCollider(const Util::Math::Vector3<float> &position, float radius);
+    SphereCollider(const Util::Math::Vector3<float> &position, const float radius) :
+        Collider(position), radius(radius) {}
 
     /// Check if this sphere collider is colliding with another sphere collider.
     /// This is done by calculating the distance between the two sphere centers,
     /// and comparing it to the sum of their radii.
-    bool isColliding(const SphereCollider &other) const;
+    bool isColliding(const SphereCollider &other) const {
+        return getPosition().distance(other.getPosition()) - (radius + other.radius) <= 0;
+    }
 
     /// Get the radius of the sphere collider.
-    float getRadius() const;
+    float getRadius() const {
+        return radius;
+    }
 
 private:
 
     float radius = 0;
 };
 
+}
 }
 
 #endif

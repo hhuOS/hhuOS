@@ -71,44 +71,107 @@ public:
     Statistics() = default;
 
     /// Start measuring frame time.
-    void startFrameTime();
+    void startFrameTime() {
+        frameTimeStart = Util::Time::Timestamp::getSystemTime();
+    }
 
     /// Stop measuring frame time.
-    void stopFrameTime();
+    void stopFrameTime() {
+        const auto frameTime = Util::Time::Timestamp::getSystemTime() - frameTimeStart;
+        frameTimes[frameTimesIndex++ % ARRAY_SIZE] = frameTime;
+        frames++;
+
+        timeCounter += frameTime;
+        if (timeCounter >= Util::Time::Timestamp::ofSeconds(1)) {
+            framesPerSecond = frames;
+            frames = 0;
+            timeCounter = Util::Time::Timestamp();
+        }
+    }
 
     /// Start measuring draw time.
-    void startDrawTime();
+    void startDrawTime() {
+        drawTimeStart = Util::Time::Timestamp::getSystemTime();
+    }
 
     /// Stop measuring draw time.
-    void stopDrawTime();
+    void stopDrawTime() {
+        drawTimes[drawTimesIndex++ % ARRAY_SIZE] = Util::Time::Timestamp::getSystemTime() - drawTimeStart;
+    }
 
     /// Start measuring update time.
-    void startUpdateTime();
+    void startUpdateTime() {
+        updateTimeStart = Util::Time::Timestamp::getSystemTime();
+    }
 
     /// Stop measuring update time.
-    void stopUpdateTimeTime();
+    void stopUpdateTimeTime() {
+        updateTimes[updateTimesIndex++ % ARRAY_SIZE] = Util::Time::Timestamp::getSystemTime() - updateTimeStart;
+    }
 
     /// Start measuring idle time.
-    void startIdleTime();
+    void startIdleTime() {
+        idleTimeStart = Util::Time::Timestamp::getSystemTime();
+    }
 
     /// Stop measuring idle time.
-    void stopIdleTime();
+    void stopIdleTime() {
+        idleTimes[idleTimesIndex++ % ARRAY_SIZE] = Util::Time::Timestamp::getSystemTime() - idleTimeStart;
+    }
 
     /// Get the last recorded frame time.
     /// If no frame time has been recorded yet, returns a zero timestamp.
-    const Util::Time::Timestamp& getLastFrameTime() const;
+    const Util::Time::Timestamp& getLastFrameTime() const {
+        if (frameTimesIndex == 0) {
+            return frameTimes[0];
+        }
+
+        return frameTimes[(frameTimesIndex - 1) % ARRAY_SIZE];
+    }
 
     /// Get the last recorded draw time.
     /// If no draw time has been recorded yet, returns a zero timestamp.
-    const Util::Time::Timestamp& getLastDrawTime() const;
+    const Util::Time::Timestamp& getLastDrawTime() const {
+        if (drawTimesIndex == 0) {
+            return drawTimes[0];
+        }
+
+        return drawTimes[(drawTimesIndex - 1) % ARRAY_SIZE];
+    }
 
     /// Get the last recorded update time.
     /// If no update time has been recorded yet, returns a zero timestamp.
-    const Util::Time::Timestamp& getLastUpdateTime() const;
+    const Util::Time::Timestamp& getLastUpdateTime() const {
+        if (updateTimesIndex == 0) {
+            return updateTimes[0];
+        }
+
+        return updateTimes[(updateTimesIndex - 1) % ARRAY_SIZE];
+    }
 
     /// Gather the measured times and calculate average values.
     /// The maximum number of samples considered is 100 (the size of the internal arrays).
-    Gather gather() const;
+    Gather gather() const {
+        Gather gather{};
+        const auto count = frameTimesIndex < ARRAY_SIZE ? frameTimesIndex : ARRAY_SIZE;
+
+        if (count > 0) {
+            for (size_t i = 0; i < count; i++) {
+                gather.frameTime += frameTimes[i];
+                gather.drawTime += drawTimes[i];
+                gather.updateTime += updateTimes[i];
+                gather.idleTime += idleTimes[i];
+            }
+
+            gather.framesPerSecond = framesPerSecond;
+            gather.frameTime = Util::Time::Timestamp::ofMicroseconds(gather.frameTime.toMicroseconds() / count);
+            gather.drawTime = Util::Time::Timestamp::ofMicroseconds(gather.drawTime.toMicroseconds() / count);
+            gather.updateTime = Util::Time::Timestamp::ofMicroseconds(gather.updateTime.toMicroseconds() / count);
+            gather.idleTime = Util::Time::Timestamp::ofMicroseconds(gather.idleTime.toMicroseconds() / count);
+        }
+
+        return gather;
+    }
 
 private:
 

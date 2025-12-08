@@ -48,15 +48,17 @@ template <typename T> class Vector3;
 }  // namespace Math
 }  // namespace Util
 
-namespace Pulsar::D3 {
+namespace Pulsar {
+namespace D3 {
 
 Entity* Scene::findEntityUsingRaytrace(const Util::Math::Vector3<float> &from,
-    const Util::Math::Vector3<float> &direction, float length, float precision) const {
+    const Util::Math::Vector3<float> &direction, const float length, const float precision) const
+{
     auto collider = SphereCollider(Util::Math::Vector3<float>(0, 0, 0), precision);
     const auto normalizedDirection = direction.normalize();
 
     for (float x = 0; x < length; x += precision) {
-        auto position = from + (normalizedDirection * x);
+        auto position = from + normalizedDirection * x;
         collider.setPosition(position);
 
         for (auto *entity : getEntities()) {
@@ -84,9 +86,9 @@ void Scene::initializeScene(Graphics &graphics) {
     }
 }
 
-void Scene::updateEntities(float delta) {
+void Scene::updateEntities(const float delta) {
     for (auto *entity : getEntities()) {
-        reinterpret_cast<Pulsar::D3::Entity*>(entity)->update(delta);
+        reinterpret_cast<Entity*>(entity)->update(delta);
     }
 }
 
@@ -104,7 +106,7 @@ void Scene::checkCollisions() {
                     detectedCollisions.contains(Util::Pair<Entity*, Entity*>(entity3D, otherEntity3D)) ||
                     detectedCollisions.contains(Util::Pair<Entity*, Entity*>(otherEntity3D, entity3D))) {
                     continue;
-                }
+                    }
 
                 if (entity3D->getCollider().isColliding(otherEntity3D->getCollider())) {
                     auto event = CollisionEvent(*otherEntity3D);
@@ -124,7 +126,7 @@ void Scene::setAmbientLight(const Util::Graphic::Color &ambientLight) {
     Scene::ambientLight = ambientLight;
 }
 
-Light& Scene::addLight(Light::Type type, const Util::Math::Vector3<float> &position,
+Light& Scene::addLight(const Light::Type type, const Util::Math::Vector3<float> &position,
     const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor)
 {
     for (uint32_t i = 0; i < 16; i++) {
@@ -143,25 +145,9 @@ void Scene::removeLight(const Light &light) {
     lights[light.getIndex()] = Light();
 }
 
-const Util::Graphic::Color &Scene::getAmbientLight() const {
-    return ambientLight;
-}
-
-const Util::Array<Light>& Scene::getLights() const {
-    return lights;
-}
-
-Scene::GlRenderStyle Scene::getGlRenderStyle() const {
-    return renderStyle;
-}
-
-void Scene::setGlRenderStyle(GlRenderStyle renderStyle) {
+void Scene::setGlRenderStyle(const GlRenderStyle renderStyle) {
     Scene::renderStyle = renderStyle;
     glPolygonMode(GL_FRONT_AND_BACK, renderStyle);
-}
-
-Scene::GlShadeModel Scene::getGlShadeModel() const {
-    return shadeModel;
 }
 
 void Scene::setGlShadeModel(GlShadeModel shadeModel) {
@@ -169,21 +155,13 @@ void Scene::setGlShadeModel(GlShadeModel shadeModel) {
     glShadeModel(shadeModel);
 }
 
-bool Scene::isLightingEnabled() const {
-    return lightEnabled;
-}
-
-void Scene::setLightingEnabled(bool enabled) {
+void Scene::setLightingEnabled(const bool enabled) {
     lightEnabled = enabled;
     if (lightEnabled) {
         glEnable(GL_LIGHTING);
     } else {
         glDisable(GL_LIGHTING);
     }
-}
-
-const Util::Graphic::Color& Scene::getBackgroundColor() const {
-    return backgroundColor;
 }
 
 void Scene::setBackgroundColor(const Util::Graphic::Color &backgroundColor) {
@@ -193,4 +171,5 @@ void Scene::setBackgroundColor(const Util::Graphic::Color &backgroundColor) {
         backgroundColor.getBlue() / 255.0f, 1.0f);
 }
 
+}
 }

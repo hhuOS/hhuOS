@@ -39,7 +39,8 @@
 #include "util/math/Vector2.h"
 #include "pulsar/2d/Sprite.h"
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
 
 /// Represents a 2D sprite animation.
 /// A sprite animation is a sequence of sprites that are displayed one after another
@@ -52,63 +53,104 @@ class SpriteAnimation {
 
 public:
     /// Create a new sprite animation instance with no sprites and zero animation time (empty animation).
-    SpriteAnimation();
+    SpriteAnimation() : sprites(0) {}
 
     /// Create a new sprite animation instance with the given sprites and total animation time.
     /// The animation time specifies how long it takes to play the entire animation once.
-    SpriteAnimation(const Util::Array<Sprite> &sprites, float time);
+    SpriteAnimation(const Util::Array<Sprite> &sprites, const float time) :
+        animationTime(time), timePerSprite(time / sprites.length()), sprites(sprites) {}
 
     /// Reset the animation to the beginning (first sprite).
-    void reset();
+    void reset() {
+        currentSprite = 0;
+        timeSinceLastChange = 0;
+    }
 
     /// Update the animation state based on the elapsed time since the last update.
     /// This method advances the animation according to the given delta time (in seconds).
     /// An entity using this animation should call this method every frame, during its own update cycle.
-    void update(float delta);
+    void update(const float delta) {
+        timeSinceLastChange += delta;
+
+        if (timeSinceLastChange >= timePerSprite) {
+            const auto advancedFrames = static_cast<size_t>(timeSinceLastChange / timePerSprite);
+            currentSprite = (currentSprite + advancedFrames) % sprites.length();
+            timeSinceLastChange -= advancedFrames * timePerSprite;
+        }
+    }
 
     /// Get the total animation time (in seconds).
-    float getAnimationTime() const;
+    float getAnimationTime() const {
+        return animationTime;
+    }
 
     /// Get the original size of the current sprite (before scaling).
-    const Util::Math::Vector2<float>& getOriginalSize() const;
+    const Util::Math::Vector2<float>& getOriginalSize() const {
+        return sprites[currentSprite].getOriginalSize();
+    }
 
     /// Get the current size of the current sprite (after scaling).
-    Util::Math::Vector2<float> getSize() const;
+    Util::Math::Vector2<float> getSize() const {
+        const auto size = sprites[currentSprite].getOriginalSize();
+        return Util::Math::Vector2<float>(size.getX() * scale.getX(), size.getY() * scale.getY());
+    }
 
     /// Set the scale of the animation uniformly in both dimensions.
-    void setScale(float scale);
+    void setScale(const float scale) {
+        SpriteAnimation::scale = Util::Math::Vector2<float>(scale, scale);
+    }
 
     /// Set the scale of the animation in both dimensions.
-    void setScale(const Util::Math::Vector2<float> &scale);
+    void setScale(const Util::Math::Vector2<float> &scale) {
+        SpriteAnimation::scale = scale;
+    }
 
     /// Get the current scale of the animation.
-    const Util::Math::Vector2<float>& getScale() const;
+    const Util::Math::Vector2<float>& getScale() const {
+        return scale;
+    }
 
     /// Rotate the animation by the given angle (in degrees).
-    void rotate(float angle);
+    void rotate(const float angle) {
+        rotationAngle += angle;
+    }
 
     /// Set the rotation angle of the animation (in degrees).
-    void setRotation(float angle);
+    void setRotation(const float angle) {
+        rotationAngle = angle;
+    }
 
     /// Get the current rotation angle of the animation (in degrees).
-    float getRotation() const;
+    float getRotation() const {
+        return rotationAngle;
+    }
 
     /// Set the alpha transparency of the animation (0.0 = fully transparent, 1.0 = fully opaque).
-    void setAlpha(float alpha);
+    void setAlpha(const float alpha) {
+        SpriteAnimation::alpha = alpha;
+    }
 
     /// Get the current alpha transparency of the animation.
-    float getAlpha() const;
+    float getAlpha() const {
+        return alpha;
+    }
 
     /// Flip the animation horizontally.
     /// This causes the animation to be mirrored along the vertical axis during rendering.
     /// If the animation is already flipped, calling this method will un-flip it.
-    void flipX();
+    void flipX() {
+        xFlipped = !xFlipped;
+    }
 
     /// Set whether the animation is flipped horizontally (i.e. mirrored along the vertical axis).
-    void setXFlipped(bool flipped);
+    void setXFlipped(const bool flipped) {
+        xFlipped = flipped;
+    }
 
     /// Draw the current sprite of the animation at the given position using the specified graphics context.
-    void draw(const Graphics &graphics, const Util::Math::Vector2<float> &position) const;
+    void draw(const Graphics &graphics, const Util::Math::Vector2<float> &position) const {
+        graphics.drawImage2D(position, sprites[currentSprite].getImage(), xFlipped, alpha, scale, rotationAngle);
+    }
 
 private:
 
@@ -124,6 +166,7 @@ private:
     Util::Array<Sprite> sprites;
 };
 
+}
 }
 
 #endif

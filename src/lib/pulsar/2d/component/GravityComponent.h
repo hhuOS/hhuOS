@@ -35,7 +35,8 @@
 
 #include "Component.h"
 
-namespace Pulsar::D2 {
+namespace Pulsar {
+namespace D2 {
 
 /// A component that applies a gravity effect to the entity every frame.
 /// This component modifies the entity's velocity by adding a downward force each update cycle,
@@ -53,7 +54,8 @@ public:
     /// is reduced each update cycle. A value of 0 means no reduction, while a value of 1 means
     /// the horizontal velocity is completely stopped immediately.
     /// The default values are set to simulate a somewhat realistic gravity effect.
-    explicit GravityComponent(float gravityValue = 1.25, float stopFactorX = 0.15);
+    explicit GravityComponent(const float gravityValue = 1.25, const float stopFactorX = 0.15) :
+        gravityValue(gravityValue), stopFactorX(stopFactorX) {}
 
 protected:
     /// Update the entity's velocity and position based on gravity and horizontal stop factor.
@@ -66,6 +68,7 @@ private:
     const float stopFactorX;
 };
 
+}
 }
 
 #endif

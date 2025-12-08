@@ -60,27 +60,43 @@ public:
     /// Get the global instance of the Game class.
     /// The global instance is created when the `Engine` is initialized.
     /// Calling this function before creating an engine instance will fire a panic.
-    static Game& getInstance();
+    static Game& getInstance() {
+        if (instance == nullptr) {
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Game engine not initialized!");
+        }
+
+        return *instance;
+    }
 
     /// Stop the game loop, causing the engine to exit.
     /// This method should be called to gracefully terminate the game.
-    void stop();
+    void stop() {
+        running = false;
+    }
 
     /// Check if the game is currently running.
     /// This method returns true while the game loop is active and false before it starts or after it has been stopped.
-    bool isRunning() const;
+    bool isRunning() const {
+        return running;
+    }
 
     /// Get the currently active scene.
-    Scene& getCurrentScene() const;
+    Scene& getCurrentScene() const {
+        return *scenes.peek();
+    }
 
     /// Push a new scene onto the scene stack.
     /// The scene must be heaped-allocated and the game instance will take ownership of it.
     /// This means that the game instance is responsible for deleting the scene when it is no longer needed.
-    void pushScene(Scene *scene);
+    void pushScene(Scene *scene) {
+        scenes.add(scene);
+    }
 
     /// Switch to the next scene in the queue.
     /// The current scene will be removed from the queue and deleted.
-    void switchToNextScene();
+    void switchToNextScene() {
+        sceneSwitched = true;
+    }
 
     /// Play an audio track on an available audio channel.
     /// The returned audio handle can be used to control playback (e.g., stop the track).
@@ -100,20 +116,27 @@ public:
     /// to get the corresponding pixel coordinate on the screen.
     /// The engine calculates the transformation factor by taking the smaller axis of the target screen resolution
     /// and dividing it by 2. For example, on a 800x600 screen, the transformation factor will be 300.
-    uint16_t getScreenTransformation() const;
+    uint16_t getScreenTransformation() const {
+        return screenTransformation;
+    }
 
     /// Get the dimensions of the game coordinate system.
     /// The game uses a virtual coordinate system ranging from (-1, -1) to (1, 1) for the entire screen.
     /// However, if the target screen resolution is not square,
     /// one axis will have a larger range to maintain the aspect ratio.
     /// For example, on a 800x600 screen, the coordinate system will range from (-1.33, -1) to (1.33, 1).
-    const Util::Math::Vector2<float>& getScreenDimensions() const;
+    const Util::Math::Vector2<float>& getScreenDimensions() const {
+        return screenDimensions;
+    }
 
 private:
 
     friend class Engine;
 
-    Game(uint16_t screenTransformation, const Util::Math::Vector2<float> &screenDimensions);
+    Game(const uint16_t screenTransformation, const Util::Math::Vector2<float> &screenDimensions) :
+        screenTransformation(screenTransformation),
+        screenDimensions(screenDimensions),
+        audioChannels(AUDIO_CHANNELS) {}
 
     void initializeNextScene(Graphics &graphics);
 

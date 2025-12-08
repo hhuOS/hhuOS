@@ -38,10 +38,8 @@
 #include "lib/pulsar/2d/event/TranslationEvent.h"
 #include "lib/util/math/Vector2.h"
 
-namespace Pulsar::D2 {
-
-GravityComponent::GravityComponent(const float gravityValue, const float stopFactorX) :
-    gravityValue(gravityValue), stopFactorX(stopFactorX) {}
+namespace Pulsar {
+namespace D2 {
 
 void GravityComponent::update(const float delta) {
     auto &entity = getEntity();
@@ -58,4 +56,5 @@ void GravityComponent::update(const float delta) {
     }
 }
 
+}
 }
