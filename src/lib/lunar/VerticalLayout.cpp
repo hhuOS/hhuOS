@@ -24,8 +24,6 @@
 
 namespace Lunar {
 
-VerticalLayout::VerticalLayout(const size_t spacing) : spacing(spacing) {}
-
 void VerticalLayout::arrangeWidgets(const Util::ArrayList<WidgetEntry> &widgets) const {
     const auto containerPosX = getContainer().getPosX();
     const auto containerPosY = getContainer().getPosY();

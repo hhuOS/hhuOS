@@ -48,10 +48,15 @@ public:
         Style hoveredStyle;
         Style pressedStyle;
 
-        const Style& getStyle(const Widget &widget) const;
+        const Style& getStyle(const Widget &widget) const {
+            return widget.isPressed() ? pressedStyle : widget.isHovered() ? hoveredStyle : normalStyle;
+        }
     };
 
-    static void setTheme(const Theme *theme);
+    static void setTheme(const Theme *theme) {
+        delete &CURRENT_THEME;
+        CURRENT_THEME = *theme;
+    }
 
     virtual const WidgetStyle& container() const = 0;
 
@@ -66,149 +71,159 @@ public:
     virtual const WidgetStyle& inputField() const = 0;
 
     static Theme &CURRENT_THEME;
-
 };
 
 class HhuTheme final : public Theme {
 
 public:
 
-    const WidgetStyle& container() const override;
+    const WidgetStyle& container() const override {
+        return containerStyle;
+    }
 
-    const WidgetStyle& label() const override;
+    const WidgetStyle& label() const override {
+        return labelStyle;
+    }
 
-    const WidgetStyle& button() const override;
+    const WidgetStyle& button() const override {
+        return buttonStyle;
+    }
 
-    const WidgetStyle& checkBox() const override;
+    const WidgetStyle& checkBox() const override {
+        return checkBoxStyle;
+    }
 
-    const WidgetStyle& radioButton() const override;
+    const WidgetStyle& radioButton() const override {
+        return radioButtonStyle;
+    }
 
-    const WidgetStyle& inputField() const override;
+    const WidgetStyle& inputField() const override {
+        return inputFieldStyle;
+    }
 
 private:
 
     const WidgetStyle containerStyle = {
-        .normalStyle = {
-            .widgetColor = Util::Graphic::Colors::WHITE,
-            .borderColor = Util::Graphic::Colors::WHITE,
-            .accentColor = Util::Graphic::Colors::INVISIBLE,
-            .textColor = Util::Graphic::Colors::INVISIBLE,
-            .textBackgroundColor = Util::Graphic::Colors::INVISIBLE
+        {
+            Util::Graphic::Colors::WHITE,
+            Util::Graphic::Colors::WHITE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::INVISIBLE
         },
-        .hoveredStyle = {
-            .widgetColor = Util::Graphic::Colors::WHITE,
-            .borderColor = Util::Graphic::Colors::WHITE,
-            .accentColor = Util::Graphic::Colors::INVISIBLE,
-            .textColor = Util::Graphic::Colors::INVISIBLE,
-            .textBackgroundColor = Util::Graphic::Colors::INVISIBLE
+        {
+            Util::Graphic::Colors::WHITE,
+            Util::Graphic::Colors::WHITE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::INVISIBLE
         },
-        .pressedStyle = {
-            .widgetColor = Util::Graphic::Colors::WHITE,
-            .borderColor = Util::Graphic::Colors::WHITE,
-            .accentColor = Util::Graphic::Colors::INVISIBLE,
-            .textColor = Util::Graphic::Colors::INVISIBLE,
-            .textBackgroundColor = Util::Graphic::Colors::INVISIBLE
+        {
+            Util::Graphic::Colors::WHITE,
+            Util::Graphic::Colors::WHITE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::INVISIBLE
         }
     };
 
     WidgetStyle labelStyle = {
-        .normalStyle = {
-            .widgetColor = Util::Graphic::Colors::INVISIBLE,
-            .borderColor = Util::Graphic::Colors::INVISIBLE,
-            .accentColor = Util::Graphic::Colors::INVISIBLE,
-            .textColor = Util::Graphic::Colors::HHU_BLACK,
-            .textBackgroundColor = containerStyle.normalStyle.widgetColor
+        {
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::HHU_BLACK,
+            containerStyle.normalStyle.widgetColor
         },
-        .hoveredStyle = {
-            .widgetColor = Util::Graphic::Colors::INVISIBLE,
-            .borderColor = Util::Graphic::Colors::INVISIBLE,
-            .accentColor = Util::Graphic::Colors::INVISIBLE,
-            .textColor = Util::Graphic::Colors::HHU_BLACK,
-            .textBackgroundColor = containerStyle.hoveredStyle.widgetColor
+        {
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::HHU_BLACK,
+            containerStyle.hoveredStyle.widgetColor
         },
-        .pressedStyle = {
-            .widgetColor = Util::Graphic::Colors::INVISIBLE,
-            .borderColor = Util::Graphic::Colors::INVISIBLE,
-            .accentColor = Util::Graphic::Colors::INVISIBLE,
-            .textColor = Util::Graphic::Colors::HHU_BLACK,
-            .textBackgroundColor = containerStyle.pressedStyle.widgetColor
+        {
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::HHU_BLACK,
+            containerStyle.pressedStyle.widgetColor
         }
     };
 
     WidgetStyle buttonStyle = {
-        .normalStyle = {
-            .widgetColor = Util::Graphic::Colors::HHU_BLUE.withSaturation(75),
-            .borderColor = Util::Graphic::Colors::HHU_DARK_BLUE,
-            .accentColor = Util::Graphic::Colors::INVISIBLE,
-            .textColor = Util::Graphic::Colors::HHU_ICE_BLUE.withSaturation(35),
-            .textBackgroundColor = Util::Graphic::Colors::HHU_BLUE.withSaturation(75)
+        {
+            Util::Graphic::Colors::HHU_BLUE.withSaturation(75),
+            Util::Graphic::Colors::HHU_DARK_BLUE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::HHU_ICE_BLUE.withSaturation(35),
+            Util::Graphic::Colors::HHU_BLUE.withSaturation(75)
         },
-        .hoveredStyle = {
-            .widgetColor = Util::Graphic::Colors::HHU_BLUE,
-            .borderColor = Util::Graphic::Colors::HHU_DARK_BLUE,
-            .accentColor = Util::Graphic::Colors::INVISIBLE,
-            .textColor = Util::Graphic::Colors::HHU_ICE_BLUE.withSaturation(35),
-            .textBackgroundColor = Util::Graphic::Colors::HHU_BLUE
+        {
+            Util::Graphic::Colors::HHU_BLUE,
+            Util::Graphic::Colors::HHU_DARK_BLUE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::HHU_ICE_BLUE.withSaturation(35),
+            Util::Graphic::Colors::HHU_BLUE
         },
-        .pressedStyle = {
-            .widgetColor = Util::Graphic::Colors::HHU_DARK_BLUE,
-            .borderColor = Util::Graphic::Colors::HHU_DARK_BLUE,
-            .accentColor = Util::Graphic::Colors::INVISIBLE,
-            .textColor = Util::Graphic::Colors::HHU_ICE_BLUE.withSaturation(35),
-            .textBackgroundColor = Util::Graphic::Colors::HHU_DARK_BLUE
+        {
+            Util::Graphic::Colors::HHU_DARK_BLUE,
+            Util::Graphic::Colors::HHU_DARK_BLUE,
+            Util::Graphic::Colors::INVISIBLE,
+            Util::Graphic::Colors::HHU_ICE_BLUE.withSaturation(35),
+            Util::Graphic::Colors::HHU_DARK_BLUE
         }
     };
 
     WidgetStyle checkBoxStyle = {
-        .normalStyle = {
-            .widgetColor = Util::Graphic::Colors::HHU_ICE_BLUE.withSaturation(35),
-            .borderColor = Util::Graphic::Colors::HHU_DARK_BLUE,
-            .accentColor = Util::Graphic::Colors::HHU_BLUE,
-            .textColor = labelStyle.normalStyle.textColor,
-            .textBackgroundColor = labelStyle.normalStyle.textBackgroundColor
+        {
+            Util::Graphic::Colors::HHU_ICE_BLUE.withSaturation(35),
+            Util::Graphic::Colors::HHU_DARK_BLUE,
+            Util::Graphic::Colors::HHU_BLUE,
+            labelStyle.normalStyle.textColor,
+            labelStyle.normalStyle.textBackgroundColor
         },
-        .hoveredStyle = {
-            .widgetColor = Util::Graphic::Colors::HHU_ICE_BLUE.withSaturation(75),
-            .borderColor = Util::Graphic::Colors::HHU_DARK_BLUE,
-            .accentColor = Util::Graphic::Colors::HHU_BLUE,
-            .textColor = labelStyle.hoveredStyle.textColor,
-            .textBackgroundColor = labelStyle.hoveredStyle.textBackgroundColor
+        {
+            Util::Graphic::Colors::HHU_ICE_BLUE.withSaturation(75),
+            Util::Graphic::Colors::HHU_DARK_BLUE,
+            Util::Graphic::Colors::HHU_BLUE,
+            labelStyle.hoveredStyle.textColor,
+            labelStyle.hoveredStyle.textBackgroundColor
         },
-        .pressedStyle = {
-            .widgetColor = Util::Graphic::Colors::HHU_ICE_BLUE,
-            .borderColor = Util::Graphic::Colors::HHU_DARK_BLUE,
-            .accentColor = Util::Graphic::Colors::HHU_BLUE,
-            .textColor = labelStyle.pressedStyle.textColor,
-            .textBackgroundColor = labelStyle.pressedStyle.textBackgroundColor
+        {
+            Util::Graphic::Colors::HHU_ICE_BLUE,
+            Util::Graphic::Colors::HHU_DARK_BLUE,
+            Util::Graphic::Colors::HHU_BLUE,
+            labelStyle.pressedStyle.textColor,
+            labelStyle.pressedStyle.textBackgroundColor
         }
     };
 
     WidgetStyle radioButtonStyle = checkBoxStyle;
 
     WidgetStyle inputFieldStyle = {
-        .normalStyle = {
-            .widgetColor = checkBoxStyle.normalStyle.widgetColor,
-            .borderColor = checkBoxStyle.normalStyle.borderColor,
-            .accentColor = labelStyle.normalStyle.textColor,
-            .textColor = labelStyle.normalStyle.textColor,
-            .textBackgroundColor = checkBoxStyle.normalStyle.widgetColor
+        {
+            checkBoxStyle.normalStyle.widgetColor,
+            checkBoxStyle.normalStyle.borderColor,
+            labelStyle.normalStyle.textColor,
+            labelStyle.normalStyle.textColor,
+            checkBoxStyle.normalStyle.widgetColor
         },
-        .hoveredStyle = {
-            .widgetColor = checkBoxStyle.normalStyle.widgetColor,
-            .borderColor = checkBoxStyle.normalStyle.borderColor,
-            .accentColor = labelStyle.hoveredStyle.textColor,
-            .textColor = labelStyle.hoveredStyle.textColor,
-            .textBackgroundColor = checkBoxStyle.normalStyle.widgetColor
+        {
+            checkBoxStyle.normalStyle.widgetColor,
+            checkBoxStyle.normalStyle.borderColor,
+            labelStyle.hoveredStyle.textColor,
+            labelStyle.hoveredStyle.textColor,
+            checkBoxStyle.normalStyle.widgetColor
         },
-        .pressedStyle = {
-            .widgetColor = checkBoxStyle.normalStyle.widgetColor,
-            .borderColor = checkBoxStyle.normalStyle.borderColor,
-            .accentColor = labelStyle.pressedStyle.textColor,
-            .textColor = labelStyle.pressedStyle.textColor,
-            .textBackgroundColor = checkBoxStyle.normalStyle.widgetColor
+        {
+            checkBoxStyle.normalStyle.widgetColor,
+            checkBoxStyle.normalStyle.borderColor,
+            labelStyle.pressedStyle.textColor,
+            labelStyle.pressedStyle.textColor,
+            checkBoxStyle.normalStyle.widgetColor
         }
     };
-
 };
 
 }

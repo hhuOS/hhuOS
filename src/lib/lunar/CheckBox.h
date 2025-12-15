@@ -36,17 +36,28 @@ public:
 
     explicit CheckBox(const Util::String &text, const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8);
 
-    void toggle();
+    void toggle() {
+        checked = !checked;
+        requireRedraw();
+    }
 
     void setText(const Util::String &text);
 
-    const Util::String& getText() const;
+    const Util::String& getText() const {
+        return text;
+    }
 
-    bool isChecked() const;
+    bool isChecked() const {
+        return checked;
+    }
 
-    size_t getPreferredWidth() const override;
+    size_t getPreferredWidth() const override {
+        return getPreferredHeight() + GAP_X + font.getCharWidth() * text.length();
+    }
 
-    size_t getPreferredHeight() const override;
+    size_t getPreferredHeight() const override {
+        return font.getCharHeight();
+    }
 
     void setSize(size_t width, size_t height) override;
 
@@ -58,9 +69,11 @@ private:
 
     public:
 
-        explicit ClickListener(CheckBox &box);
+        explicit ClickListener(CheckBox &box) : box(box) {}
 
-        void onMouseClicked() override;
+        void onMouseClicked() override {
+            box.toggle();
+        }
 
     private:
 

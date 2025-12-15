@@ -48,25 +48,48 @@ public:
 
     virtual ~Widget();
 
-    size_t getPosX() const;
+    size_t getPosX() const {
+        return posX;
+    }
 
-    size_t getPosY() const;
+    size_t getPosY() const {
+        return posY;
+    }
 
-    size_t getWidth() const;
+    size_t getWidth() const {
+        return width;
+    }
 
-    size_t getHeight() const;
+    size_t getHeight() const {
+        return height;
+    }
 
-    bool containsPoint(size_t px, size_t py) const;
+    bool containsPoint(const size_t px, const size_t py) const {
+        const auto x = getPosX();
+        const auto y = getPosY();
+        const auto w = getWidth();
+        const auto h = getHeight();
 
-    bool isHovered() const;
+        return px >= x && px < x + w && py >= y && py < y + h;
+    }
 
-    bool isPressed() const;
+    bool isHovered() const {
+        return hovered;
+    }
 
-    bool isFocused() const;
+    bool isPressed() const {
+        return pressed;
+    }
+
+    bool isFocused() const {
+        return focused;
+    }
 
     void setFocused(bool focused);
 
-    void addActionListener(ActionListener *listener);
+    void addActionListener(ActionListener *listener) {
+        actionListeners.add(listener);
+    }
 
     void mouseClicked() const;
 
@@ -86,7 +109,9 @@ public:
 
     virtual void setSize(size_t width, size_t height);
 
-    virtual bool requiresRedraw() const;
+    virtual bool requiresRedraw() const {
+        return needsRedraw;
+    }
 
     virtual size_t getPreferredWidth() const = 0;
 
@@ -94,11 +119,15 @@ public:
 
     virtual Widget* getChildAtPoint(size_t posX, size_t posY);
 
-    virtual void draw(const Util::Graphic::LinearFrameBuffer &lfb);
+    virtual void draw(const Util::Graphic::LinearFrameBuffer&) {
+        needsRedraw = false;
+    }
 
 protected:
 
-    void requireRedraw();
+    void requireRedraw() {
+        needsRedraw = true;
+    }
 
     void reportPreferredSizeChange() const;
 
@@ -115,7 +144,7 @@ private:
 
     public:
 
-        explicit MouseListener(Widget &widget);
+        explicit MouseListener(Widget &widget) : widget(widget) {}
 
         void onMouseEntered() override;
 
@@ -132,7 +161,7 @@ private:
 
     void setPosition(size_t x, size_t y);
 
-    virtual void rearrangeChildren();
+    virtual void rearrangeChildren() {}
 
     size_t posX = 0;
     size_t posY = 0;

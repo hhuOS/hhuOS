@@ -27,8 +27,6 @@
 
 namespace Lunar {
 
-Button::Button(const Util::String &text, const Util::Graphic::Font &font) : text(text.split("\n")[0]), font(font) {}
-
 void Button::setText(const Util::String &text) {
     const auto oldText = Button::text;
     Button::text = text.split("\n")[0];
@@ -38,18 +36,6 @@ void Button::setText(const Util::String &text) {
     if (oldText.length() != Button::text.length()) {
         reportPreferredSizeChange();
     }
-}
-
-const Util::String& Button::getText() const {
-    return text;
-}
-
-size_t Button::getPreferredWidth() const {
-    return font.getCharWidth() * text.length() + 2 * PADDING_X;
-}
-
-size_t Button::getPreferredHeight() const {
-    return font.getCharHeight() + 2 * PADDING_Y;
 }
 
 void Button::draw(const Util::Graphic::LinearFrameBuffer &lfb) {

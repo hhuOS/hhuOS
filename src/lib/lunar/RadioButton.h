@@ -37,19 +37,28 @@ class RadioButton final : public Widget {
 
 public:
 
-    explicit RadioButton(const Util::String &text, const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8);
+    explicit RadioButton(const Util::String &text,
+        const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8);
 
     void select() const;
 
     void setText(const Util::String &text);
 
-    const Util::String& getText() const;
+    const Util::String& getText() const {
+        return text;
+    }
 
-    bool isSelected() const;
+    bool isSelected() const {
+        return selected;
+    }
 
-    size_t getPreferredWidth() const override;
+    size_t getPreferredWidth() const override {
+        return getPreferredHeight() + GAP_X + font.getCharWidth() * text.length();
+    }
 
-    size_t getPreferredHeight() const override;
+    size_t getPreferredHeight() const override {
+        return font.getCharHeight();
+    }
 
     void setSize(size_t width, size_t height) override;
 
@@ -63,9 +72,11 @@ private:
 
     public:
 
-        explicit ClickListener(RadioButton &button);
+        explicit ClickListener(RadioButton &button) : button(button) {}
 
-        void onMouseClicked() override;
+        void onMouseClicked() override {
+            button.select();
+        }
 
     private:
 

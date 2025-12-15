@@ -24,8 +24,6 @@
 
 namespace Lunar {
 
-HorizontalLayout::HorizontalLayout(const size_t spacing) : spacing(spacing) {}
-
 void HorizontalLayout::arrangeWidgets(const Util::ArrayList<WidgetEntry> &widgets) const {
     const auto containerPosX = getContainer().getPosX();
     const auto containerPosY = getContainer().getPosY();

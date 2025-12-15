@@ -36,15 +36,22 @@ class Button final : public Widget {
 
 public:
 
-    explicit Button(const Util::String &text, const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8);
+    explicit Button(const Util::String &text, const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8) :
+        text(text.split("\n")[0]), font(font) {}
 
     void setText(const Util::String &text);
 
-    const Util::String& getText() const;
+    const Util::String& getText() const {
+        return text;
+    }
 
-    size_t getPreferredWidth() const override;
+    size_t getPreferredWidth() const override {
+        return font.getCharWidth() * text.length() + 2 * PADDING_X;
+    }
 
-    size_t getPreferredHeight() const override;
+    size_t getPreferredHeight() const override {
+        return font.getCharHeight() + 2 * PADDING_Y;
+    }
 
     void draw(const Util::Graphic::LinearFrameBuffer &lfb) override;
 

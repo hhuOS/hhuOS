@@ -39,14 +39,12 @@ public:
         Widget *widget;
         Util::Array<size_t> args;
 
-        bool operator!=(const WidgetEntry &other) const;
+        bool operator!=(const WidgetEntry &other) const {
+            return widget != other.widget;
+        }
     };
 
     Layout() = default;
-
-    Layout(const Layout &other) = delete;
-
-    Layout& operator=(const Layout &other) = delete;
 
     virtual ~Layout() = default;
 
@@ -58,7 +56,13 @@ public:
 
 protected:
 
-    const Container& getContainer() const;
+    const Container& getContainer() const {
+        if (container == nullptr) {
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Layout: Not assigned to any container!");
+        }
+
+        return *container;
+    }
 
 private:
 

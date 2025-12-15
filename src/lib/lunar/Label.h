@@ -37,17 +37,24 @@ class Label final : public Widget {
 
 public:
 
-    Label(const Util::String &text, size_t maxWidth, const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8);
+    Label(const Util::String &text, const size_t maxWidth,
+        const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8) :
+        text(text), maxWidth(maxWidth), font(font), preferredLines(calculateLines(text, maxWidth, font)) {}
 
-    Label(const Util::String &text, const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8);
+    explicit Label(const Util::String &text, const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8) :
+        Label(text, 0, font) {}
 
     void setText(const Util::String &text);
 
-    Util::String getText() const;
+    Util::String getText() const {
+        return text;
+    }
 
     size_t getPreferredWidth() const override;
 
-    size_t getPreferredHeight() const override;
+    size_t getPreferredHeight() const override {
+        return preferredLines.length() * font.getCharHeight();
+    }
 
     void setSize(size_t width, size_t height) override;
 

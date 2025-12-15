@@ -4,11 +4,6 @@
 
 namespace Lunar {
 
-Label::Label(const Util::String &text, const size_t maxWidth, const Util::Graphic::Font &font) :
-    text(text), maxWidth(maxWidth), font(font), preferredLines(calculateLines(text, maxWidth, font)) {}
-
-Label::Label(const Util::String &text, const Util::Graphic::Font &font) : Label(text, 0, font) {}
-
 void Label::setText(const Util::String &text) {
     const auto oldPreferredWidth = getPreferredWidth();
     const auto oldPreferredHeight = getPreferredHeight();
@@ -23,10 +18,6 @@ void Label::setText(const Util::String &text) {
     }
 }
 
-Util::String Label::getText() const {
-    return text;
-}
-
 size_t Label::getPreferredWidth() const {
     size_t width = 0;
     for (const auto &line : preferredLines) {
@@ -37,10 +28,6 @@ size_t Label::getPreferredWidth() const {
     }
 
     return width;
-}
-
-size_t Label::getPreferredHeight() const {
-    return preferredLines.length() * font.getCharHeight();
 }
 
 void Label::setSize(size_t width, size_t height) {

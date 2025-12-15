@@ -37,17 +37,23 @@ class Container : public Widget {
 
 public:
 
-    Container();
+    Container() : Widget(false, false) {}
 
-    ~Container() override;
+    ~Container() override {
+        delete layout;
+    }
 
     void setLayout(Layout *layout);
 
     void addChild(Widget &widget, const Util::Array<size_t> &layoutArgs = Util::Array<size_t>());
 
-    size_t getPreferredWidth() const override;
+    size_t getPreferredWidth() const override {
+        return layout == nullptr ? 0 : layout->getPreferredWidth(children);
+    }
 
-    size_t getPreferredHeight() const override;
+    size_t getPreferredHeight() const override {
+        return layout == nullptr ? 0 : layout->getPreferredHeight(children);
+    }
 
     bool requiresRedraw() const override;
 
@@ -57,7 +63,9 @@ public:
 
 protected:
 
-    Container(size_t width, size_t height);
+    Container(const size_t width, const size_t height) : Container() {
+        Widget::setSize(width, height);
+    }
 
 private:
 

@@ -39,50 +39,10 @@ Widget::~Widget() {
     }
 }
 
-size_t Widget::getPosX() const {
-    return posX;
-}
-
-size_t Widget::getPosY() const {
-    return posY;
-}
-
-size_t Widget::getWidth() const {
-    return width;
-}
-
-size_t Widget::getHeight() const {
-    return height;
-}
-
-bool Widget::requiresRedraw() const {
-    return needsRedraw;
-}
-
-void Widget::draw([[maybe_unused]] const Util::Graphic::LinearFrameBuffer &lfb) {
-    needsRedraw = false;
-}
-
-void Widget::requireRedraw() {
-    needsRedraw = true;
-}
-
 void Widget::reportPreferredSizeChange() const {
     if (parent != nullptr) {
         parent->rearrangeChildren();
     }
-}
-
-bool Widget::isHovered() const {
-    return hovered;
-}
-
-bool Widget::isPressed() const {
-    return pressed;
-}
-
-void Widget::addActionListener(ActionListener *listener) {
-    actionListeners.add(listener);
 }
 
 void Widget::mouseClicked() const {
@@ -146,20 +106,7 @@ void Widget::setSize(const size_t width, const size_t height) {
     }
 }
 
-bool Widget::containsPoint(const size_t px, const size_t py) const {
-    const auto x = getPosX();
-    const auto y = getPosY();
-    const auto w = getWidth();
-    const auto h = getHeight();
-
-    return px >= x && px < x + w && py >= y && py < y + h;
-}
-
-bool Widget::isFocused() const {
-    return focused;
-}
-
-void Widget::setFocused(bool focused) {
+void Widget::setFocused(const bool focused) {
     Widget::focused = focused;
     requireRedraw();
 }
@@ -184,10 +131,6 @@ void Widget::setPosition(const size_t x, const size_t y) {
         requireRedraw();
     }
 }
-
-void Widget::rearrangeChildren() {}
-
-Widget::MouseListener::MouseListener(Widget &widget) : widget(widget) {}
 
 void Widget::MouseListener::onMouseEntered() {
     widget.hovered = true;

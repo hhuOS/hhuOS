@@ -39,9 +39,13 @@ public:
 
     void select(int32_t index);
 
-    const RadioButton* getSelectedButton() const;
+    const RadioButton* getSelectedButton() const {
+        return selectedIndex >= 0 ? buttons.get(selectedIndex) : nullptr;
+    }
 
-    int32_t getSelectedIndex() const;
+    int32_t getSelectedIndex() const {
+        return selectedIndex;
+    }
 
 private:
 

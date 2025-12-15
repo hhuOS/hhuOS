@@ -27,13 +27,10 @@
 
 namespace Lunar {
 
-CheckBox::CheckBox(const Util::String &text, const Util::Graphic::Font &font) : text(text.split("\n")[0]), font(font) {
+CheckBox::CheckBox(const Util::String &text, const Util::Graphic::Font &font) :
+    text(text.split("\n")[0]), font(font)
+{
     addActionListener(new ClickListener(*this));
-}
-
-void CheckBox::toggle() {
-    checked = !checked;
-    requireRedraw();
 }
 
 void CheckBox::setText(const Util::String &text) {
@@ -45,22 +42,6 @@ void CheckBox::setText(const Util::String &text) {
     if (oldText.length() != CheckBox::text.length()) {
         reportPreferredSizeChange();
     }
-}
-
-const Util::String& CheckBox::getText() const {
-    return text;
-}
-
-bool CheckBox::isChecked() const {
-    return checked;
-}
-
-size_t CheckBox::getPreferredWidth() const {
-    return getPreferredHeight() + GAP_X + font.getCharWidth() * text.length();
-}
-
-size_t CheckBox::getPreferredHeight() const {
-    return font.getCharHeight();
 }
 
 void CheckBox::setSize(size_t width, size_t height) {
@@ -138,12 +119,6 @@ void CheckBox::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
         style.textColor, Util::Graphic::Colors::INVISIBLE);
 
     Widget::draw(lfb);
-}
-
-CheckBox::ClickListener::ClickListener(CheckBox &box) : box(box) {}
-
-void CheckBox::ClickListener::onMouseClicked() {
-    box.toggle();
 }
 
 }

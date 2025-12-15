@@ -34,27 +34,23 @@ public:
 
     ActionListener() = default;
 
-    ActionListener(const ActionListener &other) = delete;
-
-    ActionListener& operator=(const ActionListener &other) = delete;
-
     virtual ~ActionListener() = default;
 
-    virtual void onMouseEntered();
+    virtual void onMouseEntered() {}
 
-    virtual void onMouseExited();
+    virtual void onMouseExited() {}
 
-    virtual void onMousePressed();
+    virtual void onMousePressed() {}
 
-    virtual void onMouseReleased();
+    virtual void onMouseReleased() {}
 
-    virtual void onMouseClicked();
+    virtual void onMouseClicked() {}
 
-    virtual void onKeyPressed(const Util::Io::Key &key);
+    virtual void onKeyPressed(const Util::Io::Key&) {}
 
-    virtual void onKeyReleased(const Util::Io::Key &key);
+    virtual void onKeyReleased(const Util::Io::Key&) {}
 
-    virtual void onKeyTyped(const Util::Io::Key &key);
+    virtual void onKeyTyped(const Util::Io::Key&) {}
 };
 
 }

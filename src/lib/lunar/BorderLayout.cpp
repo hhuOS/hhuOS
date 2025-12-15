@@ -41,36 +41,42 @@ void BorderLayout::arrangeWidgets(const Util::ArrayList<WidgetEntry> &widgets) c
         switch (position) {
             case NORTH:
                 if (northWidget != nullptr) {
-                    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "BorderLayout: Multiple NORTH widgets given!");
+                    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT,
+                        "BorderLayout: Multiple NORTH widgets given!");
                 }
                 northWidget = entry.widget;
                 break;
             case SOUTH:
                 if (southWidget != nullptr) {
-                    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "BorderLayout: Multiple SOUTH widgets given!");
+                    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT,
+                        "BorderLayout: Multiple SOUTH widgets given!");
                 }
                 southWidget = entry.widget;
                 break;
             case EAST:
                 if (eastWidget != nullptr) {
-                    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "BorderLayout: Multiple EAST widgets given!");
+                    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT,
+                        "BorderLayout: Multiple EAST widgets given!");
                 }
                 eastWidget = entry.widget;
                 break;
             case WEST:
                 if (westWidget != nullptr) {
-                    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "BorderLayout: Multiple WEST widgets given!");
+                    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT,
+                        "BorderLayout: Multiple WEST widgets given!");
                 }
                 westWidget = entry.widget;
                 break;
             case CENTER:
                 if (centerWidget != nullptr) {
-                    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "BorderLayout: Multiple CENTER widgets given!");
+                    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT,
+                        "BorderLayout: Multiple CENTER widgets given!");
                 }
                 centerWidget = entry.widget;
                 break;
             default:
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "BorderLayout: Invalid position argument!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT,
+                    "BorderLayout: Invalid position argument!");
         }
     }
 
@@ -139,7 +145,8 @@ size_t BorderLayout::getPreferredWidth(const Util::ArrayList<WidgetEntry> &widge
                 centerWidth += entry.widget->getPreferredWidth();
                 break;
             default:
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "BorderLayout: Invalid position argument!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT,
+                    "BorderLayout: Invalid position argument!");
         }
     }
 
@@ -174,7 +181,8 @@ size_t BorderLayout::getPreferredHeight(const Util::ArrayList<WidgetEntry> &widg
                 centerHeight += entry.widget->getPreferredHeight();
                 break;
             default:
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "BorderLayout: Invalid position argument!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT,
+                    "BorderLayout: Invalid position argument!");
         }
     }
 

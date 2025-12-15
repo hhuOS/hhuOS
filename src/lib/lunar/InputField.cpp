@@ -31,18 +31,6 @@ InputField::InputField(const size_t width, const Util::Graphic::Font &font) : pr
     addActionListener(new KeyInputListener(*this));
 }
 
-const Util::String& InputField::getText() const {
-    return text;
-}
-
-size_t InputField::getPreferredWidth() const {
-    return preferredWidth;
-}
-
-size_t InputField::getPreferredHeight() const {
-    return font.getCharHeight() + PADDING_Y * 2;
-}
-
 void InputField::setSize(size_t width, size_t height) {
     const auto preferredHeight = getPreferredHeight();
 
@@ -90,8 +78,6 @@ void InputField::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
 
     Widget::draw(lfb);
 }
-
-InputField::KeyInputListener::KeyInputListener(InputField &inputField) : inputField(inputField) {}
 
 void InputField::KeyInputListener::onKeyTyped(const Util::Io::Key &key) {
     if (key.getAscii() == '\b') {

@@ -38,11 +38,17 @@ public:
 
     explicit InputField(size_t width, const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8);
 
-    const Util::String& getText() const;
+    const Util::String& getText() const {
+        return text;
+    }
 
-    size_t getPreferredWidth() const override;
+    size_t getPreferredWidth() const override {
+        return preferredWidth;
+    }
 
-    size_t getPreferredHeight() const override;
+    size_t getPreferredHeight() const override {
+        return font.getCharHeight() + PADDING_Y * 2;
+    }
 
     void setSize(size_t width, size_t height) override;
 
@@ -54,7 +60,7 @@ private:
 
     public:
 
-        explicit KeyInputListener(InputField &inputField);
+        explicit KeyInputListener(InputField &inputField) : inputField(inputField) {}
 
         void onKeyTyped(const Util::Io::Key &key) override;
 

@@ -27,7 +27,9 @@
 
 namespace Lunar {
 
-RadioButton::RadioButton(const Util::String &text, const Util::Graphic::Font &font) : text(text.split("\n")[0]), font(font) {
+RadioButton::RadioButton(const Util::String &text, const Util::Graphic::Font &font) :
+    text(text.split("\n")[0]), font(font)
+{
     addActionListener(new ClickListener(*this));
 }
 
@@ -48,22 +50,6 @@ void RadioButton::setText(const Util::String &text) {
     if (oldText.length() != RadioButton::text.length()) {
         reportPreferredSizeChange();
     }
-}
-
-const Util::String& RadioButton::getText() const {
-    return text;
-}
-
-bool RadioButton::isSelected() const {
-    return selected;
-}
-
-size_t RadioButton::getPreferredWidth() const {
-    return getPreferredHeight() + GAP_X + font.getCharWidth() * text.length();
-}
-
-size_t RadioButton::getPreferredHeight() const {
-    return font.getCharHeight();
 }
 
 void RadioButton::setSize(size_t width, size_t height) {
@@ -126,12 +112,6 @@ void RadioButton::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
         style.textColor, style.textBackgroundColor);
 
     Widget::draw(lfb);
-}
-
-RadioButton::ClickListener::ClickListener(RadioButton &button) : button(button) {}
-
-void RadioButton::ClickListener::onMouseClicked() {
-    button.select();
 }
 
 }

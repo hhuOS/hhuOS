@@ -20,13 +20,13 @@ project(lib.user.lunar)
 message(STATUS "Project " ${PROJECT_NAME})
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_C_STANDARD 90)
+set(CMAKE_C_STANDARD 99)
+add_compile_options("-Wpedantic")
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic)
 target_sources(${PROJECT_NAME} PUBLIC
-        ${HHUOS_SRC_DIR}/lib/lunar/ActionListener.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/BorderLayout.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/Button.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/CheckBox.cpp
@@ -36,7 +36,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/lunar/HorizontalLayout.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/InputField.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/Label.cpp
-        ${HHUOS_SRC_DIR}/lib/lunar/Layout.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/RadioButton.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/RadioButtonGroup.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/Theme.cpp

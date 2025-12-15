@@ -27,16 +27,6 @@
 
 namespace Lunar {
 
-Container::Container() : Widget(false, false) {}
-
-Container::Container(const size_t width, const size_t height) : Container() {
-    Widget::setSize(width, height);
-}
-
-Container::~Container() {
-    delete layout;
-}
-
 void Container::setLayout(Layout *layout) {
     delete Container::layout;
     Container::layout = layout;
@@ -50,14 +40,6 @@ void Container::addChild(Widget &widget, const Util::Array<size_t> &layoutArgs) 
 
     rearrangeChildren();
     reportPreferredSizeChange();
-}
-
-size_t Container::getPreferredWidth() const {
-    return layout == nullptr ? 0 : layout->getPreferredWidth(children);
-}
-
-size_t Container::getPreferredHeight() const {
-    return layout == nullptr ? 0 : layout->getPreferredHeight(children);
 }
 
 bool Container::requiresRedraw() const {

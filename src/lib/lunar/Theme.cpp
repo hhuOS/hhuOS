@@ -27,37 +27,4 @@ namespace Lunar {
 
 Theme &Theme::CURRENT_THEME = *new HhuTheme();
 
-const Theme::Style& Theme::WidgetStyle::getStyle(const Widget &widget) const {
-    return widget.isPressed() ? pressedStyle : widget.isHovered() ? hoveredStyle : normalStyle;
-}
-
-void Theme::setTheme(const Theme *theme) {
-    delete &CURRENT_THEME;
-    CURRENT_THEME = *theme;
-}
-
-const Theme::WidgetStyle& HhuTheme::container() const {
-    return containerStyle;
-}
-
-const Theme::WidgetStyle& HhuTheme::label() const {
-    return labelStyle;
-}
-
-const Theme::WidgetStyle& HhuTheme::button() const {
-    return buttonStyle;
-}
-
-const Theme::WidgetStyle& HhuTheme::checkBox() const {
-    return checkBoxStyle;
-}
-
-const Theme::WidgetStyle& HhuTheme::radioButton() const {
-    return radioButtonStyle;
-}
-
-const Theme::WidgetStyle& HhuTheme::inputField() const {
-    return inputFieldStyle;
-}
-
 }
