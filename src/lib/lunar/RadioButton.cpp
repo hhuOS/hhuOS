@@ -23,6 +23,7 @@
 
 #include "RadioButton.h"
 
+#include "lunar/Theme.h"
 #include "lunar/RadioButtonGroup.h"
 
 namespace Lunar {

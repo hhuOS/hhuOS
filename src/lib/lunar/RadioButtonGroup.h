@@ -21,28 +21,33 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_RADIOBUTTONGROUP_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_RADIOBUTTONGROUP_H
+#ifndef HHUOS_LIB_LUNAR_RADIOBUTTONGROUP_H
+#define HHUOS_LIB_LUNAR_RADIOBUTTONGROUP_H
 
 #include "util/collection/ArrayList.h"
 #include "lunar/RadioButton.h"
 
 namespace Lunar {
 
+/// A radio button group manages a set of `RadioButton` widgets, ensuring that only one radio button in the group
+/// can be selected at a time. Every time a radio button is selected, the previously selected radio button (if any)
+/// is automatically deselected. The group is not a widget itself, but rather a helper class to manage the state
+/// of multiple radio buttons.
 class RadioButtonGroup {
 
 public:
-
-    RadioButtonGroup() = default;
-
+    /// Add a radio button to the group.
     void add(RadioButton &radioButton);
 
+    /// Select the radio button at the given index in the group.
     void select(int32_t index);
 
+    /// Get the currently selected radio button in the group, or `nullptr` if no button is selected.
     const RadioButton* getSelectedButton() const {
         return selectedIndex >= 0 ? buttons.get(selectedIndex) : nullptr;
     }
 
+    /// Get the index of the currently selected radio button in the group, or -1 if no button is selected.
     int32_t getSelectedIndex() const {
         return selectedIndex;
     }

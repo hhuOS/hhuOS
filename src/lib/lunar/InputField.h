@@ -21,8 +21,8 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_INPUTFIELD_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_INPUTFIELD_H
+#ifndef HHUOS_LIB_LUNAR_INPUTFIELD_H
+#define HHUOS_LIB_LUNAR_INPUTFIELD_H
 
 #include <stddef.h>
 
@@ -32,26 +32,40 @@
 
 namespace Lunar {
 
+/// A single-line text input field widget.
+/// The user can type text into the input field. The text may be longer than the visible area, in which case it
+/// will scroll horizontally. The input field supports backspace for deleting characters,
+/// but does not support advanced editing features like cursor movement or text selection.
+/// To handle text input, register an `ActionListener` on the input field and listen for key events.
 class InputField final : public Widget {
 
 public:
-
+    /// Create a new input field instance with the given width and font.
     explicit InputField(size_t width, const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8);
 
+    /// Get the text currently entered in the input field.
     const Util::String& getText() const {
         return text;
     }
 
+    /// Get the preferred width of the input field in pixels.
+    /// This is the width that was specified during construction or via `setSize()`.
     size_t getPreferredWidth() const override {
         return preferredWidth;
     }
 
+    /// Get the preferred height of the input field in pixels.
+    /// The preferred height is calculated based on the font character height, plus padding.
     size_t getPreferredHeight() const override {
         return font.getCharHeight() + PADDING_Y * 2;
     }
 
+    /// Set the size of the input field.
+    /// The height will be clamped to the preferred height.
+    /// If the new size too small to display at least one character, the input field will not be drawn at all.
     void setSize(size_t width, size_t height) override;
 
+    /// Draw the input field onto the given linear frame buffer.
     void draw(const Util::Graphic::LinearFrameBuffer &lfb) override;
 
 private:
@@ -70,7 +84,7 @@ private:
     };
 
     Util::String text;
-    const size_t preferredWidth;
+    size_t preferredWidth;
     const Util::Graphic::Font &font;
 
     static constexpr size_t PADDING_X = 2;

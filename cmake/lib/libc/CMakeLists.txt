@@ -19,12 +19,13 @@
 project(lib.user.libc)
 message(STATUS "Project " ${PROJECT_NAME})
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
+add_compile_options("-Wpedantic")
+
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
 target_link_libraries(${PROJECT_NAME} lib.user.base lib.user.time lib.user.math lib.user.runtime)
-
 target_sources(${PROJECT_NAME} PUBLIC
 		${HHUOS_SRC_DIR}/lib/libc/FileStream.cpp
 		${HHUOS_SRC_DIR}/lib/libc/errno.cpp

@@ -21,8 +21,8 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_CONTAINER_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_CONTAINER_H
+#ifndef HHUOS_LIB_LUNAR_CONTAINER_H
+#define HHUOS_LIB_LUNAR_CONTAINER_H
 
 #include <stddef.h>
 
@@ -33,36 +33,58 @@
 
 namespace Lunar {
 
+/// A container is a special type of widget that can contain other widgets.
+/// Containers use layouts to arrange their child widgets automatically.
+/// This allows for complex UI hierarchies, resulting in a tree structure of widgets.
+/// The size of a container is determined by its layout and the preferred sizes of its child widgets.
 class Container : public Widget {
 
 public:
-
+    /// Create a new container instance.
     Container() : Widget(false, false) {}
 
-    ~Container() override {
-        delete layout;
-    }
+    /// Destroy the container instance, deleting the associated layout.
+    ~Container() override;
 
+    /// Set the layout for this container.
+    /// The layout must be allocated on the heap and the container takes ownership of it.
+    /// This means that the container will delete the layout when it is destroyed.
+    /// If the container already has a layout, it will be deleted before setting the new layout.
     void setLayout(Layout *layout);
 
-    void addChild(Widget &widget, const Util::Array<size_t> &layoutArgs = Util::Array<size_t>());
+    /// Add a child widget to the container with optional layout arguments.
+    /// The layout arguments are passed to the layout when arranging the child widgets.
+    /// The number and meaning of the layout arguments depend on the specific layout used.
+    /// The widget must be allocated on the heap and the container takes ownership of it.
+    /// This means that the container will delete the widget when it is destroyed.
+    void addChild(Widget *widget, const Util::Array<size_t> &layoutArgs = Util::Array<size_t>());
 
+    /// Get the preferred width of the container in pixels.
+    /// The preferred width is determined by the layout and the preferred sizes of the child widgets.
     size_t getPreferredWidth() const override {
         return layout == nullptr ? 0 : layout->getPreferredWidth(children);
     }
 
+    /// Get the preferred height of the container in pixels.
+    /// The preferred height is determined by the layout and the preferred sizes of the child widgets.
     size_t getPreferredHeight() const override {
         return layout == nullptr ? 0 : layout->getPreferredHeight(children);
     }
 
+    /// Check whether the container or any of its child widgets need to be redrawn.
     bool requiresRedraw() const override;
 
+    /// Get the child widget at the given point (posX, posY) in absolute pixel coordinates.
+    /// The appropriate child widget is searched recursively, meaning that if a child widget is itself
+    /// a container, its children are also searched.
     Widget* getChildAtPoint(size_t posX, size_t posY) override;
 
+    /// Draw the container and its child widgets on the given linear frame buffer.
     void draw(const Util::Graphic::LinearFrameBuffer &lfb) override;
 
 protected:
-
+    /// Create a new container instance with the given size.
+    /// This constructor is needed to create a root container with a specific size.
     Container(const size_t width, const size_t height) : Container() {
         Widget::setSize(width, height);
     }

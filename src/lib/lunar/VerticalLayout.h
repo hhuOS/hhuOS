@@ -18,23 +18,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_VERTICALLAYOUT_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_VERTICALLAYOUT_H
+#ifndef HHUOS_LIB_LUNAR_VERTICALLAYOUT_H
+#define HHUOS_LIB_LUNAR_VERTICALLAYOUT_H
 
 #include "lunar/Layout.h"
 
 namespace Lunar {
 
+/// A layout that arranges widgets vertically in a single column.
+/// Widgets are placed on top of each other from top to bottom, with an optional spacing between them.
+/// The preferred size of the layout is determined by the sum of the preferred heights of its child widgets,
+/// plus the spacing between them, and the maximum preferred width of its child widgets.
 class VerticalLayout final : public Layout {
 
 public:
-
+    /// Create a new vertical layout instance with the given spacing between widgets.
     explicit VerticalLayout(const size_t spacing = 0)  : spacing(spacing) {}
 
+    /// Arrange the given widgets within the container according to the layout's rules.
+    /// This sets each widget's position below the previous widget, with the specified spacing in between.
     void arrangeWidgets(const Util::ArrayList<WidgetEntry> &widgets) const override;
 
+    /// Get the preferred width of the layout in pixels.
+    /// The preferred width is determined by the maximum preferred width of its child widgets.
     size_t getPreferredWidth(const Util::ArrayList<WidgetEntry> &widgets) const override;
 
+    /// Get the preferred height of the layout in pixels.
+    /// The preferred height is determined by the sum of the preferred heights of its child widgets,
+    /// plus the spacing between them.
     size_t getPreferredHeight(const Util::ArrayList<WidgetEntry> &widgets) const override;
 
 private:

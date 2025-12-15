@@ -31,15 +31,13 @@ InputField::InputField(const size_t width, const Util::Graphic::Font &font) : pr
     addActionListener(new KeyInputListener(*this));
 }
 
-void InputField::setSize(size_t width, size_t height) {
+void InputField::setSize(const size_t width, size_t height) {
     const auto preferredHeight = getPreferredHeight();
-
-    if (width > preferredWidth) {
-        width = preferredWidth;
-    }
     if (height > preferredHeight) {
         height = preferredHeight;
     }
+
+    preferredWidth = width;
 
     if (width != getWidth() || height != getHeight()) {
         Widget::setSize(width, height);

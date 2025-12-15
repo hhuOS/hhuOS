@@ -26,17 +26,25 @@
 #include "lunar/Theme.h"
 
 namespace Lunar {
+Container::~Container() {
+    for (const auto &child : children) {
+        delete child.widget;
+    }
+
+    delete layout;
+}
 
 void Container::setLayout(Layout *layout) {
     delete Container::layout;
     Container::layout = layout;
 
     layout->container = this;
+    requireRedraw();
 }
 
-void Container::addChild(Widget &widget, const Util::Array<size_t> &layoutArgs) {
-    children.add(Layout::WidgetEntry{&widget, layoutArgs});
-    widget.parent = this;
+void Container::addChild(Widget *widget, const Util::Array<size_t> &layoutArgs) {
+    children.add(Layout::WidgetEntry{widget, layoutArgs});
+    widget->parent = this;
 
     rearrangeChildren();
     reportPreferredSizeChange();

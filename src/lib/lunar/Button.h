@@ -21,8 +21,8 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_BUTTON_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_BUTTON_H
+#ifndef HHUOS_LIB_LUNAR_BUTTON_H
+#define HHUOS_LIB_LUNAR_BUTTON_H
 
 #include <stddef.h>
 
@@ -32,27 +32,38 @@
 
 namespace Lunar {
 
+/// A clickable button widget with a single-line text label.
+/// To handle button clicks, register an `ActionListener` on the button and listen for mouse clicks.
 class Button final : public Widget {
 
 public:
-
+    /// Create a new button instance with the given text and font.
+    /// Only a single line of text is supported. If it contains line breaks, only the first line will be displayed.
     explicit Button(const Util::String &text, const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8) :
         text(text.split("\n")[0]), font(font) {}
 
+    /// Set the text of the button.
+    /// Only a single line of text is supported. If it contains line breaks, only the first line will be displayed.
     void setText(const Util::String &text);
 
+    /// Get the text of the button.
     const Util::String& getText() const {
         return text;
     }
 
+    /// Get the preferred width of the button in pixels.
+    /// The preferred width is calculated based on the text length and font character width, plus padding.
     size_t getPreferredWidth() const override {
         return font.getCharWidth() * text.length() + 2 * PADDING_X;
     }
 
+    /// Get the preferred height of the button in pixels.
+    /// The preferred height is calculated based on the font character height, plus padding.
     size_t getPreferredHeight() const override {
         return font.getCharHeight() + 2 * PADDING_Y;
     }
 
+    /// Draw the button on the given linear frame buffer.
     void draw(const Util::Graphic::LinearFrameBuffer &lfb) override;
 
 private:
