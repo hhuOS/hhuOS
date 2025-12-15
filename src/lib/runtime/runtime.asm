@@ -8,7 +8,7 @@ global __cxa_pure_virtual
 extern main
 extern initMemoryManager
 extern initLibc
-extern _exit
+extern appExit
 
 ; Import linker symbols
 extern ___BSS_START__
@@ -41,8 +41,7 @@ _start:
     push eax      ; Get return value from eax
 
     ; Cleanup static variables and exit process
-    ;call _fini
-    call _exit
+    call appExit
 
 ; Zero out bss
 clear_bss:
