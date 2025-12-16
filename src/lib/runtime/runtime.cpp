@@ -35,8 +35,8 @@ void initMemoryManager(uint8_t *startAddress) {
 
 
 void initLibc() {
-	_time_initialize();
-	_init_stdio();
+	libc_initialize_time();
+	libc_init_stdio();
 }
 
 void appExit(const int32_t exitCode) {

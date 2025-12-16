@@ -20,7 +20,7 @@
 
 #include "Thread.h"
 
-#include "lib/interface.h"
+#include "interface.h"
 
 namespace Util {
 namespace Async {

@@ -1,288 +1,322 @@
+/*
+ * Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
+ * Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
+ * This project has been supported by several students.
+ * A full list of integrated student theses can be found here: https://github.com/hhuOS/hhuOS/wiki/Student-theses
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The stanard C library is based on a master's thesis, written by Tobias Fabian Oehme.
+ * The original source code can be found here: https://github.com/ToboterXP/hhuOS/tree/thesis
+ */
 
-#include <bit>
-
-#include "lib/libc/math.h"
-#include "lib/util/math/Math.h"
-#include "lib/libc/errno.h"
-#include "lib/util/base/System.h"
-#include <float.h>
 #include <string.h>
 
-double fabs(double a) {
+#include "math.h"
+
+#include "util/math/Math.h"
+#include "lib/libc/errno.h"
+
+double fabs(const double a) {
 	return Util::Math::absolute(a);
 }
 
-float fabsf(float a) {
+float fabsf(const float a) {
     return Util::Math::absolute(a);
 }
 
-
-double fmod(double x, double y) {
+double fmod(const double x, const double y) {
 	if (y == 0) {
 		setErrno(EDOM);
 		return HUGE_VAL;
 	}
+
 	return Util::Math::modulo(x, y);
 }
 
-double exp(double arg) {
+double exp(const double arg) {
 	return Util::Math::exp(arg);
 }
 
-double exp2(double arg) {
+double exp2(const double arg) {
     return Util::Math::exp2(arg);
 }
 
-double log(double arg) {
-	if (arg <= 0) setErrno(EDOM);
-	return Util::Math::ln(arg);
+double log(const double arg) {
+	if (arg <= 0) {
+	    setErrno(EDOM);
+	}
+
+	return Util::Math::lnUnchecked(arg);
 }
 
-double log10(double arg) {
-	if (arg <= 0) setErrno(EDOM);
-	return Util::Math::log10(arg);
+double log10(const double arg) {
+	if (arg <= 0) {
+	    setErrno(EDOM);
+	}
+
+	return Util::Math::log10Unchecked(arg);
 }
 
-double log2(double arg) {
-    if (arg <= 0) setErrno(EDOM);
-    return Util::Math::ln(arg) / Util::Math::ln(2.0);
+double log2(const double arg) {
+    if (arg <= 0) {
+        setErrno(EDOM);
+    }
+
+    return Util::Math::lnUnchecked(arg) / Util::Math::lnUnchecked(2.0);
 }
 
-double pow(double base, double exponent) {
+double pow(const double base, const double exponent) {
 	return Util::Math::pow(base, exponent);
 }
 
-double sqrt( double arg ) {
-	return Util::Math::sqrt( arg );
+double sqrt(const double arg) {
+	return Util::Math::sqrt(arg);
 }
 
 
-float expf(float arg) {
+float expf(const float arg) {
     return Util::Math::exp(arg);
 }
 
-float exp2f(float arg) {
+float exp2f(const float arg) {
     return Util::Math::exp2(arg);
 }
 
-float logf(float arg) {
-    if (arg <= 0) setErrno(EDOM);
-    return Util::Math::ln(arg);
+float logf(const float arg) {
+    if (arg <= 0) {
+        setErrno(EDOM);
+    }
+
+    return Util::Math::lnUnchecked(arg);
 }
 
-float log10f(float arg) {
-    if (arg <= 0) setErrno(EDOM);
-    return Util::Math::log10(arg);
+float log10f(const float arg) {
+    if (arg <= 0) {
+        setErrno(EDOM);
+    }
+
+    return Util::Math::log10Unchecked(arg);
 }
 
-float log2f(float arg) {
-    if (arg <= 0) setErrno(EDOM);
-    return Util::Math::ln(arg) / Util::Math::ln(2.0f);
+float log2f(const float arg) {
+    if (arg <= 0) {
+        setErrno(EDOM);
+    }
+
+    return Util::Math::lnUnchecked(arg) / Util::Math::lnUnchecked(2.0f);
 }
 
-float powf(float base, float exponent) {
+float powf(const float base, const float exponent) {
     return Util::Math::pow(base, exponent);
 }
 
-float sqrtf( float arg ) {
-    return Util::Math::sqrt( arg );
+float sqrtf(const float arg) {
+    return Util::Math::sqrt(arg);
 }
 
 
-double sin(double arg) {
+double sin(const double arg) {
 	return Util::Math::sine(arg);
 }
 
-double cos(double arg) {
+double cos(const double arg) {
 	return Util::Math::cosine(arg);
 }
 
-double tan(double arg) {
+double tan(const double arg) {
 	return Util::Math::tangent(arg);
 }
 
-double asin(double arg) {
+double asin(const double arg) {
 	if (arg < -1 || arg > 1) {
 		setErrno(EDOM);
 	}
-	return Util::Math::arcsine(arg);
+
+	return Util::Math::arcsineUnchecked(arg);
 }
 
-double acos(double arg) {
+double acos(const double arg) {
 	if (arg < -1 || arg > 1) {
 		setErrno(EDOM);
 	}
-	return Util::Math::arccosine(arg);
+
+	return Util::Math::arccosineUnchecked(arg);
 }
 
-double atan(double arg) {
+double atan(const double arg) {
 	return Util::Math::arctangent(arg);
 }
 
-double atan2(double y, double x) {
+double atan2(const double y, const double x) {
 	return Util::Math::arctangent(y, x);
 }
 
-double sinh(double arg) {
+double sinh(const double arg) {
 	return (exp(arg) - exp(-arg)) / 2;
 }
 
-double cosh(double arg) {
+double cosh(const double arg) {
 	return (exp(arg) + exp(-arg)) / 2;
 }
 
-double tanh(double arg) {
+double tanh(const double arg) {
 	return (exp(arg) - exp(-arg)) / (exp(arg) + exp(-arg)) ;
 }
 
-double asinh(double arg) {
+double asinh(const double arg) {
     return log(arg + sqrt(arg * arg + 1));
 }
 
-double acosinh(double arg) {
+double acosinh(const double arg) {
     return log(arg + sqrt(arg * arg - 1));
 }
 
-double atanh(double arg) {
+double atanh(const double arg) {
     return log((1 + arg) / (1 - arg)) / 2;
 }
 
 
-float sinf(float arg) {
+float sinf(const float arg) {
     return Util::Math::sine(arg);
 }
 
-float cosf(float arg) {
+float cosf(const float arg) {
     return Util::Math::cosine(arg);
 }
 
-float tanf(float arg) {
+float tanf(const float arg) {
     return Util::Math::tangent(arg);
 }
 
-float asinf(float arg) {
+float asinf(const float arg) {
     if (arg < -1 || arg > 1) {
         setErrno(EDOM);
     }
-    return Util::Math::arcsine(arg);
+
+    return Util::Math::arcsineUnchecked(arg);
 }
 
-float acosf(float arg) {
+float acosf(const float arg) {
     if (arg < -1 || arg > 1) {
         setErrno(EDOM);
     }
-    return Util::Math::arccosine(arg);
+
+    return Util::Math::arccosineUnchecked(arg);
 }
 
-float atanf(float arg) {
+float atanf(const float arg) {
     return Util::Math::arctangent(arg);
 }
 
-float atan2f(float y, float x) {
+float atan2f(const float y, const float x) {
     return Util::Math::arctangent(y, x);
 }
 
-float sinhf(float arg) {
+float sinhf(const float arg) {
     return (expf(arg) - expf(-arg)) / 2;
 }
 
-float coshf(float arg) {
+float coshf(const float arg) {
     return (expf(arg) + expf(-arg)) / 2;
 }
 
-float tanhf(float arg) {
+float tanhf(const float arg) {
     return (expf(arg) - expf(-arg)) / (expf(arg) + expf(-arg)) ;
 }
 
-float asinhf(float arg) {
+float asinhf(const float arg) {
     return logf(arg + sqrtf(arg * arg + 1));
 }
 
-float acoshf(float arg) {
+float acoshf(const float arg) {
     return logf(arg + sqrtf(arg * arg - 1));
 }
 
-float atanhf(float arg) {
+float atanhf(const float arg) {
     return logf((1 + arg) / (1 - arg)) / 2;
 }
 
-
-
-double ceil(double arg) {
-	double ret = (double)((long long)arg);
-	if (ret < arg) ret++;
-	return ret;
+double ceil(const double arg) {
+	return Util::Math::ceil(arg);
 }
 
-double floor(double arg) {
+double floor(const double arg) {
 	return Util::Math::floor(arg);
 }
 
-double round(double arg) {
+double round(const double arg) {
     return Util::Math::round(arg);
 }
 
-double trunc(double arg) {
+double trunc(const double arg) {
     return Util::Math::truncate(arg);
 }
 
-double nearbyint(double arg) {
+double nearbyint(const double arg) {
     return Util::Math::round(arg);
 }
 
-
-float ceilf(float arg) {
-    float ret = (float)((long long)arg);
-    if (ret < arg) ret++;
-    return ret;
+float ceilf(const float arg) {
+    return Util::Math::ceil(arg);
 }
 
-float floorf(float arg) {
+float floorf(const float arg) {
     return Util::Math::floor(arg);
 }
 
-float roundf(float arg) {
+float roundf(const float arg) {
     return Util::Math::round(arg);
 }
 
-float truncf(float arg) {
+float truncf(const float arg) {
     return Util::Math::truncate(arg);
 }
 
-float nearbyint(float arg) {
+float nearbyint(const float arg) {
     return Util::Math::round(arg);
 }
 
-
-double frexp(double arg, int * exp) {
+double frexp(const double arg, int *exp) {
 	const auto internals = Util::Math::getInternals(arg);
 
     *exp = internals.getSecond();
     return internals.getFirst();
 }
 
-double ldexp(double arg, int exp) {
+double ldexp(const double arg, int exp) {
 	long long argb;
     memcpy(&argb, &arg, sizeof(arg));
 	
-	exp += ((int)((argb >> 52) & ((1<<11)-1))); //get exponent bits
-	argb &= ~(((1LL<<11)-1)<<52); //clear exponent bits
-	argb |= (((long long)exp)<<52); // set exponent to new value
+	exp += static_cast<int>((argb >> 52) & ((1 << 11) - 1)); //get exponent bits
+	argb &= ~(((1LL << 11) - 1) << 52); //clear exponent bits
+	argb |= (static_cast<long long>(exp) << 52); // set exponent to new value
 
     double ret;
-    memcpy(&ret, &argb, sizeof(ret));
+    Util::Address(&ret).copyRange(Util::Address(&argb), sizeof(ret));
 	return ret;
 }
 
-double modf(double arg, double * iptr) {
-	*iptr = (long long)arg;
+double modf(const double arg, double *iptr) {
+	*iptr = static_cast<long long>(arg);
 	return arg - *iptr;
 }
 
-int isinf(double arg) {
+int isinf(const double arg) {
 	return Util::Math::isInfinity(arg);
 }
 
-int isnan(double arg) {
+int isnan(const double arg) {
 	return Util::Math::isNan(arg);
 }

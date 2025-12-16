@@ -20,7 +20,7 @@
 
 #include <stdint.h>
 
-#include "lib/interface.h"
+#include "interface.h"
 #include "lib/util/base/System.h"
 #include "lib/util/base/Constants.h"
 #include "lib/util/async/Runnable.h"

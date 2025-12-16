@@ -20,7 +20,7 @@
 
 #include "File.h"
 
-#include "lib/interface.h"
+#include "interface.h"
 #include "util/collection/ArrayList.h"
 #include "util/base/Panic.h"
 

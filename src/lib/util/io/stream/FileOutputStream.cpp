@@ -20,7 +20,7 @@
 
 #include "FileOutputStream.h"
 
-#include "lib/interface.h"
+#include "interface.h"
 #include "util/base/Panic.h"
 #include "util/io/file/File.h"
 

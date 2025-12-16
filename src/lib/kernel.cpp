@@ -20,7 +20,7 @@
 
 #include <stdint.h>
 
-#include "lib/interface.h"
+#include "interface.h"
 #include "kernel/process/Process.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/FilesystemService.h"

@@ -16,6 +16,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The string and date formatting functions are based on a master's thesis, written by Tobias Fabian Oehme.
+ * The original source code can be found here: https://github.com/ToboterXP/hhuOS/tree/thesis
  */
 
 #ifndef HHUOS_LIB_UTIL_STRING_H

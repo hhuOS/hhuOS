@@ -30,7 +30,7 @@
 #include "util/io/stream/FileInputStream.h"
 #include "util/io/file/File.h"
 #include "util/math/Math.h"
-#include "lib/interface.h"
+#include "interface.h"
 
 namespace Util {
 namespace Graphic {

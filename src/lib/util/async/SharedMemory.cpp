@@ -22,7 +22,7 @@
 
 #include "util/base/Constants.h"
 #include "util/base/System.h"
-#include "lib/interface.h"
+#include "interface.h"
 
 namespace Util {
 namespace Async {

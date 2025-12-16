@@ -25,19 +25,15 @@ add_compile_options("-Wpedantic")
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.user.base lib.user.time lib.user.math lib.user.runtime)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.math lib.user.time)
 target_sources(${PROJECT_NAME} PUBLIC
-		${HHUOS_SRC_DIR}/lib/libc/FileStream.cpp
-		${HHUOS_SRC_DIR}/lib/libc/errno.cpp
 		${HHUOS_SRC_DIR}/lib/libc/ctype.cpp
-        ${HHUOS_SRC_DIR}/lib/libc/stdlib.cpp
-		${HHUOS_SRC_DIR}/lib/libc/string.cpp	
-		${HHUOS_SRC_DIR}/lib/libc/math.cpp
+		${HHUOS_SRC_DIR}/lib/libc/errno.cpp
 		${HHUOS_SRC_DIR}/lib/libc/locale.cpp
+		${HHUOS_SRC_DIR}/lib/libc/math.cpp
 		${HHUOS_SRC_DIR}/lib/libc/setjmp.asm
-		${HHUOS_SRC_DIR}/lib/libc/time.cpp
 		${HHUOS_SRC_DIR}/lib/libc/stdio.cpp
-		${HHUOS_SRC_DIR}/lib/libc/stdio_printf.cpp
-		${HHUOS_SRC_DIR}/lib/libc/stdio_scanf.cpp
-		${HHUOS_SRC_DIR}/lib/libc/stdarg.cpp
+        ${HHUOS_SRC_DIR}/lib/libc/stdlib.cpp
+		${HHUOS_SRC_DIR}/lib/libc/string.cpp
+		${HHUOS_SRC_DIR}/lib/libc/time.cpp
 		${HHUOS_SRC_DIR}/lib/libc/sys/stat.cpp)

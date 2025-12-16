@@ -114,9 +114,9 @@ private:
     }
 
     uint32_t randomNumber;
-    const uint32_t multiplier;
-    const uint32_t increment;
-    const uint32_t modulus;
+    uint32_t multiplier;
+    uint32_t increment;
+    uint32_t modulus;
 
     static constexpr uint32_t MINSTD_MULTIPLIER = 48271;
     static constexpr uint32_t MINSTD_INCREMENT = 0;

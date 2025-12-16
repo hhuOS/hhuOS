@@ -20,7 +20,7 @@
 
 #include "Machine.h"
 
-#include "lib/interface.h"
+#include "interface.h"
 
 namespace Util {
 namespace Hardware {

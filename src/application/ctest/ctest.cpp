@@ -329,8 +329,7 @@ int32_t main() {
 	memmove(&(buf[2]), buf, 30);
 	Util::System::out << "memmove(HW[2], HW, 30): " << buf<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 	Util::System::out << "strerror(1): " << strerror(1)<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
-	
-	
+
 	return 0;
 	
 }

@@ -20,7 +20,7 @@
 
 #include "FreeListMemoryManager.h"
 
-#include "lib/interface.h"
+#include "interface.h"
 #include "util/base/Address.h"
 #include "util/base/Constants.h"
 #include "util/base/Panic.h"

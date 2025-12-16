@@ -24,7 +24,7 @@
 #include <stddef.h>
 
 #include "util/async/Spinlock.h"
-#include "lib/interface.h"
+#include "interface.h"
 
 namespace Util {
 namespace Async {

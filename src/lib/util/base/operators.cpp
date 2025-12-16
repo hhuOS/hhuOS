@@ -20,7 +20,7 @@
 
 #include "operators.h"
 
-#include "lib/interface.h"
+#include "interface.h"
 
 void* operator new(const size_t size) {
     return allocateMemory(size);

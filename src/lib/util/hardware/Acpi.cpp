@@ -22,7 +22,7 @@
 
 #include "util/base/Address.h"
 #include "util/base/Constants.h"
-#include "lib/interface.h"
+#include "interface.h"
 
 namespace Util {
 namespace Hardware {

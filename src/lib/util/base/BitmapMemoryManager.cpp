@@ -20,7 +20,7 @@
 
 #include "BitmapMemoryManager.h"
 
-#include "lib/interface.h"
+#include "interface.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/Panic.h"
 

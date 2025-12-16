@@ -23,7 +23,7 @@
 
 #include "Socket.h"
 
-#include "lib/interface.h"
+#include "interface.h"
 #include "util/base/Panic.h"
 #include "util/base/String.h"
 #include "util/collection/Array.h"

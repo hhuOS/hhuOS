@@ -1,39 +1,63 @@
-#include "lib/libc/time.h"
+/*
+ * Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
+ * Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
+ * This project has been supported by several students.
+ * A full list of integrated student theses can be found here: https://github.com/hhuOS/hhuOS/wiki/Student-theses
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The stanard C library is based on a master's thesis, written by Tobias Fabian Oehme.
+ * The original source code can be found here: https://github.com/ToboterXP/hhuOS/tree/thesis
+ */
 
-#include "lib/libc/string.h"
+#include "time.h"
 
-#include "lib/util/time/Timestamp.h"
-#include "lib/util/time/Date.h"
-#include "lib/util/io/stream/ByteArrayOutputStream.h"
-#include "lib/util/io/stream/PrintStream.h"
-
+#include "string.h"
+#include "util/time/Timestamp.h"
+#include "util/time/Date.h"
+#include "util/io/stream/ByteArrayOutputStream.h"
+#include "util/io/stream/PrintStream.h"
 
 clock_t startTime;
 
-//Called on program start
-void _time_initialize() {
-	startTime = Util::Time::Timestamp::getSystemTime().toMilliseconds();
+// Called on program start
+void libc_initialize_time() {
+	startTime = static_cast<clock_t>(Util::Time::Timestamp::getSystemTime().toMilliseconds());
 }
 
-//time manipulation
-double difftime(time_t time_end, time_t time_beg) {
+// Time manipulation
+double difftime(const time_t time_end, const time_t time_beg) {
 	return time_end - time_beg;
 }
 
 time_t time(time_t *arg) {
-	time_t ret = Util::Time::Date().getUnixTime();
-	if (arg) *arg = ret;
+	const auto ret = static_cast<time_t>(Util::Time::Date().getUnixTime());
+	if (arg) {
+		*arg = ret;
+	}
+
 	return ret;
 }
 
 clock_t clock() {
-	return Util::Time::Timestamp::getSystemTime().toMilliseconds() - startTime;
+	return static_cast<clock_t>(Util::Time::Timestamp::getSystemTime().toMilliseconds()) - startTime;
 }
 
-//format conversion
-struct tm retTm; //tm struct to be used for conversions
+// Format conversion
+tm retTm; // tm struct to be used for conversions
 
-void _date_to_tm(Util::Time::Date date, struct tm* tm_struct) {
+void date_to_tm(const Util::Time::Date date, tm* tm_struct) {
 	tm_struct->tm_sec = date.getSeconds();
 	tm_struct->tm_min = date.getMinutes();
 	tm_struct->tm_hour = date.getHours();
@@ -43,58 +67,61 @@ void _date_to_tm(Util::Time::Date date, struct tm* tm_struct) {
 	
 	//Conversion from Mon=0 to Sun=0;
 	tm_struct->tm_wday = date.getWeekday();
-	if (tm_struct->tm_wday == 6) tm_struct->tm_wday = 0;
-	else tm_struct->tm_wday++;
+	if (tm_struct->tm_wday == 6) {
+		tm_struct->tm_wday = 0;
+	} else {
+		tm_struct->tm_wday++;
+	}
 	
 	tm_struct->tm_yday = date.getDayOfYear();
-	tm_struct->tm_isdst = 0; //timezones unimplemented 
+	tm_struct->tm_isdst = 0; // Timezones unimplemented
 }
 
-Util::Time::Date _tm_to_date( const struct tm* arg) {
-	return Util::Time::Date(arg->tm_sec, arg->tm_min, arg->tm_hour, arg->tm_mday, arg->tm_mon, arg->tm_year + 1900);
+Util::Time::Date tm_to_date(const tm* arg) {
+	return Util::Time::Date(arg->tm_sec, arg->tm_min, arg->tm_hour,
+		arg->tm_mday, arg->tm_mon, static_cast<int16_t>(arg->tm_year + 1900));
 }
 
-struct tm* gmtime( const time_t* timer) {
-	Util::Time::Date date = Util::Time::Date(*timer);
-	_date_to_tm(date, &retTm);
+tm* gmtime(const time_t* timer) {
+	const auto date = Util::Time::Date(*timer);
+	date_to_tm(date, &retTm);
 	return &retTm;
 }
 
-struct tm* localtime( const time_t* timer) {
+tm* localtime(const time_t* timer) {
 	return gmtime(timer); //timezones unimplemented
 }
 
-time_t mktime(struct tm* arg) {
-	auto date = _tm_to_date(arg);
-	time_t ret = date.getUnixTime();
-	_date_to_tm(date, arg);
+time_t mktime(tm* arg) {
+	const auto date = tm_to_date(arg);
+	const auto ret = static_cast<time_t>(date.getUnixTime());
+
+	date_to_tm(date, arg);
 	return ret;
 }
 
+Util::Io::ByteArrayOutputStream timeBuf;
 
-Util::Io::ByteArrayOutputStream timeBuf(1024);
-
-
-char * asctime(const struct tm* time_ptr) {
+char* asctime(const tm* time_ptr) {
 	timeBuf.reset();
 
-	Util::String::formatDate(_tm_to_date(time_ptr), timeBuf);
+	Util::String::formatDate(tm_to_date(time_ptr), timeBuf);
 	timeBuf.write('\n');
 	timeBuf.write('\0');
 
-	return (char*)timeBuf.getBuffer();
+	return reinterpret_cast<char*>(timeBuf.getBuffer());
 }
 
 
-char * ctime(const time_t* timer) {
+char* ctime(const time_t* timer) {
 	return asctime(localtime(timer));
 }
 
 
-size_t strftime(char* str, size_t count, const char* format, const struct tm* tp) {
-	Util::Io::ByteArrayOutputStream byteBuf((uint8_t*)str, count);
+size_t strftime(char* str, const size_t count, const char* format, const tm* tp) {
+	Util::Io::ByteArrayOutputStream byteBuf(reinterpret_cast<uint8_t*>(str), count);
 
-	auto written = Util::String::formatDate(_tm_to_date(tp), byteBuf, format);
+	const auto written = Util::String::formatDate(tm_to_date(tp), byteBuf, format);
 	if (byteBuf.write('\0')) {
 		return written;
 	}

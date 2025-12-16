@@ -16,13 +16,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The string and date formatting functions are based on a master's thesis, written by Tobias Fabian Oehme.
+ * The original source code can be found here: https://github.com/ToboterXP/hhuOS/tree/thesis
  */
 
 #include "String.h"
 
-#include "CharacterTypes.h"
-#include "WideChar.h"
-#include "lib/interface.h"
+#include "interface.h"
+#include "util/base/CharacterTypes.h"
+#include "util/base/WideChar.h"
 #include "util/base/Address.h"
 #include "util/base/Panic.h"
 #include "util/collection/Array.h"

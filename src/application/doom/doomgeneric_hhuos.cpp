@@ -204,130 +204,130 @@ uint32_t DG_GetTicksMs() {
 }
 
 int DG_GetKey(int * pressed, unsigned char * key) {
-	if (!stdin->isReadyToRead()) {
+	if (!Util::System::in.isReadyToRead()) {
 		return 0;
-	} else {
-		uint8_t scancode = fgetc(stdin);
-		
-		if ((scancode & ~0x80) == 0x1d) {
-			*pressed = !(scancode & 0x80);
-			*key = KEY_FIRE;
-			return 1;
-		}
-		if ((scancode & ~0x80) == 0x38) {
-			*pressed = !(scancode & 0x80);
-			*key = KEY_LALT;
-			return 1;
-		}
-		
-		
-		if (kd->parseScancode(scancode)) {
-			auto k = kd->getCurrentKey();
-			if (!k.isValid()) {
-                return 0;
-            }
-			
-			*pressed = k.isPressed() ? 1:0; 
-			
-			if (k.getScancode() >= 0x3b && k.getScancode() <= 0x44) { // handle F1-10
-				*key = k.getScancode() + 0x80;
-				return 1;
-			}
-			
-			switch(k.getScancode()) {
-				case Util::Io::Key::UP:
-					*key = KEY_UPARROW;
-					return 1;
-				case Util::Io::Key::DOWN:
-					*key = KEY_DOWNARROW;
-					return 1;
-				case Util::Io::Key::LEFT:
-					*key = KEY_LEFTARROW;
-					return 1;
-				case Util::Io::Key::RIGHT:
-					*key = KEY_RIGHTARROW;
-					return 1;
-				case Util::Io::Key::SPACE:
-					*key = KEY_USE;
-					return 1;
-				case Util::Io::Key::ESC:
-					*key = KEY_ESCAPE;
-					return 1;
-				case Util::Io::Key::ENTER:
-					*key = KEY_ENTER;
-					return 1;
-				case Util::Io::Key::TAB:
-					*key = KEY_TAB;
-					return 1;
-				case Util::Io::Key::BACKSPACE:
-					*key = KEY_BACKSPACE;
-					return 1;
-                case Util::Io::Key::HOME:
-                    *key = KEY_HOME;
-                    return 1;
-                case Util::Io::Key::END:
-                    *key = KEY_END;
-                    return 1;
-                case Util::Io::Key::INSERT:
-                    *key = KEY_INS;
-                    return 1;
-                case Util::Io::Key::DEL:
-                    *key = KEY_DEL;
-                    return 1;
-                case Util::Io::Key::PAGE_UP:
-                    *key = KEY_PGUP;
-                    return 1;
-                case Util::Io::Key::PAGE_DOWN:
-                    *key = KEY_PGDN;
-                    return 1;
-                case Util::Io::Key::F1:
-                    *key = KEY_F1;
-                    return 1;
-                case Util::Io::Key::F2:
-                    *key = KEY_F2;
-                    return 1;
-                case Util::Io::Key::F3:
-                    *key = KEY_F3;
-                    return 1;
-                case Util::Io::Key::F4:
-                    *key = KEY_F4;
-                    return 1;
-                case Util::Io::Key::F5:
-                    *key = KEY_F5;
-                    return 1;
-                case Util::Io::Key::F6:
-                    *key = KEY_F6;
-                    return 1;
-                case Util::Io::Key::F7:
-                    *key = KEY_F7;
-                    return 1;
-                case Util::Io::Key::F8:
-                    *key = KEY_F8;
-                    return 1;
-                case Util::Io::Key::F9:
-                    *key = KEY_F9;
-                    return 1;
-                case Util::Io::Key::F10:
-                    *key = KEY_F10;
-                    return 1;
-                case Util::Io::Key::F11:
-                    *key = KEY_F11;
-                    return 1;
-                case Util::Io::Key::F12:
-                    *key = KEY_F12;
-                    return 1;
-				default:
-					if (k.getAscii()) {
-                        *key = tolower(k.getAscii());
-                        return 1;
-                    }
-
-                    return 0;
-			}
-		}
-		
 	}
-	return 0;
+
+    const uint8_t scancode = Util::System::in.read();
+
+    if ((scancode & ~0x80) == 0x1d) {
+        *pressed = !(scancode & 0x80);
+        *key = KEY_FIRE;
+        return 1;
+    }
+    if ((scancode & ~0x80) == 0x38) {
+        *pressed = !(scancode & 0x80);
+        *key = KEY_LALT;
+        return 1;
+    }
+
+
+    if (kd->parseScancode(scancode)) {
+        auto k = kd->getCurrentKey();
+        if (!k.isValid()) {
+            return 0;
+        }
+
+        *pressed = k.isPressed() ? 1:0;
+
+        if (k.getScancode() >= 0x3b && k.getScancode() <= 0x44) { // handle F1-10
+            *key = k.getScancode() + 0x80;
+            return 1;
+        }
+
+        switch(k.getScancode()) {
+            case Util::Io::Key::UP:
+                *key = KEY_UPARROW;
+                return 1;
+            case Util::Io::Key::DOWN:
+                *key = KEY_DOWNARROW;
+                return 1;
+            case Util::Io::Key::LEFT:
+                *key = KEY_LEFTARROW;
+                return 1;
+            case Util::Io::Key::RIGHT:
+                *key = KEY_RIGHTARROW;
+                return 1;
+            case Util::Io::Key::SPACE:
+                *key = KEY_USE;
+                return 1;
+            case Util::Io::Key::ESC:
+                *key = KEY_ESCAPE;
+                return 1;
+            case Util::Io::Key::ENTER:
+                *key = KEY_ENTER;
+                return 1;
+            case Util::Io::Key::TAB:
+                *key = KEY_TAB;
+                return 1;
+            case Util::Io::Key::BACKSPACE:
+                *key = KEY_BACKSPACE;
+                return 1;
+            case Util::Io::Key::HOME:
+                *key = KEY_HOME;
+                return 1;
+            case Util::Io::Key::END:
+                *key = KEY_END;
+                return 1;
+            case Util::Io::Key::INSERT:
+                *key = KEY_INS;
+                return 1;
+            case Util::Io::Key::DEL:
+                *key = KEY_DEL;
+                return 1;
+            case Util::Io::Key::PAGE_UP:
+                *key = KEY_PGUP;
+                return 1;
+            case Util::Io::Key::PAGE_DOWN:
+                *key = KEY_PGDN;
+                return 1;
+            case Util::Io::Key::F1:
+                *key = KEY_F1;
+                return 1;
+            case Util::Io::Key::F2:
+                *key = KEY_F2;
+                return 1;
+            case Util::Io::Key::F3:
+                *key = KEY_F3;
+                return 1;
+            case Util::Io::Key::F4:
+                *key = KEY_F4;
+                return 1;
+            case Util::Io::Key::F5:
+                *key = KEY_F5;
+                return 1;
+            case Util::Io::Key::F6:
+                *key = KEY_F6;
+                return 1;
+            case Util::Io::Key::F7:
+                *key = KEY_F7;
+                return 1;
+            case Util::Io::Key::F8:
+                *key = KEY_F8;
+                return 1;
+            case Util::Io::Key::F9:
+                *key = KEY_F9;
+                return 1;
+            case Util::Io::Key::F10:
+                *key = KEY_F10;
+                return 1;
+            case Util::Io::Key::F11:
+                *key = KEY_F11;
+                return 1;
+            case Util::Io::Key::F12:
+                *key = KEY_F12;
+                return 1;
+            default:
+                if (k.getAscii()) {
+                    *key = tolower(k.getAscii());
+                    return 1;
+                }
+
+                return 0;
+        }
+    }
+
+    return 0;
 }
 
 void DG_SetWindowTitle([[maybe_unused]] const char *title) {}

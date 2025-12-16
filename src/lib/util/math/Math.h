@@ -448,6 +448,19 @@ inline float exp2(float value);
 inline double exp2(double value);
 
 /// Calculate the natural logarithm (base e) of a single precision float.
+/// The logarithm is only defined for positive values, but this function does not perform any checks.
+/// If the value is less than or equal to zero, the FPU will produce a NaN or -Infinity result.
+///
+/// ### Example
+/// ```c++
+/// const float ln1 = Util::Math::ln(Util::Math::E_FLOAT); // 1.0f
+/// const float ln2 = Util::Math::ln(1.0f); // 0.0f
+/// const float ln3 = Util::Math::ln(10.0f); // 2.302585092994046f
+/// const float ln4 = Util::Math::ln(-1.0f); // NaN or -Infinity (unchecked)
+/// ```
+inline float lnUnchecked(float value);
+
+/// Calculate the natural logarithm (base e) of a single precision float.
 /// The logarithm is only defined for positive values. If the value is less than or equal to zero, a panic is fired.
 ///
 /// ### Example
@@ -458,6 +471,19 @@ inline double exp2(double value);
 /// const float ln4 = Util::Math::ln(-1.0f); // Panic: Logarithm of non-positive value
 /// ```
 inline float ln(float value);
+
+/// Calculate the natural logarithm (base e) of a double precision float.
+/// The logarithm is only defined for positive values, but this function does not perform any checks.
+/// If the value is less than or equal to zero, the FPU will produce a NaN or -Infinity result.
+///
+/// ### Example
+/// ```c++
+/// const double ln1 = Util::Math::ln(Util::Math::E_FLOAT); // 1.0
+/// const double ln2 = Util::Math::ln(1.0); // 0.0
+/// const double ln3 = Util::Math::ln(10.0); // 2.302585092994046
+/// const double ln4 = Util::Math::ln(-1.0); // NaN or -Infinity (unchecked)
+/// ```
+inline double lnUnchecked(double value);
 
 /// Calculate the natural logarithm (base e) of a double precision float.
 /// The logarithm is only defined for positive values. If the value is less than or equal to zero, a panic is fired.
@@ -472,6 +498,19 @@ inline float ln(float value);
 inline double ln(double value);
 
 /// Calculate the base-10 logarithm of a single precision float.
+/// The logarithm is only defined for positive values, but this function does not perform any checks.
+/// If the value is less than or equal to zero, the FPU will produce a NaN or -Infinity result.
+///
+/// ### Example
+/// ```c++
+/// const float log1 = Util::Math::log10(10.0f); // 1.0f
+/// const float log2 = Util::Math::log10(100.0f); // 2.0f
+/// const float log3 = Util::Math::log10(1.0f); // 0.0f
+/// const float log4 = Util::Math::log10(-1.0f); // NaN or -Infinity (unchecked)
+/// ```
+inline float log10Unchecked(float value);
+
+/// Calculate the base-10 logarithm of a single precision float.
 /// The logarithm is only defined for positive values. If the value is less than or equal to zero, a panic is fired.
 ///
 /// ### Example
@@ -482,6 +521,19 @@ inline double ln(double value);
 /// const float log4 = Util::Math::log10(-1.0f); // Panic: Logarithm of non-positive value
 /// ```
 inline float log10(float value);
+
+/// Calculate the base-10 logarithm of a double precision float.
+/// The logarithm is only defined for positive values, but this function does not perform any checks.
+/// If the value is less than or equal to zero, the FPU will produce a NaN or -Infinity result.
+///
+/// ### Example
+/// ```c++
+/// const double log1 = Util::Math::log10(10.0); // 1.0
+/// const double log2 = Util::Math::log10(100.0); // 2.0
+/// const double log3 = Util::Math::log10(1.0); // 0.0
+/// const double log4 = Util::Math::log10(-1.0); // NaN or -Infinity (unchecked)
+/// ```
+inline double log10Unchecked(double value);
 
 /// Calculate the base-10 logarithm of a double precision float.
 /// The logarithm is only defined for positive values. If the value is less than or equal to zero, a panic is fired.
@@ -524,6 +576,19 @@ inline float pow(float base, float exponent);
 inline double pow(double base, double exponent);
 
 /// Calculate the square root of a single precision float.
+/// The value must be non-negative, but this function does not perform any checks.
+/// If the value is negative, the FPU will produce a NaN result.
+///
+/// ### Example
+/// ```c++
+/// const float sqrt1 = Util::Math::sqrt(4.0f); // 2.0f
+/// const float sqrt2 = Util::Math::sqrt(9.0f); // 3.0f
+/// const float sqrt3 = Util::Math::sqrt(0.0f); // 0.0f
+/// const float sqrt4 = Util::Math::sqrt(-1.0f); // NaN (unchecked)
+/// ```
+inline float sqrtUnchecked(float value);
+
+/// Calculate the square root of a single precision float.
 /// The value must be non-negative. If the value is negative, a panic is fired.
 ///
 /// ### Example
@@ -534,6 +599,19 @@ inline double pow(double base, double exponent);
 /// const float sqrt4 = Util::Math::sqrt(-1.0f); // Panic: Negative value
 /// ```
 inline float sqrt(float value);
+
+/// Calculate the square root of a double precision float.
+/// The value must be non-negative, but this function does not perform any checks.
+/// If the value is negative, the FPU will produce a NaN result.
+///
+/// ### Example
+/// ```c++
+/// const double sqrt1 = Util::Math::sqrt(4.0); // 2.0
+/// const double sqrt2 = Util::Math::sqrt(9.0); // 3.0
+/// const double sqrt3 = Util::Math::sqrt(0.0); // 0.0
+/// const double sqrt4 = Util::Math::sqrt(-1.0); // NaN (unchecked)
+/// ```
+inline double sqrtUnchecked(double value);
 
 /// Calculate the square root of a double precision float.
 /// The value must be non-negative. If the value is negative, a panic is fired.
@@ -708,6 +786,21 @@ inline float arctangent2(float y, float x);
 inline double arctangent2(double y, double x);
 
 /// Calculate the arcsine of a single precision float.
+/// The value must be in the range [-1, 1], but this function does not perform any checks.
+/// If the value is outside this range, the FPU will produce a NaN result.
+///
+/// ### Example
+/// ```c++
+/// const float asin1 = Util::Math::arcsine(0.0f); // 0.0f
+/// const float asin2 = Util::Math::arcsine(1.0f); // 1.5707963267948966f (PI_FLOAT / 2.0f)
+/// const float asin3 = Util::Math::arcsine(-1.0f); // -1.5707963267948966f (-PI_FLOAT / 2.0f)
+/// const float asin4 = Util::Math::arcsine(0.5f); // 0.5235987755982989f (PI_FLOAT / 6.0f)
+/// const float asin5 = Util::Math::arcsine(-0.5f); // -0.5235987755982989f (-PI_FLOAT / 6.0f)
+/// const float asin5 = Util::Math::arcsine(1.5f); // NaN (unchecked)
+/// ```
+inline float arcsineUnchecked(float value);
+
+/// Calculate the arcsine of a single precision float.
 /// The value must be in the range [-1, 1]. Other values will fire a panic.
 ///
 /// ### Example
@@ -720,6 +813,21 @@ inline double arctangent2(double y, double x);
 /// const float asin5 = Util::Math::arcsine(1.5f); // Panic: Value out of range [-1, 1]
 /// ```
 inline float arcsine(float value);
+
+/// Calculate the arcsine of a double precision float.
+/// The value must be in the range [-1, 1], but this function does not perform any checks.
+/// If the value is outside this range, the FPU will produce a NaN result.
+///
+/// ### Example
+/// ```c++
+/// const double asin1 = Util::Math::arcsine(0.0); // 0.0
+/// const double asin2 = Util::Math::arcsine(1.0); // 1.5707963267948966f (PI_DOUBLE / 2.0)
+/// const double asin3 = Util::Math::arcsine(-1.0); // -1.5707963267948966f (-PI_DOUBLE / 2.0)
+/// const double asin4 = Util::Math::arcsine(0.5); // 0.5235987755982989f (PI_DOUBLE / 6.0)
+/// const double asin5 = Util::Math::arcsine(-0.5); // -0.5235987755982989f (-PI_DOUBLE / 6.0)
+/// const double asin5 = Util::Math::arcsine(1.5); // NaN (unchecked)
+/// ```
+inline double arcsineUnchecked(double value);
 
 /// Calculate the arcsine of a double precision float.
 /// The value must be in the range [-1, 1]. Other values will fire a panic.
@@ -736,6 +844,21 @@ inline float arcsine(float value);
 inline double arcsine(double value);
 
 /// Calculate the arccosine of a single precision float.
+/// The value must be in the range [-1, 1], but this function does not perform any checks.
+/// If the value is outside this range, the FPU will produce a NaN result.
+///
+/// ### Example
+/// ```c++
+/// const float acos1 = Util::Math::arccosine(0.0f); // 1.5707963267948966f (PI_FLOAT / 2.0f)
+/// const float acos2 = Util::Math::arccosine(1.0f); // 0.0f
+/// const float acos3 = Util::Math::arccosine(-1.0f); // 3.141592653589793f (PI_FLOAT)
+/// const float acos4 = Util::Math::arccosine(0.5f); // 1.0471975511965976f (PI_FLOAT / 3.0f)
+/// const float acos5 = Util::Math::arccosine(-0.5f); // 2.0943951023931957f (2 * PI_FLOAT / 3.0f)
+/// const float acos6 = Util::Math::arccosine(1.5f); // NaN (unchecked)
+/// ```
+inline float arccosineUnchecked(float value);
+
+/// Calculate the arccosine of a single precision float.
 /// The value must be in the range [-1, 1]. Other values will fire a panic.
 ///
 /// ### Example
@@ -748,6 +871,21 @@ inline double arcsine(double value);
 /// const float acos6 = Util::Math::arccosine(1.5f); // Panic: Value out of range [-1, 1]
 /// ```
 inline float arccosine(float value);
+
+/// Calculate the arccosine of a single precision float.
+/// The value must be in the range [-1, 1], but this function does not perform any checks.
+/// If the value is outside this range, the FPU will produce a NaN result.
+///
+/// ### Example
+/// ```c++
+/// const double acos1 = Util::Math::arccosine(0.0); // 1.5707963267948966 (PI_DOUBLE / 2.0)
+/// const double acos2 = Util::Math::arccosine(1.0); // 0.0
+/// const double acos3 = Util::Math::arccosine(-1.0); // 3.141592653589793 (PI_DOUBLE)
+/// const double acos4 = Util::Math::arccosine(0.5); // 1.0471975511965976 (PI_DOUBLE / 3.0)
+/// const double acos5 = Util::Math::arccosine(-0.5); // 2.0943951023931957 (2 * PI_DOUBLE / 3.0)
+/// const double acos6 = Util::Math::arccosine(1.5); // NaN (unchecked)
+/// ```
+inline double arccosineUnchecked(double value);
 
 /// Calculate the arccosine of a double precision float.
 /// The value must be in the range [-1, 1]. Other values will fire a panic.
@@ -1096,12 +1234,23 @@ asm volatile ( \
 : "0"(VALUE) \
 );
 
+inline float lnUnchecked(const float value) {
+    float result;
+    LN(value, result);
+
+    return result;
+}
+
 inline float ln(const float value) {
     if (value <= 0) {
         Panic::fire(Panic::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
     }
 
-    float result;
+    return lnUnchecked(value);
+}
+
+inline double lnUnchecked(const double value) {
+    double result;
     LN(value, result);
 
     return result;
@@ -1112,10 +1261,7 @@ inline double ln(const double value) {
         Panic::fire(Panic::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
     }
 
-    double result;
-    LN(value, result);
-
-    return result;
+    return lnUnchecked(value);
 }
 
 #define LOG10(VALUE, RESULT) \
@@ -1129,12 +1275,23 @@ asm volatile ( \
 : "0"(VALUE) \
 );
 
+inline float log10Unchecked(const float value) {
+    float result;
+    LOG10(value, result);
+
+    return result;
+}
+
 inline float log10(const float value) {
     if (value <= 0) {
         Panic::fire(Panic::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
     }
 
-    float result;
+    return log10Unchecked(value);
+}
+
+inline double log10Unchecked(const double value) {
+    double result;
     LOG10(value, result);
 
     return result;
@@ -1145,10 +1302,7 @@ inline double log10(const double value) {
         Panic::fire(Panic::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
     }
 
-    double result;
-    LOG10(value, result);
-
-    return result;
+    return log10Unchecked(value);
 }
 
 #define POW(BASE, EXPONENT, RESULT) \
@@ -1217,12 +1371,23 @@ asm volatile ( \
 : "0"(VALUE) \
 );
 
+inline float sqrtUnchecked(const float value) {
+    float result;
+    SQRT(value, result);
+
+    return result;
+}
+
 inline float sqrt(const float value) {
     if (value < 0) {
         Util::Panic::fire(Panic::INVALID_ARGUMENT, "Math: Square root of negative number!");
     }
 
-    float result;
+    return sqrtUnchecked(value);
+}
+
+inline double sqrtUnchecked(const double value) {
+    double result;
     SQRT(value, result);
 
     return result;
@@ -1233,10 +1398,7 @@ inline double sqrt(const double value) {
         Util::Panic::fire(Panic::INVALID_ARGUMENT, "Math: Square root of negative number!");
     }
 
-    double result;
-    SQRT(value, result);
-
-    return result;
+    return sqrtUnchecked(value);
 }
 
 #define SINE(VALUE, RESULT) \
@@ -1387,12 +1549,21 @@ inline double arctangent2(const double y, const double x) {
     return 0; // x == 0 && y == 0
 }
 
+inline float arcsineUnchecked(const float value) {
+    const auto divisor = sqrtUnchecked(1 - value * value);
+    return arctangent(value, divisor);
+}
+
 inline float arcsine(const float value) {
     if (value > 1 || value < -1) {
         Panic::fire(Panic::INVALID_ARGUMENT, "Math: Arcsine of value outside of [-1, 1]!");
     }
 
-    const auto divisor = sqrt(1 - value * value);
+    return arcsineUnchecked(value);
+}
+
+inline double arcsineUnchecked(const double value) {
+    const auto divisor = sqrtUnchecked(1 - value * value);
     return arctangent(value, divisor);
 }
 
@@ -1401,8 +1572,11 @@ inline double arcsine(const double value) {
         Panic::fire(Panic::INVALID_ARGUMENT, "Math: Arcsine of value outside of [-1, 1]!");
     }
 
-    const auto divisor = sqrt(1 - value * value);
-    return arctangent(value, divisor);
+    return arcsineUnchecked(value);
+}
+
+inline float arccosineUnchecked(const float value) {
+    return PI_FLOAT / 2.0f - arcsineUnchecked(value);
 }
 
 inline float arccosine(const float value) {
@@ -1410,7 +1584,11 @@ inline float arccosine(const float value) {
         Panic::fire(Panic::INVALID_ARGUMENT, "Math: Arccosine of value outside of [-1, 1]!");
     }
 
-    return PI_FLOAT / 2.0f - arcsine(value);
+    return arccosineUnchecked(value);
+}
+
+inline double arccosineUnchecked(const double value) {
+    return PI_DOUBLE / 2.0 - arcsineUnchecked(value);
 }
 
 inline double arccosine(const double value) {
@@ -1418,7 +1596,7 @@ inline double arccosine(const double value) {
         Panic::fire(Panic::INVALID_ARGUMENT, "Math: Arccosine of value outside of [-1, 1]!");
     }
 
-    return PI_DOUBLE / 2.0 - arcsine(value);
+    return arccosineUnchecked(value);
 }
 
 }
