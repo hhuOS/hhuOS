@@ -25,7 +25,9 @@
 namespace Util {
 namespace Time {
 
-Date::Date() : Date(::getCurrentDate()) {}
+static constexpr uint8_t monthLength[12] = { 31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+Date::Date() : Date(getCurrentDate()) {}
 
 Date::Date(int64_t unixTime) {
 	if (unixTime < 0) {

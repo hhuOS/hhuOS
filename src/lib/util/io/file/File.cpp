@@ -170,7 +170,11 @@ bool File::isReadyToRead(const int32_t fileDescriptor) {
 }
 
 void File::close(const int32_t fileDescriptor) {
-    return closeFile(fileDescriptor);
+    if (fileDescriptor < 0) {
+        return;
+    }
+
+    closeFile(fileDescriptor);
 }
 
 bool File::changeDirectory(const String &path) {

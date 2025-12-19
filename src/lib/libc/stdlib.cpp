@@ -288,7 +288,7 @@ size_t mbstowcs(wchar_t *dst, const char *s, const size_t len) {
 		
 		if (charlen <= 0) {
 			*(dst + curr) = '\0';
-			return curr - 1;
+			return curr;
 		}
 		
 		s += charlen;
@@ -302,9 +302,9 @@ size_t wcstombs(char *dst, const wchar_t *src, const size_t len) {
 	while (curr < len) {
 		int charlen = wctomb(dst + curr, *src);
 		
-		if (charlen <= 0) {
+		if (charlen <= 0 || *src == L'\0') {
 			*(dst + curr) = '\0';
-			return curr - 1;
+			return curr;
 		}
 		
 		src++;

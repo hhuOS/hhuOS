@@ -27,13 +27,13 @@
 
 namespace Util {
 namespace Io {
+
 bool PrintStream::write(const uint8_t byte) {
 	const auto written = write(&byte, 0, 1);
 	if (written == 0) {
 		return false;
 	}
 
-	bytesWritten++;
 	return true;
 }
 
@@ -98,14 +98,15 @@ void PrintStream::print(uint64_t number, const char sign) {
 
 	if (minimumIntegerPrecision >= 0) {
 		for (size_t i = numberStream.getPosition(); i < static_cast<size_t>(minimumIntegerPrecision); i++) {
-			write('0');
+			write(integerPrecisionPaddingChar);
 		}
 	}
 
 	print(numberStream.getContent());
 
 	if (rightPadding) {
-		for (size_t i = numberStream.getPosition(); i < numberPadding; i++) {
+		size_t i = sign ? numberStream.getPosition() + 1 : numberStream.getPosition();
+		for (; i < numberPadding; i++) {
 			write(' ');
 		}
 	}
@@ -146,7 +147,7 @@ void PrintStream::print(double number) {
 		number *= 10;
 
 		if (1 - (number - static_cast<uint8_t>(number)) < 0.0001) {
-			formatStream.write('0' + static_cast<uint8_t>(number));
+			formatStream.write('0' + static_cast<uint8_t>(number + 1));
 			i++;
 			break;
 		}
@@ -160,7 +161,7 @@ void PrintStream::print(double number) {
 		}
 	}
 
-	if (decimalPrecision >= 0) {
+	if (decimalPrecision >= 0 && fillDecimalPrecisionWithZeros) {
 		while (i < static_cast<size_t>(decimalPrecision)) {
 			formatStream.write('0');
 			i++;

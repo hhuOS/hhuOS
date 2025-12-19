@@ -617,23 +617,6 @@ private:
     char *buffer;
     size_t len;
 
-    static constexpr const char *WEEKDAY_NAMES[7] = {
-        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
-    };
-
-    static constexpr const char *WEEKDAY_ABBREVIATIONS[7] = {
-        "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
-    };
-
-    static constexpr const char *MONTH_NAMES[13] = {
-        "", "January", "February", "March", "April", "May", "June", "July",
-        "August", "September", "October", "November", "December"
-    };
-
-    static constexpr const char *MONTH_ABBREVIATIONS[13] = {
-        "", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    };
-
     static constexpr uint8_t CASE_OFFSET = 32;
 };
 

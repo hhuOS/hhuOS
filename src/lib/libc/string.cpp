@@ -262,11 +262,11 @@ char* strstr(const char *str, const char *substr) {
 		auto *substrCurrent = substr;
 		auto *strCurrent = current;
 		const char *next = nullptr;
-		int fault = 0;
+		bool fault = false;
 
 		while (*substrCurrent && *strCurrent) {
 			if (*substrCurrent != *strCurrent) {
-				fault = 1;
+				fault = true;
 				break;
 			}
 
@@ -277,7 +277,7 @@ char* strstr(const char *str, const char *substr) {
 			}
 		}
 
-        if (!*strCurrent) {
+        if (!*strCurrent && *substrCurrent) {
 	        return nullptr; // String end reached
         }
 

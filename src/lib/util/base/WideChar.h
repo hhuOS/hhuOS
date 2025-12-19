@@ -42,7 +42,6 @@ int utf8ToWchar(wchar_t *wideChar, const char *bytes, size_t maxLength);
 int wcharToUtf8(char * bytes, wchar_t wideChar);
 
 }
-
 }
 
 #endif

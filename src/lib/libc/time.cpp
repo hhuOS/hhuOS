@@ -62,10 +62,10 @@ void date_to_tm(const Util::Time::Date date, tm* tm_struct) {
 	tm_struct->tm_min = date.getMinutes();
 	tm_struct->tm_hour = date.getHours();
 	tm_struct->tm_mday = date.getDayOfMonth();
-	tm_struct->tm_mon = date.getMonth();
+	tm_struct->tm_mon = date.getMonth() - 1;
 	tm_struct->tm_year = date.getYear() - 1900;
 	
-	//Conversion from Mon=0 to Sun=0;
+	// Conversion from Mon = 0 to Sun = 0;
 	tm_struct->tm_wday = date.getWeekday();
 	if (tm_struct->tm_wday == 6) {
 		tm_struct->tm_wday = 0;
@@ -73,13 +73,13 @@ void date_to_tm(const Util::Time::Date date, tm* tm_struct) {
 		tm_struct->tm_wday++;
 	}
 	
-	tm_struct->tm_yday = date.getDayOfYear();
+	tm_struct->tm_yday = date.getDayOfYear() - 1;
 	tm_struct->tm_isdst = 0; // Timezones unimplemented
 }
 
 Util::Time::Date tm_to_date(const tm* arg) {
 	return Util::Time::Date(arg->tm_sec, arg->tm_min, arg->tm_hour,
-		arg->tm_mday, arg->tm_mon, static_cast<int16_t>(arg->tm_year + 1900));
+		arg->tm_mday, arg->tm_mon + 1, static_cast<int16_t>(arg->tm_year + 1900));
 }
 
 tm* gmtime(const time_t* timer) {
@@ -89,7 +89,7 @@ tm* gmtime(const time_t* timer) {
 }
 
 tm* localtime(const time_t* timer) {
-	return gmtime(timer); //timezones unimplemented
+	return gmtime(timer); // Timezones unimplemented
 }
 
 time_t mktime(tm* arg) {

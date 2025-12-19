@@ -23,6 +23,8 @@
 
 #include "String.h"
 
+#include <cstdio>
+
 #include "interface.h"
 #include "util/base/CharacterTypes.h"
 #include "util/base/WideChar.h"
@@ -35,6 +37,23 @@
 #include "util/math/Math.h"
 
 namespace Util {
+
+constexpr const char *WEEKDAY_NAMES[7] = {
+    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+};
+
+static constexpr const char *WEEKDAY_ABBREVIATIONS[7] = {
+    "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
+};
+
+static constexpr const char *MONTH_NAMES[13] = {
+    "", "January", "February", "March", "April", "May", "June", "July",
+    "August", "September", "October", "November", "December"
+};
+
+static constexpr const char *MONTH_ABBREVIATIONS[13] = {
+    "", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+};
 
 size_t String::hashCode() const {
     size_t hash = 0;
@@ -523,6 +542,7 @@ int32_t String::format(const char *format, va_list args, Io::OutputStream &targe
                         scientificNotation = true;
                     }
 
+                    bool trailingZeros = true;
                     if (c == 'g' || c == 'G') {
                         if (precision == -1) {
                             precision = 6;
@@ -530,6 +550,8 @@ int32_t String::format(const char *format, va_list args, Io::OutputStream &targe
                         if (precision == 0) {
                             precision = 1;
                         }
+
+                        trailingZeros = false;
 
                         if (precision > exp && exp >= -4) {
                             printStream.setDecimalPrecision(precision - exp - 1);
@@ -540,11 +562,16 @@ int32_t String::format(const char *format, va_list args, Io::OutputStream &targe
                         }
                     }
 
+                    printStream.setFillDecimalPrecisionWithZeros(trailingZeros);
+
                     if (!scientificNotation) {
                         printStream.print(value);
                     } else {
                         printStream.print(value / Math::pow(10.0, exp));
-                        target.write(CharacterTypes::isLower(c) ? 'e' : 'E');
+                        printStream.write(CharacterTypes::isLower(c) ? 'e' : 'E');
+
+                        printStream.setPositiveSign('+');
+                        printStream.setIntegerPrecision(2);
                         printStream.print(exp);
                     }
 
@@ -572,6 +599,7 @@ String String::formatDate(const Time::Date &date, const char *format) {
 
 int32_t String::formatDate(const Time::Date &date, Io::OutputStream &target, const char *format) {
     Io::PrintStream printStream(target);
+    printStream.setIntegerPrecisionPaddingChar(' ');
 
     for (uint32_t i = 0; format[i] != 0; i++) {
         // Skip until a format specifier (starting with '%') is found

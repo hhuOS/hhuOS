@@ -24,7 +24,13 @@
 #include "util/io/key/Key.h"
 #include "util/io/key/KeyDecoder.h"
 
-void Util::Io::KeyboardLayout::parseKey(const uint8_t scancode, const uint8_t prefix, Key &key) const {
+namespace Util {
+
+static constexpr uint8_t NUMPAD_SCANCODE_TABLE[13] = {
+    8, 9, 10, 53, 5, 6, 7, 27, 2, 3, 4, 11, 51
+};
+
+void Io::KeyboardLayout::parseKey(const uint8_t scancode, const uint8_t prefix, Key &key) const {
     if (scancode == 53 && prefix == KeyDecoder::PREFIX1) {
         key.setAscii('/');
         key.setScancode(53);
@@ -54,11 +60,13 @@ void Util::Io::KeyboardLayout::parseKey(const uint8_t scancode, const uint8_t pr
     }
 }
 
-Util::Io::KeyboardLayout::KeyboardLayout(const uint8_t normalTable[89], const uint8_t shiftTable[89],
+Io::KeyboardLayout::KeyboardLayout(const uint8_t normalTable[89], const uint8_t shiftTable[89],
     const uint8_t altTable[89], const uint8_t numpadTable[13])
 {
     Address(KeyboardLayout::normalTable).copyRange(Address(normalTable), sizeof(KeyboardLayout::normalTable));
     Address(KeyboardLayout::shiftTable).copyRange(Address(shiftTable), sizeof(KeyboardLayout::shiftTable));
     Address(KeyboardLayout::altTable).copyRange(Address(altTable), sizeof(KeyboardLayout::altTable));
     Address(KeyboardLayout::numpadTable).copyRange(Address(numpadTable), sizeof(KeyboardLayout::numpadTable));
+}
+
 }

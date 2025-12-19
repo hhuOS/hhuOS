@@ -16,6 +16,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The file has been enhanced with more formatting options during a master's thesis, written by Tobias Fabian Oehme.
+ * The original source code can be found here: https://github.com/ToboterXP/hhuOS/tree/thesis
  */
 
 #ifndef HHUOS_LIB_UTIL_IO_PRINTSTREAM_H
@@ -185,6 +188,26 @@ public:
 		minimumIntegerPrecision = precision;
 	}
 
+	/// Set the padding character to use for integer precision padding.
+	/// The default is '0' (zero).
+	///
+	/// ### Example
+	/// ```c++
+	/// Util::System::out.setIntegerPrecision(5);
+	/// Util::System::out.println(42); // prints "00042"
+	///
+	/// Util::System::out.setIntegerPrecisionPaddingChar('*');
+	/// Util::System::out.println(42); // prints "***42"
+	///
+	/// Util::System::out.setIntegerPrecisionPaddingChar(' ');
+	/// Util::System::out.println(42); // prints "   42"
+	///
+	/// Util::System::out.flush();
+	/// ```
+	void setIntegerPrecisionPaddingChar(const char paddingChar) {
+		integerPrecisionPaddingChar = paddingChar;
+	}
+
 	/// Set the number of digits to print after the decimal point for floating-point numbers.
 	/// If the number has more decimal places, it will be rounded.
 	/// The default value is -1, which means to print all available decimal places.
@@ -206,6 +229,27 @@ public:
 	/// ```
 	void setDecimalPrecision(const int32_t precision) {
 		decimalPrecision = precision;
+	}
+
+	/// Set whether to fill the decimal precision with trailing zeros for floating-point numbers.
+	/// For example, if the decimal precision is set to 3,
+	/// the number 3.1 will be printed as "3.100" if this option is enabled.
+	/// The default is false (do not fill with zeros).
+	///
+	/// ### Example
+	/// ```c++
+	/// Util::System::out.setDecimalPrecision(3);
+	/// Util::System::out.println(3.1); // prints "3.1"
+	///
+	/// Util::System::out.setFillDecimalPrecisionWithZeros(true);
+	/// Util::System::out.println(3.1); // prints "3.100"
+	///
+	/// Util::System::out.println(3.1234); // prints "3.123"
+	///
+	/// Util::System::out.flush();
+	/// ```
+	void setFillDecimalPrecisionWithZeros(const bool fillZeros) {
+		fillDecimalPrecisionWithZeros = fillZeros;
 	}
 
 	/// Set a prefix string to print before integer numbers (e.g. "0x" for hexadecimal).
@@ -1469,7 +1513,10 @@ private:
 	char hexNumericBase = 'A';
 	
 	int32_t minimumIntegerPrecision = 1;
+	char integerPrecisionPaddingChar = '0';
+
 	int32_t decimalPrecision = -1;
+	bool fillDecimalPrecisionWithZeros = false;
 	
 	bool alwaysPrintDecimalPoint = false;
 	

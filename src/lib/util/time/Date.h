@@ -205,7 +205,6 @@ private:
 	int16_t year = 1970;
 
 	static constexpr uint32_t secondsPerDay = 86400;
-	static constexpr uint8_t monthLength[12] = {31,0,31,30,31,30,31,31,30,31,30,31};
 };
 
 }

@@ -177,7 +177,7 @@ public:
 		pos += written;
 		bufferPos -= written;
 
-		return static_cast<int>(written);
+		return 0;
 	}
 
 	int16_t read() override {
@@ -280,7 +280,7 @@ public:
 				newPos += pos;
 				break;
 			case SeekMode::END:
-				newPos = getFileLength(fileDescriptor) - newPos;
+				newPos = getFileLength(fileDescriptor) + newPos;
 				break;
 		}
 
@@ -288,7 +288,9 @@ public:
 	}
 
 	int setBuffer(char* newBuffer, const BufferMode mode, const size_t size) {
-		if (!bufferChangeAllowed || isError()) return -1;
+		if (!bufferChangeAllowed || isError()) {
+			return -1;
+		}
 
 		if (mode == BufferMode::NONE) {
 			buffer = nullptr;
@@ -387,7 +389,12 @@ FILE* fopen(const char *filename, const char *mode) {
 	}
 	
 	auto *ret = new FileStream(filename, fmode);
-	return ret->isOpen() ? reinterpret_cast<FILE*>(ret) : nullptr;
+	if (ret->isOpen()) {
+		return reinterpret_cast<FILE*>(ret);
+	}
+
+	delete ret;
+	return nullptr;
 }
 
 FILE* freopen(const char *filename, const char *mode, FILE *stream) {
@@ -435,7 +442,7 @@ int setvbuf(FILE *stream, char *buf, const int mode, const size_t size) {
 
 size_t fread(void *buffer, const size_t size, const size_t count, FILE *stream) {
 	auto *fileStream = reinterpret_cast<FileStream*>(stream);
-	return fileStream->read(static_cast<uint8_t*>(buffer), 0, size * count);
+	return fileStream->read(static_cast<uint8_t*>(buffer), 0, size * count) / size;
 }
 
 size_t fwrite(const void *buffer, const size_t size, const size_t count, FILE * stream) {
@@ -527,7 +534,8 @@ int putchar(const int ch) {
 }
 
 int puts(const char *str) {
-	return fputs(str, stdout);
+	fputs(str, stdout);
+	return fputc('\n', stdout);
 }
 
 int ungetc(const int ch, FILE  *stream) {
@@ -593,6 +601,10 @@ int feof(FILE *stream) {
 }
 
 int ferror(FILE *stream) {
+	if (stream == nullptr) {
+		return 1;
+	}
+
 	const auto *fileStream = reinterpret_cast<FileStream*>(stream);
 	return fileStream->isError() ? 1 : 0;
 }

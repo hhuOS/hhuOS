@@ -25,6 +25,7 @@
 #define HHUOS_LIB_UTIL_CHARACTERTYPES_H
 
 namespace Util {
+
 /// Provides functions to check the type of a character, equivalent to the C standard library functions in <ctype.h>.
 namespace CharacterTypes {
 
@@ -89,7 +90,6 @@ inline bool isPunctuation(const int c) {
 }
 
 }
-
 }
 
 

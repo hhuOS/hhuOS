@@ -66,10 +66,6 @@ private:
     uint8_t shiftTable[89]{};
     uint8_t altTable[89]{};
     uint8_t numpadTable[13]{};
-
-    static constexpr uint8_t NUMPAD_SCANCODE_TABLE[13] = {
-        8, 9, 10, 53, 5, 6, 7, 27, 2, 3, 4, 11, 51
-    };
 };
 
 }

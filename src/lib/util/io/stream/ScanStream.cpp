@@ -334,6 +334,7 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 							*va_arg(args, int*) = static_cast<int>(value);
 							break;
 					}
+					scannedItems++;
 					break;
 				}
 				case 'i': {
@@ -352,6 +353,7 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 							*va_arg(args, int*) = static_cast<int>(value);
 							break;
 					}
+					scannedItems++;
 					break;
 				}
 				case 'u': {
@@ -370,6 +372,7 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 							*va_arg(args, int*) = static_cast<int>(value);
 							break;
 					}
+					scannedItems++;
 					break;
 				}
 				case 'o': {
@@ -388,6 +391,7 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 							*va_arg(args, int*) = static_cast<int>(value);
 							break;
 					}
+					scannedItems++;
 					break;
 				}
 				case 'x':
@@ -407,6 +411,7 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 							*va_arg(args, int*) = static_cast<int>(value);
 							break;
 					}
+					scannedItems++;
 					break;
 				}
 				case 'n': {
@@ -424,6 +429,7 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 							*va_arg(args, int*) = static_cast<int>(getReadBytes());
 							break;
 					}
+					// No increment of scannedItems for %n
 					break;
 				}
 				case 'f':
@@ -447,12 +453,14 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 							*va_arg(args, float*) = static_cast<float>(value);
 							break;
 					}
+					scannedItems++;
 					break;
 				}
 				case 'p': {
 					const auto value = readUnsigned64(16);
 					if (!suppressAssign) {
 						*va_arg(args, void**) = reinterpret_cast<void*>(value);
+						scannedItems++;
 					}
 					break;
 				}
@@ -480,6 +488,7 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 							break;
 						}
 					}
+					scannedItems++;
 					break;
 				}
 				case 's': {
@@ -527,6 +536,7 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 							break;
 						}
 					}
+					scannedItems++;
 					break;
 				}
 				case '[': {
@@ -602,6 +612,7 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 						*s = '\0';
 					}
 
+					scannedItems++;
 					break;
 				}
 				default:
@@ -609,7 +620,6 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 			}
 
 			setReadLimit(-1);
-			scannedItems++;
 		}
 	}
 
