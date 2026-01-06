@@ -20,53 +20,69 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/BufferedInputStream.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/io/stream/InputStream.h"
+#include <util/base/System.h>
+#include <util/base/ArgumentParser.h>
+#include <util/collection/Array.h>
+#include <util/io/file/File.h>
+#include <util/io/stream/BufferedInputStream.h>
+#include <util/io/stream/FileInputStream.h>
+#include <util/io/stream/PrintStream.h>
+#include <util/io/stream/InputStream.h>
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Concatenate multiple files on stdout.\n"
-                               "Usage: cat [FILE]...\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+const char *HELP_MESSAGE =
+#include "generated/README.md"
+;
+
+/// Read from the given input stream and write to standard output.
+/// When a newline character is encountered, the output stream is flushed.
+/// The input stream is read until EOF (-1) is reached.
+void processStream(Util::Io::InputStream &stream) {
+    int16_t c = stream.read();
+    while (c != -1) {
+        Util::System::out << static_cast<char>(c);
+        if (c == '\n') {
+            Util::System::out << Util::Io::PrintStream::flush;
+        }
+
+        c = stream.read();
+    }
+}
+
+int main(const int argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_MESSAGE);
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() <<
+            Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
-    auto arguments = argumentParser.getUnnamedArguments();
+    const auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "cat: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
-        return -1;
-    }
+        processStream(Util::System::in);
+    } else {
+        for (const auto &path : arguments) {
+            auto file = Util::Io::File(path);
+            if (!file.exists()) {
+                Util::System::error << "cat: '" << path << "' not found!" <<
+                    Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                continue;
+            }
 
-    for (const auto &path : arguments) {
-        auto file = Util::Io::File(path);
-        if (!file.exists()) {
-            Util::System::error << "cat: '" << path << "' not found!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
-            continue;
-        }
+            if (file.isDirectory()) {
+                Util::System::error << "cat: '" << path << "' is a directory!" <<
+                    Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                continue;
+            }
 
-        if (file.isDirectory()) {
-            Util::System::error << "cat: '" << path << "' is a directory!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
-            continue;
-        }
+            Util::Io::FileInputStream fileStream(file);
+            Util::Io::BufferedInputStream bufferedStream(fileStream);
+            auto &stream = file.getType() == Util::Io::File::REGULAR ?
+                static_cast<Util::Io::InputStream&>(bufferedStream) :
+                static_cast<Util::Io::InputStream&>(fileStream);
 
-        auto fileStream = Util::Io::FileInputStream(file);
-        auto bufferedStream = Util::Io::BufferedInputStream(fileStream);
-        auto &stream = (file.getType() == Util::Io::File::REGULAR) ? static_cast<Util::Io::InputStream&>(bufferedStream) : static_cast<Util::Io::InputStream&>(fileStream);
-
-        int16_t logChar = stream.read();
-        while (logChar != -1) {
-            Util::System::out << static_cast<char>(logChar) << Util::Io::PrintStream::flush;
-            logChar = stream.read();
+            processStream(stream);
         }
     }
 

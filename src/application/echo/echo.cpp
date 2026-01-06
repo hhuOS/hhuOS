@@ -32,7 +32,8 @@ int main(const int argc, char *argv[]) {
     argumentParser.setIgnoreUnknownArguments(true);
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() <<
+            Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
