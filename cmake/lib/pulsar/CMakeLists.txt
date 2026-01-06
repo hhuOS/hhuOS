@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
+# Copyright (C) 2017-2026 Heinrich Heine University Düsseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
 # Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
