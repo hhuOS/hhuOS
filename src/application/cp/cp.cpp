@@ -35,6 +35,8 @@ const char *HELP_MESSAGE =
 
 uint8_t buffer[4096];
 
+/// Copy data from the source file stream to target file stream.
+/// The function reads data in chunks of 4096 bytes until a read operation returns 0 or less.
 void copyFile(Util::Io::FileInputStream &source, Util::Io::FileOutputStream &target) {
     int32_t read;
     do {

@@ -35,7 +35,7 @@
 		puts("[\x1b[32mOK\x1b[39m]"); \
 	} else { \
 		puts("[\x1b[31mFAILED\x1b[39m]"); \
-		return; \
+		return -1; \
 	}
 
 #define ASSERT_TRUE(value) \
@@ -43,7 +43,7 @@
 		puts("[\x1b[32mOK\x1b[39m]"); \
 	} else { \
 		puts("[\x1b[31mFAILED\x1b[39m]"); \
-		return; \
+		return -1; \
 	}
 
 #define ASSERT_FALSE(value) \
@@ -54,7 +54,7 @@
 		puts("[\x1b[32mOK\x1b[39m]"); \
 	} else { \
 		puts("[\x1b[31mFAILED\x1b[39m]"); \
-		return; \
+		return -1; \
 	}
 
 #define ASSERT_POSITIVE(value) \
@@ -62,7 +62,7 @@
 		puts("[\x1b[32mOK\x1b[39m]"); \
 	} else { \
 		puts("[\x1b[31mFAILED\x1b[39m]"); \
-		return; \
+		return -1; \
 	}
 
 #define ASSERT_FLOAT_VALUE(value, expected) \
@@ -70,7 +70,7 @@
 		puts("[\x1b[32mOK\x1b[39m]"); \
 	} else { \
 		puts("[\x1b[31mFAILED\x1b[39m]"); \
-		return; \
+		return -1; \
 }
 
 #ifdef HHUOS
@@ -98,14 +98,14 @@ int intCompare(const void *a, const void *b) {
 	return *(int*)a - *(int*)b;
 }
 
-void main(const int argc, char *argv[]) {
+int main(const int argc, char *argv[]) {
 	setlocale(LC_ALL, "en_US.UTF-8");
 	setbuf(stdout, NULL);
 
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
 			printf("%s\n", HELP_MESSAGE);
-			return;
+			return -1;
 		}
 	}
 
@@ -627,4 +627,6 @@ void main(const int argc, char *argv[]) {
 		ws[1] == 0x20ac &&
 		ws[2] == 0x20ac &&
 		itemsRead == 1);
+
+	return 0;
 }

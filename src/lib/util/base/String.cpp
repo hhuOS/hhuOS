@@ -599,7 +599,6 @@ String String::formatDate(const Time::Date &date, const char *format) {
 
 int32_t String::formatDate(const Time::Date &date, Io::OutputStream &target, const char *format) {
     Io::PrintStream printStream(target);
-    printStream.setIntegerPrecisionPaddingChar(' ');
 
     for (uint32_t i = 0; format[i] != 0; i++) {
         // Skip until a format specifier (starting with '%') is found
@@ -612,7 +611,7 @@ int32_t String::formatDate(const Time::Date &date, Io::OutputStream &target, con
         printStream.write(reinterpret_cast<const uint8_t*>(format), i, j);
 
         i += j;
-        if (format[i + j] == '\0') {
+        if (format[i + 1] == '\0') {
             break;
         }
 
@@ -639,13 +638,13 @@ int32_t String::formatDate(const Time::Date &date, Io::OutputStream &target, con
                 printStream.setIntegerPrecision(2);
                 printStream.print(date.getMonth());
                 break;
-            case 'U':
-                printStream.setIntegerPrecision(2);
-                printStream.print(date.getWeekOfYearSunday());
-                break;
             case 'W':
                 printStream.setIntegerPrecision(2);
                 printStream.print(date.getWeekOfYear());
+                break;
+            case 'U':
+                printStream.setIntegerPrecision(2);
+                printStream.print(date.getWeekOfYearSunday());
                 break;
             case 'j':
                 printStream.setIntegerPrecision(3);
@@ -662,7 +661,7 @@ int32_t String::formatDate(const Time::Date &date, Io::OutputStream &target, con
                 printStream.print(WEEKDAY_NAMES[date.getWeekday()]);
                 break;
             case 'w':
-                printStream.print((date.getWeekday() + 1 % 7));
+                printStream.print((date.getWeekday() + 1) % 7);
                 break;
             case 'H':
                 printStream.setIntegerPrecision(2);
@@ -672,26 +671,12 @@ int32_t String::formatDate(const Time::Date &date, Io::OutputStream &target, con
                 printStream.setIntegerPrecision(2);
                 printStream.print((date.getHours() - 1) % 12 + 1);
                 break;
+            case 'p':
+                printStream.print(date.getHours() > 12 ? "p.m." : "a.m.");
+                break;
             case 'M':
                 printStream.setIntegerPrecision(2);
                 printStream.print(date.getMinutes());
-                break;
-            case 'c':
-                printStream.print(WEEKDAY_ABBREVIATIONS[date.getWeekday()]);
-                printStream.print(' ');
-                printStream.print(MONTH_ABBREVIATIONS[date.getMonth()]);
-                printStream.print(' ');
-                printStream.setIntegerPrecision(2);
-                printStream.print(date.getDayOfMonth());
-                printStream.print(' ');
-                printStream.print(date.getHours());
-                printStream.print(':');
-                printStream.print(date.getMinutes());
-                printStream.print(':');
-                printStream.print(date.getSeconds());
-                printStream.print(' ');
-                printStream.setIntegerPrecision(4);
-                printStream.print(date.getYear());
                 break;
             case 'S':
                 printStream.setIntegerPrecision(2);
@@ -713,11 +698,26 @@ int32_t String::formatDate(const Time::Date &date, Io::OutputStream &target, con
                 printStream.print(':');
                 printStream.print(date.getSeconds());
                 break;
-            case 'p':
-                printStream.print(date.getHours() > 12 ? "p.m." : "a.m.");
-                break;
             case 'Z':
                 printStream.print("UTC+0");
+                break;
+            case 'c':
+                printStream.setIntegerPrecisionPaddingChar(' ');
+                printStream.print(WEEKDAY_ABBREVIATIONS[date.getWeekday()]);
+                printStream.print(' ');
+                printStream.print(MONTH_ABBREVIATIONS[date.getMonth()]);
+                printStream.print(' ');
+                printStream.setIntegerPrecision(2);
+                printStream.print(date.getDayOfMonth());
+                printStream.print(' ');
+                printStream.print(date.getHours());
+                printStream.print(':');
+                printStream.print(date.getMinutes());
+                printStream.print(':');
+                printStream.print(date.getSeconds());
+                printStream.print(' ');
+                printStream.setIntegerPrecision(4);
+                printStream.print(date.getYear());
                 break;
             default:
                 return -1;

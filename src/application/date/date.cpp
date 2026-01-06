@@ -18,30 +18,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <stdint.h>
+#include <lib/util/base/System.h>
+#include <lib/util/time/Date.h>
+#include <lib/util/base/ArgumentParser.h>
+#include <lib/util/base/String.h>
+#include <lib/util/io/stream/PrintStream.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/time/Date.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/base/String.h"
-#include "lib/util/io/stream/PrintStream.h"
+const char *HELP_MESSAGE =
+#include "generated/README.md"
+;
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Print the current date.\n"
-                               "Usage: date\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+int main(const int argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_MESSAGE);
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto date = Util::Time::Date();
-    Util::System::out << Util::String::format("%u-%02u-%02u %02u:%02u:%02u",
-          date.getYear(), date.getMonth(), date.getDayOfMonth(), date.getHours(), date.getMinutes(), date.getSeconds())
-                      << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    const auto arguments = argumentParser.getUnnamedArguments();
+    if (arguments.length() > 1) {
+        Util::System::error << "date: Too many arguments!" << Util::Io::PrintStream::lnFlush;
+        return -1;
+    }
 
+    const char *format = arguments.length() == 0 ? "%c" : static_cast<const char*>(arguments[0]);
+    const Util::Time::Date now;
+
+    Util::System::out << Util::String::formatDate(now, format) << Util::Io::PrintStream::lnFlush;
     return 0;
 }
