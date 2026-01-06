@@ -18,14 +18,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <stdint.h>
+#include <util/base/ArgumentParser.h>
+#include <util/base/System.h>
+#include <util/io/stream/PrintStream.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/io/stream/PrintStream.h"
+const char *HELP_MESSAGE =
+#include "generated/README.md"
+;
 
-int32_t main(int32_t argc, char *argv[]) {
-    for (int32_t i = 1; i < argc; i++) {
-        Util::System::out << argv[i] << " ";
+int main(const int argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_MESSAGE);
+    argumentParser.setIgnoreUnknownArguments(true);
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        return -1;
+    }
+
+    for (const auto &argument : argumentParser.getUnnamedArguments()) {
+        Util::System::out << argument << " ";
     }
 
     Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;

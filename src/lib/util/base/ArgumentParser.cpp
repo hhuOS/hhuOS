@@ -30,9 +30,14 @@ bool ArgumentParser::parse(const uint32_t argc, char *argv[]) {
     parsedSwitches.clear();
 
     for (size_t i = 1; i < argc; i++){
-        String currentArg = argv[i];
+        const String currentArg = argv[i];
 
-        if (!currentArg.beginsWith("-") || currentArg == "-") {
+        size_t hyphens = 0;
+        while (hyphens < currentArg.length() && currentArg[hyphens] == '-') {
+            hyphens++;
+        }
+
+        if (hyphens == 0 || hyphens > 2 || currentArg.length() == hyphens) {
             unnamedArgumentsList.add(currentArg);
         } else if (currentArg == "-h" || currentArg == "--help") {
             errorString = helpText;
@@ -40,33 +45,49 @@ bool ArgumentParser::parse(const uint32_t argc, char *argv[]) {
             parsedSwitches.clear();
             return false;
         } else {
-            if (abbreviationMap.containsKey(currentArg.substring(1, currentArg.length()))) {
-                currentArg = abbreviationMap.get(currentArg.substring(1, currentArg.length()));
-            } else {
-                if (currentArg.beginsWith("--")) {
-                    currentArg = currentArg.substring(2, currentArg.length());
-                } else {
-                    currentArg = currentArg.substring(1, currentArg.length());
+            String parameter = currentArg;
+            if (hyphens == 1) {
+                // Short form (abbreviation):
+                // Remove leading '-' and search for full parameter name in abbreviation map.
+                // If not found, leave parameter untouched (with leading '-').
+                const auto abbreviation = currentArg.substring(1);
+                if (abbreviationMap.containsKey(abbreviation)) {
+                    parameter = abbreviationMap.get(abbreviation);
                 }
+            } else {
+                // Long form:
+                // Remove leading '--'.
+                parameter = currentArg.substring(2);
             }
 
-            if (requiredParameters.contains(currentArg)) {
-                requiredParameters.remove(currentArg);
+            // Check if parameter is required and remove it from the list of required parameters.
+            if (requiredParameters.contains(parameter)) {
+                requiredParameters.remove(parameter);
             }
 
-            if (parameters.contains(currentArg)) {
+            // Check if parameter is known.
+            if (parameters.contains(parameter)) {
+                // Parameter requires a value -> Get next argument as value.
                 if (i < argc - 1) {
-                    namedArguments.put(currentArg, argv[++i]);
+                    const String value = argv[i + 1];
+                    namedArguments.put(parameter, value);
                 } else {
+                    // No value given for parameter -> Quit parsing with error.
                     errorString = "No value given for parameter '" + currentArg + "'!";
                     namedArguments.clear();
                     parsedSwitches.clear();
                     return false;
                 }
-            } else if (switches.contains(currentArg)) {
-                parsedSwitches.add(currentArg);
+            } else if (switches.contains(parameter)) {
+                // Switch found -> This is a boolean flag, so just store its presence.
+                parsedSwitches.add(parameter);
+            } else if (ignoreUnknownArguments) {
+                // The argument looks like a parameter or switch, but is unknown.
+                // Since 'ignoreUnknownArguments' is set, treat it as unnamed argument instead of throwing an error.
+                unnamedArgumentsList.add(currentArg);
             } else {
-                errorString = "Unknown parameter '" + currentArg + "'!";
+                // Unknown parameter -> Quit parsing with error.
+                errorString = "Unknown parameter '" + parameter + "'!";
                 namedArguments.clear();
                 parsedSwitches.clear();
                 return false;
@@ -74,6 +95,7 @@ bool ArgumentParser::parse(const uint32_t argc, char *argv[]) {
         }
     }
 
+    // Check if all required parameters were given.
     if (!requiredParameters.isEmpty()) {
         errorString = "Missing required parameters: ";
 

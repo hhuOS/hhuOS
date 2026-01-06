@@ -95,18 +95,14 @@ struct SdtHeader {
 struct Rsdt {
     /// The header that prepends every ACPI table.
     SdtHeader header;
-    /// An array of pointers (physical addresses) to other ACPI tables.
-    /// The number of pointers can be calculated from the length of the table:
-    /// ```
-    /// header.length - sizeof(SdtHeader) / sizeof(SdtHeader*).
-    /// ```
-    /// This is already implemented in the `getTableCount()` method.
 
     /// Get the number of tables in this `Rsdt`.
     size_t getTableCount() const {
         return (header.length - sizeof(SdtHeader)) / sizeof(SdtHeader*);
     }
 
+    /// Get a pointer to an array of pointers (pyhsical addresses) to other ACPI tables.
+    /// The number of entries in the array can be obtained via `getTableCount()`.
     const SdtHeader* const* getTables() const {
         return reinterpret_cast<const SdtHeader* const*>(this + 1);
     }

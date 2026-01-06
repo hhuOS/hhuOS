@@ -142,6 +142,8 @@ tools/nettest/nettest-server
 # Build artifacts
 *.img
 *.iso
+generated/
+doxygen.warn
 
 # QEMU files
 RELEASEIa32_OVMF.fd

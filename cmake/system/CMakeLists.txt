@@ -21,6 +21,15 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 
+add_compile_options(
+        -DHHUOS_VERSION=${HHUOS_VERSION}
+        -DHHUOS_CODENAME=${HHUOS_CODENAME}
+        -DHHUOS_GIT_REV=${HHUOS_GIT_REV}
+        -DHHUOS_GIT_BRANCH=${HHUOS_GIT_BRANCH}
+        -DHHUOS_BUILD_DATE=${HHUOS_BUILD_DATE}
+        -DHHUOS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+)
+
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/boot.asm
         ${HHUOS_SRC_DIR}/BuildConfig.cpp

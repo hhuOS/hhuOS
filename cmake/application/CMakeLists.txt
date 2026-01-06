@@ -21,7 +21,15 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 
-add_compile_options(-I ${HHUOS_SRC_DIR}/lib/libc)
+add_compile_options(
+        -DHHUOS
+)
+
+function(make_readme_includable app_dir)
+    file(READ ${app_dir}/README.md content)
+    set(content "R\"(${content})\"")
+    file(WRITE ${app_dir}/generated/README.md "${content}")
+endfunction(make_readme_includable)
 
 # Add subdirectories
 add_subdirectory(shell)

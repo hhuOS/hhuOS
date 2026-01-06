@@ -71,7 +71,21 @@
 	} else { \
 		puts("[\x1b[31mFAILED\x1b[39m]"); \
 		return; \
-	}
+}
+
+#ifdef HHUOS
+const char *HELP_MESSAGE =
+#include "generated/README.md"
+;
+#else
+const char *HELP_MESSAGE =
+	"An application to test various C standard library functionalities."
+	"It is not a full-featured testing framework,"
+    "but rather a simple tool to verify the behavior of certain C library functions.\n"
+	"Usage: ctest [options]\n"
+	"Options:\n"
+	"  -h, --help: Show this help message";
+#endif
 
 char buffer[1024];
 jmp_buf jumpBuffer;
@@ -84,9 +98,16 @@ int intCompare(const void *a, const void *b) {
 	return *(int*)a - *(int*)b;
 }
 
-void main(void) {
+void main(const int argc, char *argv[]) {
 	setlocale(LC_ALL, "en_US.UTF-8");
 	setbuf(stdout, NULL);
+
+	for (int i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+			printf("%s\n", HELP_MESSAGE);
+			return;
+		}
+	}
 
 	puts("----- string.h -----");
 

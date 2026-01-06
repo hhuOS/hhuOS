@@ -79,6 +79,13 @@ public:
     /// Create a new argument parser.
     ArgumentParser() = default;
 
+    /// Set whether unknown arguments should be ignored.
+    /// If this is set to false (default), `parse()` will fail if an unknown argument is encountered.
+    /// If this is set to true, unknown arguments will be treated as unnamed arguments.
+    void setIgnoreUnknownArguments(const bool ignore) {
+        ignoreUnknownArguments = ignore;
+    }
+
     /// Set the help text that is displayed when the argument `-h` or `--help` is given.
     void setHelpText(const String &text) {
         helpText = text;
@@ -88,7 +95,7 @@ public:
     /// Each argument must have a unique name. It may also have an abbreviation.
     /// Parameters to this method must not include the leading `-` or `--`.
     /// If `required` is set to true, the argument must be given. Otherwise, `parse()` will return false.
-    void addArgument(const String &name, bool required = false, const String &abbreviation = "") {
+    void addArgument(const String &name, const bool required = false, const String &abbreviation = "") {
         parameters.add(name);
         abbreviationMap.put(abbreviation, name);
         if (required) {
@@ -118,6 +125,8 @@ public:
 
     /// Get all unnamed arguments that were passed to the program.
     /// An unnamed argument is an argument that does not start with `-` or `--`.
+    /// If the parser is set to ignore unknown arguments and an unknown argument is encountered,
+    /// it is also treated as an unnamed argument.
     const Array<String>& getUnnamedArguments() const {
         return unnamedArguments;
     }
@@ -140,6 +149,7 @@ public:
 
 private:
 
+    bool ignoreUnknownArguments = false;
     String helpText;
     String errorString;
 

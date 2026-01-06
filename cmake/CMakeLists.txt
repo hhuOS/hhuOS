@@ -105,14 +105,8 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
         $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:${CMAKE_C_COMPILER_VERSION},15>>:-fno-assume-sane-operators-new-delete>
 
-        # Macro definitions
+        # Undefine linux macro
         -U__linux__
-        -DHHUOS_VERSION=${HHUOS_VERSION}
-        -DHHUOS_CODENAME=${HHUOS_CODENAME}
-        -DHHUOS_GIT_REV=${HHUOS_GIT_REV}
-        -DHHUOS_GIT_BRANCH=${HHUOS_GIT_BRANCH}
-        -DHHUOS_BUILD_DATE=${HHUOS_BUILD_DATE}
-        -DHHUOS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 )
 
 add_link_options(
@@ -144,6 +138,14 @@ find_program(cloc_path NAMES cloc)
 if (cloc_path)
     add_custom_target(cloc COMMAND "${cloc_path}" "${HHUOS_SRC_DIR}" --exclude-dir=ff,tinygl,portablegl,doomgeneric,quakegeneric,Peanut-GB,clownmdemu,ClassiCube,LiteNES VERBATIM)
 endif()
+
+# Add CMake function to make files includable as raw string literals
+# Taken from: https://stackoverflow.com/a/47801116
+function(make_includable input_file output_file)
+    file(READ ${input_file} content)
+    set(content "R\"(${content})\"")
+    file(WRITE ${output_file} "${content}")
+endfunction(make_includable)
 
 # Add subdirectories
 add_subdirectory(application)
