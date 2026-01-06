@@ -6,7 +6,7 @@ If no files are specified, read from standard input.
 Usage
 -----
 ```sh
-cat [OPTION]... [FILE]...
+cat [FILE]...
 ```
 
 Supported options:

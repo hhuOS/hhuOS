@@ -1438,6 +1438,20 @@ public:
 		return stream;
 	}
 
+	/// Print a new line character ('\n') via the stream insertion operator and then flush the underlying stream.
+	///
+	/// ### Example
+	/// ```c++
+	/// Util::System::out
+	///		<< "Hello, World!" // prints "Hello, World!"
+	///		<< Util::Io::PrintStream::lnFlush // prints a new line and flushes the stream
+	/// ```
+	static PrintStream& lnFlush(PrintStream& stream) {
+		stream.println();
+		stream.flush();
+		return stream;
+	}
+
 	/// Set the integer base to binary (base 2) via the stream insertion operator.
 	///
 	/// ### Example

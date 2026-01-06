@@ -20,72 +20,121 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/base/String.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/io/stream/FileOutputStream.h"
-#include "lib/util/io/stream/PrintStream.h"
+#include <lib/util/base/System.h>
+#include <lib/util/base/ArgumentParser.h>
+#include <lib/util/collection/Array.h>
+#include <lib/util/io/file/File.h>
+#include <lib/util/base/String.h>
+#include <lib/util/io/stream/FileInputStream.h>
+#include <lib/util/io/stream/FileOutputStream.h>
+#include <lib/util/io/stream/PrintStream.h>
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Copy a file from SOURCE to DESTINATION.\n"
-                               "Usage: cp [SOURCE] [DESTINATION]\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+const char *HELP_MESSAGE =
+#include "generated/README.md"
+;
 
-    if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
-        return -1;
-    }
+uint8_t buffer[4096];
 
-    auto arguments = argumentParser.getUnnamedArguments();
-    if (arguments.length() < 2) {
-        Util::System::error << "cp: Missing arguments!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
-        return -1;
-    }
-
-    auto sourceFile = Util::Io::File(arguments[0]);
-    auto targetFile = Util::Io::File(arguments[1]);
-
-    if (!sourceFile.exists()) {
-        Util::System::error << "cp: '" << arguments[0] << "' not found!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
-        return -1;
-    }
-
-    if (!sourceFile.isFile()) {
-        Util::System::error << "cp: '" << arguments[0] << "' is a directory!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
-        return -1;
-    }
-
-    if (sourceFile.getType() != Util::Io::File::REGULAR) {
-        Util::System::error << "cp: '" << arguments[0] << "' is not a regular file!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
-        return -1;
-    }
-
-    if (targetFile.exists() && targetFile.isDirectory()) {
-        targetFile = Util::Io::File(targetFile.getCanonicalPath() + "/" + sourceFile.getName());
-    }
-
-    if (!targetFile.exists() && !targetFile.create(Util::Io::File::REGULAR)) {
-        Util::System::error << "cp: Failed to create file '" << arguments[1] << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
-        return -1;
-    }
-	
-    auto source = Util::Io::FileInputStream(sourceFile);
-    auto target = Util::Io::FileOutputStream(targetFile);
-
-    auto *buffer = new uint8_t[4096];
+void copyFile(Util::Io::FileInputStream &source, Util::Io::FileOutputStream &target) {
     int32_t read;
     do {
         read = source.read(buffer, 0, 4096);
         if (read > 0) {
             target.write(buffer, 0, read);
         }
-    } while (read != -1);
+    } while (read > 0);
+}
 
-    delete[] buffer;
+int main(const int argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_MESSAGE);
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
+        return -1;
+    }
+
+    auto arguments = argumentParser.getUnnamedArguments();
+    if (arguments.length() < 2) {
+        Util::System::error << "cp: Missing arguments!" << Util::Io::PrintStream::lnFlush;
+        return -1;
+    }
+
+    if (arguments.length() == 2) {
+        const auto sourceFile = Util::Io::File(arguments[0]);
+        auto targetFile = Util::Io::File(arguments[1]);
+
+        if (!sourceFile.exists()) {
+            Util::System::error << "cp: '" << arguments[0] << "' not found!" << Util::Io::PrintStream::lnFlush;
+            return -1;
+        }
+
+        if (!sourceFile.isFile()) {
+            Util::System::error << "cp: '" << arguments[0] << "' is a directory!" << Util::Io::PrintStream::lnFlush;
+            return -1;
+        }
+
+        if (sourceFile.getType() != Util::Io::File::REGULAR) {
+            Util::System::error << "cp: '" << arguments[0] << "' is not a regular file!" << Util::Io::PrintStream::lnFlush;
+            return -1;
+        }
+
+        if (targetFile.exists() && targetFile.isDirectory()) {
+            targetFile = Util::Io::File(targetFile.getCanonicalPath() + "/" + sourceFile.getName());
+        }
+
+        if (!targetFile.exists() && !targetFile.create(Util::Io::File::REGULAR)) {
+            Util::System::error << "cp: Failed to create file '" << arguments[1] << "'!" <<
+                Util::Io::PrintStream::lnFlush;
+            return -1;
+        }
+
+        Util::Io::FileInputStream source(sourceFile);
+        Util::Io::FileOutputStream target(targetFile);
+        copyFile(source, target);
+    } else {
+        const auto targetDirectory = Util::Io::File(arguments[arguments.length() - 1]);
+        if (!targetDirectory.exists()) {
+            Util::System::error << "cp: '" << arguments[arguments.length() - 1] << "' not found!" <<
+                Util::Io::PrintStream::lnFlush;
+        }
+
+        if (!targetDirectory.isDirectory()) {
+            Util::System::error << "cp: '" << arguments[arguments.length() - 1] << "' is not a directory!" <<
+                Util::Io::PrintStream::lnFlush;
+        }
+
+        for (size_t i = 0; i < arguments.length() - 1; i++) {
+            const auto sourceFile = Util::Io::File(arguments[i]);
+            if (!sourceFile.exists()) {
+                Util::System::error << "cp: '" << arguments[i] << "' not found!" << Util::Io::PrintStream::lnFlush;
+                continue;
+            }
+
+            if (!sourceFile.isFile()) {
+                Util::System::error << "cp: '" << arguments[i] << "' is a directory!" << Util::Io::PrintStream::lnFlush;
+                continue;
+            }
+
+            if (sourceFile.getType() != Util::Io::File::REGULAR) {
+                Util::System::error << "cp: '" << arguments[i] << "' is not a regular file!" <<
+                    Util::Io::PrintStream::lnFlush;
+                continue;
+            }
+
+            auto targetFile = Util::Io::File(targetDirectory.getCanonicalPath() + "/" + sourceFile.getName());
+
+            if (!targetFile.exists() && !targetFile.create(Util::Io::File::REGULAR)) {
+                Util::System::error << "cp: Failed to create file '" << targetFile.getCanonicalPath() << "'!" <<
+                    Util::Io::PrintStream::lnFlush;
+                continue;
+            }
+
+            Util::Io::FileInputStream source(sourceFile);
+            Util::Io::FileOutputStream target(targetFile);
+            copyFile(source, target);
+        }
+    }
+
     return 0;
 }

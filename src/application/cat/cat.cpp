@@ -53,8 +53,7 @@ int main(const int argc, char *argv[]) {
     argumentParser.setHelpText(HELP_MESSAGE);
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() <<
-            Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
@@ -65,14 +64,12 @@ int main(const int argc, char *argv[]) {
         for (const auto &path : arguments) {
             auto file = Util::Io::File(path);
             if (!file.exists()) {
-                Util::System::error << "cat: '" << path << "' not found!" <<
-                    Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                Util::System::error << "cat: '" << path << "' not found!" << Util::Io::PrintStream::lnFlush;
                 continue;
             }
 
             if (file.isDirectory()) {
-                Util::System::error << "cat: '" << path << "' is a directory!" <<
-                    Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                Util::System::error << "cat: '" << path << "' is a directory!" << Util::Io::PrintStream::lnFlush;
                 continue;
             }
 

@@ -7,7 +7,7 @@ separated by spaces.
 Usage
 -----
 ```sh
-echo [OPTION]... [STRING]...
+echo [STRING]...
 ```
 
 Supported options:
