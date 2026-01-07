@@ -29,7 +29,7 @@
 #include <lib/util/io/stream/FileOutputStream.h>
 #include <lib/util/io/stream/PrintStream.h>
 
-const char *HELP_MESSAGE =
+const char *HELP_TEXT =
 #include "generated/README.md"
 ;
 
@@ -49,7 +49,7 @@ void copyFile(Util::Io::FileInputStream &source, Util::Io::FileOutputStream &tar
 
 int main(const int argc, char *argv[]) {
     Util::ArgumentParser argumentParser;
-    argumentParser.setHelpText(HELP_MESSAGE);
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;

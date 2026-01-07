@@ -74,7 +74,7 @@
 }
 
 #ifdef HHUOS
-const char *HELP_MESSAGE =
+const char *HELP_TEXT =
 #include "generated/README.md"
 ;
 #else
@@ -104,7 +104,7 @@ int main(const int argc, char *argv[]) {
 
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-			printf("%s\n", HELP_MESSAGE);
+			printf("%s\n", HELP_TEXT);
 			return -1;
 		}
 	}

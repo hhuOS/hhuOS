@@ -29,7 +29,7 @@
 #include <util/io/stream/PrintStream.h>
 #include <util/io/stream/InputStream.h>
 
-const char *HELP_MESSAGE =
+const char *HELP_TEXT =
 #include "generated/README.md"
 ;
 
@@ -38,7 +38,7 @@ const char *HELP_MESSAGE =
 /// The input stream is read until EOF (-1) is reached.
 void processStream(Util::Io::InputStream &stream) {
     int16_t c = stream.read();
-    while (c != -1) {
+    while (c >= 0) {
         Util::System::out << static_cast<char>(c);
         if (c == '\n') {
             Util::System::out << Util::Io::PrintStream::flush;
@@ -50,7 +50,7 @@ void processStream(Util::Io::InputStream &stream) {
 
 int main(const int argc, char *argv[]) {
     Util::ArgumentParser argumentParser;
-    argumentParser.setHelpText(HELP_MESSAGE);
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;

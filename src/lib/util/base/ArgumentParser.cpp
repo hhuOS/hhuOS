@@ -29,7 +29,7 @@ bool ArgumentParser::parse(const uint32_t argc, char *argv[]) {
     namedArguments.clear();
     parsedSwitches.clear();
 
-    for (size_t i = 1; i < argc; i++){
+    for (size_t i = 1; i < argc; i++) {
         const String currentArg = argv[i];
 
         size_t hyphens = 0;
@@ -69,7 +69,7 @@ bool ArgumentParser::parse(const uint32_t argc, char *argv[]) {
             if (parameters.contains(parameter)) {
                 // Parameter requires a value -> Get next argument as value.
                 if (i < argc - 1) {
-                    const String value = argv[i + 1];
+                    const String value = argv[++i];
                     namedArguments.put(parameter, value);
                 } else {
                     // No value given for parameter -> Quit parsing with error.

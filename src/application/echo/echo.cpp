@@ -22,13 +22,13 @@
 #include <util/base/System.h>
 #include <util/io/stream/PrintStream.h>
 
-const char *HELP_MESSAGE =
+const char *HELP_TEXT =
 #include "generated/README.md"
 ;
 
 int main(const int argc, char *argv[]) {
     Util::ArgumentParser argumentParser;
-    argumentParser.setHelpText(HELP_MESSAGE);
+    argumentParser.setHelpText(HELP_TEXT);
     argumentParser.setIgnoreUnknownArguments(true);
 
     if (!argumentParser.parse(argc, argv)) {
