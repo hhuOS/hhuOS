@@ -33,7 +33,7 @@ Display date and time in the given FORMAT. Supported format specifiers are:
  * %Z: Time zone name or abbreviation (e.g. UTC+0)
 
 Supported options:
- * -h/--help: Show this help message and exit.
+ * -h, --help: Show this help message and exit.
 
 Examples
 --------

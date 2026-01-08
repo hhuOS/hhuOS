@@ -92,7 +92,7 @@ public:
     Line readLine();
 
     /// Skip over and discard amount bytes from the stream.
-    /// This is done by repeatedly reading into an internal buffer until amount bytes have been skipped
+    /// This is done by repeatedly reading into an internal buffer until `amount` bytes have been skipped
     /// or the end of the stream is reached. The number of bytes actually skipped is returned.
     size_t skip(size_t amount);
 

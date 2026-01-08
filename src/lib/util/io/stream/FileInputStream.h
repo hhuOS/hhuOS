@@ -75,8 +75,7 @@ public:
 	/// The instance does not take ownership of the file descriptor and will not close it upon destruction.
 	/// It is the caller's responsibility to ensure that the file descriptor remains valid
 	/// for the lifetime of this input stream and to close it when no longer needed.
-	explicit FileInputStream(const int32_t fileDescriptor) :
-		closeFileDescriptor(false), fileDescriptor(fileDescriptor) {}
+	explicit FileInputStream(int32_t fileDescriptor);
 
 	/// Destroy the file input stream instance and close the file descriptor if it was opened by this instance.
 	~FileInputStream() override;
@@ -141,8 +140,9 @@ private:
 
 	bool closeFileDescriptor = true;
 	int32_t fileDescriptor = -1;
-	uint64_t pos = 0;
+	File::Type fileType = File::REGULAR;
 
+	uint64_t pos = 0;
 	int16_t peekedChar = -1;
 };
 

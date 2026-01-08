@@ -11,7 +11,7 @@ echo [STRING]...
 ```
 
 Supported options:
- * -h/--help: Show this help message and exit.
+ * -h, --help: Show this help message and exit.
 
 Examples
 --------

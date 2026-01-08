@@ -153,7 +153,7 @@ bool File::controlFileDescriptor(const int32_t fileDescriptor, const FileDescrip
     return ::controlFileDescriptor(fileDescriptor, request, parameters);
 }
 
-bool File::setAccessMode(const int32_t fileDescriptor, AccessMode accessMode) {
+bool File::setAccessMode(const int32_t fileDescriptor, const AccessMode accessMode) {
     return controlFileDescriptor(fileDescriptor, SET_ACCESS_MODE, Util::Array<size_t>({accessMode}));
 }
 

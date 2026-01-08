@@ -12,7 +12,7 @@ cat SOURCE... DIRECTORY
 Copy SOURCE to DESTINATION, or multiple SOURCE files to DIRECTORY.
 
 Supported options:
- * -h/--help: Show this help message and exit.
+ * -h, --help: Show this help message and exit.
 
 Examples
 --------

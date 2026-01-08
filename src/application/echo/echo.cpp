@@ -36,8 +36,12 @@ int main(const int argc, char *argv[]) {
         return -1;
     }
 
-    for (const auto &argument : argumentParser.getUnnamedArguments()) {
-        Util::System::out << argument << " ";
+    const auto arguments = argumentParser.getUnnamedArguments();
+    for (size_t i = 0; i < arguments.length(); i++) {
+        Util::System::out << arguments[i];
+        if (i < arguments.length() - 1) {
+            Util::System::out << " ";
+        }
     }
 
     Util::System::out << Util::Io::PrintStream::lnFlush;

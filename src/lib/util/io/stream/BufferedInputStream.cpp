@@ -83,7 +83,9 @@ bool BufferedInputStream::refill() {
 
     // Try to fill the internal buffer with data from the underlying stream.
     const auto readCount = FilterInputStream::read(buffer, valid, size - valid);
-    valid += readCount;
+    if (readCount > 0) {
+        valid += readCount;
+    }
 
     return readCount > 0;
 }

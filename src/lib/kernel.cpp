@@ -121,6 +121,15 @@ void closeFile(int32_t fileDescriptor) {
 }
 
 Util::Io::File::Type getFileType(int32_t fileDescriptor) {
+    if (!Kernel::Service::isServiceRegistered(Kernel::FilesystemService::SERVICE_ID)) {
+        if (fileDescriptor == Util::Io::STANDARD_INPUT ||
+            fileDescriptor == Util::Io::STANDARD_OUTPUT ||
+            fileDescriptor == Util::Io::STANDARD_ERROR)
+        {
+            return Util::Io::File::CHARACTER;
+        }
+    }
+
     return Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode().getType();
 }
 

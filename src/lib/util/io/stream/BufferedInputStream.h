@@ -57,11 +57,18 @@ namespace Io {
 class BufferedInputStream final : public FilterInputStream {
 
 public:
-    /// Create a buffered input stream instancce that wraps the given underlying stream.
+    /// Create a buffered input stream instance that wraps the given underlying stream.
     /// The buffer size is specified in bytes and defaults to 512 bytes if not provided.
     /// The instance does not take ownership of the underlying stream. It is the caller's responsibility to ensure
     /// that the underlying stream remains valid for the lifetime of this buffered input stream.
-    explicit BufferedInputStream(InputStream &stream, size_t bufferSize = DEFAULT_BUFFER_SIZE) :
+    explicit BufferedInputStream(InputStream &stream, const size_t bufferSize = DEFAULT_BUFFER_SIZE) :
+        FilterInputStream(stream), buffer(new uint8_t[bufferSize]), size(bufferSize) {}
+
+    /// Create a buffered input stream instance that wraps the given underlying stream.
+    /// The buffer size is specified in bytes and defaults to 512 bytes if not provided.
+    /// The given stream must be heap allocated and the instance takes ownership of it.
+    /// This means, the underlying stream is automatically deleted by the destructor of this instance.
+    explicit BufferedInputStream(InputStream *stream, const size_t bufferSize = DEFAULT_BUFFER_SIZE) :
         FilterInputStream(stream), buffer(new uint8_t[bufferSize]), size(bufferSize) {}
 
     /// Destroy the buffered input stream instance and free the internal buffer.

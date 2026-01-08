@@ -67,7 +67,7 @@ public:
     static void registerService(uint32_t serviceId, Service *kernelService);
 
     template<class T>
-    static inline T& getService() {
+    static T& getService() {
         if (!isServiceRegistered(T::SERVICE_ID)) {
             Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Invalid service!");
         }

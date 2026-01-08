@@ -32,7 +32,12 @@ FileInputStream::FileInputStream(const String &path) {
     if (fileDescriptor < 0) {
         Util::Panic::fire(Panic::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
     }
+
+    fileType = getFileType(fileDescriptor);
 }
+
+FileInputStream::FileInputStream(const int32_t fileDescriptor) :
+    closeFileDescriptor(false), fileDescriptor(fileDescriptor), fileType(getFileType(fileDescriptor)) {}
 
 FileInputStream::~FileInputStream() {
     if (closeFileDescriptor) {
@@ -50,7 +55,7 @@ int16_t FileInputStream::read() {
     }
 
     uint8_t byte;
-    if (read(&byte, 0, 1)) {
+    if (read(&byte, 0, 1) > 0) {
         return byte;
     }
 
@@ -74,6 +79,11 @@ int32_t FileInputStream::read(uint8_t *targetBuffer, const size_t offset, const 
     // Read the remaining bytes from the file
     const auto read = readFile(fileDescriptor, targetBuffer + offset + peeked, pos, length - peeked);
     pos += read;
+
+    if (peeked == 0 && read == 0 && fileType == File::REGULAR) {
+        // No byte has been read from a regular file -> End of file reached
+        return -1;
+    }
 
     return static_cast<int32_t>(read + peeked);
 }

@@ -147,7 +147,7 @@ int32_t AudioMixer::read(uint8_t *targetBuffer, [[maybe_unused]] uint32_t offset
 
         // Read from single channel pipe
         const auto readBytes = channel->read(streamBuffer, 0, toRead);
-        if (readBytes == 0) {
+        if (readBytes <= 0) {
             // Nothing read from channel -> Check if channel was flushing
             if (channel->getState() == Util::Sound::AudioChannel::FLUSHING) {
                 flushedStreams.add(channel);

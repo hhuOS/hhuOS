@@ -24,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "PipedInputStream.h"
 #include "util/io/stream/InputStream.h"
 
 namespace Util {
@@ -95,7 +96,19 @@ public:
     /// Create a new filter input stream instance that wraps the given underlying stream.
     /// The instance does not take ownership of the underlying stream. It is the caller's responsibility to ensure
     /// that the underlying stream remains valid for the lifetime of this filter input stream.
-    explicit FilterInputStream(InputStream &stream) : stream(stream) {}
+    explicit FilterInputStream(InputStream &stream) : stream(stream), deleteStream(false) {}
+
+    /// Create a new filter input stream instance that wraps the given underlying stream.
+    /// The given stream must be heap allocated and the instance takes ownership of it.
+    /// This means, the underlying stream is automatically deleted by the destructor of this instance.
+    explicit FilterInputStream(InputStream *stream) : stream(*stream), deleteStream(true) {}
+
+    /// Destroy the filter input stream instance and free the underlying stream if owned.
+    ~FilterInputStream() override {
+        if (deleteStream) {
+            delete &stream;
+        }
+    }
 
     /// Read a single byte from the stream by forwarding the call to the underlying stream.
     /// Subclasses can override this method to modify the behavior.
@@ -139,6 +152,7 @@ public:
 private:
 
     InputStream &stream;
+    bool deleteStream;
 };
 
 }
