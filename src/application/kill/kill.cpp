@@ -18,36 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <stdint.h>
+#include <lib/util/base/System.h>
+#include <lib/util/async/Process.h>
+#include <lib/util/base/ArgumentParser.h>
+#include <lib/util/collection/Array.h>
+#include <lib/util/base/String.h>
+#include <lib/util/io/stream/PrintStream.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/async/Process.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/base/String.h"
-#include "lib/util/io/stream/PrintStream.h"
+const char *HELP_TEXT =
+#include "generated/README.md"
+;
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Forcefully exit a process.\n"
-                               "Usage: kill [PID]\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+int main(const int argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto arguments = argumentParser.getUnnamedArguments();
+    const auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "kill: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "kill: No arguments provided!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto processId = Util::String::parseNumber<uint32_t>(arguments[0]);
-    auto process = Util::Async::Process(processId);
-    process.kill();
+    for (const auto &arg : arguments) {
+        const auto processId = Util::String::parseNumber<uint32_t>(arg);
+        auto process = Util::Async::Process(processId);
+        process.kill();
+    }
 
     return 0;
 }
