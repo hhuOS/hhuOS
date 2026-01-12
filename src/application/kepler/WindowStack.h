@@ -18,26 +18,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MOUSELISTENER_H
-#define HHUOS_MOUSELISTENER_H
+#ifndef HHUOS_WINDOWSTACK_H
+#define HHUOS_WINDOWSTACK_H
 
-#include <stdint.h>
+#include "ClientWindow.h"
+#include "util/collection/ArrayList.h"
 
-#include "kepler/Protocol.h"
-
-namespace Kepler {
-
-class MouseListener {
+class WindowStack : public Util::Iterable<ClientWindow*> {
 
 public:
 
-    virtual ~MouseListener() = default;
+    WindowStack() = default;
 
-    virtual void onMouseHover(uint16_t x, uint16_t y) = 0;
+    ~WindowStack() override = default;
 
-    virtual void onMouseClick(uint16_t x, uint16_t y, Event::MouseClick::Button button, Event::MouseClick::Action action) = 0;
+    void push(ClientWindow *window);
+
+    ClientWindow* getFocussedWindow() const {
+        return windows.size() > 0 ? windows.get(windows.size() - 1) : nullptr;
+    }
+
+    void setFocus(ClientWindow *window);
+
+    bool isFocussed(const ClientWindow *window) const {
+        const auto *focussedWindow = getFocussedWindow();
+        return window == focussedWindow;
+    }
+
+    ClientWindow* getWindowAt(uint16_t x, uint16_t y) const;
+
+    ClientWindow* getWindowById(size_t id) const;
+
+    Util::Iterator<ClientWindow*> begin() const override {
+        return windows.begin();
+    }
+
+    Util::Iterator<ClientWindow*> end() const override {
+        return windows.end();
+    }
+
+    Util::IteratorElement<ClientWindow*> next(const Util::IteratorElement<ClientWindow*> &element) const override {
+        return windows.next(element);
+    }
+
+private:
+
+    Util::ArrayList<ClientWindow*> windows;
 };
-
-}
 
 #endif
