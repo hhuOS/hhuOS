@@ -31,7 +31,7 @@ const Util::Time::Timestamp WindowManager::TARGET_FRAMETIME =
     Util::Time::Timestamp::ofNanoseconds(1000000000 / TARGET_FPS);
 
 WindowManager::WindowManager(Util::Graphic::LinearFrameBuffer &lfb) : lfb(lfb), doubleLfb(lfb),
-    tripleLfb(reinterpret_cast<Util::Graphic::LinearFrameBuffer&>(doubleLfb))
+    tripleLfb(reinterpret_cast<Util::Graphic::LinearFrameBuffer&>(doubleLfb)), mouseInputHandler(lfb.getResolutionX(), lfb.getResolutionY())
 {
     const auto idString = Util::String::format("%u", processId);
 
@@ -50,51 +50,8 @@ void WindowManager::run() {
     auto fpsTimer = Util::Time::Timestamp();
     size_t fpsCounter = 0;
 
-    auto mouseInputStream = Util::Io::FileInputStream("/device/mouse");
-    uint8_t mouseInputBuffer[4] = {0, 0, 0, 0};
-    size_t mouseInputIndex = 0;
-    uint8_t lastMouseButtonState = 0;
-    uint8_t currentMouseButtonState = 0;
-    bool mousePositionChanged = false;
-
-    mouseInputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
-
     while (true) {
         bool yield = true; // Yield to another process if no work has been done in this iteration
-
-        // Handle mouse input
-        const auto mouseByte = mouseInputStream.read();
-        if (mouseByte >= 0) {
-            mouseInputBuffer[mouseInputIndex++] = static_cast<uint8_t>(mouseByte);
-            if (mouseInputIndex == 4) {
-                const auto mouseUpdate = Util::Io::MouseDecoder::decode(mouseInputBuffer);
-
-                mousePositionChanged = mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0;
-                if (mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0) {
-                    mouseX += mouseUpdate.xMovement;
-                    mouseY -= mouseUpdate.yMovement;
-
-                    if (mouseX < 0) {
-                        mouseX = 0;
-                    } else if (mouseX >= static_cast<int32_t>(lfb.getResolutionX())) {
-                        mouseX = lfb.getResolutionX() - 1;
-                    }
-
-                    if (mouseY < 0) {
-                        mouseY = 0;
-                    } else if (mouseY >= static_cast<int32_t>(lfb.getResolutionY())) {
-                        mouseY = lfb.getResolutionY() - 1;
-                    }
-
-                    needRedraw = true;
-                }
-
-                currentMouseButtonState = mouseUpdate.buttons;
-                mouseInputIndex = 0;
-            }
-
-            yield = false; // Work has been done, do not yield
-        }
 
         // Handle new client connections
         if (nextPipe->isReadyToRead()) {
@@ -142,58 +99,9 @@ void WindowManager::run() {
         }
 
         // Check windows against mouse positions
-        auto *mouseHoveredWindow = windowStack.getWindowAt(mouseX, mouseY);
-        if (mouseHoveredWindow != nullptr) {
-            const auto windowMouseCoords = mouseHoveredWindow->containsPoint(mouseX, mouseY);
-
-            if (mousePositionChanged) {
-                mouseHoveredWindow->sendMouseHoverEvent(Kepler::Event::MouseHover(windowMouseCoords.x, windowMouseCoords.y));
-                yield = false;
-            }
-
-            if (currentMouseButtonState != lastMouseButtonState) {
-                if (currentMouseButtonState & Util::Io::MouseDecoder::LEFT_BUTTON && !(lastMouseButtonState & Util::Io::MouseDecoder::LEFT_BUTTON)) {
-                    // Left mouse button pressed
-                    windowStack.setFocus(mouseHoveredWindow);
-                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
-                        Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::PRESS));
-
-                    yield = false;
-                } else if (!(currentMouseButtonState & Util::Io::MouseDecoder::LEFT_BUTTON) && lastMouseButtonState & Util::Io::MouseDecoder::LEFT_BUTTON) {
-                    // Left mouse button released
-                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
-                        Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::RELEASE));
-                    yield = false;
-                }
-
-                if (currentMouseButtonState & Util::Io::MouseDecoder::RIGHT_BUTTON && !(lastMouseButtonState & Util::Io::MouseDecoder::RIGHT_BUTTON)) {
-                    // Right mouse button pressed
-                    windowStack.setFocus(mouseHoveredWindow);
-                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
-                        Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::PRESS));
-
-                    yield = false;
-                } else if (!(currentMouseButtonState & Util::Io::MouseDecoder::RIGHT_BUTTON) && lastMouseButtonState & Util::Io::MouseDecoder::RIGHT_BUTTON) {
-                    // Right mouse button released
-                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
-                        Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::RELEASE));
-                    yield = false;
-                }
-
-                if (currentMouseButtonState & Util::Io::MouseDecoder::MIDDLE_BUTTON && !(lastMouseButtonState & Util::Io::MouseDecoder::MIDDLE_BUTTON)) {
-                    // Middle mouse button pressed
-                    windowStack.setFocus(mouseHoveredWindow);
-                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
-                        Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::PRESS));
-
-                    yield = false;
-                } else if (!(currentMouseButtonState & Util::Io::MouseDecoder::MIDDLE_BUTTON) && lastMouseButtonState & Util::Io::MouseDecoder::MIDDLE_BUTTON) {
-                    // Middle mouse button released
-                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
-                        Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::RELEASE));
-                    yield = false;
-                }
-            }
+        if (mouseInputHandler.checkMouseInput()) {
+            dispatchMouseEvents();
+            yield = false; // Work has been done, do not yield
         }
 
         // Draw dirty windows
@@ -231,6 +139,8 @@ void WindowManager::run() {
                 tripleLfb.flush();
 
                 // Draw mouse cursor into double buffer (on top of windows)
+                const auto mouseX = mouseInputHandler.getMousePosX();
+                const auto mouseY = mouseInputHandler.getMousePosY();
                 const auto xStart = mouseX - 10 < 0 ? 0 : mouseX - 10;
                 const auto yStart = mouseY - 10 < 0 ? 0 : mouseY - 10;
                 doubleLfb.drawLine(xStart, mouseY, mouseX + 10, mouseY, Util::Graphic::Colors::RED);
@@ -245,11 +155,56 @@ void WindowManager::run() {
             yield = false; // Work has been done, do not yield
         }
 
-        lastMouseButtonState = currentMouseButtonState;
-
         // Yield if no work has been done (i.e. no input, no commands, no redraw)
         if (yield) {
             Util::Async::Thread::yield();
+        }
+    }
+}
+
+void WindowManager::dispatchMouseEvents() {
+    const auto mouseX = mouseInputHandler.getMousePosX();
+    const auto mouseY = mouseInputHandler.getMousePosY();
+
+    auto *mouseHoveredWindow = windowStack.getWindowAt(mouseX, mouseY);
+    if (mouseHoveredWindow != nullptr) {
+        const auto windowMouseCoords = mouseHoveredWindow->containsPoint(mouseX, mouseY);
+
+        if (mouseInputHandler.hasMousePositionChanged()) {
+            mouseHoveredWindow->sendMouseHoverEvent(Kepler::Event::MouseHover(windowMouseCoords.x, windowMouseCoords.y));
+        }
+
+        if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
+            // Left mouse button pressed
+            windowStack.setFocus(mouseHoveredWindow);
+            mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::PRESS));
+        } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::LEFT_BUTTON)) {
+            // Left mouse button released
+            mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::RELEASE));
+        }
+
+        if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::RIGHT_BUTTON)) {
+            // Right mouse button pressed
+            windowStack.setFocus(mouseHoveredWindow);
+            mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::PRESS));
+        } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::RIGHT_BUTTON)) {
+            // Right mouse button released
+            mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::RELEASE));
+        }
+
+        if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::MIDDLE_BUTTON)) {
+            // Middle mouse button pressed
+            windowStack.setFocus(mouseHoveredWindow);
+            mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::PRESS));
+        } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::MIDDLE_BUTTON)) {
+            // Middle mouse button released
+            mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::RELEASE));
         }
     }
 }
