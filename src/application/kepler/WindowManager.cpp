@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
+ * Copyright (C) 2017-2026 Heinrich Heine University Düsseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
  * Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
@@ -141,88 +141,71 @@ void WindowManager::run() {
             }
         }
 
-        // Check windows against mouse position and draw dirty windows
-        size_t focusedWindowIndex = windows.size() - 1;
-        for (size_t i = 0; i < windows.size(); i++) {
-            const auto &window = windows.get(i);
+        // Check windows against mouse positions
+        auto *mouseHoveredWindow = windowStack.getWindowAt(mouseX, mouseY);
+        if (mouseHoveredWindow != nullptr) {
+            const auto windowMouseCoords = mouseHoveredWindow->containsPoint(mouseX, mouseY);
 
-            const auto windowMouseCoords = window->containsPoint(mouseX, mouseY);
             if (mousePositionChanged) {
-                if (windowMouseCoords.valid) {
-                    window->sendMouseHoverEvent(Kepler::Event::MouseHover(windowMouseCoords.x, windowMouseCoords.y));
-                    yield = false;
-                }
+                mouseHoveredWindow->sendMouseHoverEvent(Kepler::Event::MouseHover(windowMouseCoords.x, windowMouseCoords.y));
+                yield = false;
             }
 
             if (currentMouseButtonState != lastMouseButtonState) {
                 if (currentMouseButtonState & Util::Io::MouseDecoder::LEFT_BUTTON && !(lastMouseButtonState & Util::Io::MouseDecoder::LEFT_BUTTON)) {
                     // Left mouse button pressed
-                    if (windowMouseCoords.valid) {
-                        focusedWindowIndex = i; // Focus this window
-                        window->setDirty(true);
-                        windows.get(windows.size() - 1)->setDirty(true);
-                    }
-
-                    window->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                    windowStack.setFocus(mouseHoveredWindow);
+                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
                         Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::PRESS));
+
                     yield = false;
                 } else if (!(currentMouseButtonState & Util::Io::MouseDecoder::LEFT_BUTTON) && lastMouseButtonState & Util::Io::MouseDecoder::LEFT_BUTTON) {
                     // Left mouse button released
-                    window->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
                         Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::RELEASE));
                     yield = false;
                 }
 
                 if (currentMouseButtonState & Util::Io::MouseDecoder::RIGHT_BUTTON && !(lastMouseButtonState & Util::Io::MouseDecoder::RIGHT_BUTTON)) {
                     // Right mouse button pressed
-                    if (windowMouseCoords.valid) {
-                        focusedWindowIndex = i; // Focus this window
-                        window->setDirty(true);
-                        windows.get(windows.size() - 1)->setDirty(true);
-                    }
-
-                    window->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                    windowStack.setFocus(mouseHoveredWindow);
+                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
                         Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::PRESS));
+
                     yield = false;
                 } else if (!(currentMouseButtonState & Util::Io::MouseDecoder::RIGHT_BUTTON) && lastMouseButtonState & Util::Io::MouseDecoder::RIGHT_BUTTON) {
                     // Right mouse button released
-                    window->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
                         Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::RELEASE));
                     yield = false;
                 }
 
                 if (currentMouseButtonState & Util::Io::MouseDecoder::MIDDLE_BUTTON && !(lastMouseButtonState & Util::Io::MouseDecoder::MIDDLE_BUTTON)) {
                     // Middle mouse button pressed
-                    if (windowMouseCoords.valid) {
-                        focusedWindowIndex = i; // Focus this window
-                        window->setDirty(true);
-                        windows.get(windows.size() - 1)->setDirty(true);
-                    }
-
-                    window->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                    windowStack.setFocus(mouseHoveredWindow);
+                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
                         Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::PRESS));
+
                     yield = false;
                 } else if (!(currentMouseButtonState & Util::Io::MouseDecoder::MIDDLE_BUTTON) && lastMouseButtonState & Util::Io::MouseDecoder::MIDDLE_BUTTON) {
                     // Middle mouse button released
-                    window->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
                         Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::RELEASE));
                     yield = false;
                 }
             }
+        }
 
+        // Draw dirty windows
+        for (auto *window : windowStack) {
             if (window->isDirty()) {
-                window->drawFrame(tripleLfb, i == focusedWindowIndex ?
+                window->drawFrame(tripleLfb, windowStack.isFocussed(window) ?
                     Util::Graphic::Colors::HHU_BLUE : Util::Graphic::Colors::HHU_ICE_BLUE);
                 window->flush(tripleLfb);
                 window->setDirty(false);
                 needRedraw = true;
                 yield = false; // Work has been done, do not yield
             }
-        }
-
-        // Bring newly focused window to front
-        if (focusedWindowIndex != windows.size() - 1) {
-            windows.add(windows.removeIndex(focusedWindowIndex));
         }
 
         // Flush frame buffer at target framerate
@@ -271,7 +254,6 @@ void WindowManager::run() {
     }
 }
 
-
 void WindowManager::createNextPipe() {
     nextClientId = clientIdGenerator.getNextId();
     createPipe(Util::String::format("%u", nextClientId));
@@ -307,10 +289,8 @@ void WindowManager::createWindow(const Client &client) {
     inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
     if (signal == Kepler::CLIENT_WINDOW_INITIALIZED) {
-        windows.add(new ClientWindow(windowId, client.getProcessId(), posX, posY, width, height, request.getTitle(), sharedBuffer));
-        for (auto *window : windows) {
-            window->setDirty(true);
-        }
+        auto *window = new ClientWindow(windowId, client.getProcessId(), posX, posY, width, height, request.getTitle(), sharedBuffer);
+        windowStack.push(window);
     }
 }
 
@@ -323,7 +303,7 @@ void WindowManager::flushWindow(const Client &client) const {
     request.readFromStream(inputStream);
     inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
-    const auto *window = getWindowById(request.getWindowId());
+    const auto *window = windowStack.getWindowById(request.getWindowId());
     if (window == nullptr) {
         const auto response = Kepler::Response::Flush(false);
         response.writeToStream(outputStream);
@@ -334,14 +314,4 @@ void WindowManager::flushWindow(const Client &client) const {
 
     const auto response = Kepler::Response::Flush(true);
     response.writeToStream(outputStream);
-}
-
-ClientWindow* WindowManager::getWindowById(const size_t id) const {
-    for (auto *window : windows) {
-        if (window->getId() == id) {
-            return window;
-        }
-    }
-
-    return nullptr;
 }

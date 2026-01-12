@@ -17,45 +17,44 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+#include "WindowStack.h"
 
-#ifndef HHUOS_LIB_KEPLER_WINDOWMANAGERPIPE_H
-#define HHUOS_LIB_KEPLER_WINDOWMANAGERPIPE_H
+void WindowStack::push(ClientWindow *window) {
+    if (windows.size() > 0) {
+        windows.get(windows.size() - 1)->setDirty(true);
+    }
 
-#include "util/async/Streamable.h"
-#include "util/io/stream/FileInputStream.h"
-#include "util/io/stream/FileOutputStream.h"
-#include "kepler/Protocol.h"
-
-namespace Kepler {
-
-class WindowManagerPipe {
-
-public:
-
-    WindowManagerPipe();
-
-    WindowManagerPipe(const WindowManagerPipe &other) = delete;
-
-    WindowManagerPipe& operator=(const WindowManagerPipe &other) = delete;
-
-    ~WindowManagerPipe();
-
-    [[nodiscard]] bool sendRequest(const Util::Async::Streamable &streamable) const;
-
-    [[nodiscard]] bool receiveResponse(Util::Async::Streamable &streamable) const;
-
-    bool sendSignal(Signal signal) const;
-
-    [[nodiscard]] size_t getWindowManagerProcessId() const;
-
-private:
-
-    size_t windowManagerProcessId = 0;
-
-    Util::Io::FileInputStream *inputStream = nullptr;
-    Util::Io::FileOutputStream *outputStream = nullptr;
-};
-
+    windows.add(window);
 }
 
-#endif
+void WindowStack::setFocus(ClientWindow *window) {
+    auto *oldFocus = getFocussedWindow();
+    if (window != oldFocus) {
+        window->setDirty(true);
+        oldFocus->setDirty(true);
+        windows.remove(window);
+        windows.add(window);
+    }
+}
+
+ClientWindow* WindowStack::getWindowAt(const uint16_t x, const uint16_t y) const {
+    for (size_t i = windows.size() - 1; i < windows.size(); i--) {
+        auto *window = windows.get(i);
+        const auto coords = window->containsPoint(x, y);
+        if (coords.valid) {
+            return window;
+        }
+    }
+
+    return nullptr;
+}
+
+ClientWindow* WindowStack::getWindowById(const size_t id) const {
+    for (auto *window : windows) {
+        if (window->getId() == id) {
+            return window;
+        }
+    }
+
+    return nullptr;
+}

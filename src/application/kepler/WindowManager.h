@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
+ * Copyright (C) 2017-2026 Heinrich Heine University Düsseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
  * Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
@@ -25,6 +25,7 @@
 
 #include "Client.h"
 #include "ClientWindow.h"
+#include "WindowStack.h"
 #include "util/async/IdGenerator.h"
 #include "util/async/Runnable.h"
 #include "util/collection/ArrayList.h"
@@ -48,8 +49,6 @@ private:
 
     void flushWindow(const Client &client) const;
 
-    [[nodiscard]] ClientWindow* getWindowById(size_t id) const;
-
     size_t processId = Util::Async::Process::getCurrentProcess().getId();
 
     Util::Graphic::LinearFrameBuffer &lfb;
@@ -61,7 +60,7 @@ private:
     int32_t mouseY = 0;
 
     Util::ArrayList<Client*> clients;
-    Util::ArrayList<ClientWindow*> windows;
+    WindowStack windowStack;
     Util::Async::IdGenerator clientIdGenerator;
     Util::Async::IdGenerator windowIdGenerator;
 
