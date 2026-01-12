@@ -25,6 +25,7 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/kepler/kepler.cpp
         ${HHUOS_SRC_DIR}/application/kepler/Client.cpp
         ${HHUOS_SRC_DIR}/application/kepler/ClientWindow.cpp
+        ${HHUOS_SRC_DIR}/application/kepler/MouseInputHandler.cpp
         ${HHUOS_SRC_DIR}/application/kepler/WindowManager.cpp
         ${HHUOS_SRC_DIR}/application/kepler/WindowStack.cpp)
 

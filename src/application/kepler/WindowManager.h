@@ -21,10 +21,9 @@
 #ifndef HHUOS_WINDOWMANAGER_H
 #define HHUOS_WINDOWMANAGER_H
 
-
-
 #include "Client.h"
 #include "ClientWindow.h"
+#include "MouseInputHandler.h"
 #include "WindowStack.h"
 #include "util/async/IdGenerator.h"
 #include "util/async/Runnable.h"
@@ -43,6 +42,8 @@ public:
 
 private:
 
+    void dispatchMouseEvents();
+
     void createNextPipe();
 
     void createWindow(const Client &client);
@@ -56,8 +57,7 @@ private:
     Util::Graphic::BufferedLinearFrameBuffer tripleLfb;
     bool needRedraw = false;
 
-    int32_t mouseX = 0;
-    int32_t mouseY = 0;
+    MouseInputHandler mouseInputHandler;
 
     Util::ArrayList<Client*> clients;
     WindowStack windowStack;
