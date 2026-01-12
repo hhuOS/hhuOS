@@ -233,7 +233,11 @@ bool String::contains(const char c) const {
 }
 
 String String::join(const String &separator, const Array<String> &elements) {
-    String ret{};
+    if (elements.length() == 0) {
+        return "";
+    }
+
+    String ret;
     const size_t size = elements.length();
 
     for (size_t i = 0; i < size - 1; i++) {

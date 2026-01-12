@@ -13,7 +13,7 @@ Supported options:
  * -n, --lines COUNT: Output the first COUNT lines of each file (default is 10).
  * -h, --help: Show this help message and exit.
 
-When no FILE is specified, read standard input.  
+If no FILE is specified, read standard input.  
 If no options are given, the first 10 lines of each file are printed.
 
 Examples

@@ -5,7 +5,7 @@ Terminate processes by PID.
 Usage
 -----
 ```sh
-echo PID...
+kill PID...
 ```
 
 Supported options:

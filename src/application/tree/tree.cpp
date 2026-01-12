@@ -28,7 +28,7 @@
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/PrintStream.h"
 
-const char* getTypeColor(Util::Io::File &file) {
+const char* getTypeColor(const Util::Io::File &file) {
     switch (file.getType()) {
         case Util::Io::File::DIRECTORY:
             return Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE;
