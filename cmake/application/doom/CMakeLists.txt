@@ -55,6 +55,9 @@ add_compile_options(
 		$<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
 		$<$<COMPILE_LANGUAGE:C>:-Wno-unterminated-string-initialization>
 		$<$<COMPILE_LANGUAGE:C>:-Wno-dangling-pointer>
+		-DDOOMGENERIC_RESX=320
+		-DDOOMGENERIC_RESY=200
+		-DCMAP256
 )
 
 set(SOURCE_FILES
