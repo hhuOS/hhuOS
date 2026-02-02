@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "MouseRunnable.h"
+#include "EventRunnable.h"
 #include "util/async/SharedMemory.h"
 #include "util/graphic/LinearFrameBuffer.h"
 #include "kepler/WindowManagerPipe.h"
@@ -46,8 +46,8 @@ public:
 
     bool flush() const;
 
-    void registerMouseListener(MouseListener &listener) const {
-        mouseRunnable->registerListener(listener);
+    void registerEventListener(EventListener &listener) const {
+        eventRunnable->registerListener(listener);
     }
 
 private:
@@ -55,7 +55,7 @@ private:
     size_t id = 0;
 
     WindowManagerPipe &pipe;
-    MouseRunnable *mouseRunnable = nullptr;
+    EventRunnable *eventRunnable = nullptr;
 
     Util::Async::SharedMemory *sharedMemory = nullptr;
     Util::Graphic::LinearFrameBuffer *lfb = nullptr;

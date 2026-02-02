@@ -174,4 +174,13 @@ bool Event::MouseClick::readFromStream(Util::Io::InputStream &stream) {
     return true;
 }
 
+bool Event::KeyEvent::writeToStream(Util::Io::OutputStream &stream) const {
+    return Util::Io::NumberUtil::writeUnsigned8BitValue(KEY_EVENT, stream) &&
+        key.writeToStream(stream);
+}
+
+bool Event::KeyEvent::readFromStream(Util::Io::InputStream &stream) {
+    return key.readFromStream(stream);
+}
+
 }

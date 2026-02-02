@@ -26,6 +26,7 @@
 #include "kepler/Protocol.h"
 #include "util/io/key/MouseDecoder.h"
 #include "lib/interface.h"
+#include "util/base/System.h"
 
 const Util::Time::Timestamp WindowManager::TARGET_FRAMETIME =
     Util::Time::Timestamp::ofNanoseconds(1000000000 / TARGET_FPS);
@@ -49,6 +50,8 @@ void WindowManager::run() {
     auto lastTimestamp = Util::Time::Timestamp::getSystemTime();
     auto fpsTimer = Util::Time::Timestamp();
     size_t fpsCounter = 0;
+
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
     while (true) {
         bool yield = true; // Yield to another process if no work has been done in this iteration
@@ -102,6 +105,15 @@ void WindowManager::run() {
         if (mouseInputHandler.checkMouseInput()) {
             dispatchMouseEvents();
             yield = false; // Work has been done, do not yield
+        }
+
+        // Check keyboard input for focussed window
+        const auto keyboardInput = Util::System::in.read();
+        if (keyboardInput >= 0) {
+            if (keyDecoder.parseScancode(keyboardInput)) {
+                const auto key = keyDecoder.getKeyEvent();
+                windowStack.getFocussedWindow()->sendKeyEvent(Kepler::Event::KeyEvent(key));
+            }
         }
 
         // Draw dirty windows

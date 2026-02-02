@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 
+#include "util/async/Streamable.h"
 #include "util/io/stream/OutputStream.h"
 #include "util/io/stream/PrintStream.h"
 
@@ -36,7 +37,7 @@ namespace Io {
 /// Represents a key event, including its scancode, ASCII code, modifier states, and pressed state.
 /// Instances of this class are created by the `KeyDecoder` using a specified `KeyboardLayout`
 /// to translate scancodes into ASCII characters.
-class KeyEvent {
+class KeyEvent : public Async::Streamable {
 
 public:
     /// Key modifiers as bit flags.
@@ -240,6 +241,13 @@ public:
     bool isPressed() const {
         return pressed;
     }
+
+    /// Write the key event to the given output stream in a binary format.
+    bool writeToStream(OutputStream &stream) const override;
+
+    /// Read the binary representation of a key event from the given input stream
+    /// and update this key event's state accordingly.
+    bool readFromStream(InputStream &stream) override;
 
     /// Get the scancode.
     uint8_t getScancode() const {

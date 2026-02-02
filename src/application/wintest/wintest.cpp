@@ -102,7 +102,7 @@ private:
     Lunar::Button &packButton;
 };
 
-class MouseEventListener final : public Kepler::MouseListener {
+class MouseEventListener final : public Kepler::EventListener {
 
 public:
 
@@ -146,6 +146,17 @@ public:
         }
     }
 
+    void onKeyEvent(const Util::Io::KeyEvent &key) override {
+        if (lastPressedChild != nullptr) {
+            if (key.isPressed()) {
+                lastPressedChild->keyPressed(key);
+            } else {
+                lastPressedChild->keyReleased(key);
+                lastPressedChild->keyTyped(key);
+            }
+        }
+    }
+
 private:
 
     Lunar::Container &rootContainer;
@@ -163,7 +174,7 @@ int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
     rootContainer.setLayout(new Lunar::BorderLayout());
 
     auto mouseListener = MouseEventListener(rootContainer);
-    window.registerMouseListener(mouseListener);
+    window.registerEventListener(mouseListener);
 
     // Add a label to the top
     auto *northContainer = new Lunar::Container();

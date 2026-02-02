@@ -67,6 +67,8 @@ public:
 
     void sendMouseClickEvent(const Kepler::Event::MouseClick &event);
 
+    void sendKeyEvent(const Kepler::Event::KeyEvent &event);
+
     void drawFrame(const Util::Graphic::LinearFrameBuffer &lfb, const Util::Graphic::Color &color) const;
 
     void flush(const Util::Graphic::LinearFrameBuffer &lfb) const;

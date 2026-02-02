@@ -24,6 +24,7 @@
 #include <stddef.h>
 
 #include "util/async/Streamable.h"
+#include "util/io/key/KeyEvent.h"
 #include "util/io/stream/InputStream.h"
 
 namespace Kepler {
@@ -165,7 +166,8 @@ namespace Event {
 
 enum Type : uint8_t {
     MOUSE_HOVER,
-    MOUSE_CLICK
+    MOUSE_CLICK,
+    KEY_EVENT
 };
 
 class MouseHover final : public Util::Async::Streamable {
@@ -240,6 +242,27 @@ private:
     uint16_t posY = 0;
     Button button = LEFT;
     Action action = PRESS;
+};
+
+class KeyEvent final : public Util::Async::Streamable {
+
+public:
+
+    KeyEvent() = default;
+
+    explicit KeyEvent(const Util::Io::KeyEvent &key) : key(key) {}
+
+    bool writeToStream(Util::Io::OutputStream &stream) const override;
+
+    bool readFromStream(Util::Io::InputStream &stream) override;
+
+    const Util::Io::KeyEvent& getKey() const {
+        return key;
+    }
+
+private:
+
+    Util::Io::KeyEvent key;
 };
 
 }

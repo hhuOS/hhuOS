@@ -30,6 +30,8 @@
 #include "util/collection/ArrayList.h"
 #include "util/graphic/LinearFrameBuffer.h"
 #include "util/graphic/BufferedLinearFrameBuffer.h"
+#include "util/io/key/KeyDecoder.h"
+#include "util/io/key/layout/DeLayout.h"
 #include "util/time/Timestamp.h"
 
 class WindowManager final : public Util::Async::Runnable {
@@ -58,6 +60,7 @@ private:
     bool needRedraw = false;
 
     MouseInputHandler mouseInputHandler;
+    Util::Io::KeyDecoder keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
 
     Util::ArrayList<Client*> clients;
     WindowStack windowStack;
