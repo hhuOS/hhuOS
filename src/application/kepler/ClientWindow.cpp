@@ -25,7 +25,7 @@
 const Util::Graphic::Font &ClientWindow::TITLE_FONT = Util::Graphic::Fonts::TERMINAL_8x8;
 
 ClientWindow::ClientWindow(size_t id, size_t processId, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const Util::String &title, Util::Async::SharedMemory *buffer) :
-    id(id), posX(posX), posY(posY), width(width), height(height), title(title), buffer(buffer), mouseOutputStream(Util::String::format("/process/%u/pipes/mouse-%u", processId, id)) {}
+    id(id), posX(posX), posY(posY), width(width), height(height), title(title), buffer(buffer), mouseOutputStream(Util::String::format("/process/%u/pipes/event-%u", processId, id)) {}
 
 ClientWindow::~ClientWindow() {
     delete buffer;
@@ -83,6 +83,10 @@ void ClientWindow::sendMouseHoverEvent(const Kepler::Event::MouseHover &event) {
 }
 
 void ClientWindow::sendMouseClickEvent(const Kepler::Event::MouseClick &event) {
+    event.writeToStream(mouseOutputStream);
+}
+
+void ClientWindow::sendKeyEvent(const Kepler::Event::KeyEvent &event) {
     event.writeToStream(mouseOutputStream);
 }
 

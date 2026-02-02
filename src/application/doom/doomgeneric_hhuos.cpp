@@ -51,10 +51,13 @@
 #include "lib/util/sound/PcSpeaker.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
 #include "lib/util/graphic/Colors.h"
+#include "util/collection/ArrayQueue.h"
 
 uint32_t palette[256];
 Util::Graphic::LinearFrameBuffer *lfb;
+const Kepler::Window *win;
 Util::Io::KeyDecoder *kd;
+Util::ArrayQueue<Util::Io::KeyEvent> keyEvents(32);
 
 uint8_t scaleFactor = 0;
 uint16_t offsetX = 0;
@@ -68,6 +71,19 @@ uint32_t fpsCounter = 0;
 uint32_t fps = 0;
 
 void (*drawFrame)();
+
+class EventListener : public Kepler::EventListener {
+
+public:
+
+    EventListener() = default;
+
+    ~EventListener() override = default;
+
+    void onKeyEvent(const Util::Io::KeyEvent &key) override {
+        keyEvents.offer(key);
+    }
+};
 
 void DG_DrawFrame32() {
     auto screenBuffer = reinterpret_cast<uint32_t*>(lfb->getBuffer().add(offsetX * 4 + offsetY * lfb->getPitch()).get());
@@ -127,6 +143,9 @@ int32_t main(int argc, char **argv) {
     auto windowManagerPipe = Kepler::WindowManagerPipe();
     const auto window = Kepler::Window(DOOMGENERIC_RESX, DOOMGENERIC_RESY, "Doom", windowManagerPipe);
     lfb = &window.getFrameBuffer();
+
+    EventListener eventListener;
+    window.registerEventListener(eventListener);
 
     // Calculate scale factor the game as large as possible
     scaleFactor = lfb->getResolutionX() / DOOMGENERIC_RESX;
@@ -214,125 +233,112 @@ uint32_t DG_GetTicksMs() {
 	return clock();
 }
 
-int DG_GetKey(int * pressed, unsigned char * key) {
-	if (!Util::System::in.isReadyToRead()) {
+int DG_GetKey(int *pressed, unsigned char *key) {
+	if (keyEvents.isEmpty()) {
 		return 0;
 	}
 
-    const uint8_t scancode = Util::System::in.read();
+    const auto &keyEvent = keyEvents.poll();
 
-    if (kd->parseScancode(scancode)) {
-        auto k = kd->getKeyEvent();
+    *pressed = keyEvent.isPressed() ? 1 : 0;
 
-        *pressed = k.isPressed() ? 1:0;
-
-        if (k.getScancode() >= 0x3b && k.getScancode() <= 0x44) { // handle F1-10
-            *key = k.getScancode() + 0x80;
+    switch(keyEvent.getScancode()) {
+        case 0: {
+            if (keyEvent.getCtrlLeft()) {
+                *key = KEY_FIRE;
+                return 1;
+            }
+            return 0;
+        }
+        case Util::Io::KeyEvent::UP:
+            *key = KEY_UPARROW;
             return 1;
-        }
+        case Util::Io::KeyEvent::DOWN:
+            *key = KEY_DOWNARROW;
+            return 1;
+        case Util::Io::KeyEvent::LEFT:
+            *key = KEY_LEFTARROW;
+            return 1;
+        case Util::Io::KeyEvent::RIGHT:
+            *key = KEY_RIGHTARROW;
+            return 1;
+        case Util::Io::KeyEvent::SPACE:
+            *key = KEY_USE;
+            return 1;
+        case Util::Io::KeyEvent::ESC:
+            *key = KEY_ESCAPE;
+            return 1;
+        case Util::Io::KeyEvent::ENTER:
+            *key = KEY_ENTER;
+            return 1;
+        case Util::Io::KeyEvent::TAB:
+            *key = KEY_TAB;
+            return 1;
+        case Util::Io::KeyEvent::BACKSPACE:
+            *key = KEY_BACKSPACE;
+            return 1;
+        case Util::Io::KeyEvent::HOME:
+            *key = KEY_HOME;
+            return 1;
+        case Util::Io::KeyEvent::END:
+            *key = KEY_END;
+            return 1;
+        case Util::Io::KeyEvent::INSERT:
+            *key = KEY_INS;
+            return 1;
+        case Util::Io::KeyEvent::DEL:
+            *key = KEY_DEL;
+            return 1;
+        case Util::Io::KeyEvent::PAGE_UP:
+            *key = KEY_PGUP;
+            return 1;
+        case Util::Io::KeyEvent::PAGE_DOWN:
+            *key = KEY_PGDN;
+            return 1;
+        case Util::Io::KeyEvent::F1:
+            *key = KEY_F1;
+            return 1;
+        case Util::Io::KeyEvent::F2:
+            *key = KEY_F2;
+            return 1;
+        case Util::Io::KeyEvent::F3:
+            *key = KEY_F3;
+            return 1;
+        case Util::Io::KeyEvent::F4:
+            *key = KEY_F4;
+            return 1;
+        case Util::Io::KeyEvent::F5:
+            *key = KEY_F5;
+            return 1;
+        case Util::Io::KeyEvent::F6:
+            *key = KEY_F6;
+            return 1;
+        case Util::Io::KeyEvent::F7:
+            *key = KEY_F7;
+            return 1;
+        case Util::Io::KeyEvent::F8:
+            *key = KEY_F8;
+            return 1;
+        case Util::Io::KeyEvent::F9:
+            *key = KEY_F9;
+            return 1;
+        case Util::Io::KeyEvent::F10:
+            *key = KEY_F10;
+            return 1;
+        case Util::Io::KeyEvent::F11:
+            *key = KEY_F11;
+            return 1;
+        case Util::Io::KeyEvent::F12:
+            *key = KEY_F12;
+            return 1;
+        default:
+            if (keyEvent.getAscii()) {
+                *key = tolower(keyEvent.getAscii());
+                return 1;
+            }
 
-        switch(k.getScancode()) {
-            case 0:
-                if (k.getCtrlLeft()) {
-                    *key = KEY_FIRE;
-                    return 1;
-                } if (k.getAltLeft()) {
-                    *key = KEY_LALT;
-                    return 1;
-                }
-                return 0;
-            case Util::Io::KeyEvent::UP:
-                *key = KEY_UPARROW;
-                return 1;
-            case Util::Io::KeyEvent::DOWN:
-                *key = KEY_DOWNARROW;
-                return 1;
-            case Util::Io::KeyEvent::LEFT:
-                *key = KEY_LEFTARROW;
-                return 1;
-            case Util::Io::KeyEvent::RIGHT:
-                *key = KEY_RIGHTARROW;
-                return 1;
-            case Util::Io::KeyEvent::SPACE:
-                *key = KEY_USE;
-                return 1;
-            case Util::Io::KeyEvent::ESC:
-                *key = KEY_ESCAPE;
-                return 1;
-            case Util::Io::KeyEvent::ENTER:
-                *key = KEY_ENTER;
-                return 1;
-            case Util::Io::KeyEvent::TAB:
-                *key = KEY_TAB;
-                return 1;
-            case Util::Io::KeyEvent::BACKSPACE:
-                *key = KEY_BACKSPACE;
-                return 1;
-            case Util::Io::KeyEvent::HOME:
-                *key = KEY_HOME;
-                return 1;
-            case Util::Io::KeyEvent::END:
-                *key = KEY_END;
-                return 1;
-            case Util::Io::KeyEvent::INSERT:
-                *key = KEY_INS;
-                return 1;
-            case Util::Io::KeyEvent::DEL:
-                *key = KEY_DEL;
-                return 1;
-            case Util::Io::KeyEvent::PAGE_UP:
-                *key = KEY_PGUP;
-                return 1;
-            case Util::Io::KeyEvent::PAGE_DOWN:
-                *key = KEY_PGDN;
-                return 1;
-            case Util::Io::KeyEvent::F1:
-                *key = KEY_F1;
-                return 1;
-            case Util::Io::KeyEvent::F2:
-                *key = KEY_F2;
-                return 1;
-            case Util::Io::KeyEvent::F3:
-                *key = KEY_F3;
-                return 1;
-            case Util::Io::KeyEvent::F4:
-                *key = KEY_F4;
-                return 1;
-            case Util::Io::KeyEvent::F5:
-                *key = KEY_F5;
-                return 1;
-            case Util::Io::KeyEvent::F6:
-                *key = KEY_F6;
-                return 1;
-            case Util::Io::KeyEvent::F7:
-                *key = KEY_F7;
-                return 1;
-            case Util::Io::KeyEvent::F8:
-                *key = KEY_F8;
-                return 1;
-            case Util::Io::KeyEvent::F9:
-                *key = KEY_F9;
-                return 1;
-            case Util::Io::KeyEvent::F10:
-                *key = KEY_F10;
-                return 1;
-            case Util::Io::KeyEvent::F11:
-                *key = KEY_F11;
-                return 1;
-            case Util::Io::KeyEvent::F12:
-                *key = KEY_F12;
-                return 1;
-            default:
-                if (k.getAscii()) {
-                    *key = tolower(k.getAscii());
-                    return 1;
-                }
-
-                return 0;
-        }
+            return 0;
     }
-
-    return 0;
 }
 
 void DG_SetWindowTitle([[maybe_unused]] const char *title) {}

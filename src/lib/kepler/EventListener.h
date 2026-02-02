@@ -27,15 +27,17 @@
 
 namespace Kepler {
 
-class MouseListener {
+class EventListener {
 
 public:
 
-    virtual ~MouseListener() = default;
+    virtual ~EventListener() = default;
 
-    virtual void onMouseHover(uint16_t x, uint16_t y) = 0;
+    virtual void onMouseHover(uint16_t, uint16_t) {}
 
-    virtual void onMouseClick(uint16_t x, uint16_t y, Event::MouseClick::Button button, Event::MouseClick::Action action) = 0;
+    virtual void onMouseClick(uint16_t, uint16_t, Event::MouseClick::Button, Event::MouseClick::Action) {}
+
+    virtual void onKeyEvent(const Util::Io::KeyEvent&) {}
 };
 
 }
