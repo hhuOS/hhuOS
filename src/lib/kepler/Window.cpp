@@ -57,9 +57,9 @@ Window::Window(const uint16_t width, const uint16_t height, const Util::String &
         response.getColorDepth(), response.getSizeX() * bytesPerPixel);
 
     const auto processId = Util::Async::Process::getCurrentProcess().getId();
-    createPipe(Util::String::format("mouse-%u", id));
-    mouseRunnable = new MouseRunnable(Util::String::format("/process/%u/pipes/mouse-%u", processId, id));
-    Util::Async::Thread::createThread("Kepler-Mouse-Runnable", mouseRunnable);
+    createPipe(Util::String::format("event-%u", id));
+    eventRunnable = new EventRunnable(Util::String::format("/process/%u/pipes/event-%u", processId, id));
+    Util::Async::Thread::createThread("Kepler-Event-Runnable", eventRunnable);
 
     if (!pipe.sendSignal(CLIENT_WINDOW_INITIALIZED)) {
         Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");

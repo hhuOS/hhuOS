@@ -18,12 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "MouseRunnable.h"
+#include "EventRunnable.h"
 
 #include "Protocol.h"
 #include "util/io/stream/NumberUtil.h"
 
-void Kepler::MouseRunnable::run() {
+void Kepler::EventRunnable::run() {
     while (isRunning) {
         const auto eventType = static_cast<Event::Type>(Util::Io::NumberUtil::readUnsigned8BitValue(mouseInputStream));
         switch (eventType) {
@@ -43,6 +43,16 @@ void Kepler::MouseRunnable::run() {
 
                 if (listener != nullptr) {
                     listener->onMouseClick(event.getPosX(), event.getPosY(), event.getButton(), event.getAction());
+                }
+
+                break;
+            }
+            case Event::KEY_EVENT: {
+                auto event = Event::KeyEvent();
+                event.readFromStream(mouseInputStream);
+
+                if (listener != nullptr) {
+                    listener->onKeyEvent(event.getKey());
                 }
 
                 break;

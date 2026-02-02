@@ -25,6 +25,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/io/file/File.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/file/ElfFile.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/file/TarArchive.cpp
+		${HHUOS_SRC_DIR}/lib/util/io/key/KeyEvent.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/key/KeyDecoder.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/key/KeyboardLayout.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/key/MouseDecoder.cpp

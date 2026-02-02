@@ -21,18 +21,18 @@
 #ifndef HHUOS_MOUSERUNNABLE_H
 #define HHUOS_MOUSERUNNABLE_H
 
-#include "MouseListener.h"
+#include "EventListener.h"
 #include "util/async/Runnable.h"
 #include "util/base/String.h"
 #include "util/io/stream/FileInputStream.h"
 
 namespace Kepler {
 
-class MouseRunnable final : public Util::Async::Runnable {
+class EventRunnable final : public Util::Async::Runnable {
 
 public:
 
-    explicit MouseRunnable(const Util::String &pipePath) : mouseInputStream(pipePath) {}
+    explicit EventRunnable(const Util::String &pipePath) : mouseInputStream(pipePath) {}
 
     void run() override;
 
@@ -40,18 +40,18 @@ public:
         isRunning = false;
     }
 
-    void registerListener(MouseListener &listener) {
-        if (MouseRunnable::listener != nullptr) {
+    void registerListener(EventListener &listener) {
+        if (EventRunnable::listener != nullptr) {
             Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "MouseRunnable: Listener already registered");
         }
 
-        MouseRunnable::listener = &listener;
+        EventRunnable::listener = &listener;
     }
 
 private:
 
     Util::Io::FileInputStream mouseInputStream;
-    MouseListener *listener = nullptr;
+    EventListener *listener = nullptr;
     bool isRunning = true;
 };
 

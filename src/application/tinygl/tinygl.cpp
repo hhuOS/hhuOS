@@ -39,7 +39,7 @@
 #include <util/base/ArgumentParser.h>
 #include <util/collection/Array.h>
 #include <util/math/Math.h>
-#include <util/io/file/File.h>
+#include <util/collection/ArrayQueue.h>
 #include <util/io/stream/PrintStream.h>
 #include <util/graphic/LinearFrameBuffer.h>
 #include <util/graphic/Ansi.h>
@@ -73,6 +73,26 @@ Util::Time::Timestamp statisticsGatherTimer;
 
 /// The font used to draw the statistics strings.
 const auto &fpsFont = Util::Graphic::Fonts::TERMINAL_8x8;
+
+/// Store key events from the event listener.
+/// Keys are retrieved from this queue in the main render loop.
+Util::ArrayQueue<Util::Io::KeyEvent> keyEvents(32);
+
+/// Handle key events from the kepler window manager
+class EventListener : public Kepler::EventListener {
+
+public:
+    /// Create a new event listener instance.
+    EventListener() = default;
+
+    /// Since the event listener has no state, the default destructor is sufficient.
+    ~EventListener() override = default;
+
+    /// Handle a key event by pushing it into the global `keyEvents` queue.
+    void onKeyEvent(const Util::Io::KeyEvent &key) override {
+        keyEvents.offer(key);
+    }
+};
 
 /// Print OpenGL information to standard out.
 void info() {
@@ -133,16 +153,20 @@ int32_t main(const int32_t argc, char *argv[]) {
         demo = new Lesson7();
     } else {
         Util::System::error << "tinygl: Invalid demo '" << demoName << "'!" << Util::Io::PrintStream::lnFlush;
+        return -1;
     }
 
     Kepler::WindowManagerPipe pipe;
     const Kepler::Window window(320, 240, Util::String::format("TinyGL (%s)",
         static_cast<const char*>(demoName)), pipe);
-    const auto &lfb = window.getFrameBuffer();
+
+    EventListener eventListener;
+    window.registerEventListener(eventListener);
 
     const auto scaleFactor = Util::String::parseFloat<float>(
         argumentParser.getArgument("scale", "1.0"));
 
+    const auto &lfb = window.getFrameBuffer();
     if (lfb.getColorDepth() != TGL_FEATURE_RENDER_BITS) {
         Util::System::error << "tinygl: Color depth not supported (Required: " << TGL_FEATURE_RENDER_BITS
             << ", Got: " << lfb.getColorDepth() << ")!" << Util::Io::PrintStream::lnFlush;
@@ -159,25 +183,18 @@ int32_t main(const int32_t argc, char *argv[]) {
 
     demo->initialize(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
 
-    // Initialize keyboard input
-    Util::Io::DeLayout layout;
-    Util::Io::KeyDecoder keyDecoder(layout);
-    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
-
     while (isRunning) {
         statistics.startFrameTime();
 
         // Read and process key events
         statistics.startUpdateTime();
-        auto scancode = Util::System::in.read();
-        while (scancode != -1 && keyDecoder.parseScancode(scancode)) {
-            auto key = keyDecoder.getKeyEvent();
-            if (key.isPressed() && key.getScancode() == Util::Io::KeyEvent::ESC) {
+        while (!keyEvents.isEmpty()) {
+            const auto &keyEvent = keyEvents.poll();
+            if (keyEvent.isPressed() && keyEvent.getScancode() == Util::Io::KeyEvent::ESC) {
                 isRunning = false;
             }
 
-            demo->handleKeyEvent(key);
-            scancode = Util::System::in.read();
+            demo->handleKeyEvent(keyEvent);
         }
 
         // Update the demo state.
