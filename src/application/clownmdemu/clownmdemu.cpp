@@ -350,9 +350,9 @@ int32_t main(int32_t argc, char *argv[]) {
 
         auto c = Util::System::in.read();
         if (c != -1 && keyDecoder.parseScancode(c)) {
-            bool pressed = keyDecoder.getCurrentKey().isPressed();
+            bool pressed = keyDecoder.getKey().isPressed();
 
-            switch (keyDecoder.getCurrentKey().getScancode()) {
+            switch (keyDecoder.getKey().getScancode()) {
                 case Util::Io::Key::UP:
                     buttons[CLOWNMDEMU_BUTTON_UP] = pressed;
                     break;

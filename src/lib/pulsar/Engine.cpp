@@ -35,6 +35,7 @@ namespace Pulsar {
 Engine::Engine(const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate, const float scaleFactor) :
     graphics(lfb, scaleFactor),
     game(graphics.getTransformation(), graphics.getDimensions()),
+    keyDecoder(Util::Io::DeLayout()),
     targetFrameRate(targetFrameRate)
 {
     Game::instance = &game;
@@ -219,7 +220,7 @@ void Engine::checkKeyboard() {
     int16_t scancode = Util::System::in.read();
     while (scancode >= 0) {
         if (keyDecoder.parseScancode(scancode)) {
-            auto key = keyDecoder.getCurrentKey();
+            auto key = keyDecoder.getKey();
             auto &scene = game.getCurrentScene();
 
             switch (key.getScancode()) {

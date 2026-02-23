@@ -74,6 +74,9 @@ public:
     /// Create a new terminal instance with the given dimensions.
     Terminal(uint16_t columns, uint16_t rows);
 
+    /// Destroy the terminal instance.
+    ~Terminal();
+
     /// Print a character at the current cursor position with the specified colors.
     virtual void putChar(char c, const Color &foregroundColor, const Color &backgroundColor) = 0;
 
@@ -157,7 +160,7 @@ public:
 
     /// Set the keyboard layout for decoding keyboard input.
     void setKeyboardLayout(const Io::KeyboardLayout &layout) {
-        keyDecoder = Io::KeyDecoder(layout);
+        keyDecoder = new Io::KeyDecoder(layout);
     }
 
 private:
@@ -233,7 +236,7 @@ private:
     Io::PipedInputStream ansiInputStream;
     Io::PipedOutputStream ansiOutputStream;
 
-    Io::KeyDecoder keyDecoder = Io::KeyDecoder(Io::DeLayout());
+    Io::KeyDecoder *keyDecoder = new Io::KeyDecoder(Io::DeLayout());
     Async::ReentrantSpinlock writeLock;
 
     String currentEscapeSequence;

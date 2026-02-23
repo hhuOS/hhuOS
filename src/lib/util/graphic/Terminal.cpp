@@ -41,6 +41,10 @@ Terminal::Terminal(const uint16_t columns, const uint16_t rows) :
     Async::Thread::createThread("Terminal", new KeyboardRunnable(*this));
 }
 
+Terminal::~Terminal() {
+    delete keyDecoder;
+}
+
 bool Terminal::write(const uint8_t c) {
     writeLock.acquire();
 
@@ -558,8 +562,8 @@ void Terminal::KeyboardRunnable::run() {
 
         if (terminal.keyboardScancodes) {
             terminal.terminalStream.write(scancode);
-        } else if (terminal.keyDecoder.parseScancode(scancode)) {
-            const auto key = terminal.keyDecoder.getCurrentKey();
+        } else if (terminal.keyDecoder->parseScancode(scancode)) {
+            const auto key = terminal.keyDecoder->getKey();
             if (key.isPressed()) {
                 auto c = key.getAscii();
                 if (c == 0) {

@@ -229,11 +229,6 @@ public:
         return scancode != other.scancode || modifier != other.modifier || pressed != other.pressed;
     }
 
-    /// Check if the key is valid (scancode != 0).
-    bool isValid() const {
-        return scancode != 0;
-    }
-
     /// Get the scancode.
     uint8_t getScancode() const {
         return scancode;

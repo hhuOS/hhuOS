@@ -27,28 +27,31 @@ namespace Util {
 namespace Io {
 
 bool KeyDecoder::parseScancode(uint8_t code) {
-    bool done = false;
-    const bool isBreak = code & BREAK_BIT;
-
-    if (isBreak) {
-        currentKey.setPressed(false);
-    } else {
-        currentKey.setPressed(true);
-    }
-
+    // Keys that are new in the MF II keyboard (compared to the old AT keyboard) send a prefix byte first.
     if (code == PREFIX1 || code == PREFIX2) {
+        // If the code is a prefix, store it and wait for the next byte.
         currentPrefix = code;
         return false;
     }
 
+    // Store the current prefix and clear it in the keyboard state.
+    // The prefix is only valid for the next key, so we clear it after processing.
+    const auto prefix = currentPrefix;
+    currentPrefix = 0;
+
+    // The break bit indicates whether a key is pressed or released.
+    // If it is set, the key is released, otherwise it is pressed.
     if (code & BREAK_BIT) {
+        // Break bit is set -> Key released
+        // Remove the break bit to get the actual scancode.
         code &= ~BREAK_BIT;
 
+        // Check modifier keys (Shift, Alt, Control).
+        // If a modifier key is released, remove it from the modifier flags.
         switch (code) {
             case 42:
             case 54:
                 currentKey.setShift(false);
-                currentPrefix = 0;
                 return false;
             case 56:
                 if (currentPrefix == PREFIX1) {
@@ -56,62 +59,92 @@ bool KeyDecoder::parseScancode(uint8_t code) {
                 } else {
                     currentKey.setAltLeft(false);
                 }
-                currentPrefix = 0;
                 return false;
-            case 29:
+            case 29: {
                 if (currentPrefix == PREFIX1) {
                     currentKey.setCtrlRight(false);
                 } else {
                     currentKey.setCtrlLeft(false);
                 }
-                currentPrefix = 0;
-                return false;
-            default:
+                return true;
+            }
+            case 69:
+                // On old keyboards, the Break function could only be reached via Ctrl+NumLock.
+                // Modern MF-II keyboards send this code combination when Break is meant.
+                // The Break key normally does not deliver an ASCII code, but looking it up does not hurt.
+                // In any case, the key is now complete.
+                if (currentKey.getCtrlLeft()) { // Break key
+                    layout.parseKey(code, prefix, currentKey);
+                    currentKey.setPressed(false);
+                    decodedKeys.offer(currentKey);
+                    return true;
+                }
+
+                // Ignore key releases of toggle keys (NumLock).
                 break;
+            default:
+                // For any other key, parse the ascii code and set the key as released.
+                // We now have parsed a complete key (release), so we return true.
+                layout.parseKey(code, prefix, currentKey);
+                currentKey.setPressed(false);
+                decodedKeys.offer(currentKey);
+                return true;
+        }
+    } else {
+        // Break bit is not set -> Key pressed
+        // Check modifier keys (Shift, Alt, Control).
+        // If a modifier key is pressed, insert it into the modifier flags.
+        switch (code) {
+            case 42:
+            case 54:
+                currentKey.setShift(true);
+                return false;
+            case 56:
+                if (currentPrefix == PREFIX1) {
+                    currentKey.setAltRight(true);
+                } else {
+                    currentKey.setAltLeft(true);
+                }
+                return false;
+            case 29: {
+                if (currentPrefix == PREFIX1) {
+                    currentKey.setCtrlRight(true);
+                } else {
+                    currentKey.setCtrlLeft(true);
+                }
+                return true;
+            }
+            case 58:
+                currentKey.setCapsLock(!currentKey.getCapsLock());
+                break;
+            case 70:
+                currentKey.setScrollLock(!currentKey.getScrollLock());
+                break;
+            case 69:
+                // On old keyboards, the Break function could only be reached via Ctrl+NumLock.
+                // Modern MF-II keyboards send this code combination when Break is meant.
+                // The Break key normally does not deliver an ASCII code, but looking it up does not hurt.
+                // In any case, the key is now complete.
+                if (currentKey.getCtrlLeft()) { // Break key
+                    layout.parseKey(code, prefix, currentKey);
+                    currentKey.setPressed(true);
+                    decodedKeys.offer(currentKey);
+                    return true;
+                }
+
+                // NumLock
+                currentKey.setNumLock(!currentKey.getNumLock());
+                break;
+            default:
+                // For any other key, parse the ascii code and set the key as pressed.
+                layout.parseKey(code, prefix, currentKey);
+                currentKey.setPressed(true);
+                decodedKeys.offer(currentKey);
+                return true;
         }
     }
 
-    switch (code) {
-        case 42:
-        case 54:
-            currentKey.setShift(true);
-            break;
-        case 56:
-            if (currentPrefix == PREFIX1) {
-                currentKey.setAltRight(true);
-            } else {
-                currentKey.setAltLeft(true);
-            }
-            break;
-        case 29:
-            if (currentPrefix == PREFIX1) {
-                currentKey.setCtrlRight(true);
-            } else {
-                currentKey.setCtrlLeft(true);
-            }
-            break;
-        case 58:
-            currentKey.setCapsLock(!currentKey.getCapsLock());
-            break;
-        case 70:
-            currentKey.setScrollLock(!currentKey.getScrollLock());
-            break;
-        case 69:
-            if (currentKey.getCtrlLeft()) {
-                layout.parseKey(code, currentPrefix, currentKey);
-                done = true;
-            } else {
-                currentKey.setNumLock(!currentKey.getNumLock());
-            }
-            break;
-
-        default:
-            layout.parseKey(code, currentPrefix, currentKey);
-            done = true;
-    }
-
-    currentPrefix = 0;
-    return done;
+    return false;
 }
 
 }

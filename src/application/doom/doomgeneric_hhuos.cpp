@@ -246,10 +246,7 @@ int DG_GetKey(int * pressed, unsigned char * key) {
 
 
     if (kd->parseScancode(scancode)) {
-        auto k = kd->getCurrentKey();
-        if (!k.isValid()) {
-            return 0;
-        }
+        auto k = kd->getKey();
 
         *pressed = k.isPressed() ? 1:0;
 

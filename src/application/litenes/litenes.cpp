@@ -236,7 +236,7 @@ void readKey() {
 
     while (scancode != -1) {
         if (keyDecoder.parseScancode(scancode)) {
-            const auto key = keyDecoder.getCurrentKey();
+            const auto key = keyDecoder.getKey();
 
             switch (key.getScancode()) {
                 case Util::Io::Key::W:

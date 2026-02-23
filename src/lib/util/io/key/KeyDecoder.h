@@ -28,6 +28,7 @@
 #include <stdint.h>
 
 #include "util/base/Panic.h"
+#include "util/collection/ArrayListQueue.h"
 #include "util/io/key/Key.h"
 #include "util/io/key/KeyboardLayout.h"
 
@@ -62,21 +63,23 @@ public:
     /// If more bytes are needed (e.g., for multibyte scancodes), false is returned.
     bool parseScancode(uint8_t code);
 
-    /// Get the currently parsed key.
-    /// This method should be called only after `parseScancode()` has returned true.
+    /// Get the next key, that has formerly been parsed by `parseScancode()`.
+    /// This method should only be called after `parseScancode()` has returned true.
     /// If the key is not fully parsed yet, a panic is fired.
-    Key getCurrentKey() const {
-        if (!currentKey.isValid()) {
-            Panic::fire(Panic::ILLEGAL_STATE, "KeyDecoder: Current key not fully parsed!");
+    Key getKey() {
+        if (decodedKeys.isEmpty()) {
+            Panic::fire(Panic::ILLEGAL_STATE, "KeyDecoder: No parsed key available!");
         }
 
-        return currentKey;
+        return decodedKeys.poll();
     }
 
 private:
 
     uint8_t currentPrefix = 0;
     Key currentKey;
+
+    ArrayListQueue<Key> decodedKeys;
 
     KeyboardLayout layout;
 };

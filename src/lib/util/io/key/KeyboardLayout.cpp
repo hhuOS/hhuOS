@@ -31,10 +31,14 @@ static constexpr uint8_t NUMPAD_SCANCODE_TABLE[13] = {
 };
 
 void Io::KeyboardLayout::parseKey(const uint8_t scancode, const uint8_t prefix, Key &key) const {
-    if (scancode == 53 && prefix == KeyDecoder::PREFIX1) {
-        key.setAscii('/');
-        key.setScancode(53);
-    } else if (key.getNumLock() && !prefix && scancode >= 71 && scancode <= 83) {
+    // Choose the right table based on the modifier bits.
+    // For simplicity, NumLock takes precedence over Alt, Shift and CapsLock.
+    // There is no separate table for Ctrl.
+    if (key.getNumLock() && prefix == 0 && scancode >= 71 && scancode <= 83) {
+        // If NumLock is enabled and one of the keys of the separate number block (codes 0x47-0x53) is pressed,
+        // the ASCII and scancodes of the corresponding number keys should be delivered instead of the scancodes of the cursor keys.
+        // The keys of the cursor block (prefix == prefix1) should of course still be able to be used for cursor control.
+        // By the way, they still send a shift, but that should not matter.
         key.setAscii(numpadTable[scancode - 71]);
         key.setScancode(NUMPAD_SCANCODE_TABLE[scancode - 71]);
     } else if (key.getAltRight()) {
@@ -44,6 +48,7 @@ void Io::KeyboardLayout::parseKey(const uint8_t scancode, const uint8_t prefix, 
         key.setAscii(shiftTable[scancode]);
         key.setScancode(scancode);
     } else if (key.getCapsLock()) {
+        // CapsLock is only active for the letters A-Z and 0-9.
         if ((scancode >= 16 && scancode <= 26) ||
             (scancode >= 30 && scancode <= 40) ||
             (scancode >= 44 && scancode <= 50))
@@ -55,6 +60,7 @@ void Io::KeyboardLayout::parseKey(const uint8_t scancode, const uint8_t prefix, 
             key.setScancode(scancode);
         }
     } else {
+        // No modifier keys active, use normal table.
         key.setAscii(normalTable[scancode]);
         key.setScancode(scancode);
     }

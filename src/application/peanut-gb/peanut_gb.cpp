@@ -760,7 +760,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
         auto c = Util::System::in.read();
         if (c != -1 && keyDecoder.parseScancode(c)) {
-            auto key = keyDecoder.getCurrentKey();
+            auto key = keyDecoder.getKey();
             uint8_t joyKey = 0;
 
             switch (key.getScancode()) {

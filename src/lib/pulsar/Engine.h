@@ -94,7 +94,7 @@ private:
     size_t mouseValueIndex = 0;
     uint8_t lastMouseButtons = 0;
 
-    Util::Io::KeyDecoder keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
+    Util::Io::KeyDecoder keyDecoder;
     Util::ArrayList<Util::Io::Key> pressedKeys;
 
     const size_t targetFrameRate;

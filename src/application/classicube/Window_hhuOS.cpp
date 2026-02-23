@@ -43,7 +43,7 @@ void pollKeyboard() {
 	int16_t scancode = keyboardInputStream.read();
 	while (scancode >= 0) {
 		if (keyDecoder.parseScancode(scancode)) {
-			auto key = keyDecoder.getCurrentKey();
+			auto key = keyDecoder.getKey();
 
 			Input_SetNonRepeatable(CCKEY_RSHIFT, key.getShift());
 			Input_SetNonRepeatable(CCKEY_LCTRL, key.getCtrlLeft());

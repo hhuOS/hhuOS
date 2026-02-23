@@ -50,7 +50,7 @@ void WidgetApplication::update() {
     auto scancode = Util::System::in.read();
     while (scancode >= 0) {
         if (keyDecoder.parseScancode(scancode)) {
-            auto key = keyDecoder.getCurrentKey();
+            auto key = keyDecoder.getKey();
 
             if (lastPressedWidget != nullptr) {
                 if (key.isPressed()) {
