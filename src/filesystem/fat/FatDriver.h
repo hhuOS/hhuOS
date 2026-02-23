@@ -28,6 +28,7 @@
 #include "lib/util/base/String.h"
 #include "lib/util/reflection/Prototype.h"
 #include "lib/util/io/file/File.h"
+#include "util/async/Spinlock.h"
 
 namespace Device {
 namespace Storage {
@@ -104,6 +105,7 @@ private:
 
     uint32_t volumeId{};
     FATFS fatVolume{};
+    Util::Async::Spinlock lock;
 
     static Util::Async::AtomicBitmap volumeIdAllocator;
     static Util::Array<Device::Storage::StorageDevice*> deviceMap;

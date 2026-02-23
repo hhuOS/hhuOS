@@ -25,12 +25,14 @@
 
 namespace Filesystem::Fat {
 
-FatNode::FatNode(const Util::String &path) : path(path) {}
+FatNode::FatNode(const Util::String &path, Util::Async::Spinlock &fatLock) : fatLock(fatLock), path(path) {}
 
-FatNode *FatNode::open(const Util::String &path) {
+FatNode *FatNode::open(const Util::String &path, Util::Async::Spinlock &fatLock) {
     // Try to stat the file. If this fails, the file is either non-existent,
     // or it may be the root-directory (f_stat will fail, when executed on the root-directory).
     FILINFO info{};
+
+    fatLock.acquire();
     auto result = f_stat(static_cast<const char*>(path), &info);
     if (result != FR_OK) {
         if (path.endsWith(":")) {
@@ -38,7 +40,7 @@ FatNode *FatNode::open(const Util::String &path) {
             info.altname[0] = 0;
             info.fattrib = AM_DIR;
         } else {
-            return nullptr;
+            return fatLock.releaseAndReturn(nullptr);
         }
     }
 
@@ -47,18 +49,18 @@ FatNode *FatNode::open(const Util::String &path) {
         result = f_opendir(&directory, static_cast<const char*>(path));
 
         if (result == FR_OK) {
-            return new FatDirectory(directory, path);
+            return fatLock.releaseAndReturn(new FatDirectory(directory, path, fatLock));
         }
     } else {
         FIL file{};
         result = f_open(&file, static_cast<const char*>(path), FA_READ | FA_WRITE);
 
         if (result == FR_OK) {
-            return new FatFile(file, path);
+            return fatLock.releaseAndReturn(new FatFile(file, path, fatLock));
         }
     }
 
-    return nullptr;
+    return fatLock.releaseAndReturn(nullptr);
 }
 
 Util::String FatNode::getName() {
@@ -73,6 +75,8 @@ uint64_t FatNode::getLength() {
 
 FILINFO FatNode::stat() {
     FILINFO info{};
+    fatLock.acquire();
+
     auto result = f_stat(static_cast<const char*>(path), &info);
     if (result != FR_OK) {
         if (path.endsWith(":")) {
@@ -84,7 +88,7 @@ FILINFO FatNode::stat() {
         }
     }
 
-    return info;
+    return fatLock.releaseAndReturn(info);
 }
 
 }

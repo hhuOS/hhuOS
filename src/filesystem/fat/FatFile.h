@@ -35,7 +35,7 @@ public:
     /**
      * Constructor.
      */
-    FatFile(const FIL &file, const Util::String &path);
+    FatFile(const FIL &file, const Util::String &path, Util::Async::Spinlock &lock);
 
     /**
      * Copy Constructor.

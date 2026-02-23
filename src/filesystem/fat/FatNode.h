@@ -26,6 +26,7 @@
 #include "filesystem/fat/ff/source/ff.h"
 #include "filesystem/Node.h"
 #include "lib/util/base/String.h"
+#include "util/async/Spinlock.h"
 
 namespace Filesystem::Fat {
 
@@ -47,7 +48,7 @@ public:
      */
     ~FatNode() override = default;
 
-    static FatNode* open(const Util::String &path);
+    static FatNode* open(const Util::String &path, Util::Async::Spinlock &fatLock);
 
     /**
      * Overriding function from Node.
@@ -63,7 +64,9 @@ protected:
     /**
      * Constructor.
      */
-    explicit FatNode(const Util::String &path);
+    explicit FatNode(const Util::String &path, Util::Async::Spinlock &fatLock);
+
+    Util::Async::Spinlock &fatLock;
 
 private:
 

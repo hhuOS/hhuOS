@@ -70,7 +70,7 @@ void DG_DrawFrame32() {
     for (uint16_t y = 0; y < drawResY; y++) {
         for (uint16_t x = 0; x < drawResX; x++) {
             auto pixel = DG_ScreenBuffer[(y / scaleFactor) * DOOMGENERIC_RESX + (x / scaleFactor)];
-            auto color = *((uint32_t*) &colors[pixel]);
+            auto color = palette[pixel];
 
             screenBuffer[x] = color;
         }

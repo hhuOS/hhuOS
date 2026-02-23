@@ -26,7 +26,7 @@
 
 namespace Filesystem::Fat {
 
-FatFile::FatFile(const FIL &file, const Util::String &path) : FatNode(path), file(file) {}
+FatFile::FatFile(const FIL &file, const Util::String &path, Util::Async::Spinlock &fatLock) : FatNode(path, fatLock), file(file) {}
 
 Util::Io::File::Type FatFile::getType() {
     return Util::Io::File::REGULAR;
@@ -37,34 +37,38 @@ Util::Array<Util::String> FatFile::getChildren() {
 }
 
 uint64_t FatFile::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+    fatLock.acquire();
+
     auto result = f_lseek(&file, pos);
     if (result != FR_OK) {
-        return 0;
+        return fatLock.releaseAndReturn(0);
     }
 
     uint32_t readBytes;
     result = f_read(&file, targetBuffer, numBytes, &readBytes);
     if (result != FR_OK) {
-        return 0;
+        return fatLock.releaseAndReturn(0);
     }
 
-    return readBytes;
+    return fatLock.releaseAndReturn(readBytes);
 }
 
 uint64_t FatFile::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+    fatLock.acquire();
+
     auto result = f_lseek(&file, pos);
     if (result != FR_OK) {
-        return 0;
+        return fatLock.releaseAndReturn(0);
     }
 
     uint32_t writtenBytes;
     result = f_write(&file, sourceBuffer, numBytes, &writtenBytes);
     if (result != FR_OK) {
-        return 0;
+        return fatLock.releaseAndReturn(0);
     }
 
     f_sync(&file);
-    return writtenBytes;
+        return fatLock.releaseAndReturn(writtenBytes);
 }
 
 }

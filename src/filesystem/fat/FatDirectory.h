@@ -35,7 +35,7 @@ public:
     /**
      * Constructor.
      */
-    FatDirectory(const DIR &dir, const Util::String &path);
+    FatDirectory(const DIR &dir, const Util::String &path, Util::Async::Spinlock &fatLock);
 
     /**
      * Copy Constructor.

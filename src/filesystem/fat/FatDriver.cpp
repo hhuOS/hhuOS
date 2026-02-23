@@ -38,7 +38,10 @@ Util::Async::AtomicBitmap FatDriver::volumeIdAllocator(FF_VOLUMES);
 Util::Array<Device::Storage::StorageDevice*> FatDriver::deviceMap(FF_VOLUMES);
 
 FatDriver::~FatDriver() {
+    lock.acquire();
     f_mount(nullptr, static_cast<const char*>(Util::String::format("%u:", volumeId)), 1);
+    lock.release();
+
     volumeIdAllocator.unset(volumeId);
 }
 
@@ -54,7 +57,10 @@ bool FatDriver::mount(Device::Storage::StorageDevice &device) {
 
     deviceMap[volumeId] = &device;
 
+    lock.acquire();
     auto result = f_mount(&fatVolume, static_cast<const char*>(Util::String::format("%u:", volumeId)), 1);
+    lock.release();
+
     return result == FR_OK;
 }
 
@@ -74,18 +80,23 @@ bool FatDriver::createFilesystem(Device::Storage::StorageDevice &device) {
         0
     };
 
+    lock.acquire();
     auto result = f_mkfs(static_cast<const char*>(Util::String::format("%u:", volumeId)), &parameters, work, FF_MAX_SS);
+    lock.release();
+
     return result == FR_OK;
 }
 
 Node* FatDriver::getNode(const Util::String &path) {
     auto fatPath = Util::String::format("%u:%s", volumeId, static_cast<const char*>(path));
-    return FatNode::open(fatPath);
+    return FatNode::open(fatPath, lock);
 }
 
 bool FatDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
     auto fatPath = Util::String::format("%u:%s", volumeId, static_cast<const char*>(path));
     FRESULT result = FR_DISK_ERR;
+
+    lock.acquire();
 
     if (type == Util::Io::File::DIRECTORY) {
         result = f_mkdir(static_cast<const char*>(fatPath));
@@ -99,12 +110,16 @@ bool FatDriver::createNode(const Util::String &path, Util::Io::File::Type type) 
         delete file;
     }
 
+    lock.release();
     return result == FR_OK;
 }
 
 bool FatDriver::deleteNode(const Util::String &path) {
     auto fatPath = Util::String::format("%u:%s", volumeId, static_cast<const char*>(path));
+
+    lock.acquire();
     auto result = f_unlink(static_cast<const char*>(fatPath));
+    lock.release();
 
     return result == FR_OK;
 }
