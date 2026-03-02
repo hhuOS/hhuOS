@@ -30,6 +30,10 @@
 #include <lib/util/base/String.h>
 #include <lib/util/io/stream/PrintStream.h>
 
+const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
 int compareFileNames(const void *a, const void *b) {
     const auto &fileA = *static_cast<const Util::Io::File*>(a);
     const auto &fileB = *static_cast<const Util::Io::File*>(b);
@@ -82,10 +86,7 @@ void lsDirectory(const Util::String &path) {
 
 int main(const int argc, char *argv[]) {
     Util::ArgumentParser argumentParser;
-    argumentParser.setHelpText("List files.\n"
-                               "Usage: ls [PATH]...\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
