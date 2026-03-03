@@ -62,7 +62,7 @@ int main(const int argc, char *argv[]) {
         processStream(Util::System::in);
     } else {
         for (const auto &path : arguments) {
-            auto file = Util::Io::File(path);
+            const Util::Io::File file(path);
             if (!file.exists()) {
                 Util::System::error << "cat: '" << path << "' not found!" << Util::Io::PrintStream::lnFlush;
                 continue;

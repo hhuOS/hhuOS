@@ -111,7 +111,7 @@ int32_t main(const int32_t argc, char *argv[]) {
 
     for (uint8_t i = minPower; i <= maxPower; i++) {
         const auto size = 1 << i;
-        auto results = Util::Array<Util::Time::Timestamp>(BENCHMARK_REPETITIONS);
+        Util::Array<Util::Time::Timestamp> results(BENCHMARK_REPETITIONS);
 
         Util::System::out << benchmarkType << " " << powerAsString(i) << ":\t" << Util::Io::PrintStream::flush;
 

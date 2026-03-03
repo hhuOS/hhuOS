@@ -61,7 +61,7 @@ Util::String formatFileName(const Util::Io::File &file) {
 }
 
 void lsDirectory(const Util::String &path) {
-    const auto file = Util::Io::File(path);
+    const Util::Io::File file(path);
     if (!file.exists()) {
         Util::System::error << "ls: '" << path << "' not found!" << Util::Io::PrintStream::lnFlush;
         return;

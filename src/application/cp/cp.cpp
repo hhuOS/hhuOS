@@ -63,8 +63,8 @@ int main(const int argc, char *argv[]) {
     }
 
     if (arguments.length() == 2) {
-        const auto sourceFile = Util::Io::File(arguments[0]);
-        auto targetFile = Util::Io::File(arguments[1]);
+        const Util::Io::File sourceFile(arguments[0]);
+        Util::Io::File targetFile(arguments[1]);
 
         if (!sourceFile.exists()) {
             Util::System::error << "cp: '" << arguments[0] << "' not found!" << Util::Io::PrintStream::lnFlush;
@@ -95,7 +95,7 @@ int main(const int argc, char *argv[]) {
         Util::Io::FileOutputStream target(targetFile);
         copyFile(source, target);
     } else {
-        const auto targetDirectory = Util::Io::File(arguments[arguments.length() - 1]);
+        const Util::Io::File targetDirectory(arguments[arguments.length() - 1]);
         if (!targetDirectory.exists()) {
             Util::System::error << "cp: '" << arguments[arguments.length() - 1] << "' not found!" <<
                 Util::Io::PrintStream::lnFlush;

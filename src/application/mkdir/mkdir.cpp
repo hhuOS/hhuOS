@@ -20,40 +20,46 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/PrintStream.h"
+#include <util/base/System.h>
+#include <util/base/ArgumentParser.h>
+#include <util/collection/Array.h>
+#include <util/io/file/File.h>
+#include <util/io/stream/PrintStream.h>
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Create directories.\n"
-                               "Usage: cat [DIRECTORY]...\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
+    argumentParser.addSwitch("verbose", "v");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto arguments = argumentParser.getUnnamedArguments();
+    const auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "mkdir: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "mkdir: No arguments provided!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     for (const auto &path : arguments) {
-        auto file = Util::Io::File(path);
+        const Util::Io::File file(path);
         if (file.exists()) {
-            Util::System::error << "mkdir: '" << path << "' already exists!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+            Util::System::error << "mkdir: '" << path << "' already exists!" << Util::Io::PrintStream::lnFlush;
             continue;
         }
 
-        auto success = file.create(Util::Io::File::DIRECTORY);
-        if (!success) {
-            Util::System::error << "mkdir: Failed to create directory '" << path << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        if (!file.create(Util::Io::File::DIRECTORY)) {
+            Util::System::error << "mkdir: Failed to create directory '" << path << "'!" <<
+                Util::Io::PrintStream::lnFlush;
+        }
+
+        if (argumentParser.checkSwitch("verbose")) {
+            Util::System::out << "mkdir: Created directory '" << path << "'" << Util::Io::PrintStream::lnFlush;
         }
     }
 
