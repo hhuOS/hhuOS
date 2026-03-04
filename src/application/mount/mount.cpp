@@ -20,38 +20,38 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/base/String.h"
+#include <util/base/System.h>
+#include <util/base/ArgumentParser.h>
+#include <util/collection/Array.h>
+#include <util/io/file/File.h>
+#include <util/io/stream/PrintStream.h>
+#include <util/base/String.h>
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
+const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
     argumentParser.addArgument("type", true, "t");
-    argumentParser.setHelpText("Mount a device to a path.\n"
-                               "Usage: mount [DEVICE] [PATH] [OPTIONS]...\n"
-                               "Options:\n"
-                               "  -t, --type: Filesystem type (REQUIRED).\n"
-                               "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto type = argumentParser.getArgument("type");
+    const auto type = argumentParser.getArgument("type");
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() < 2) {
-        Util::System::error << "mount: Too few arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "mount: Too few arguments provided!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto success = Util::Io::File::mount(arguments[0], arguments[1], type);
-    if (!success) {
-        Util::System::error << "mount: Failed to mount '" << argv[1] << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    if (!Util::Io::File::mount(arguments[0], arguments[1], type)) {
+        Util::System::error << "mount: Failed to mount '" << argv[1] << "'!" << Util::Io::PrintStream::lnFlush;
+        return -1;
     }
 
-    return success ? 0 : -1;
+    return 0;
 }
