@@ -23,6 +23,7 @@
 
 #include <stddef.h>
 
+#include "WindowStack.h"
 #include "util/graphic/LinearFrameBuffer.h"
 #include "util/graphic/font/Terminal8x8.h"
 #include "util/io/stream/FileOutputStream.h"
@@ -34,8 +35,8 @@ class ClientWindow {
 public:
 
     struct MouseCoordinates {
-        uint16_t x = 0;
-        uint16_t y = 0;
+        int32_t x = 0;
+        int32_t y = 0;
         bool valid = false;
     };
 
@@ -49,7 +50,15 @@ public:
 
     [[nodiscard]] uint16_t getPosX() const;
 
+    void setPosX(uint16_t posX) {
+        ClientWindow::posX = posX;
+    }
+
     [[nodiscard]] uint16_t getPosY() const;
+
+    void setPosY(uint16_t posY) {
+        ClientWindow::posY = posY;
+    }
 
     [[nodiscard]] uint16_t getWidth() const;
 
@@ -62,6 +71,8 @@ public:
     void setDirty(bool dirty);
 
     MouseCoordinates containsPoint(uint16_t x, uint16_t y) const;
+
+    bool overlapsWith(const ClientWindow &other) const;
 
     void sendMouseHoverEvent(const Kepler::Event::MouseHover &event);
 

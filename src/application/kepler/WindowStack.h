@@ -21,8 +21,9 @@
 #ifndef HHUOS_WINDOWSTACK_H
 #define HHUOS_WINDOWSTACK_H
 
-#include "ClientWindow.h"
 #include "util/collection/ArrayList.h"
+
+class ClientWindow;
 
 class WindowStack : public Util::Iterable<ClientWindow*> {
 
