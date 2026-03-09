@@ -47,7 +47,6 @@ bool KeyDecoder::parseScancode(uint8_t code) {
 
         // Check modifier keys (Shift, Alt, Control).
         // If a modifier key is released, remove it from the modifier flags.
-        // Additionally, we generate a key release event for the modifier key itself.
         switch (code) {
             case 42:
             case 54:

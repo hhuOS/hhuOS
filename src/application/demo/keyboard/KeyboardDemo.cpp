@@ -76,6 +76,4 @@ void keyboardDemo() {
 
         c = Util::System::in.read();
     }
-
-    Util::Graphic::Ansi::cleanupGraphicalApplication();
 }
