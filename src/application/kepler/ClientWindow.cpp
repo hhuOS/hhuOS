@@ -68,14 +68,24 @@ void ClientWindow::setDirty(const bool dirty) {
 }
 
 ClientWindow::MouseCoordinates ClientWindow::containsPoint(const uint16_t x, const uint16_t y) const {
-    const auto mouseX = x - (posX + 1);
-    const auto mouseY = y - (posY + TITLE_FONT.getCharHeight() + 5);
+    const auto titleBarHeight = TITLE_FONT.getCharHeight() + 5;
+    const auto mouseX = x - posX;
+    const auto mouseY = y - posY - titleBarHeight;
 
-    if (mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < height) {
-        return MouseCoordinates{static_cast<uint16_t>(mouseX), static_cast<uint16_t>(mouseY), true};
+    if (mouseX >= -1 && mouseX < width && mouseY >= (-TITLE_FONT.getCharHeight() - 5) && mouseY < height) {
+        return MouseCoordinates{mouseX, mouseY, true};
     }
 
     return MouseCoordinates{0, 0, false};
+}
+
+bool ClientWindow::overlapsWith(const ClientWindow &other) const {
+    const auto thisRight = posX + width + 1;
+    const auto thisBottom = posY + height + TITLE_FONT.getCharHeight() + 4;
+    const auto otherRight = other.posX + other.width + 1;
+    const auto otherBottom = other.posY + other.height + TITLE_FONT.getCharHeight() + 4;
+
+    return posX < otherRight && thisRight > other.posX && posY < otherBottom && thisBottom > other.posY;
 }
 
 void ClientWindow::sendMouseHoverEvent(const Kepler::Event::MouseHover &event) {
