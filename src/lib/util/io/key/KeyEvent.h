@@ -27,6 +27,9 @@
 
 #include <stdint.h>
 
+#include "util/io/stream/OutputStream.h"
+#include "util/io/stream/PrintStream.h"
+
 namespace Util {
 namespace Io {
 
@@ -304,6 +307,21 @@ public:
     /// Check if scroll lock is active.
     bool getScrollLock() const {
         return modifiers & SCROLL_LOCK;
+    }
+
+    void print(OutputStream &out) const {
+        PrintStream stream(out);
+        stream << "Scancode: " << scancode <<
+            ", ASCII: " << ascii <<
+            ", Shift: " << getShift() <<
+            ", AltLeft: " << getAltLeft() <<
+            ", AltRight: " << getAltRight() <<
+            ", CtrlLeft: " << getCtrlLeft() <<
+            ", CtrlRight: " << getCtrlRight() <<
+            ", CapsLock: " << getCapsLock() <<
+            ", NumLock: " << getNumLock() <<
+            ", ScrollLock: " << getScrollLock() <<
+            ", Pressed: " << pressed;
     }
 
 private:
