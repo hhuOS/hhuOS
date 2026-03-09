@@ -144,6 +144,7 @@ int32_t main(int argc, char **argv) {
     auto windowManagerPipe = Kepler::WindowManagerPipe();
     const auto window = Kepler::Window(DOOMGENERIC_RESX, DOOMGENERIC_RESY, "Doom", windowManagerPipe);
     lfb = &window.getFrameBuffer();
+    win = &window;
 
     EventListener eventListener;
     window.registerEventListener(eventListener);
@@ -197,7 +198,6 @@ int32_t main(int argc, char **argv) {
             Util::Async::Thread::yield();
         } else {
             doomgeneric_Tick();
-            window.flush();
         }
     }
 }
@@ -224,6 +224,8 @@ void DG_DrawFrame() {
         fpsCounter = 0;
         fpsTimer = Util::Time::Timestamp();
     }
+
+    win->flush();
 }
 
 void DG_SleepMs(uint32_t ms) {

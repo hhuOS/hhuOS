@@ -70,6 +70,10 @@ private:
     Util::Io::FileInputStream *nextPipe = nullptr;
     size_t nextClientId = 0;
 
+    bool isDragging = false;
+    uint16_t lastDragX = 0;
+    uint16_t lastDragY = 0;
+
     static constexpr size_t TARGET_FPS = 60;
     static const Util::Time::Timestamp TARGET_FRAMETIME;
 };
