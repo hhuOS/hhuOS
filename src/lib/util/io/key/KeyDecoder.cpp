@@ -52,19 +52,23 @@ bool KeyDecoder::parseScancode(uint8_t code) {
             case 42:
             case 54:
                 currentKey.setShift(false);
-                return false;
+                decodedKeys.offer(KeyEvent(0, 0, KeyEvent::SHIFT, false));
+                return true;
             case 56:
                 if (currentPrefix == PREFIX1) {
                     currentKey.setAltRight(false);
+                decodedKeys.offer(KeyEvent(0, 0, KeyEvent::ALT_LEFT, false));
                 } else {
-                    currentKey.setAltLeft(false);
+                decodedKeys.offer(KeyEvent(0, 0, KeyEvent::ALT_RIGHT, false));
                 }
-                return false;
+                return true;
             case 29: {
                 if (currentPrefix == PREFIX1) {
                     currentKey.setCtrlRight(false);
+                    decodedKeys.offer(KeyEvent(0, 0, KeyEvent::CTRL_RIGHT, false));
                 } else {
                     currentKey.setCtrlLeft(false);
+                    decodedKeys.offer(KeyEvent(0, 0, KeyEvent::CTRL_LEFT, false));
                 }
                 return true;
             }
@@ -98,19 +102,24 @@ bool KeyDecoder::parseScancode(uint8_t code) {
             case 42:
             case 54:
                 currentKey.setShift(true);
-                return false;
+                decodedKeys.offer(KeyEvent(0, 0, KeyEvent::SHIFT, true));
+                return true;
             case 56:
                 if (currentPrefix == PREFIX1) {
                     currentKey.setAltRight(true);
+                decodedKeys.offer(KeyEvent(0, 0, KeyEvent::ALT_LEFT, true));
                 } else {
                     currentKey.setAltLeft(true);
+                decodedKeys.offer(KeyEvent(0, 0, KeyEvent::ALT_RIGHT, true));
                 }
-                return false;
+                return true;
             case 29: {
                 if (currentPrefix == PREFIX1) {
                     currentKey.setCtrlRight(true);
+                    decodedKeys.offer(KeyEvent(0, 0, KeyEvent::CTRL_RIGHT, true));
                 } else {
                     currentKey.setCtrlLeft(true);
+                    decodedKeys.offer(KeyEvent(0, 0, KeyEvent::CTRL_LEFT, true));
                 }
                 return true;
             }

@@ -47,6 +47,6 @@ static constexpr const char* GAME_OVER_TEXT =
     " \n"
     "Press SPACE to enter the dungeon again, or ESC to run like a coward...";
 
-void handleKeyPressOnTextScreen(const Util::Io::Key &key);
+void handleKeyPressOnTextScreen(const Util::Io::KeyEvent &key);
 
 #endif

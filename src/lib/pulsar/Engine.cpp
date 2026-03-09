@@ -225,13 +225,13 @@ void Engine::checkKeyboard() {
 
             switch (key.getScancode()) {
                 // Toggle status display
-                case Util::Io::Key::F1:
+                case Util::Io::KeyEvent::F1:
                     if (key.isPressed()) {
                         showStatus = !showStatus;
                     }
                     break;
                 // Toggle OpenGL render style (3D scenes only)
-                case Util::Io::Key::F2:
+                case Util::Io::KeyEvent::F2:
                     if (key.isPressed() && graphics.isGlEnabled()) {
                         auto &scene3d = reinterpret_cast<D3::Scene&>(scene);
                         switch (scene3d.getGlRenderStyle()) {
@@ -248,14 +248,14 @@ void Engine::checkKeyboard() {
                     }
                     break;
                 // Toggle lighting (3D scenes only)
-                case Util::Io::Key::F3:
+                case Util::Io::KeyEvent::F3:
                     if (key.isPressed() && graphics.isGlEnabled()) {
                         auto &scene3d = reinterpret_cast<D3::Scene&>(scene);
                         scene3d.setLightingEnabled(!scene3d.isLightingEnabled());
                     }
                 break;
                 // Toggle shading model (3D scenes only)
-                case Util::Io::Key::F4:
+                case Util::Io::KeyEvent::F4:
                     if (key.isPressed() && graphics.isGlEnabled()) {
                         auto &scene3d = reinterpret_cast<D3::Scene&>(scene);
                         switch (scene3d.getGlShadeModel()) {

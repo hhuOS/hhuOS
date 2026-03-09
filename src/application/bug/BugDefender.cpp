@@ -90,32 +90,32 @@ bool BugDefender::initializeBackground(Pulsar::Graphics &graphics) {
     return true;
 }
 
-void BugDefender::keyPressed(const Util::Io::Key &key) {
+void BugDefender::keyPressed(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::ESC :
+        case Util::Io::KeyEvent::ESC :
             Pulsar::Game::getInstance().stop();
             break;
-        case Util::Io::Key::LEFT :
+        case Util::Io::KeyEvent::LEFT :
             ship->setVelocityX(-1.0);
             break;
-        case Util::Io::Key::RIGHT :
+        case Util::Io::KeyEvent::RIGHT :
             ship->setVelocityX(1.0);
             break;
-        case Util::Io::Key::SPACE :
+        case Util::Io::KeyEvent::SPACE :
             ship->fireMissile();
         default:
             break;
     }
 }
 
-void BugDefender::keyReleased(const Util::Io::Key &key) {
+void BugDefender::keyReleased(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::LEFT:
+        case Util::Io::KeyEvent::LEFT:
             if (ship->getVelocity().getX() < 0) {
                 ship->setVelocityX(0);
             }
             break;
-        case Util::Io::Key::RIGHT:
+        case Util::Io::KeyEvent::RIGHT:
             if (ship->getVelocity().getX() > 0) {
                 ship->setVelocityX(0);
             }

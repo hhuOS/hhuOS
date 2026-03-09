@@ -224,11 +224,11 @@ void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
         if (c > 0 && keyDecoder->parseScancode(c)) {
             auto key = keyDecoder->getKey();
             if (key.isPressed()) {
-                if (key.getScancode() == Util::Io::Key::ESC) {
+                if (key.getScancode() == Util::Io::KeyEvent::ESC) {
                     break;
-                } else if (key.getScancode() == Util::Io::Key::PLUS) {
+                } else if (key.getScancode() == Util::Io::KeyEvent::PLUS) {
                     cubes->add(new Cube(texture));
-                } else if (key.getScancode() == Util::Io::Key::MINUS) {
+                } else if (key.getScancode() == Util::Io::KeyEvent::MINUS) {
                     if (cubes->size() > 0) {
                         delete cubes->removeIndex(cubes->size() - 1);
                     }

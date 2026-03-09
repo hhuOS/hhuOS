@@ -54,9 +54,9 @@ bool ParticleDemo::initializeBackground(Pulsar::Graphics &graphics) {
     return true;
 }
 
-void ParticleDemo::keyPressed(const Util::Io::Key &key) {
+void ParticleDemo::keyPressed(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::ESC:
+        case Util::Io::KeyEvent::ESC:
             Pulsar::Game::getInstance().stop();
             break;
         default:
@@ -64,4 +64,4 @@ void ParticleDemo::keyPressed(const Util::Io::Key &key) {
     }
 }
 
-void ParticleDemo::keyReleased([[maybe_unused]] const Util::Io::Key &key) {}
+void ParticleDemo::keyReleased([[maybe_unused]] const Util::Io::KeyEvent &key) {}

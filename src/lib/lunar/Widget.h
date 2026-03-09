@@ -146,16 +146,16 @@ public:
 
     /// Notify the widget that a key has been pressed while the widget has keyboard focus.
     /// This calls `onKeyPressed()` on all registered action listeners.
-    void keyPressed(const Util::Io::Key &key) const;
+    void keyPressed(const Util::Io::KeyEvent &key) const;
 
     /// Notify the widget that a key has been released while the widget has keyboard focus.
     /// This calls `onKeyReleased()` on all registered action listeners.
-    void keyReleased(const Util::Io::Key &key) const;
+    void keyReleased(const Util::Io::KeyEvent &key) const;
 
     /// Notify the widget that a key has been typed while the widget has keyboard focus.
     /// This calls `onKeyTyped()` on all registered action listeners.
     /// A key is considered typed when it is pressed and then released.
-    void keyTyped(const Util::Io::Key &key) const;
+    void keyTyped(const Util::Io::KeyEvent &key) const;
 
     /// Check whether the widget needs to be redrawn.
     virtual bool requiresRedraw() const {

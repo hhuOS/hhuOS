@@ -35,6 +35,7 @@
 #include "application/demo/particles/ParticleDemo.h"
 #include "application/demo/color/AnsiColorDemo.h"
 #include "application/demo/fonts/FontDemo.h"
+#include "keyboard/KeyboardDemo.h"
 #include "opengl/OpenGlDemo.h"
 #include "widget/WidgetDemo.h"
 
@@ -84,7 +85,9 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
 
-    if (demo == "ant") {
+    if (demo == "keyboard") {
+        keyboardDemo();
+    } else if (demo == "ant") {
         auto sleepInterval = arguments.length() <= 1 ? 0 : Util::String::parseNumber<uint32_t>(arguments[0]);
         antDemo(lfb, sleepInterval);
     } else if (demo == "fonts") {

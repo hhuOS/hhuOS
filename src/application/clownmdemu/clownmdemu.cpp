@@ -353,55 +353,55 @@ int32_t main(int32_t argc, char *argv[]) {
             bool pressed = keyDecoder.getKey().isPressed();
 
             switch (keyDecoder.getKey().getScancode()) {
-                case Util::Io::Key::UP:
+                case Util::Io::KeyEvent::UP:
                     buttons[CLOWNMDEMU_BUTTON_UP] = pressed;
                     break;
-                case Util::Io::Key::DOWN:
+                case Util::Io::KeyEvent::DOWN:
                     buttons[CLOWNMDEMU_BUTTON_DOWN] = pressed;
                     break;
-                case Util::Io::Key::LEFT:
+                case Util::Io::KeyEvent::LEFT:
                     buttons[CLOWNMDEMU_BUTTON_LEFT] = pressed;
                     break;
-                case Util::Io::Key::RIGHT:
+                case Util::Io::KeyEvent::RIGHT:
                     buttons[CLOWNMDEMU_BUTTON_RIGHT] = pressed;
                     break;
-                case Util::Io::Key::A:
+                case Util::Io::KeyEvent::A:
                     buttons[CLOWNMDEMU_BUTTON_A] = pressed;
                     break;
-                case Util::Io::Key::S:
+                case Util::Io::KeyEvent::S:
                     buttons[CLOWNMDEMU_BUTTON_B] = pressed;
                     break;
-                case Util::Io::Key::D:
+                case Util::Io::KeyEvent::D:
                     buttons[CLOWNMDEMU_BUTTON_C] = pressed;
                     break;
-                case Util::Io::Key::Y:
+                case Util::Io::KeyEvent::Y:
                     buttons[CLOWNMDEMU_BUTTON_X] = pressed;
                     break;
-                case Util::Io::Key::X:
+                case Util::Io::KeyEvent::X:
                     buttons[CLOWNMDEMU_BUTTON_Y] = pressed;
                     break;
-                case Util::Io::Key::C:
+                case Util::Io::KeyEvent::C:
                     buttons[CLOWNMDEMU_BUTTON_Z] = pressed;
                     break;
-                case Util::Io::Key::SPACE:
+                case Util::Io::KeyEvent::SPACE:
                     buttons[CLOWNMDEMU_BUTTON_START] = pressed;
                     break;
-                case Util::Io::Key::ENTER:
+                case Util::Io::KeyEvent::ENTER:
                     buttons[CLOWNMDEMU_BUTTON_MODE] = pressed;
                     break;
-                case Util::Io::Key::F1:
+                case Util::Io::KeyEvent::F1:
                     if (scale > 1) {
                         scale--;
                         calculate_screen_variables(mdScreenWidth, mdScreenHeight, true);
                     }
                     break;
-                case Util::Io::Key::F2:
+                case Util::Io::KeyEvent::F2:
                     if (scale < maxScale) {
                         scale++;
                         calculate_screen_variables(mdScreenWidth, mdScreenHeight, true);
                     }
                     break;
-                case Util::Io::Key::ESC:
+                case Util::Io::KeyEvent::ESC:
                     return 0;
             }
         }

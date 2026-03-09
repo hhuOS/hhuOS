@@ -76,12 +76,12 @@ int32_t main(int32_t argc, char *argv[]) {
     return 0;
 }
 
-void handleKeyPressOnTextScreen(const Util::Io::Key &key) {
+void handleKeyPressOnTextScreen(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::ESC:
+        case Util::Io::KeyEvent::ESC:
             Pulsar::Game::getInstance().stop();
             break;
-        case Util::Io::Key::SPACE:
+        case Util::Io::KeyEvent::SPACE:
             Pulsar::Game::getInstance().pushScene(new Level(Util::Io::File("/user/dino/level/level1.txt"), 0));
             Pulsar::Game::getInstance().switchToNextScene();
             break;

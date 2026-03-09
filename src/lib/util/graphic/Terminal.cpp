@@ -568,31 +568,31 @@ void Terminal::KeyboardRunnable::run() {
                 auto c = key.getAscii();
                 if (c == 0) {
                     switch (key.getScancode()) {
-                        case Io::Key::UP:
+                        case Io::KeyEvent::UP:
                             terminal.terminalStream.write(
                                 reinterpret_cast<const uint8_t*>("\u001b[1A"), 0, 4);
                             break;
-                        case Io::Key::DOWN:
+                        case Io::KeyEvent::DOWN:
                             terminal.terminalStream.write(
                                 reinterpret_cast<const uint8_t*>("\u001b[1B"), 0, 4);
                             break;
-                        case Io::Key::RIGHT:
+                        case Io::KeyEvent::RIGHT:
                             terminal.terminalStream.write(
                                 reinterpret_cast<const uint8_t*>("\u001b[1C"), 0, 4);
                             break;
-                        case Io::Key::LEFT:
+                        case Io::KeyEvent::LEFT:
                             terminal.terminalStream.write(
                                 reinterpret_cast<const uint8_t*>("\u001b[1D"), 0, 4);
                             break;
-                        case Io::Key::END:
+                        case Io::KeyEvent::END:
                             terminal.terminalStream.write(
                                 reinterpret_cast<const uint8_t*>("\u001b[1F"), 0, 4);
                             break;
-                        case Io::Key::HOME:
+                        case Io::KeyEvent::HOME:
                             terminal.terminalStream.write(
                                 reinterpret_cast<const uint8_t*>("\u001b[1H"), 0, 4);
                             break;
-                        case Io::Key::DEL:
+                        case Io::KeyEvent::DEL:
                             terminal.terminalStream.write(0x7f);
                         default:
                             break;

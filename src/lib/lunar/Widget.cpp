@@ -75,19 +75,19 @@ void Widget::mouseExited() const {
     }
 }
 
-void Widget::keyPressed(const Util::Io::Key &key) const {
+void Widget::keyPressed(const Util::Io::KeyEvent &key) const {
     for (auto *listener : actionListeners) {
         listener->onKeyPressed(key);
     }
 }
 
-void Widget::keyReleased(const Util::Io::Key &key) const {
+void Widget::keyReleased(const Util::Io::KeyEvent &key) const {
     for (auto *listener : actionListeners) {
         listener->onKeyReleased(key);
     }
 }
 
-void Widget::keyTyped(const Util::Io::Key &key) const {
+void Widget::keyTyped(const Util::Io::KeyEvent &key) const {
     for (auto *listener : actionListeners) {
         listener->onKeyTyped(key);
     }

@@ -90,37 +90,37 @@ void OpenGlDemo::update([[maybe_unused]] float delta) {
     camera.translate(translation * delta * 10);
 }
 
-void OpenGlDemo::keyPressed(const Util::Io::Key &key) {
+void OpenGlDemo::keyPressed(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::LEFT:
+        case Util::Io::KeyEvent::LEFT:
             cameraRotation = Util::Math::Vector3<float>(cameraRotation.getX(), cameraRotation.getY(), -1);
             break;
-        case Util::Io::Key::RIGHT:
+        case Util::Io::KeyEvent::RIGHT:
             cameraRotation = Util::Math::Vector3<float>(cameraRotation.getX(), cameraRotation.getY(), 1);
             break;
-        case Util::Io::Key::UP:
+        case Util::Io::KeyEvent::UP:
             cameraRotation = Util::Math::Vector3<float>(cameraRotation.getX(), 1, cameraRotation.getZ());
             break;
-        case Util::Io::Key::DOWN:
+        case Util::Io::KeyEvent::DOWN:
             cameraRotation = Util::Math::Vector3<float>(cameraRotation.getX(), -1, cameraRotation.getZ());
             break;
-        case Util::Io::Key::W:
+        case Util::Io::KeyEvent::W:
             cameraTranslation = Util::Math::Vector3<float>(cameraTranslation.getX(), cameraTranslation.getY(), 1);
             break;
-        case Util::Io::Key::S:
+        case Util::Io::KeyEvent::S:
             cameraTranslation = Util::Math::Vector3<float>(cameraTranslation.getX(), cameraTranslation.getY(), -1);
             break;
-        case Util::Io::Key::A:
+        case Util::Io::KeyEvent::A:
             cameraTranslation = Util::Math::Vector3<float>(-1, cameraTranslation.getY(), cameraTranslation.getZ());
             break;
-        case Util::Io::Key::D:
+        case Util::Io::KeyEvent::D:
             cameraTranslation = Util::Math::Vector3<float>(1, cameraTranslation.getY(), cameraTranslation.getZ());
             break;
-        case Util::Io::Key::SPACE:
+        case Util::Io::KeyEvent::SPACE:
             getCamera().reset();
             getCamera().setPosition(Util::Math::Vector3<float>(0, 0, 5));
             break;
-        case Util::Io::Key::ESC:
+        case Util::Io::KeyEvent::ESC:
             Pulsar::Game::getInstance().stop();
             break;
         default:
@@ -128,22 +128,22 @@ void OpenGlDemo::keyPressed(const Util::Io::Key &key) {
     }
 }
 
-void OpenGlDemo::keyReleased(const Util::Io::Key &key) {
+void OpenGlDemo::keyReleased(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::LEFT:
-        case Util::Io::Key::RIGHT:
+        case Util::Io::KeyEvent::LEFT:
+        case Util::Io::KeyEvent::RIGHT:
             cameraRotation = Util::Math::Vector3<float>(cameraRotation.getX(), cameraRotation.getY(), 0);
         break;
-        case Util::Io::Key::UP:
-        case Util::Io::Key::DOWN:
+        case Util::Io::KeyEvent::UP:
+        case Util::Io::KeyEvent::DOWN:
             cameraRotation = Util::Math::Vector3<float>(cameraRotation.getX(), 0, cameraRotation.getZ());
         break;
-        case Util::Io::Key::W:
-        case Util::Io::Key::S:
+        case Util::Io::KeyEvent::W:
+        case Util::Io::KeyEvent::S:
             cameraTranslation = Util::Math::Vector3<float>(cameraTranslation.getX(), cameraTranslation.getY(), 0);
         break;
-        case Util::Io::Key::A:
-        case Util::Io::Key::D:
+        case Util::Io::KeyEvent::A:
+        case Util::Io::KeyEvent::D:
             cameraTranslation = Util::Math::Vector3<float>(0, cameraTranslation.getY(), cameraTranslation.getZ());
         break;
         default:

@@ -173,33 +173,33 @@ void Level::update([[maybe_unused]] float delta) {
     getCamera().setPosition(Util::Math::Vector2<float>(player->getPosition().getX() + 0.8, cameraPosY));
 }
 
-void Level::keyPressed(const Util::Io::Key &key) {
+void Level::keyPressed(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::ESC:
+        case Util::Io::KeyEvent::ESC:
             Pulsar::Game::getInstance().stop();
             break;
-        case Util::Io::Key::SPACE:
+        case Util::Io::KeyEvent::SPACE:
             if (player->hasHatched()) {
                 player->jump();
             } else {
                 player->hatch();
             }
             break;
-        case Util::Io::Key::RIGHT:
+        case Util::Io::KeyEvent::RIGHT:
             rightPressed = true;
             break;
-        case Util::Io::Key::LEFT:
+        case Util::Io::KeyEvent::LEFT:
             leftPressed = true;
             break;
     }
 }
 
-void Level::keyReleased(const Util::Io::Key &key) {
+void Level::keyReleased(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::RIGHT:
+        case Util::Io::KeyEvent::RIGHT:
             rightPressed = false;
             break;
-        case Util::Io::Key::LEFT:
+        case Util::Io::KeyEvent::LEFT:
             leftPressed = false;
             break;
     }

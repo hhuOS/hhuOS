@@ -110,10 +110,10 @@ public:
     virtual void update(float) {}
 
     /// Handle a key press event. Implementing this method is optional.
-    virtual void keyPressed(const Util::Io::Key&) {}
+    virtual void keyPressed(const Util::Io::KeyEvent&) {}
 
     /// Handle a key release event. Implementing this method is optional.
-    virtual void keyReleased(const Util::Io::Key&) {}
+    virtual void keyReleased(const Util::Io::KeyEvent&) {}
 
     /// Handle a mouse button press event. Implementing this method is optional.
     virtual void mouseButtonPressed(Util::Io::MouseDecoder::Button) {}

@@ -124,51 +124,51 @@ void BattleSpaceGame::update(float delta) {
     }
 }
 
-void BattleSpaceGame::keyPressed(const Util::Io::Key &key) {
+void BattleSpaceGame::keyPressed(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::ESC:
+        case Util::Io::KeyEvent::ESC:
             Pulsar::Game::getInstance().stop();
             break;
-        case Util::Io::Key::LEFT:
+        case Util::Io::KeyEvent::LEFT:
             inputRotation = Util::Math::Vector3<float>(inputRotation.getX(), inputRotation.getY(), -1);
         break;
-        case Util::Io::Key::RIGHT:
+        case Util::Io::KeyEvent::RIGHT:
             inputRotation = Util::Math::Vector3<float>(inputRotation.getX(), inputRotation.getY(), 1);
         break;
-        case Util::Io::Key::UP:
+        case Util::Io::KeyEvent::UP:
             inputRotation = Util::Math::Vector3<float>(inputRotation.getX(), 1, inputRotation.getZ());
         break;
-        case Util::Io::Key::DOWN:
+        case Util::Io::KeyEvent::DOWN:
             inputRotation = Util::Math::Vector3<float>(inputRotation.getX(), -1, inputRotation.getZ());
         break;
-        case Util::Io::Key::W:
+        case Util::Io::KeyEvent::W:
             inputTranslation = Util::Math::Vector3<float>(inputTranslation.getX(), 1, inputTranslation.getZ());
         break;
-        case Util::Io::Key::S:
+        case Util::Io::KeyEvent::S:
             inputTranslation = Util::Math::Vector3<float>(inputTranslation.getX(), -1, inputTranslation.getZ());
         break;
-        case Util::Io::Key::A:
+        case Util::Io::KeyEvent::A:
             inputTranslation = Util::Math::Vector3<float>(-1, inputTranslation.getY(), inputTranslation.getZ());
         break;
-        case Util::Io::Key::D:
+        case Util::Io::KeyEvent::D:
             inputTranslation = Util::Math::Vector3<float>(1, inputTranslation.getY(), inputTranslation.getZ());
         break;
-        case Util::Io::Key::Q:
+        case Util::Io::KeyEvent::Q:
             inputSpeed -= 0.1;
             if (inputSpeed < -1) inputSpeed = -1;
             break;
-        case Util::Io::Key::E:
+        case Util::Io::KeyEvent::E:
             inputSpeed += 0.1;
             if (inputSpeed > 1) inputSpeed = 1;
             break;
-        case Util::Io::Key::SPACE:
+        case Util::Io::KeyEvent::SPACE:
             if (player->mayFireMissile()) {
                 const auto &camera = getCamera();
                 addEntity(new Missile(player->getPosition() + camera.getFrontVector() * 2, camera.getFrontVector()));
             }
             break;
 
-        case Util::Io::Key::ENTER: {
+        case Util::Io::KeyEvent::ENTER: {
             const auto &camera = getCamera();
             auto *enemy = new Enemy(*player, enemies, camera.getPosition() + camera.getFrontVector() * 10, Util::Math::Vector3<float>(0, 0, 0), 1, Enemy::Type::STATIONARY);
             enemies.add(enemy);
@@ -179,22 +179,22 @@ void BattleSpaceGame::keyPressed(const Util::Io::Key &key) {
     }
 }
 
-void BattleSpaceGame::keyReleased(const Util::Io::Key &key) {
+void BattleSpaceGame::keyReleased(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::LEFT:
-        case Util::Io::Key::RIGHT:
+        case Util::Io::KeyEvent::LEFT:
+        case Util::Io::KeyEvent::RIGHT:
             inputRotation = Util::Math::Vector3<float>(inputRotation.getX(), inputRotation.getY(), 0);
         break;
-        case Util::Io::Key::UP:
-        case Util::Io::Key::DOWN:
+        case Util::Io::KeyEvent::UP:
+        case Util::Io::KeyEvent::DOWN:
             inputRotation = Util::Math::Vector3<float>(inputRotation.getX(), 0, inputRotation.getZ());
         break;
-        case Util::Io::Key::W:
-        case Util::Io::Key::S:
+        case Util::Io::KeyEvent::W:
+        case Util::Io::KeyEvent::S:
             inputTranslation = Util::Math::Vector3<float>(inputTranslation.getX(), 0, inputTranslation.getZ());
         break;
-        case Util::Io::Key::A:
-        case Util::Io::Key::D:
+        case Util::Io::KeyEvent::A:
+        case Util::Io::KeyEvent::D:
             inputTranslation = Util::Math::Vector3<float>(0, inputTranslation.getY(), inputTranslation.getZ());
         break;
         default:

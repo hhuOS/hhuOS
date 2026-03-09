@@ -30,7 +30,7 @@ static constexpr uint8_t NUMPAD_SCANCODE_TABLE[13] = {
     8, 9, 10, 53, 5, 6, 7, 27, 2, 3, 4, 11, 51
 };
 
-void Io::KeyboardLayout::parseKey(const uint8_t scancode, const uint8_t prefix, Key &key) const {
+void Io::KeyboardLayout::parseKey(const uint8_t scancode, const uint8_t prefix, KeyEvent &key) const {
     // Choose the right table based on the modifier bits.
     // For simplicity, NumLock takes precedence over Alt, Shift and CapsLock.
     // There is no separate table for Ctrl.

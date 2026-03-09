@@ -48,6 +48,6 @@ static constexpr const char *GAME_OVER_TEXT =
     " \n"
     "Press SPACE to play again or ESC to exit!";
 
-void handleKeyPressOnTextScreen(const Util::Io::Key &key);
+void handleKeyPressOnTextScreen(const Util::Io::KeyEvent &key);
 
 #endif

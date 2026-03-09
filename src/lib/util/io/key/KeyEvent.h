@@ -30,10 +30,11 @@
 namespace Util {
 namespace Io {
 
-/// Represents a keyboard key, including its scancode, ASCII code, modifier states, and pressed state.
-/// Instances of this class are created and managed by the `KeyDecoder`.
-/// Once a key has been decoded, it is immutable.
-class Key {
+/// Represents a key event, including its scancode, ASCII code, modifier states, and pressed state.
+/// Instances of this class are created and managed by the `KeyDecoder`. The decoder has access
+/// to private methods that allow it to update the key's state as scancodes are parsed.
+/// However, once a key event has been fully decoded, it is immutable and can be safely shared.
+class KeyEvent {
 
 public:
     /// Key modifiers as bit flags.
@@ -220,12 +221,16 @@ public:
         NUM_COMMA = 0x53
     };
 
-    /// Create a new invalid key (scancode = 0).
-    /// The key remains invalid until a valid scancode is set by the `KeyDecoder`.
-    Key() = default;
+    /// Create a new key event with default values.
+    /// The scancode is set to 0, the ASCII code is set to 0, no modifiers are active, and the key is not pressed.
+    KeyEvent() = default;
+
+    /// Create a new key with the specified scancode, ASCII code, modifier state, and pressed state.
+    KeyEvent(const uint8_t scancode, const uint8_t ascii, const uint8_t modifier, const bool pressed) :
+        ascii(ascii), scancode(scancode), modifier(modifier), pressed(pressed) {}
 
     /// Compare this key with another key for inequality.
-    bool operator!=(const Key &other) const  {
+    bool operator!=(const KeyEvent &other) const  {
         return scancode != other.scancode || modifier != other.modifier || pressed != other.pressed;
     }
 
@@ -302,15 +307,15 @@ private:
     friend class KeyboardLayout;
 
     void setPressed(const bool pressed) {
-        Key::pressed = pressed;
+        KeyEvent::pressed = pressed;
     }
 
     void setAscii(const uint8_t ascii) {
-        Key::ascii = ascii;
+        KeyEvent::ascii = ascii;
     }
 
     void setScancode(const uint8_t scancode) {
-        Key::scancode = scancode;
+        KeyEvent::scancode = scancode;
     }
 
     void setShift(const bool pressed) {

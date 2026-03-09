@@ -40,21 +40,21 @@ void SpriteDemo::initialize() {
 
 void SpriteDemo::update([[maybe_unused]] float delta) {}
 
-void SpriteDemo::keyPressed(const Util::Io::Key &key) {
+void SpriteDemo::keyPressed(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::PLUS: {
+        case Util::Io::KeyEvent::PLUS: {
             auto *sprite = factory.createSprite();
             entities.offer(sprite);
             addEntity(sprite);
             break;
         }
-        case Util::Io::Key::MINUS: {
+        case Util::Io::KeyEvent::MINUS: {
             if (entities.size() > 0) {
                 removeEntity(entities.poll());
             }
             break;
         }
-        case Util::Io::Key::ESC:
+        case Util::Io::KeyEvent::ESC:
             Pulsar::Game::getInstance().stop();
             break;
         default:
@@ -62,4 +62,4 @@ void SpriteDemo::keyPressed(const Util::Io::Key &key) {
     }
 }
 
-void SpriteDemo::keyReleased([[maybe_unused]] const Util::Io::Key &key) {}
+void SpriteDemo::keyReleased([[maybe_unused]] const Util::Io::KeyEvent &key) {}

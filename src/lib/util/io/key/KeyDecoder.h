@@ -29,7 +29,7 @@
 
 #include "util/base/Panic.h"
 #include "util/collection/ArrayListQueue.h"
-#include "util/io/key/Key.h"
+#include "util/io/key/KeyEvent.h"
 #include "util/io/key/KeyboardLayout.h"
 
 namespace Util {
@@ -66,7 +66,7 @@ public:
     /// Get the next key, that has formerly been parsed by `parseScancode()`.
     /// This method should only be called after `parseScancode()` has returned true.
     /// If the key is not fully parsed yet, a panic is fired.
-    Key getKey() {
+    KeyEvent getKey() {
         if (decodedKeys.isEmpty()) {
             Panic::fire(Panic::ILLEGAL_STATE, "KeyDecoder: No parsed key available!");
         }
@@ -77,9 +77,9 @@ public:
 private:
 
     uint8_t currentPrefix = 0;
-    Key currentKey;
+    KeyEvent currentKey;
 
-    ArrayListQueue<Key> decodedKeys;
+    ArrayListQueue<KeyEvent> decodedKeys;
 
     KeyboardLayout layout;
 };

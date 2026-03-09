@@ -76,7 +76,7 @@ private:
 
         explicit KeyInputListener(InputField &inputField) : inputField(inputField) {}
 
-        void onKeyTyped(const Util::Io::Key &key) override;
+        void onKeyTyped(const Util::Io::KeyEvent &key) override;
 
     private:
 

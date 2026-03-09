@@ -277,41 +277,41 @@ void Rogue3D::swapRooms(Util::Math::Vector3<float> &newPosition, float &roomCent
     }
 }
 
-void Rogue3D::keyPressed(const Util::Io::Key &key) {
+void Rogue3D::keyPressed(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::ESC:
+        case Util::Io::KeyEvent::ESC:
             Pulsar::Game::getInstance().stop();
             break;
-        case Util::Io::Key::LEFT:
+        case Util::Io::KeyEvent::LEFT:
             if (player->shoot()){
                 addEntity(new Projectile(player->getPosition(),Util::Math::Vector3<float>(-1,0,0), Projectile::TAG_PLAYER));
             }
             break;
-        case Util::Io::Key::RIGHT:
+        case Util::Io::KeyEvent::RIGHT:
             if (player->shoot()){
                 addEntity(new Projectile(player->getPosition(),Util::Math::Vector3<float>(1,0,0), Projectile::TAG_PLAYER));
             }
             break;
-        case Util::Io::Key::UP:
+        case Util::Io::KeyEvent::UP:
             if (player->shoot()){
                 addEntity(new Projectile(player->getPosition(),Util::Math::Vector3<float>(0,0,-1), Projectile::TAG_PLAYER));
             }
             break;
-        case Util::Io::Key::DOWN:
+        case Util::Io::KeyEvent::DOWN:
             if (player->shoot()){
                 addEntity(new Projectile(player->getPosition(),Util::Math::Vector3<float>(0,0,1), Projectile::TAG_PLAYER));
             }
             break;
-        case Util::Io::Key::W:
+        case Util::Io::KeyEvent::W:
             inputTranslate = Util::Math::Vector3<float>(inputTranslate.getX(), inputTranslate.getY(), -1);
             break;
-        case Util::Io::Key::S:
+        case Util::Io::KeyEvent::S:
             inputTranslate = Util::Math::Vector3<float>(inputTranslate.getX(), inputTranslate.getY(), 1);
             break;
-        case Util::Io::Key::A:
+        case Util::Io::KeyEvent::A:
             inputTranslate = Util::Math::Vector3<float>(-1, inputTranslate.getY(), inputTranslate.getZ());
             break;
-        case Util::Io::Key::D:
+        case Util::Io::KeyEvent::D:
             inputTranslate = Util::Math::Vector3<float>(1, inputTranslate.getY(), inputTranslate.getZ());
             break;
         default:
@@ -319,14 +319,14 @@ void Rogue3D::keyPressed(const Util::Io::Key &key) {
     }
 }
 
-void Rogue3D::keyReleased(const Util::Io::Key &key) {
+void Rogue3D::keyReleased(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::W:
-        case Util::Io::Key::S:
+        case Util::Io::KeyEvent::W:
+        case Util::Io::KeyEvent::S:
             inputTranslate = Util::Math::Vector3<float>(inputTranslate.getX(), inputTranslate.getY(), 0);
             break;
-        case Util::Io::Key::A:
-        case Util::Io::Key::D:
+        case Util::Io::KeyEvent::A:
+        case Util::Io::KeyEvent::D:
             inputTranslate = Util::Math::Vector3<float>(0, inputTranslate.getY(), inputTranslate.getZ());
             break;
         default:

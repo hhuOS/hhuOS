@@ -764,31 +764,31 @@ int32_t main(int32_t argc, char *argv[]) {
             uint8_t joyKey = 0;
 
             switch (key.getScancode()) {
-                case Util::Io::Key::UP:
+                case Util::Io::KeyEvent::UP:
                     joyKey = JOYPAD_UP;
                     break;
-                case Util::Io::Key::LEFT:
+                case Util::Io::KeyEvent::LEFT:
                     joyKey = JOYPAD_LEFT;
                     break;
-                case Util::Io::Key::DOWN:
+                case Util::Io::KeyEvent::DOWN:
                     joyKey = JOYPAD_DOWN;
                     break;
-                case Util::Io::Key::RIGHT:
+                case Util::Io::KeyEvent::RIGHT:
                     joyKey = JOYPAD_RIGHT;
                     break;
-                case Util::Io::Key::K:
+                case Util::Io::KeyEvent::K:
                     joyKey = JOYPAD_A;
                     break;
-                case Util::Io::Key::J:
+                case Util::Io::KeyEvent::J:
                     joyKey = JOYPAD_B;
                     break;
-                case Util::Io::Key::SPACE:
+                case Util::Io::KeyEvent::SPACE:
                     joyKey = JOYPAD_START;
                     break;
-                case Util::Io::Key::ENTER:
+                case Util::Io::KeyEvent::ENTER:
                     joyKey = JOYPAD_SELECT;
                     break;
-                case Util::Io::Key::F1:
+                case Util::Io::KeyEvent::F1:
                     if (key.isPressed() && scale < maxScale) {
                         scale++;
                         offsetX = lfb->getResolutionX() - LCD_WIDTH * scale > 0 ? (lfb->getResolutionX() - LCD_WIDTH * scale) / 2 : 0;
@@ -796,7 +796,7 @@ int32_t main(int32_t argc, char *argv[]) {
                         lfb->clear();
                     }
                     break;
-                case Util::Io::Key::F2:
+                case Util::Io::KeyEvent::F2:
                     if (key.isPressed() && scale > 1) {
                         scale--;
                         offsetX = lfb->getResolutionX() - LCD_WIDTH * scale > 0 ? (lfb->getResolutionX() - LCD_WIDTH * scale) / 2 : 0;
@@ -804,7 +804,7 @@ int32_t main(int32_t argc, char *argv[]) {
                         lfb->clear();
                     }
                     break;
-                case Util::Io::Key::F3:
+                case Util::Io::KeyEvent::F3:
                     if (key.isPressed()) {
                         manualPaletteIndex = manualPaletteIndex + 1 > 14 ? 0 : manualPaletteIndex + 1;
 
@@ -812,7 +812,7 @@ int32_t main(int32_t argc, char *argv[]) {
                         palette = get_manual_palette(manualPaletteIndex);
                     }
                     break;
-                case Util::Io::Key::F4:
+                case Util::Io::KeyEvent::F4:
                     if (key.isPressed() && manualPaletteIndex != UINT8_MAX) {
                         manualPaletteIndex = UINT8_MAX;
 
@@ -820,7 +820,7 @@ int32_t main(int32_t argc, char *argv[]) {
                         palette = gb_get_palette(&gb);
                     }
                     break;
-                case Util::Io::Key::ESC:
+                case Util::Io::KeyEvent::ESC:
                     write_ram_to_file(&gb);
                     return 0;
                 default:

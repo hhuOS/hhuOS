@@ -239,31 +239,31 @@ void readKey() {
             const auto key = keyDecoder.getKey();
 
             switch (key.getScancode()) {
-                case Util::Io::Key::W:
+                case Util::Io::KeyEvent::W:
                     keys.up = key.isPressed();
                     break;
-                case Util::Io::Key::S:
+                case Util::Io::KeyEvent::S:
                     keys.down = key.isPressed();
                     break;
-                case Util::Io::Key::A:
+                case Util::Io::KeyEvent::A:
                     keys.left = key.isPressed();
                     break;
-                case Util::Io::Key::D:
+                case Util::Io::KeyEvent::D:
                     keys.right = key.isPressed();
                     break;
-                case Util::Io::Key::K:
+                case Util::Io::KeyEvent::K:
                     keys.a = key.isPressed();
                     break;
-                case Util::Io::Key::J:
+                case Util::Io::KeyEvent::J:
                     keys.b = key.isPressed();
                     break;
-                case Util::Io::Key::ENTER:
+                case Util::Io::KeyEvent::ENTER:
                     keys.select = key.isPressed();
                     break;
-                case Util::Io::Key::SPACE:
+                case Util::Io::KeyEvent::SPACE:
                     keys.start = key.isPressed();
                     break;
-                case Util::Io::Key::ESC:
+                case Util::Io::KeyEvent::ESC:
                     exit(0);
                     break;
                 default:

@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-#include "util/io/key/Key.h"
+#include "util/io/key/KeyEvent.h"
 
 namespace Util {
 namespace Io {
@@ -45,7 +45,7 @@ class KeyboardLayout {
 public:
     /// Translate a scancode and prefix into a `Key` object, considering the current modifier states.
     /// The `Key` object is updated with the corresponding ASCII code and scancode.
-    void parseKey(uint8_t scancode, uint8_t prefix, Key &key) const;
+    void parseKey(uint8_t scancode, uint8_t prefix, KeyEvent &key) const;
 
 protected:
 

@@ -54,9 +54,9 @@ public:
 
     void update(float delta) override;
 
-    void keyPressed(const Util::Io::Key &key) override;
+    void keyPressed(const Util::Io::KeyEvent &key) override;
 
-    void keyReleased(const Util::Io::Key &key) override;
+    void keyReleased(const Util::Io::KeyEvent &key) override;
 
 private:
 

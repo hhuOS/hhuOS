@@ -56,6 +56,6 @@ static constexpr const char *WIN_TEXT =
     " \n"
     "Press SPACE to fight the next invasion, or ESC to run like a coward...";
 
-void handleKeyPressOnTextScreen(const Util::Io::Key &key);
+void handleKeyPressOnTextScreen(const Util::Io::KeyEvent &key);
 
 #endif

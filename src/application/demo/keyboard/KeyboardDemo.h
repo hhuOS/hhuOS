@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2026 Heinrich Heine University Düsseldorf,
+* Copyright (C) 2017-2026 Heinrich Heine University Düsseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
  * Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
@@ -18,32 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BATTLESPACE_H
-#define HHUOS_BATTLESPACE_H
+#ifndef HHUOS_KEYBOARDDEMO_H
+#define HHUOS_KEYBOARDDEMO_H
 
-#include "util/io/key/Key.h"
-
-static constexpr const char *INTRO_TEXT =
-    "___  ____ ___ ___ _    ____ ____ ___  ____ ____ ____ \n"
-    "|__] |__|  |   |  |    |___ [__  |__] |__| |    |___ \n"
-    "|__] |  |  |   |  |___ |___ ___] |    |  | |___ |___ \n"
-    " \n"
-    " \n"
-    " \n"
-    "Turn using ARROW KEYS. Fire using SPACEBAR.\n"
-    "Strafe using WASD. Change speed using Q and E.\n"
-    " \n"
-    "Press SPACE to start or ESC to exit!\n";
-
-static constexpr const char *GAME_OVER_TEXT =
-    "____ ____ _  _ ____    ____ _  _ ____ ____ \n"
-    "| __ |__| |\\/| |___    |  | |  | |___ |__/ \n"
-    "|__] |  | |  | |___    |__|  \\/  |___ |  \\ \n"
-    " \n"
-    "Score: %u\n"
-    " \n"
-    "Press SPACE to play again or ESC to exit!\n";
-
-void handleKeyPressOnTextScreen(const Util::Io::KeyEvent &key);
+void keyboardDemo();
 
 #endif

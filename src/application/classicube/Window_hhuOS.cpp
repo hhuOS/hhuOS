@@ -54,172 +54,172 @@ void pollKeyboard() {
 
 			InputButtons ccCode;
 			switch (key.getScancode()) {
-				case Util::Io::Key::ESC:
+				case Util::Io::KeyEvent::ESC:
 					ccCode = CCKEY_ESCAPE;
 					break;
-				case Util::Io::Key::F1:
+				case Util::Io::KeyEvent::F1:
 					ccCode = CCKEY_F1;
 					break;
-				case Util::Io::Key::F2:
+				case Util::Io::KeyEvent::F2:
 					ccCode = CCKEY_F2;
 					break;
-				case Util::Io::Key::F3:
+				case Util::Io::KeyEvent::F3:
 					ccCode = CCKEY_F3;
 					break;
-				case Util::Io::Key::F4:
+				case Util::Io::KeyEvent::F4:
 					ccCode = CCKEY_F4;
 					break;
-				case Util::Io::Key::F5:
+				case Util::Io::KeyEvent::F5:
 					ccCode = CCKEY_F5;
 					break;
-				case Util::Io::Key::F6:
+				case Util::Io::KeyEvent::F6:
 					ccCode = CCKEY_F6;
 					break;
-				case Util::Io::Key::F7:
+				case Util::Io::KeyEvent::F7:
 					ccCode = CCKEY_F7;
 					break;
-				case Util::Io::Key::F8:
+				case Util::Io::KeyEvent::F8:
 					ccCode = CCKEY_F8;
 					break;
-				case Util::Io::Key::F9:
+				case Util::Io::KeyEvent::F9:
 					ccCode = CCKEY_F9;
 					break;
-				case Util::Io::Key::F10:
+				case Util::Io::KeyEvent::F10:
 					ccCode = CCKEY_F10;
 					break;
-				case Util::Io::Key::F11:
+				case Util::Io::KeyEvent::F11:
 					ccCode = CCKEY_F11;
 					break;
-				case Util::Io::Key::F12:
+				case Util::Io::KeyEvent::F12:
 					ccCode = CCKEY_F12;
 					break;
-				case Util::Io::Key::SPACE:
+				case Util::Io::KeyEvent::SPACE:
 					ccCode = CCKEY_SPACE;
 					break;
-				case Util::Io::Key::ENTER:
+				case Util::Io::KeyEvent::ENTER:
 					ccCode = CCKEY_ENTER;
 					break;
-				case Util::Io::Key::BACKSPACE:
+				case Util::Io::KeyEvent::BACKSPACE:
 					ccCode = CCKEY_BACKSPACE;
 					break;
-				case Util::Io::Key::UP:
+				case Util::Io::KeyEvent::UP:
 					ccCode = CCKEY_UP;
 					break;
-				case Util::Io::Key::DOWN:
+				case Util::Io::KeyEvent::DOWN:
 					ccCode = CCKEY_UP;
 					break;
-				case Util::Io::Key::LEFT:
+				case Util::Io::KeyEvent::LEFT:
 					ccCode = CCKEY_UP;
 					break;
-				case Util::Io::Key::RIGHT:
+				case Util::Io::KeyEvent::RIGHT:
 					ccCode = CCKEY_UP;
 					break;
-				case Util::Io::Key::ZERO:
+				case Util::Io::KeyEvent::ZERO:
 					ccCode = CCKEY_0;
 					break;
-				case Util::Io::Key::ONE:
+				case Util::Io::KeyEvent::ONE:
 					ccCode = CCKEY_1;
 					break;
-				case Util::Io::Key::TWO:
+				case Util::Io::KeyEvent::TWO:
 					ccCode = CCKEY_2;
 					break;
-				case Util::Io::Key::THREE:
+				case Util::Io::KeyEvent::THREE:
 					ccCode = CCKEY_3;
 					break;
-				case Util::Io::Key::FOUR:
+				case Util::Io::KeyEvent::FOUR:
 					ccCode = CCKEY_4;
 					break;
-				case Util::Io::Key::FIVE:
+				case Util::Io::KeyEvent::FIVE:
 					ccCode = CCKEY_5;
 					break;
-				case Util::Io::Key::SIX:
+				case Util::Io::KeyEvent::SIX:
 					ccCode = CCKEY_6;
 					break;
-				case Util::Io::Key::SEVEN:
+				case Util::Io::KeyEvent::SEVEN:
 					ccCode = CCKEY_7;
 					break;
-				case Util::Io::Key::EIGHT:
+				case Util::Io::KeyEvent::EIGHT:
 					ccCode = CCKEY_8;
 					break;
-				case Util::Io::Key::NINE:
+				case Util::Io::KeyEvent::NINE:
 					ccCode = CCKEY_9;
 					break;
-				case Util::Io::Key::A:
+				case Util::Io::KeyEvent::A:
 					ccCode = CCKEY_A;
 					break;
-				case Util::Io::Key::B:
+				case Util::Io::KeyEvent::B:
 					ccCode = CCKEY_B;
 					break;
-				case Util::Io::Key::C:
+				case Util::Io::KeyEvent::C:
 					ccCode = CCKEY_C;
 					break;
-				case Util::Io::Key::D:
+				case Util::Io::KeyEvent::D:
 					ccCode = CCKEY_D;
 					break;
-				case Util::Io::Key::E:
+				case Util::Io::KeyEvent::E:
 					ccCode = CCKEY_E;
 					break;
-				case Util::Io::Key::F:
+				case Util::Io::KeyEvent::F:
 					ccCode = CCKEY_F;
 					break;
-				case Util::Io::Key::G:
+				case Util::Io::KeyEvent::G:
 					ccCode = CCKEY_G;
 					break;
-				case Util::Io::Key::H:
+				case Util::Io::KeyEvent::H:
 					ccCode = CCKEY_H;
 					break;
-				case Util::Io::Key::I:
+				case Util::Io::KeyEvent::I:
 					ccCode = CCKEY_I;
 					break;
-				case Util::Io::Key::J:
+				case Util::Io::KeyEvent::J:
 					ccCode = CCKEY_J;
 					break;
-				case Util::Io::Key::K:
+				case Util::Io::KeyEvent::K:
 					ccCode = CCKEY_K;
 					break;
-				case Util::Io::Key::L:
+				case Util::Io::KeyEvent::L:
 					ccCode = CCKEY_L;
 					break;
-				case Util::Io::Key::M:
+				case Util::Io::KeyEvent::M:
 					ccCode = CCKEY_M;
 					break;
-				case Util::Io::Key::N:
+				case Util::Io::KeyEvent::N:
 					ccCode = CCKEY_N;
 					break;
-				case Util::Io::Key::O:
+				case Util::Io::KeyEvent::O:
 					ccCode = CCKEY_O;
 					break;
-				case Util::Io::Key::P:
+				case Util::Io::KeyEvent::P:
 					ccCode = CCKEY_P;
 					break;
-				case Util::Io::Key::Q:
+				case Util::Io::KeyEvent::Q:
 					ccCode = CCKEY_Q;
 					break;
-				case Util::Io::Key::R:
+				case Util::Io::KeyEvent::R:
 					ccCode = CCKEY_R;
 					break;
-				case Util::Io::Key::S:
+				case Util::Io::KeyEvent::S:
 					ccCode = CCKEY_S;
 					break;
-				case Util::Io::Key::T:
+				case Util::Io::KeyEvent::T:
 					ccCode = CCKEY_T;
 					break;
-				case Util::Io::Key::U:
+				case Util::Io::KeyEvent::U:
 					ccCode = CCKEY_U;
 					break;
-				case Util::Io::Key::V:
+				case Util::Io::KeyEvent::V:
 					ccCode = CCKEY_V;
 					break;
-				case Util::Io::Key::W:
+				case Util::Io::KeyEvent::W:
 					ccCode = CCKEY_W;
 					break;
-				case Util::Io::Key::X:
+				case Util::Io::KeyEvent::X:
 					ccCode = CCKEY_X;
 					break;
-				case Util::Io::Key::Y:
+				case Util::Io::KeyEvent::Y:
 					ccCode = CCKEY_Y;
 					break;
-				case Util::Io::Key::Z:
+				case Util::Io::KeyEvent::Z:
 					ccCode = CCKEY_Z;
 					break;
 				default:

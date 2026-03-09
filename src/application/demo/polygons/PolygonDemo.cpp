@@ -39,21 +39,21 @@ void PolygonDemo::initialize() {
 
 void PolygonDemo::update([[maybe_unused]] float delta) {}
 
-void PolygonDemo::keyPressed(const Util::Io::Key &key) {
+void PolygonDemo::keyPressed(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
-        case Util::Io::Key::PLUS: {
+        case Util::Io::KeyEvent::PLUS: {
             auto *polygon = factory.createPolygon();
             polygons.offer(polygon);
             addEntity(polygon);
             break;
         }
-        case Util::Io::Key::MINUS: {
+        case Util::Io::KeyEvent::MINUS: {
             if (polygons.size() > 0) {
                 removeEntity(polygons.poll());
             }
             break;
         }
-        case Util::Io::Key::ESC:
+        case Util::Io::KeyEvent::ESC:
             Pulsar::Game::getInstance().stop();
             break;
         default:
@@ -61,4 +61,4 @@ void PolygonDemo::keyPressed(const Util::Io::Key &key) {
     }
 }
 
-void PolygonDemo::keyReleased([[maybe_unused]] const Util::Io::Key &key) {}
+void PolygonDemo::keyReleased([[maybe_unused]] const Util::Io::KeyEvent &key) {}

@@ -60,9 +60,9 @@ public:
 
     bool initializeBackground(Pulsar::Graphics &graphics) override;
 
-    void keyPressed(const Util::Io::Key &key) override;
+    void keyPressed(const Util::Io::KeyEvent &key) override;
 
-    void keyReleased(const Util::Io::Key &key) override;
+    void keyReleased(const Util::Io::KeyEvent &key) override;
 
     static const constexpr uint32_t BUGS_PER_ROW = 8;
     static const constexpr uint32_t BUGS_PER_COLUMN = 6;

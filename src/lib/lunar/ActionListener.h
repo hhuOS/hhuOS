@@ -59,14 +59,14 @@ public:
     virtual void onMouseClicked() {}
 
     /// Notify the listener that a key has been pressed while the widget has keyboard focus.
-    virtual void onKeyPressed(const Util::Io::Key&) {}
+    virtual void onKeyPressed(const Util::Io::KeyEvent&) {}
 
     /// Notify the listener that a key has been released while the widget has keyboard focus.
-    virtual void onKeyReleased(const Util::Io::Key&) {}
+    virtual void onKeyReleased(const Util::Io::KeyEvent&) {}
 
     /// Notify the listener that a key has been typed while the widget has keyboard focus.
     /// A key is considered typed when it is pressed and then released.
-    virtual void onKeyTyped(const Util::Io::Key&) {}
+    virtual void onKeyTyped(const Util::Io::KeyEvent&) {}
 };
 
 }

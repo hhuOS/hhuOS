@@ -47,7 +47,7 @@ public:
     /// Creates a new TextScreen instance with the given text and optional parameters.
     /// The callback function is invoked whenever a key is pressed.
     explicit TextScreen(const Util::String &text,
-        void(*onKeyPressed)(const Util::Io::Key &key) = nullptr,
+        void(*onKeyPressed)(const Util::Io::KeyEvent &key) = nullptr,
         const Util::Graphic::Color &fontColor = Util::Graphic::Colors::WHITE,
         const Util::Graphic::Color &backgroundColor = Util::Graphic::Colors::BLACK) :
         text(text), onKeyPressed(onKeyPressed), fontColor(fontColor), backgroundColor(backgroundColor) {}
@@ -60,7 +60,7 @@ public:
     bool initializeBackground(Graphics &graphics) override;
 
     /// Handle key press events by invoking the callback function if provided.
-    void keyPressed(const Util::Io::Key &key) override {
+    void keyPressed(const Util::Io::KeyEvent &key) override {
         if (onKeyPressed != nullptr) {
             onKeyPressed(key);
         }
@@ -69,7 +69,7 @@ public:
 private:
 
     const Util::String text;
-    void(*onKeyPressed)(const Util::Io::Key &key);
+    void(*onKeyPressed)(const Util::Io::KeyEvent &key);
     const Util::Graphic::Color fontColor;
     const Util::Graphic::Color backgroundColor;
 };

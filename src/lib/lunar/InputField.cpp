@@ -77,7 +77,7 @@ void InputField::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
     Widget::draw(lfb);
 }
 
-void InputField::KeyInputListener::onKeyTyped(const Util::Io::Key &key) {
+void InputField::KeyInputListener::onKeyTyped(const Util::Io::KeyEvent &key) {
     if (key.getAscii() == '\b') {
         inputField.text = inputField.text.substring(0, inputField.text.length() - 1);
         inputField.requireRedraw();
