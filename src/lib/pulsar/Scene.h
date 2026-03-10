@@ -36,7 +36,7 @@
 #include <stddef.h>
 
 #include "util/collection/ArrayList.h"
-#include "util/io/key/Key.h"
+#include "util/io/key/KeyEvent.h"
 #include "util/io/key/MouseDecoder.h"
 #include "pulsar/Camera.h"
 #include "pulsar/Graphics.h"

@@ -77,7 +77,8 @@ public:
 private:
 
     uint8_t currentPrefix = 0;
-    KeyEvent currentKey;
+    uint8_t currentScancode = 0;
+    uint8_t currentModifiers = 0;
 
     ArrayListQueue<KeyEvent> decodedKeys;
 

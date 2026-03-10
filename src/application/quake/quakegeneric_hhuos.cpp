@@ -38,7 +38,7 @@
 #include "lib/util/base/System.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"
-#include "lib/util/io/key/Key.h"
+#include "lib/util/io/key/KeyEvent.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/graphic/Colors.h"

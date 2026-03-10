@@ -20,7 +20,6 @@
 
 #include "KeyDecoder.h"
 
-#include "lib/util/io/key/Key.h"
 #include "lib/util/io/key/KeyboardLayout.h"
 
 namespace Util {
@@ -48,26 +47,28 @@ bool KeyDecoder::parseScancode(uint8_t code) {
 
         // Check modifier keys (Shift, Alt, Control).
         // If a modifier key is released, remove it from the modifier flags.
+        // Additionally, we generate a key release event for the modifier key itself.
         switch (code) {
             case 42:
             case 54:
-                currentKey.setShift(false);
+                currentModifiers &= ~KeyEvent::SHIFT;
                 decodedKeys.offer(KeyEvent(0, 0, KeyEvent::SHIFT, false));
                 return true;
             case 56:
                 if (currentPrefix == PREFIX1) {
-                    currentKey.setAltRight(false);
-                decodedKeys.offer(KeyEvent(0, 0, KeyEvent::ALT_LEFT, false));
+                    currentModifiers &= ~KeyEvent::ALT_LEFT;
+                    decodedKeys.offer(KeyEvent(0, 0, KeyEvent::ALT_LEFT, false));
                 } else {
-                decodedKeys.offer(KeyEvent(0, 0, KeyEvent::ALT_RIGHT, false));
+                    currentModifiers &= ~KeyEvent::ALT_RIGHT;
+                    decodedKeys.offer(KeyEvent(0, 0, KeyEvent::ALT_RIGHT, false));
                 }
                 return true;
             case 29: {
                 if (currentPrefix == PREFIX1) {
-                    currentKey.setCtrlRight(false);
+                    currentModifiers &= ~KeyEvent::CTRL_RIGHT;
                     decodedKeys.offer(KeyEvent(0, 0, KeyEvent::CTRL_RIGHT, false));
                 } else {
-                    currentKey.setCtrlLeft(false);
+                    currentModifiers &= ~KeyEvent::CTRL_LEFT;
                     decodedKeys.offer(KeyEvent(0, 0, KeyEvent::CTRL_LEFT, false));
                 }
                 return true;
@@ -77,10 +78,8 @@ bool KeyDecoder::parseScancode(uint8_t code) {
                 // Modern MF-II keyboards send this code combination when Break is meant.
                 // The Break key normally does not deliver an ASCII code, but looking it up does not hurt.
                 // In any case, the key is now complete.
-                if (currentKey.getCtrlLeft()) { // Break key
-                    layout.parseKey(code, prefix, currentKey);
-                    currentKey.setPressed(false);
-                    decodedKeys.offer(currentKey);
+                if (currentModifiers & KeyEvent::CTRL_LEFT) { // Break key
+                    decodedKeys.offer(layout.parseKey(prefix, code, currentModifiers, false));
                     return true;
                 }
 
@@ -89,66 +88,61 @@ bool KeyDecoder::parseScancode(uint8_t code) {
             default:
                 // For any other key, parse the ascii code and set the key as released.
                 // We now have parsed a complete key (release), so we return true.
-                layout.parseKey(code, prefix, currentKey);
-                currentKey.setPressed(false);
-                decodedKeys.offer(currentKey);
+                decodedKeys.offer(layout.parseKey(prefix, code, currentModifiers, false));
                 return true;
         }
     } else {
         // Break bit is not set -> Key pressed
         // Check modifier keys (Shift, Alt, Control).
         // If a modifier key is pressed, insert it into the modifier flags.
+        // Additionally, we generate a key press event for the modifier key itself.
         switch (code) {
             case 42:
             case 54:
-                currentKey.setShift(true);
+                currentModifiers |= KeyEvent::SHIFT;
                 decodedKeys.offer(KeyEvent(0, 0, KeyEvent::SHIFT, true));
                 return true;
             case 56:
                 if (currentPrefix == PREFIX1) {
-                    currentKey.setAltRight(true);
-                decodedKeys.offer(KeyEvent(0, 0, KeyEvent::ALT_LEFT, true));
+                    currentModifiers |= KeyEvent::ALT_LEFT;
+                    decodedKeys.offer(KeyEvent(0, 0, KeyEvent::ALT_LEFT, true));
                 } else {
-                    currentKey.setAltLeft(true);
-                decodedKeys.offer(KeyEvent(0, 0, KeyEvent::ALT_RIGHT, true));
+                    currentModifiers |= KeyEvent::ALT_RIGHT;
+                    decodedKeys.offer(KeyEvent(0, 0, KeyEvent::ALT_RIGHT, true));
                 }
                 return true;
             case 29: {
                 if (currentPrefix == PREFIX1) {
-                    currentKey.setCtrlRight(true);
+                    currentModifiers |= KeyEvent::CTRL_RIGHT;
                     decodedKeys.offer(KeyEvent(0, 0, KeyEvent::CTRL_RIGHT, true));
                 } else {
-                    currentKey.setCtrlLeft(true);
+                    currentModifiers |= KeyEvent::CTRL_LEFT;
                     decodedKeys.offer(KeyEvent(0, 0, KeyEvent::CTRL_LEFT, true));
                 }
                 return true;
             }
             case 58:
-                currentKey.setCapsLock(!currentKey.getCapsLock());
+                currentModifiers ^= KeyEvent::CAPS_LOCK;
                 break;
             case 70:
-                currentKey.setScrollLock(!currentKey.getScrollLock());
+                currentModifiers ^= KeyEvent::NUM_LOCK;
                 break;
             case 69:
                 // On old keyboards, the Break function could only be reached via Ctrl+NumLock.
                 // Modern MF-II keyboards send this code combination when Break is meant.
                 // The Break key normally does not deliver an ASCII code, but looking it up does not hurt.
                 // In any case, the key is now complete.
-                if (currentKey.getCtrlLeft()) { // Break key
-                    layout.parseKey(code, prefix, currentKey);
-                    currentKey.setPressed(true);
-                    decodedKeys.offer(currentKey);
+                if (currentModifiers & KeyEvent::CTRL_LEFT) { // Break key
+                    decodedKeys.offer(layout.parseKey(prefix, code, currentModifiers, true));
                     return true;
                 }
 
                 // NumLock
-                currentKey.setNumLock(!currentKey.getNumLock());
+                currentModifiers ^= KeyEvent::NUM_LOCK;
                 break;
             default:
                 // For any other key, parse the ascii code and set the key as pressed.
-                layout.parseKey(code, prefix, currentKey);
-                currentKey.setPressed(true);
-                decodedKeys.offer(currentKey);
+                decodedKeys.offer(layout.parseKey(prefix, code, currentModifiers, true));
                 return true;
         }
     }

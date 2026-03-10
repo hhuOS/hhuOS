@@ -30,7 +30,7 @@
 #include "Ground.h"
 #include "lib/pulsar/Graphics.h"
 #include "lib/util/graphic/Color.h"
-#include "lib/util/io/key/Key.h"
+#include "lib/util/io/key/KeyEvent.h"
 #include "lib/util/math/Vector2.h"
 #include "Dino.h"
 

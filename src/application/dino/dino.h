@@ -24,7 +24,7 @@
 #ifndef HHUOS_DINO_H
 #define HHUOS_DINO_H
 
-#include "util/io/key/Key.h"
+#include "util/io/key/KeyEvent.h"
 
 static constexpr const char *INTRO_TEXT =
     "___  _ _  _ ____\n"

@@ -21,7 +21,7 @@
 #ifndef HHUOS_BUG_H
 #define HHUOS_BUG_H
 
-#include "util/io/key/Key.h"
+#include "util/io/key/KeyEvent.h"
 
 static constexpr const char *INTRO_TEXT =
     "___  _  _ ____    ___  ____ ____ ____ _  _ ___  ____ ____ \n"

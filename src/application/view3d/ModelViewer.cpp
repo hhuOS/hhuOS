@@ -27,7 +27,7 @@
 #include "lib/pulsar/Game.h"
 #include "application/view3d/ModelEntity.h"
 #include "lib/pulsar/Camera.h"
-#include "lib/util/io/key/Key.h"
+#include "lib/util/io/key/KeyEvent.h"
 #include "lib/pulsar/3d/Light.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/collection/Array.h"

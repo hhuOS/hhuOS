@@ -30,10 +30,17 @@ void keyboardDemo() {
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
     Util::Graphic::Ansi::enableCursor();
 
+    Util::System::out << "Press keys to see their scancode, ASCII code and modifiers." <<
+        " Press ESC to exit." << Util::Io::PrintStream::lnFlush;
+
     auto c = Util::System::in.read();
     while (c > 0) {
         if (keyDecoder.parseScancode(static_cast<uint8_t>(c))) {
             auto key = keyDecoder.getKey();
+
+            if (key.getScancode() == Util::Io::KeyEvent::ESC) {
+                break;
+            }
 
             Util::ArrayList<Util::String> modifiers;
             if (key.getShift()) {
@@ -69,4 +76,6 @@ void keyboardDemo() {
 
         c = Util::System::in.read();
     }
+
+    Util::Graphic::Ansi::cleanupGraphicalApplication();
 }

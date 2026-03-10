@@ -22,7 +22,7 @@
 
 #include "DemoPolygon.h"
 #include "DemoPolygonFactory.h"
-#include "lib/util/io/key/Key.h"
+#include "lib/util/io/key/KeyEvent.h"
 #include "lib/pulsar/Game.h"
 
 PolygonDemo::PolygonDemo(uint32_t initialCount) : initialCount(initialCount) {}

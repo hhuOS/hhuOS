@@ -23,7 +23,7 @@
 #include "lib/pulsar/Game.h"
 #include "application/demo/sprites/DemoSprite.h"
 #include "application/demo/sprites/DemoSpriteFactory.h"
-#include "lib/util/io/key/Key.h"
+#include "lib/util/io/key/KeyEvent.h"
 
 SpriteDemo::SpriteDemo(uint32_t initialCount) : initialCount(initialCount) {
 }

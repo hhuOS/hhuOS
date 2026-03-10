@@ -21,7 +21,7 @@
 #ifndef HHUOS_BATTLESPACE_H
 #define HHUOS_BATTLESPACE_H
 
-#include "util/io/key/Key.h"
+#include "util/io/key/KeyEvent.h"
 
 static constexpr const char *INTRO_TEXT =
     "___  ____ ___ ___ _    ____ ____ ___  ____ ____ ____ \n"

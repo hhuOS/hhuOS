@@ -33,9 +33,9 @@ namespace Util {
 namespace Io {
 
 /// Base class for keyboard layouts, defining how scancodes are mapped to ASCII characters.
-/// This class provides the `parseAsciiCode()` method to translate a scancode into a `Key` object,
+/// This class provides the `parseKey()` method to translate a scancode into a `KeyEvent` object,
 /// taking into account modifier keys such as Shift, Alt, and Caps Lock.
-/// The `KeyDecoder` uses this class as the last step to decode scancodes into `Key` objects,
+/// The `KeyDecoder` uses this class as the last step to decode scancodes into `KeyEvent` objects,
 /// after it has processed prefixes and modifier states.
 ///
 /// Subclasses must only provide the ASCII mapping tables for normal, shifted, Alt, and numpad keys.
@@ -43,9 +43,8 @@ namespace Io {
 class KeyboardLayout {
 
 public:
-    /// Translate a scancode and prefix into a `Key` object, considering the current modifier states.
-    /// The `Key` object is updated with the corresponding ASCII code and scancode.
-    void parseKey(uint8_t scancode, uint8_t prefix, KeyEvent &key) const;
+    /// Translate a scancode and prefix into a `KeyEvent` object, considering the current modifier states.
+    KeyEvent parseKey(uint8_t prefix, uint8_t scancode, uint8_t modifiers, bool pressed) const;
 
 protected:
 

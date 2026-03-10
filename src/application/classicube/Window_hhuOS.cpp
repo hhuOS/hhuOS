@@ -21,7 +21,7 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/base/Panic.h"
 #include "lib/util/base/String.h"
-#include "lib/util/io/key/Key.h"
+#include "lib/util/io/key/KeyEvent.h"
 
 auto lfbFile = Util::Io::File("/device/lfb");
 auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);

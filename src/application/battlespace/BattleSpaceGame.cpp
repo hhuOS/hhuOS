@@ -32,7 +32,7 @@
 #include "lib/util/base/String.h"
 #include "lib/pulsar/Camera.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/io/key/Key.h"
+#include "lib/util/io/key/KeyEvent.h"
 #include "pulsar/TextScreen.h"
 
 void BattleSpaceGame::initialize() {

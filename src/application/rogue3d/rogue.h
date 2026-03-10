@@ -24,7 +24,7 @@
 #ifndef HHUOS_ROGUE_H
 #define HHUOS_ROGUE_H
 
-#include "util/io/key/Key.h"
+#include "util/io/key/KeyEvent.h"
 
 static constexpr const char *INTRO_TEXT =
     "____ ____ ____ _  _ ____ \n"

@@ -31,9 +31,8 @@ namespace Util {
 namespace Io {
 
 /// Represents a key event, including its scancode, ASCII code, modifier states, and pressed state.
-/// Instances of this class are created and managed by the `KeyDecoder`. The decoder has access
-/// to private methods that allow it to update the key's state as scancodes are parsed.
-/// However, once a key event has been fully decoded, it is immutable and can be safely shared.
+/// Instances of this class are created by the `KeyDecoder` using a specified `KeyboardLayout`
+/// to translate scancodes into ASCII characters.
 class KeyEvent {
 
 public:
@@ -227,11 +226,16 @@ public:
 
     /// Create a new key with the specified scancode, ASCII code, modifier state, and pressed state.
     KeyEvent(const uint8_t scancode, const uint8_t ascii, const uint8_t modifier, const bool pressed) :
-        ascii(ascii), scancode(scancode), modifier(modifier), pressed(pressed) {}
+        ascii(ascii), scancode(scancode), modifiers(modifier), pressed(pressed) {}
 
     /// Compare this key with another key for inequality.
     bool operator!=(const KeyEvent &other) const  {
-        return scancode != other.scancode || modifier != other.modifier || pressed != other.pressed;
+        return scancode != other.scancode || modifiers != other.modifiers || pressed != other.pressed;
+    }
+
+    /// Check if the key is currently pressed (true) or released (false).
+    bool isPressed() const {
+        return pressed;
     }
 
     /// Get the scancode.
@@ -246,113 +250,67 @@ public:
         return ascii;
     }
 
-    /// Check if the key is currently pressed (true) or released (false).
-    bool isPressed() const {
-        return pressed;
+    /// Get the modifier state as a bit field, where each bit corresponds to a modifier key (e.g., Shift, Alt, Ctrl).
+    /// The specific meaning of each bit can be determined using the `Modifier` enum.
+    uint8_t getModifiers() const {
+        return modifiers;
     }
 
     /// Check if the Shift key is pressed.
     bool getShift() const {
-        return modifier & SHIFT;
+        return modifiers & SHIFT;
     }
 
     /// Check if the left Alk key is pressed.
     bool getAltLeft() const {
-        return modifier & ALT_LEFT;
+        return modifiers & ALT_LEFT;
     }
 
     /// Check if the right Alk key is pressed.
     bool getAltRight() const {
-        return modifier & ALT_RIGHT;
+        return modifiers & ALT_RIGHT;
     }
 
     /// Check if either of the Alt keys is pressed.
     bool getAlt() const {
-        return modifier & (ALT_LEFT | ALT_RIGHT);
+        return modifiers & (ALT_LEFT | ALT_RIGHT);
     }
 
     /// Check if the left Ctrl key is pressed.
     bool getCtrlLeft() const {
-        return modifier & CTRL_LEFT;
+        return modifiers & CTRL_LEFT;
     }
 
     /// Check if the right Ctrl key is pressed.
     bool getCtrlRight() const {
-        return modifier & CTRL_RIGHT;
+        return modifiers & CTRL_RIGHT;
     }
 
     /// Check if either of the Ctrl keys is pressed.
     bool getCtrl() const {
-        return modifier & (CTRL_LEFT | CTRL_RIGHT);
+        return modifiers & (CTRL_LEFT | CTRL_RIGHT);
     }
 
     /// Check if caps lock is active.
     bool getCapsLock() const {
-        return modifier & CAPS_LOCK;
+        return modifiers & CAPS_LOCK;
     }
 
     /// Check if num lock is active.
     bool getNumLock() const {
-        return modifier & NUM_LOCK;
+        return modifiers & NUM_LOCK;
     }
 
     /// Check if scroll lock is active.
     bool getScrollLock() const {
-        return modifier & SCROLL_LOCK;
+        return modifiers & SCROLL_LOCK;
     }
 
 private:
 
-    friend class KeyDecoder;
-    friend class KeyboardLayout;
-
-    void setPressed(const bool pressed) {
-        KeyEvent::pressed = pressed;
-    }
-
-    void setAscii(const uint8_t ascii) {
-        KeyEvent::ascii = ascii;
-    }
-
-    void setScancode(const uint8_t scancode) {
-        KeyEvent::scancode = scancode;
-    }
-
-    void setShift(const bool pressed) {
-        modifier = pressed ? modifier | SHIFT : modifier & ~SHIFT;
-    }
-
-    void setAltLeft(const bool pressed) {
-        modifier = pressed ? modifier | ALT_LEFT : modifier & ~ALT_LEFT;
-    }
-
-    void setAltRight(const bool pressed) {
-        modifier = pressed ? modifier | ALT_RIGHT : modifier & ~ALT_RIGHT;
-    }
-
-    void setCtrlLeft(const bool pressed) {
-        modifier = pressed ? modifier | CTRL_LEFT : modifier & ~CTRL_LEFT;
-    }
-
-    void setCtrlRight(const bool pressed) {
-        modifier = pressed ? modifier | CTRL_RIGHT : modifier & ~CTRL_RIGHT;
-    }
-
-    void setCapsLock(const bool pressed) {
-        modifier = pressed ? modifier | CAPS_LOCK : modifier & ~CAPS_LOCK;
-    }
-
-    void setNumLock(const bool pressed) {
-        modifier = pressed ? modifier | NUM_LOCK : modifier & ~NUM_LOCK;
-    }
-
-    void setScrollLock(const bool pressed) {
-        modifier = pressed ? modifier | SCROLL_LOCK : modifier & ~SCROLL_LOCK;
-    }
-
     uint8_t ascii = 0;
     uint8_t scancode = 0;
-    uint8_t modifier = 0;
+    uint8_t modifiers = 0;
     bool pressed = false;
 };
 

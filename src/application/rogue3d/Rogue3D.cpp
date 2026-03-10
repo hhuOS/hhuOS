@@ -2,7 +2,7 @@
 #include "application/rogue3d/entities/Projectile.h"
 #include "lib/pulsar/Game.h"
 #include "lib/pulsar/Camera.h"
-#include "lib/util/io/key/Key.h"
+#include "lib/util/io/key/KeyEvent.h"
 #include "lib/util/math/Math.h"
 #include "Rogue3D.h"
 #include "application/rogue3d/entities/Hud.h"

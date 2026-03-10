@@ -33,7 +33,7 @@
 #include "lib/pulsar/Camera.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/io/key/Key.h"
+#include "lib/util/io/key/KeyEvent.h"
 
 void OpenGlDemo::initialize() {
     setBackgroundColor(Util::Graphic::Color(176, 252, 255));

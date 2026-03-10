@@ -21,52 +21,53 @@
 #include "KeyboardLayout.h"
 
 #include "util/base/Address.h"
-#include "util/io/key/Key.h"
 #include "util/io/key/KeyDecoder.h"
 
 namespace Util {
+namespace Io {
 
-static constexpr uint8_t NUMPAD_SCANCODE_TABLE[13] = {
+constexpr uint8_t NUMPAD_SCANCODE_TABLE[13] = {
     8, 9, 10, 53, 5, 6, 7, 27, 2, 3, 4, 11, 51
 };
 
-void Io::KeyboardLayout::parseKey(const uint8_t scancode, const uint8_t prefix, KeyEvent &key) const {
+KeyEvent KeyboardLayout::parseKey(const uint8_t prefix, const uint8_t scancode, const uint8_t modifiers,
+    const bool pressed) const
+{
     // Choose the right table based on the modifier bits.
     // For simplicity, NumLock takes precedence over Alt, Shift and CapsLock.
     // There is no separate table for Ctrl.
-    if (key.getNumLock() && prefix == 0 && scancode >= 71 && scancode <= 83) {
+    if (modifiers & KeyEvent::NUM_LOCK && prefix == 0 && scancode >= 71 && scancode <= 83) {
         // If NumLock is enabled and one of the keys of the separate number block (codes 0x47-0x53) is pressed,
         // the ASCII and scancodes of the corresponding number keys should be delivered instead of the scancodes of the cursor keys.
         // The keys of the cursor block (prefix == prefix1) should of course still be able to be used for cursor control.
         // By the way, they still send a shift, but that should not matter.
-        key.setAscii(numpadTable[scancode - 71]);
-        key.setScancode(NUMPAD_SCANCODE_TABLE[scancode - 71]);
-    } else if (key.getAltRight()) {
-        key.setAscii(altTable[scancode]);
-        key.setScancode(scancode);
-    } else if (key.getShift()) {
-        key.setAscii(shiftTable[scancode]);
-        key.setScancode(scancode);
-    } else if (key.getCapsLock()) {
+        const auto translatedScancode = NUMPAD_SCANCODE_TABLE[scancode - 71];
+        const auto ascii = numpadTable[scancode - 71];
+        return KeyEvent(translatedScancode, ascii, modifiers, pressed);
+    }
+    if (modifiers & KeyEvent::ALT_RIGHT) {
+        return KeyEvent(scancode, altTable[scancode], modifiers, pressed);
+    }
+    if (modifiers & KeyEvent::SHIFT) {
+        return KeyEvent(scancode, shiftTable[scancode], modifiers, pressed);
+    }
+    if (modifiers & KeyEvent::CAPS_LOCK) {
         // CapsLock is only active for the letters A-Z and 0-9.
         if ((scancode >= 16 && scancode <= 26) ||
             (scancode >= 30 && scancode <= 40) ||
             (scancode >= 44 && scancode <= 50))
         {
-            key.setAscii(shiftTable[scancode]);
-            key.setScancode(scancode);
-        } else {
-            key.setAscii(normalTable[scancode]);
-            key.setScancode(scancode);
+            return KeyEvent(scancode, shiftTable[scancode], modifiers, pressed);
         }
-    } else {
-        // No modifier keys active, use normal table.
-        key.setAscii(normalTable[scancode]);
-        key.setScancode(scancode);
+
+        return KeyEvent(scancode, altTable[scancode], modifiers, pressed);
     }
+
+    // No modifier keys active, use normal table.
+    return KeyEvent(scancode, normalTable[scancode], modifiers, pressed);
 }
 
-Io::KeyboardLayout::KeyboardLayout(const uint8_t normalTable[89], const uint8_t shiftTable[89],
+KeyboardLayout::KeyboardLayout(const uint8_t normalTable[89], const uint8_t shiftTable[89],
     const uint8_t altTable[89], const uint8_t numpadTable[13])
 {
     Address(KeyboardLayout::normalTable).copyRange(Address(normalTable), sizeof(KeyboardLayout::normalTable));
@@ -75,4 +76,5 @@ Io::KeyboardLayout::KeyboardLayout(const uint8_t normalTable[89], const uint8_t 
     Address(KeyboardLayout::numpadTable).copyRange(Address(numpadTable), sizeof(KeyboardLayout::numpadTable));
 }
 
+}
 }

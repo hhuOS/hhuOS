@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/io/key/Key.h"
+#include "lib/util/io/key/KeyEvent.h"
 #include "lib/pulsar/Camera.h"
 #include "lib/pulsar/Game.h"
 #include "lib/pulsar/Graphics.h"
