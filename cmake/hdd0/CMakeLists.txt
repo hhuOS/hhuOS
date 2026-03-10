@@ -78,7 +78,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
 		COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/doom" "user"
 		COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/quake" "user"
 		COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/roms" "user"
-        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/wav" "user"
 		COMMAND /bin/rm -f "${CMAKE_BINARY_DIR}/part.img"
         COMMAND mkfs.fat -C "${CMAKE_BINARY_DIR}/part.img" $<IF:$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>,200704,96256>
         COMMAND mcopy -s -o -i "${CMAKE_BINARY_DIR}/part.img" * ::/
@@ -86,10 +85,10 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cat "${CMAKE_BINARY_DIR}/fill.img" "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img" > "${HHUOS_ROOT_DIR}/hdd0.img"
 		COMMAND /bin/rm "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img"
         COMMAND /bin/echo -e "'o\\nn\\np\\n1\\n2048\\n\\nt\\ne\\nw\\n'" | fdisk "${HHUOS_ROOT_DIR}/hdd0.img"
-        DEPENDS asciimation-star-wars beep-files books-gutenberg classicube-resources doom-wad gameboy-roms megadrive-roms nes-roms quake-pak wav-files
+        DEPENDS asciimation-star-wars beep-files books-gutenberg classicube-resources doom-wad gameboy-roms megadrive-roms nes-roms quake-pak
 				shell asciimate battlespace beep bug cat classicube clownmdemu cp ctest date demo dino doom echo head hexdump ip keyboard kill litenes ls membench mkdir mount nettest peanut-gb ping play portablegl ps pwd quake rm rmdir rogue3d shutdown smbios tinygl touch tree uecho unmount uptime view3d doom-wad)
 
 add_custom_target(${PROJECT_NAME}
-		DEPENDS asciimation-star-wars beep-files books-gutenberg classicube-resources doom-wad gameboy-roms megadrive-roms nes-roms quake-pak wav-files
+		DEPENDS asciimation-star-wars beep-files books-gutenberg classicube-resources doom-wad gameboy-roms megadrive-roms nes-roms quake-pak
 				shell asciimate battlespace beep bug cat classicube clownmdemu cp ctest date demo dino doom echo head hexdump ip keyboard kill litenes ls membench mkdir mount nettest peanut-gb ping play portablegl ps pwd quake rm rmdir rogue3d shutdown smbios tinygl touch tree uecho unmount uptime view3d
 		"${HHUOS_ROOT_DIR}/hdd0.img")

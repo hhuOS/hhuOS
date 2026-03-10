@@ -145,9 +145,6 @@ Assets for the battlespace game have been taken from [itch.io](https://itch.io):
 - [Spaceship](https://psionicgames.itch.io/low-poly-space-ship-pack) by [*Psionic Games*](http://www.psionicgames.com/)
 - [Low Poly Foliage Pack](https://emerald-eel-entertainment.itch.io/low-poly-foliage-pack-001) by [*Emerald Eel Entertainment*](https://emerald-eel-entertainment.itch.io/)
 
-Music for the SoundBlaster demo has been taken from [Bensound](https://www.bensound.com/royalty-free-music):
-- Ukulele license code: 3M7PXYPYNOTSIGNQ
-
 ## Ported software:
 
 Doom has been ported to hhuOS using [doomgeneric](https://github.com/ozkl/doomgeneric) by [*ozkl*](https://github.com/ozkl/) ([GPLv2](https://github.com/ozkl/doomgeneric/blob/master/LICENSE))
