@@ -63,10 +63,10 @@ public:
     /// If more bytes are needed (e.g., for multibyte scancodes), false is returned.
     bool parseScancode(uint8_t code);
 
-    /// Get the next key, that has formerly been parsed by `parseScancode()`.
+    /// Get the next key event, that has formerly been parsed by `parseScancode()`.
     /// This method should only be called after `parseScancode()` has returned true.
-    /// If the key is not fully parsed yet, a panic is fired.
-    KeyEvent getKey() {
+    /// If the key event is not fully parsed yet, a panic is fired.
+    KeyEvent getKeyEvent() {
         if (decodedKeys.isEmpty()) {
             Panic::fire(Panic::ILLEGAL_STATE, "KeyDecoder: No parsed key available!");
         }

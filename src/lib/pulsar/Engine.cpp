@@ -220,7 +220,7 @@ void Engine::checkKeyboard() {
     int16_t scancode = Util::System::in.read();
     while (scancode >= 0) {
         if (keyDecoder.parseScancode(scancode)) {
-            auto key = keyDecoder.getKey();
+            auto key = keyDecoder.getKeyEvent();
             auto &scene = game.getCurrentScene();
 
             switch (key.getScancode()) {

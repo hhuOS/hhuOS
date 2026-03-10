@@ -36,7 +36,7 @@ void keyboardDemo() {
     auto c = Util::System::in.read();
     while (c > 0) {
         if (keyDecoder.parseScancode(static_cast<uint8_t>(c))) {
-            auto key = keyDecoder.getKey();
+            auto key = keyDecoder.getKeyEvent();
 
             if (key.getScancode() == Util::Io::KeyEvent::ESC) {
                 break;

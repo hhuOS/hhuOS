@@ -563,7 +563,7 @@ void Terminal::KeyboardRunnable::run() {
         if (terminal.keyboardScancodes) {
             terminal.terminalStream.write(scancode);
         } else if (terminal.keyDecoder->parseScancode(scancode)) {
-            const auto key = terminal.keyDecoder->getKey();
+            const auto key = terminal.keyDecoder->getKeyEvent();
             if (key.isPressed()) {
                 auto c = key.getAscii();
                 if (c == 0) {

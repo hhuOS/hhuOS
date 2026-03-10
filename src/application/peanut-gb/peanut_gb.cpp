@@ -619,8 +619,8 @@ void lcd_draw_line_16bit([[maybe_unused]] gb_s *gb, const uint8_t *pixels, const
 }
 
 void write_ram_to_file(gb_s *gb) {
-    auto saveSize = gb_get_save_size(gb);
-    if (saveSize == 0) {
+    size_t saveSize;
+    if (gb_get_save_size_s(gb, &saveSize) != 0) {
         return;
     }
 
@@ -634,7 +634,11 @@ void write_ram_to_file(gb_s *gb) {
 }
 
 void read_ram_from_file(gb_s *gb) {
-    auto saveSize = gb_get_save_size(gb);
+    size_t saveSize;
+    if (gb_get_save_size_s(gb, &saveSize) != 0) {
+        return;
+    }
+
     ram = new uint8_t[saveSize];
 
     auto saveFile = Util::Io::File(saveFilePath);
@@ -760,7 +764,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
         auto c = Util::System::in.read();
         if (c != -1 && keyDecoder.parseScancode(c)) {
-            auto key = keyDecoder.getKey();
+            auto key = keyDecoder.getKeyEvent();
             uint8_t joyKey = 0;
 
             switch (key.getScancode()) {

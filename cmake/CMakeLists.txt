@@ -105,8 +105,10 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
         $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:${CMAKE_C_COMPILER_VERSION},15>>:-fno-assume-sane-operators-new-delete>
 
-        # Undefine linux macro
+        # Undefine macros
         -U__linux__
+        -U__unix__
+        -U_POSIX_VERSION
 )
 
 add_link_options(

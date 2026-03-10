@@ -27,7 +27,7 @@ static GLfloat rotationAngle = 0;
 
 void vertexShader(float *output, vec4 *vertexAttributes, Shader_Builtins *builtins, void *uniforms) {
     reinterpret_cast<vec4*>(output)[0] = vertexAttributes[4]; // Color
-    builtins->gl_Position = mult_mat4_vec4(static_cast<float*>(uniforms), vertexAttributes[0]);
+    builtins->gl_Position = mult_m4_v4(static_cast<float*>(uniforms), vertexAttributes[0]);
 }
 
 void fragmentShader(float *input, Shader_Builtins *builtins, void *uniforms) {
@@ -45,7 +45,7 @@ void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     glUseProgram(shaderProgram);
 
     // Set up uniform matrix
-    mat4 uniformMatrix = IDENTITY_MAT4();
+    mat4 uniformMatrix = IDENTITY_M4();
     pglSetUniform(&uniformMatrix);
 
     // Set up vertex and color data for triangle
@@ -88,11 +88,11 @@ void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Create rotation matrix
-        mat4 rotationMatrix = IDENTITY_MAT4();
-        load_rotation_mat4(rotationMatrix, vec3{0.0f, 1.0f, 0.0f}, DEG_TO_RAD(rotationAngle));
+        mat4 rotationMatrix = IDENTITY_M4();
+        load_rotation_m4(rotationMatrix, vec3{0.0f, 1.0f, 0.0f}, DEG_TO_RAD(rotationAngle));
 
-        mat4 rotatedUniformMatrix = IDENTITY_MAT4();
-        mult_mat4_mat4(uniformMatrix, rotatedUniformMatrix, rotationMatrix);
+        mat4 rotatedUniformMatrix = IDENTITY_M4();
+        mult_m4_m4(uniformMatrix, rotatedUniformMatrix, rotationMatrix);
 
         // Bind triangle vertex array object and draw triangle
         glDrawArrays(GL_TRIANGLES, 0, 3);

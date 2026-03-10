@@ -19,6 +19,8 @@
 project(clownmdemu)
 message(STATUS "Project " ${PROJECT_NAME})
 
+set(CMAKE_CXX_STANDARD 11)
+
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/roms/miniplanets.bin"
         COMMAND wget "'https://github.com/sikthehedgehog/miniplanets/raw/refs/heads/master/Miniplanets%20REMIX%20Ver%20(REV04).bin'" -O "${CMAKE_BINARY_DIR}/roms/miniplanets.bin"
         COMMAND /bin/touch -a -m "${CMAKE_BINARY_DIR}/roms/miniplanets.bin"
@@ -49,8 +51,10 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu.cpp
 
         # 68k interpreter
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/clown68000/common/opcode.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/clown68000/interpreter/clown68000.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/clown68000/interpreter/unity.c
+
+        # Z80 interpreter
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/clownz80/unity.c
 
         # Emulator
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/bus-common.c
@@ -61,6 +65,9 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/cdda.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/clownmdemu.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/controller.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/controller-manager.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/controller-multitap-ea.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/controller-multitap-sega.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-channel.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-lfo.c
@@ -71,8 +78,7 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/low-pass-filter.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/pcm.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/psg.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/vdp.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/z80.c)
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/vdp.c)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

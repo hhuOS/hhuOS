@@ -43,7 +43,7 @@ void pollKeyboard() {
 	int16_t scancode = keyboardInputStream.read();
 	while (scancode >= 0) {
 		if (keyDecoder.parseScancode(scancode)) {
-			auto key = keyDecoder.getKey();
+			auto key = keyDecoder.getKeyEvent();
 
 			Input_SetNonRepeatable(CCKEY_RSHIFT, key.getShift());
 			Input_SetNonRepeatable(CCKEY_LCTRL, key.getCtrlLeft());
@@ -376,6 +376,8 @@ void Window_ProcessEvents([[maybe_unused]] float delta) {
 	}
 }
 
+void Gamepads_PreInit() {}
+
 void Gamepads_Init() {}
 
 void Gamepads_Process([[maybe_unused]] float delta) {}
@@ -394,6 +396,7 @@ cc_result Window_SaveFileDialog([[maybe_unused]] const SaveFileDialogArgs *args)
 }
 
 void Window_AllocFramebuffer(Bitmap *bmp, const int width, const int height) {
+	lfb.clear();
 	bufferedLfb = new Util::Graphic::BufferedLinearFrameBuffer(lfb, width, height);
 
 	bmp->scan0 = reinterpret_cast<BitmapCol*>(bufferedLfb->getBuffer().get());

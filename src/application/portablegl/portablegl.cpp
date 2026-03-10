@@ -88,7 +88,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     // Initialize PortableGL context
     auto *screenBuffer = reinterpret_cast<uint32_t*>(bufferedLfb.getBuffer().get());
-    auto success = init_glContext(&context, &screenBuffer, bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY(), bufferedLfb.getColorDepth(), 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+    auto success = init_glContext(&context, &screenBuffer, bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
     if (!success) {
         Util::System::error << "portablegl: Failed to initialize GL context!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         exit(-1);

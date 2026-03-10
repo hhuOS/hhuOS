@@ -234,7 +234,7 @@ int DG_GetKey(int * pressed, unsigned char * key) {
     const uint8_t scancode = Util::System::in.read();
 
     if (kd->parseScancode(scancode)) {
-        auto k = kd->getKey();
+        auto k = kd->getKeyEvent();
 
         *pressed = k.isPressed() ? 1:0;
 

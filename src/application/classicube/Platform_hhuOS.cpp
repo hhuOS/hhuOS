@@ -3,81 +3,54 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "application/classicube/ClassiCube/src/Core.h"
-#include "application/classicube/ClassiCube/src/_PlatformBase.h"
-#include "application/classicube/ClassiCube/src/Utils.h"
-#include "application/classicube/ClassiCube/src/Errors.h"
+#include "ClassiCube/src/Core.h"
+#undef CC_BUILD_NETWORKING
+#include "ClassiCube/src/_PlatformBase.h"
+#include "ClassiCube/src/Utils.h"
+#include "ClassiCube/src/Errors.h"
+#include "ClassiCube/src/main_impl.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/base/System.h"
 #include "lib/util/time/Timestamp.h"
-#include "application/classicube/ClassiCube/src/Constants.h"
-#include "application/classicube/ClassiCube/src/Logger.h"
-#include "application/classicube/ClassiCube/src/Platform.h"
-#include "application/classicube/ClassiCube/src/String.h"
+#include "ClassiCube/src/Constants.h"
+#include "ClassiCube/src/Logger.h"
+#include "ClassiCube/src/Platform.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/time/Date.h"
 
-#undef CC_BUILD_NETWORKING
+cc_uint8 Platform_Flags = PLAT_FLAG_SINGLE_PROCESS | PLAT_FLAG_APP_EXIT;
 
 const char* Platform_AppNameSuffix = " hhuOS";
-cc_bool Platform_SingleProcess = true;
 cc_bool Platform_ReadonlyFilesystem = false;
 
 const cc_result ReturnCode_FileNotFound = ENOENT;
 const cc_result ReturnCode_DirectoryExists = EEXIST;
+const cc_result ReturnCode_PathNotFound = 99999; // Same as MSDOS
 const cc_result ReturnCode_FileShareViolation = 1000000000; // Same as MSDOS
 const cc_result ReturnCode_SocketInProgess  = -10002; // Same as MSDOS
 const cc_result ReturnCode_SocketWouldBlock = -10002; // Same as MSDOS
 const cc_result ReturnCode_SocketDropped    = -10002; // Same as MSDOS
 
 /*########################################################################################################################*
-*---------------------------------------------------------Memory----------------------------------------------------------*
+*-----------------------------------------------------Main entrypoint-----------------------------------------------------*
 *#########################################################################################################################*/
 
-void* Mem_Set(void *dst, const cc_uint8 value, const unsigned numBytes) {
-	return memset(dst, value, numBytes);
-}
+int32_t main(const int32_t, char **) {
+	constexpr int32_t argc = 2;
+	char* argv[] = {const_cast<char*>("classicube"), const_cast<char*>("--singleplayer")};
 
-void* Mem_Copy(void *dst, const void *src, const unsigned numBytes) {
-	return memcpy(dst, src, numBytes);
-}
-
-void* Mem_Move(void* dst, const void *src, const unsigned numBytes) {
-	return memmove(dst, src, numBytes);
-}
-
-void* Mem_TryAlloc(const cc_uint32 numElems, const cc_uint32 elemsSize) {
-	const cc_uint32 size = CalcMemSize(numElems, elemsSize);
-	return size ? malloc(size) : nullptr;
-}
-
-void* Mem_TryAllocCleared(const cc_uint32 numElems, const cc_uint32 elemsSize) {
-	return calloc(numElems, elemsSize);
-}
-
-void* Mem_TryRealloc(void *mem, const cc_uint32 numElems, const cc_uint32 elemsSize) {
-	const cc_uint32 size = CalcMemSize(numElems, elemsSize);
-	return size ? realloc(mem, size) : nullptr;
-}
-
-void Mem_Free(void *mem) {
-	free(mem);
+	SetupProgram(argc, argv);
+	while (true) {
+		RunProgram(argc, argv);
+	}
 }
 
 /*########################################################################################################################*
 *------------------------------------------------------Logging/Time-------------------------------------------------------*
 *#########################################################################################################################*/
 
-void Platform_Log(const char *msg, const int len) {
-	for (int i = 0; i < len; i++) {
-		Util::System::out << msg[i];
-	}
-
-	Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
-}
+void Platform_Log(const char *, const int) {}
 
 TimeMS DateTime_CurrentUTC() {
 	return Util::Time::Date().getUnixTime();
@@ -127,9 +100,23 @@ void Platform_EncodePath(cc_filepath *dst, const cc_string *src) {
 	String_EncodeUtf8(dst->buffer, src);
 }
 
+void Platform_DecodePath(cc_string* dst, const cc_filepath* path) {
+	const char* str = path->buffer;
+	String_AppendUtf8(dst, str, String_Length(str));
+}
+
 void Directory_GetCachePath([[maybe_unused]] cc_string *path) {}
 
 cc_result Directory_Create(const cc_filepath *path) {
+	auto file = Util::Io::File(path->buffer);
+	if (file.exists()) {
+		return ReturnCode_DirectoryExists;
+	}
+
+	return file.create(Util::Io::File::DIRECTORY) ? 0 : -1;
+}
+
+cc_result Directory_Create2(const cc_filepath* path) {
 	auto file = Util::Io::File(path->buffer);
 	if (file.exists()) {
 		return ReturnCode_DirectoryExists;
@@ -260,36 +247,21 @@ void Platform_LoadSysFonts() {}
 *---------------------------------------------------------Socket----------------------------------------------------------*
 *#########################################################################################################################*/
 
-cc_result Socket_ParseAddress([[maybe_unused]] const cc_string *address, [[maybe_unused]] int port, [[maybe_unused]] cc_sockaddr *addrs, [[maybe_unused]] int *numValidAddrs) {
-	return ERR_NOT_SUPPORTED;
+cc_bool SockAddr_ToString([[maybe_unused]] const cc_sockaddr* addr, [[maybe_unused]] cc_string* dst) {
+	return false;
 }
 
-cc_result Socket_Create([[maybe_unused]] cc_socket *s, [[maybe_unused]] cc_sockaddr *addr, [[maybe_unused]] cc_bool nonblocking) {
-	return ERR_NOT_SUPPORTED;
+cc_bool ParseIPv4([[maybe_unused]] const cc_string* ip, [[maybe_unused]] int port, [[maybe_unused]] cc_sockaddr* dst) {
+	return false;
 }
 
-cc_result Socket_Connect([[maybe_unused]] cc_socket s, [[maybe_unused]] cc_sockaddr *addr) {
-	return ERR_NOT_SUPPORTED;
+cc_bool ParseIPv6([[maybe_unused]] const char* ip, [[maybe_unused]] int port, [[maybe_unused]] cc_sockaddr* dst) {
+	return false;
 }
 
-cc_result Socket_Read([[maybe_unused]] cc_socket s, [[maybe_unused]] cc_uint8 *data, [[maybe_unused]] cc_uint32 count, [[maybe_unused]] cc_uint32 *modified) {
+cc_result ParseHost([[maybe_unused]] const char* host, [[maybe_unused]] int port, [[maybe_unused]] cc_sockaddr* addrs, [[maybe_unused]] int* numValidAddrs) {
 	return ERR_NOT_SUPPORTED;
 }
-
-cc_result Socket_Write([[maybe_unused]] cc_socket s, [[maybe_unused]] const cc_uint8 *data, [[maybe_unused]] cc_uint32 count, [[maybe_unused]] cc_uint32 *modified) {
-	return ERR_NOT_SUPPORTED;
-}
-
-void Socket_Close([[maybe_unused]] cc_socket s) {}
-
-cc_result Socket_CheckReadable([[maybe_unused]] cc_socket s, [[maybe_unused]] cc_bool *readable) {
-	return ERR_NOT_SUPPORTED;
-}
-
-cc_result Socket_CheckWritable([[maybe_unused]] cc_socket s, [[maybe_unused]] cc_bool *writable) {
-	return ERR_NOT_SUPPORTED;
-}
-
 
 /*########################################################################################################################*
 *-----------------------------------------------------Process/Module------------------------------------------------------*
@@ -308,54 +280,6 @@ void Process_Exit(const cc_result code) {
 cc_result Process_StartOpen([[maybe_unused]] const cc_string *args) {
 	return ERR_NOT_SUPPORTED;
 }
-
-/*########################################################################################################################*
-*--------------------------------------------------------Updater----------------------------------------------------------*
-*#########################################################################################################################*/
-
-cc_bool Updater_Supported = false;
-
-cc_bool Updater_Clean() {
-	return true;
-}
-
-const UpdaterInfo Updater_Info = { "&eCompile latest source code to update", 0, {} };
-
-cc_result Updater_Start([[maybe_unused]] const char **action) {
-	return ERR_NOT_SUPPORTED;
-}
-
-cc_result Updater_GetBuildTime([[maybe_unused]] cc_uint64 *timestamp) {
-	return ERR_NOT_SUPPORTED;
-}
-
-cc_result Updater_MarkExecutable() {
-	return ERR_NOT_SUPPORTED;
-}
-
-cc_result Updater_SetNewBuildTime([[maybe_unused]] cc_uint64 timestamp) {
-	return ERR_NOT_SUPPORTED;
-}
-
-
-/*########################################################################################################################*
-*-------------------------------------------------------Dynamic lib-------------------------------------------------------*
-*#########################################################################################################################*/
-
-const cc_string DynamicLib_Ext = String_FromConst(".dll");
-
-void* DynamicLib_Load2([[maybe_unused]] const cc_string *path) {
-	return nullptr;
-}
-
-void* DynamicLib_Get2([[maybe_unused]] void *lib, [[maybe_unused]] const char *name) {
-	return nullptr;
-}
-
-cc_bool DynamicLib_DescribeError([[maybe_unused]] cc_string *dst) {
-	return false;
-}
-
 
 /*########################################################################################################################*
 *--------------------------------------------------------Platform---------------------------------------------------------*
@@ -388,10 +312,10 @@ cc_result Platform_GetEntropy([[maybe_unused]] void *data, [[maybe_unused]] int 
 	return ERR_NOT_SUPPORTED;
 }
 
-
 /*########################################################################################################################*
 *-----------------------------------------------------Configuration-------------------------------------------------------*
 *#########################################################################################################################*/
+
 int Platform_GetCommandLineArgs(int argc, STRING_REF char **argv, cc_string *args) {
 	if (gameHasArgs) {
 		return GetGameArgs(args);

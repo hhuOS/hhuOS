@@ -221,7 +221,7 @@ int QG_GetKey(int *down, int *key) {
     }
 
     if (kd->parseScancode(scancode)) {
-        auto k = kd->getKey();
+        auto k = kd->getKeyEvent();
 
         *down = k.isPressed() ? 1:0;
 

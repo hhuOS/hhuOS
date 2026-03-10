@@ -28,6 +28,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/io/key/KeyDecoder.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/key/KeyboardLayout.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/key/MouseDecoder.cpp
+		${HHUOS_SRC_DIR}/lib/util/io/key/layout/DeLayout.cpp
+		${HHUOS_SRC_DIR}/lib/util/io/key/layout/UsLayout.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/BufferedInputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/BufferedOutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/ByteArrayOutputStream.cpp

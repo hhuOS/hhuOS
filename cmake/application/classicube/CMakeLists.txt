@@ -47,12 +47,10 @@ add_custom_target(classicube-resources DEPENDS
         "${CMAKE_BINARY_DIR}/classicube/texpacks/classicube.zip")
 
 add_compile_options(
-        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-function>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-but-set-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-maybe-uninitialized>
-        $<$<COMPILE_LANGUAGE:C>:-Wno-missing-field-initializers>
         $<$<COMPILE_LANGUAGE:C>:-Wno-sign-compare>
         $<$<COMPILE_LANGUAGE:C>:-Wno-cast-function-type>
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
@@ -61,34 +59,38 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-missing-braces>
         $<$<COMPILE_LANGUAGE:C>:-Wno-dangling-pointer>
         $<$<COMPILE_LANGUAGE:C>:-Wno-strict-aliasing>
-        $<$<COMPILE_LANGUAGE:C>:-DCC_BUILD_MANUAL>
-        $<$<COMPILE_LANGUAGE:C>:-DCC_BUILD_COOPTHREADED>
-        $<$<COMPILE_LANGUAGE:C>:-DCC_BUILD_NOMUSIC>
-        $<$<COMPILE_LANGUAGE:C>:-DCC_BUILD_NOSOUNDS>
-        $<$<COMPILE_LANGUAGE:C>:-DCC_GFX_BACKEND=CC_GFX_BACKEND_SOFTGPU>
-        $<$<COMPILE_LANGUAGE:C>:-DCC_NET_BACKEND=CC_NET_BACKEND_BUILTIN>
-        $<$<COMPILE_LANGUAGE:C>:-DCC_SSL_BACKEND=CC_SSL_BACKEND_NONE>
+        -Wno-unused-parameter
+        -Wno-missing-field-initializers
+        -DCC_BUILD_MANUAL
+        -DCC_BUILD_COOPTHREADED
+        -DCC_BUILD_NOMUSIC
+        -DCC_BUILD_NOSOUNDS
+        -DCC_GFX_BACKEND=CC_GFX_BACKEND_SOFTGPU
+        -DCC_AUD_BACKEND=CC_AUD_BACKEND_NULL
+        -DCC_NET_BACKEND=CC_NET_BACKEND_BUILTIN
+        -DCC_SSL_BACKEND=CC_SSL_BACKEND_NONE
+        -DCC_NO_UPDATER
+        -DCC_NO_DYNLIB
+        -DCC_NO_SOCKETS
 )
 
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/classicube/Window_hhuOS.cpp
         ${HHUOS_SRC_DIR}/application/classicube/Platform_hhuOS.cpp
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Animations.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/AudioBackend.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Audio.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_autofit.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Audio_Null.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/AxisLinesRenderer.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Bitmap.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Block.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/BlockPhysics.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Builder.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Camera.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_cff.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Chat.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Commands.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Deflate.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Drawer2D.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Drawer.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Drawer2D.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Entity.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/EntityComponents.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/EntityRenderers.c
@@ -97,32 +99,24 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/ExtMath.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/FancyLighting.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Formats.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_ftbase.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_ftbitmap.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_ftglyph.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_ftinit.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_ftsynth.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Game.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/GameVersion.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Generator.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Graphics_SoftGPU.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Gui.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/HeldBlockRenderer.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Http_Web.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Http_Worker.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Input.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/InputHandler.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Inventory.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/IsometricDrawer.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Launcher.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/LBackend_Android.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/LBackend.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Lighting.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Logger.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/LScreens.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/LWeb.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/LWidgets.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/main.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Launcher.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Lighting.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Logger.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/MapRenderer.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/MenuOptions.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Menus.c
@@ -133,30 +127,37 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Physics.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Picking.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Protocol.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_psaux.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_pshinter.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_psmodule.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Queue.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Resources.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Screens.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/SelectionBox.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/SelOutlineRenderer.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Server.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_sfnt.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_smooth.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/SSL.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Screens.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/SelOutlineRenderer.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/SelectionBox.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Server.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Stream.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/String.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/SystemFonts.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/TexturePack.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/TouchUI.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_truetype.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_type1.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Utils.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Vectors.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Vorbis.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Widgets.c
-        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/World.c)
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/World.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_autofit.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_cff.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_ftbase.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_ftbitmap.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_ftglyph.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_ftinit.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_ftsynth.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_psaux.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_pshinter.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_psmodule.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_sfnt.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_smooth.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_truetype.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_type1.c)
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 

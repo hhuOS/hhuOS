@@ -222,7 +222,7 @@ void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
 
         auto c = Util::System::in.read();
         if (c > 0 && keyDecoder->parseScancode(c)) {
-            auto key = keyDecoder->getKey();
+            auto key = keyDecoder->getKeyEvent();
             if (key.isPressed()) {
                 if (key.getScancode() == Util::Io::KeyEvent::ESC) {
                     break;

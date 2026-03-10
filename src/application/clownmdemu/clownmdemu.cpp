@@ -21,12 +21,11 @@
 #include <stdint.h>
 #include <stdarg.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "application/clownmdemu/clownmdemu/clowncommon/clowncommon.h"
-#include "application/clownmdemu/clownmdemu/clownmdemu.h"
+#include "clownmdemu/clowncommon/clowncommon.h"
+#undef CC_CPLUSPLUS
+#include "clownmdemu/clownmdemu.h"
 
-#include "util/io/stream/FileOutputStream.h"
+#include "lib/util/io/stream/FileOutputStream.h"
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileInputStream.h"
@@ -44,17 +43,13 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/io/key/KeyEvent.h"
 #include "lib/util/io/stream/InputStream.h"
+#include "lib/util/base/System.h"
+#include "lib/util/io/stream/PrintStream.h"
 
-const ClownMDEmu_Constant constants = []() {
-    ClownMDEmu_Constant constants{};
-    ClownMDEmu_Constant_Initialise(&constants);
-    return constants;
-}();
 ClownMDEmu emulator{};
 ClownMDEmu_State state{};
-ClownMDEmu_Configuration configuration{};
+ClownMDEmu_InitialConfiguration configuration{};
 
-uint8_t *rom = nullptr;
 bool buttons[CLOWNMDEMU_BUTTON_MAX]{};
 
 uint32_t palette[65536]{};
@@ -102,13 +97,10 @@ void calculate_screen_variables(cc_u16f screen_width, cc_u16f screen_height, boo
     lfb->clear();
 }
 
-void log([[maybe_unused]] void *user_data, [[maybe_unused]] const char *format, [[maybe_unused]] va_list args) {}
-
-cc_u8f cartridge_read([[maybe_unused]] void *user_data, cc_u32f address) {
-    return rom[address];
+void log([[maybe_unused]] void *user_data, [[maybe_unused]] const char *format, [[maybe_unused]] va_list args) {
+    const auto message = Util::String::format(format, args);
+    Util::System::out << message << Util::Io::PrintStream::lnFlush;
 }
-
-void cartridge_written([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u32f address, [[maybe_unused]] cc_u8f value) {}
 
 void colour_updated([[maybe_unused]] void *user_data, cc_u16f index, cc_u16f colour) {
     // Decompose XBGR4444 into individual colour channels
@@ -125,8 +117,8 @@ void scanline_rendered_32([[maybe_unused]] void *user_data, cc_u16f scanline, co
 
     for (uint16_t y = 0; y < scale; y++) {
         for (uint16_t x = 0; x < resX; x++) {
-            uint8_t pixel = pixels[x / scale];
-            uint32_t color = palette[pixel];
+            const uint8_t pixel = pixels[x / scale];
+            const uint32_t color = palette[pixel];
 
             screenBuffer[x] = color;
         }
@@ -141,8 +133,8 @@ void scanline_rendered_24([[maybe_unused]] void *user_data, cc_u16f scanline, co
 
     for (uint16_t y = 0; y < scale; y++) {
         for (uint16_t x = 0; x < resX; x++) {
-            uint8_t pixel = pixels[x / scale];
-            uint32_t color = palette[pixel];
+            const uint8_t pixel = pixels[x / scale];
+            const uint32_t color = palette[pixel];
 
             screenBuffer[x * 3] = color & 0xff;
             screenBuffer[x * 3 + 1] = (color >> 8) & 0xff;
@@ -159,8 +151,8 @@ void scanline_rendered_16([[maybe_unused]] void *user_data, cc_u16f scanline, co
 
     for (uint16_t y = 0; y < scale; y++) {
         for (uint16_t x = 0; x < resX; x++) {
-            uint8_t pixel = pixels[x / scale];
-            uint16_t color = palette[pixel];
+            const uint8_t pixel = pixels[x / scale];
+            const uint16_t color = palette[pixel];
 
             screenBuffer[x] = color;
         }
@@ -173,13 +165,13 @@ cc_bool input_requested([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u8
     return buttons[button_id];
 }
 
-void fm_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] const ClownMDEmu *clownmdemu, [[maybe_unused]] std::size_t total_frames, [[maybe_unused]] void (*generate_fm_audio)(const ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, std::size_t total_frames)) {}
+void fm_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] ClownMDEmu *clownmdemu, [[maybe_unused]] size_t total_frames, [[maybe_unused]] void (*generate_fm_audio)(ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, size_t total_frames)) {}
 
-void psg_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] const ClownMDEmu *clownmdemu, [[maybe_unused]] std::size_t total_samples, [[maybe_unused]] void (*generate_psg_audio)(const ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, std::size_t total_samples)) {}
+void psg_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] ClownMDEmu *clownmdemu, [[maybe_unused]] size_t total_samples, [[maybe_unused]] void (*generate_psg_audio)(ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, size_t total_samples)) {}
 
-void pcm_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] const ClownMDEmu *clownmdemu, [[maybe_unused]] std::size_t total_frames, [[maybe_unused]] void (*generate_pcm_audio)(const ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, std::size_t total_frames)) {}
+void pcm_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] ClownMDEmu *clownmdemu, [[maybe_unused]] size_t total_frames, [[maybe_unused]] void (*generate_pcm_audio)(ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, size_t total_frames)) {}
 
-void cdda_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] const ClownMDEmu *clownmdemu, [[maybe_unused]] std::size_t total_frames, [[maybe_unused]] void (*generate_cdda_audio)(const ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, std::size_t total_frames)) {}
+void cdda_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] ClownMDEmu *clownmdemu, [[maybe_unused]] size_t total_frames, [[maybe_unused]] void (*generate_cdda_audio)(ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, size_t total_frames)) {}
 
 void cd_seeked([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u32f sector_index) {}
 
@@ -189,7 +181,7 @@ cc_bool cd_track_seeked([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u1
     return false;
 }
 
-uint32_t cd_audio_read([[maybe_unused]] void *user_data, [[maybe_unused]] cc_s16l *sample_buffer, [[maybe_unused]] std::size_t total_frames) {
+uint32_t cd_audio_read([[maybe_unused]] void *user_data, [[maybe_unused]] cc_s16l *sample_buffer, [[maybe_unused]] size_t total_frames) {
     return 0;
 }
 
@@ -253,7 +245,7 @@ cc_bool save_file_size_obtained([[maybe_unused]] void *user_data, [[maybe_unused
 ClownMDEmu_Callbacks callbacks{};
 
 int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
+    Util::ArgumentParser argumentParser;
     argumentParser.setHelpText("Mega Drive emulator by 'Clownacy' (https://github.com/Clownacy/clownmdemu).\n"
                                "Joypad is mapped to arrow keys; ABC and XYZ buttons are mapped to A, S, D and Y(Z), X, C respectively; Start is mapped to Space and Mode is mapped to Enter.\n"
                                "Use 'F1' and 'F2' to adjust screen scaling.\n"
@@ -276,11 +268,18 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto romFile = Util::Io::File(arguments[0]);
-    auto stream = Util::Io::FileInputStream(romFile);
+    Util::Io::File romFile(arguments[0]);
+    Util::Io::FileInputStream stream(romFile);
+    auto *fileBuffer = new uint8_t[romFile.getLength()];
+    stream.read(fileBuffer, 0, romFile.getLength());
 
-    rom = new uint8_t[romFile.getLength()];
-    stream.read(rom, 0, romFile.getLength());
+    const auto romLength = romFile.getLength() / 2;
+    auto *rom = new cc_u16l[romLength];
+    for (size_t i = 0; i < romLength; i++) {
+        rom[i] = fileBuffer[i * 2] << 8 | fileBuffer[i * 2 + 1];
+    }
+
+    delete[] fileBuffer;
 
     auto lfbFile = Util::Io::File("/device/lfb");
 
@@ -296,12 +295,13 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
-    auto buffer = Util::Graphic::LinearFrameBuffer(lfbFile);
+    Util::Graphic::LinearFrameBuffer buffer(lfbFile);
     lfb = &buffer;
     lfb->clear();
 
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
-    auto keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
+    Util::Io::DeLayout layout;
+    Util::Io::KeyDecoder keyDecoder(layout);
 
     auto scanlineCallback = scanline_rendered_32;
     if (lfb->getColorDepth() == 24) {
@@ -312,8 +312,6 @@ int32_t main(int32_t argc, char *argv[]) {
 
     callbacks = {
         nullptr,
-        cartridge_read,
-        cartridge_written,
         colour_updated,
         scanlineCallback,
         input_requested,
@@ -341,18 +339,20 @@ int32_t main(int32_t argc, char *argv[]) {
     targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / targetFrameRate));
 
     ClownMDEmu_SetLogCallback(log, nullptr);
-    ClownMDEmu_State_Initialise(&state);
-    ClownMDEmu_Parameters_Initialise(&emulator, &configuration, &constants, &state, &callbacks);
-    ClownMDEmu_Reset(&emulator, false, romFile.getLength());
+    ClownMDEmu_Constant_Initialise();
+    ClownMDEmu_Initialise(&emulator, &configuration, &callbacks);
+    ClownMDEmu_SetCartridge(&emulator, rom, romLength);
+    ClownMDEmu_HardReset(&emulator, true, false);
 
     while(true) {
         auto startTime = Util::Time::Timestamp::getSystemTime();
 
         auto c = Util::System::in.read();
         if (c != -1 && keyDecoder.parseScancode(c)) {
-            bool pressed = keyDecoder.getKey().isPressed();
+            const auto keyEvent = keyDecoder.getKeyEvent();
+            bool pressed = keyEvent.isPressed();
 
-            switch (keyDecoder.getKey().getScancode()) {
+            switch (keyEvent.getScancode()) {
                 case Util::Io::KeyEvent::UP:
                     buttons[CLOWNMDEMU_BUTTON_UP] = pressed;
                     break;
