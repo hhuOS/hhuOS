@@ -142,6 +142,11 @@ public:
         return namedArguments.containsKey(name) ? namedArguments.get(name) : "";
     }
 
+    /// Get the value of the given argument, or return a default value if the argument was not passed.
+    String getArgument(const String &name, const String &defaultValue) const {
+        return namedArguments.containsKey(name) ? namedArguments.get(name) : defaultValue;
+    }
+
     /// Check if the given switch was passed to the program.
     bool checkSwitch(const String &name) const {
         return parsedSwitches.contains(name);

@@ -19,11 +19,16 @@
 project(asciimate)
 message(STATUS "Project " ${PROJECT_NAME})
 
-# CMake does not like it, if the target name is part of the target path.
-# So we cannot name the target 'asciimation' while saving files to '${CMAKE_BINARY_DIR}/asciimation/'.
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
+add_compile_options("-Wpedantic")
+
+make_readme_includable(${HHUOS_SRC_DIR}/application/asciimate)
+
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/asciimation/"
         COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/asciimation/")
 
+# Do not include the Star Wars asciimation files in redistributable builds (e.g. GitHub Releases).
 if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
     add_custom_target(asciimation-star-wars DEPENDS
             "${CMAKE_BINARY_DIR}/asciimation/")
@@ -31,13 +36,13 @@ else()
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/asciimation/star_wars.txt"
             COMMAND wget "https://www.asciimation.co.nz/asciimation/SwPlay.jar"
             COMMAND unzip -u "SwPlay.jar" -d "star_wars"
-            COMMAND /bin/echo 14,67 | /bin/cat - "star_wars/data/sw1.txt" >> "${CMAKE_BINARY_DIR}/asciimation/star_wars.txt"
+            COMMAND /bin/echo 13,67 | /bin/cat - "star_wars/data/sw1.txt" >> "${CMAKE_BINARY_DIR}/asciimation/star_wars.txt"
             DEPENDS "${CMAKE_BINARY_DIR}/asciimation/")
 
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/asciimation/jar_jar.txt"
             COMMAND wget "https://www.asciimation.co.nz/asciimation/jjplay.jar"
             COMMAND unzip -u "jjplay.jar" -d "jar_jar"
-            COMMAND /bin/echo 23,81 | /bin/cat - "jar_jar/data/jj1.txt" >> "${CMAKE_BINARY_DIR}/asciimation/jar_jar.txt"
+            COMMAND /bin/echo 22,81 | /bin/cat - "jar_jar/data/jj1.txt" >> "${CMAKE_BINARY_DIR}/asciimation/jar_jar.txt"
             DEPENDS "${CMAKE_BINARY_DIR}/asciimation/")
 
     add_custom_target(asciimation-star-wars DEPENDS
@@ -46,10 +51,7 @@ else()
 endif()
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-
-set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/asciimate/asciimate.cpp)
-
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
 target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic)
+target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/application/asciimate/asciimate.cpp)

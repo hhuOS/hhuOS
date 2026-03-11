@@ -155,6 +155,17 @@ public:
     /// ```
     Timestamp operator-(const Timestamp &other) const;
 
+    /// Multiply the timestamp by a factor.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto timestamp = Util::Time::Timestamp::ofMilliseconds(3500); // timestamp = 3.5 seconds
+    ///
+    /// const auto result = timestamp * 5; // result = 17.5 seconds
+    /// const auto resultMilliseconds = result.toMilliseconds(); // resultMilliseconds = 17500
+    /// ```
+    Timestamp operator*(size_t factor) const;
+
     /// Add another timestamp to this one.
     ///
     /// ### Example

@@ -20,129 +20,149 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/io/stream/BufferedInputStream.h"
-#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/async/Thread.h"
-#include "lib/util/time/Timestamp.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/graphic/Font.h"
-#include "lib/util/base/String.h"
-#include "lib/util/io/stream/InputStream.h"
-#include "util/graphic/font/Mini4x6.h"
-#include "util/graphic/font/Terminal8x16.h"
-#include "util/graphic/font/Terminal8x8.h"
+#include <util/base/ArgumentParser.h>
+#include <util/base/String.h>
+#include <util/base/System.h>
+#include <util/collection/Array.h>
+#include <util/graphic/Ansi.h>
+#include <util/graphic/LinearFrameBuffer.h>
+#include <util/graphic/BufferedLinearFrameBuffer.h>
+#include <util/graphic/Colors.h>
+#include <util/graphic/Font.h>
+#include <util/graphic/font/Mini4x6.h>
+#include <util/graphic/font/Terminal8x16.h>
+#include <util/graphic/font/Terminal8x8.h>
+#include <util/io/file/File.h>
+#include <util/io/stream/InputStream.h>
+#include <util/io/stream/FileInputStream.h>
+#include <util/io/stream/BufferedInputStream.h>
+#include <util/io/stream/PrintStream.h>
+#include <util/io/key/KeyDecoder.h>
+#include <util/io/key/layout/DeLayout.h>
+#include <util/async/Thread.h>
+#include <util/time/Timestamp.h>
 
-static const constexpr uint16_t DEFAULT_FPS = 15;
+const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+/// Selects a font based on the vertical resolution of the framebuffer.
+const Util::Graphic::Font& selectFont(const uint16_t resolutionY) {
+    if (resolutionY < 350) {
+        return Util::Graphic::Fonts::MINI_4x6;
+    }
+
+    if (resolutionY < 500) {
+        return Util::Graphic::Fonts::TERMINAL_8x8;
+    }
+
+    return Util::Graphic::Fonts::TERMINAL_8x16;
+}
 
 int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Play asciimation movies from text-files.\n"
-                               "See https://http://www.asciimation.co.nz for more information\n"
-                               "Usage: asciimate [FILE]\n"
-                               "Options:\n"
-                               "  -f, --framesPerSecond: Set the target framerate (Default: 15)\n"
-                               "  -r, --resolution: Set display resolution\n"
-                               "  -s, --scale: Set display scale factor (Must be <= 1; The application will be rendered at a lower internal resolution and scaled up/centered to fill the screen)\n"
-                               "  -h, --help: Show this help message");
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
 
-    argumentParser.addArgument("framesPerSecond", false, "f");
+    argumentParser.addArgument("fps", false, "f");
     argumentParser.addArgument("resolution", false, "r");
     argumentParser.addArgument("scale", false, "s");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "asciimate: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "asciimate: No arguments provided!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     auto file = Util::Io::File(arguments[0]);
     if (!file.exists() || file.isDirectory()) {
-        Util::System::error << "asciimate: '" << arguments[0] << "' could not be opened!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "asciimate: Failed to open '" << arguments[0] << "'!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     auto lfbFile = Util::Io::File("/device/lfb");
-
     if (argumentParser.hasArgument("resolution")) {
-        auto split1 = argumentParser.getArgument("resolution").split("x");
-        auto split2 = split1[1].split("@");
-
-        auto resolutionX = Util::String::parseNumber<uint16_t>(split1[0]);
-        auto resolutionY = Util::String::parseNumber<uint16_t>(split2[0]);
-        uint8_t colorDepth = split2.length() > 1 ? Util::String::parseNumber<uint8_t>(split2[1]) : 32;
-
-        lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
+        const auto resolution = argumentParser.getArgument("resolution");
+        Util::Graphic::LinearFrameBuffer::setResolution(lfbFile, resolution);
     }
 
-    auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<double>(argumentParser.getArgument("scale")) : 1.0;
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb, scaleFactor);
+    const auto scaleString = argumentParser.getArgument("scale", "1.0");
+    const auto scaleFactor = Util::String::parseFloat<float>(scaleString);
+    const Util::Graphic::LinearFrameBuffer lfb(lfbFile);
+    const Util::Graphic::BufferedLinearFrameBuffer bufferedLfb(lfb, scaleFactor);
 
-    auto inputStream = Util::Io::FileInputStream(file);
-    auto bufferedStream = Util::Io::BufferedInputStream(inputStream);
+    Util::Io::FileInputStream fileInputStream(file);
+    Util::Io::BufferedInputStream inputStream(fileInputStream);
 
-    auto frameInfo = bufferedStream.readLine().content.split(",");
+    const auto &font = selectFont(bufferedLfb.getResolutionY());
+    const auto charWidth = font.getCharWidth();
+    const auto charHeight = font.getCharHeight();
 
-    const Util::Graphic::Font *font;
-    if (bufferedLfb.getResolutionY() < 350) {
-        font = &Util::Graphic::Fonts::MINI_4x6;
-    } else if (bufferedLfb.getResolutionY() < 500) {
-        font = &Util::Graphic::Fonts::TERMINAL_8x8;
-    } else {
-        font = &Util::Graphic::Fonts::TERMINAL_8x16;
-    }
+    const auto fpsString = argumentParser.getArgument("fps", "15");
+    const auto fps = Util::String::parseNumber<size_t>(fpsString);
+    const auto timePerFrame = Util::Time::Timestamp::ofMicroseconds(1000000 / fps);
 
-    auto charWidth = font->getCharWidth();
-    auto charHeight = font->getCharHeight();
+    const auto frameInfo = inputStream.readLine().content.split(",");
+    const auto rows = Util::String::parseNumber<uint16_t>(frameInfo[0]);
+    const auto columns = Util::String::parseNumber<uint16_t>(frameInfo[1]);
+    const auto frameStartX = (bufferedLfb.getResolutionX() / charWidth - columns) / 2 * charWidth;
+    const auto frameStartY = (bufferedLfb.getResolutionY() / charHeight - rows) / 2 * charHeight;
+    const auto frameEndX = frameStartX + columns * charWidth;
+    const auto frameEndY = frameStartY + rows * charHeight;
 
-    double fps = argumentParser.hasArgument("framesPerSecond") ? Util::String::parseNumber<uint8_t>(argumentParser.getArgument("framesPerSecond")) : DEFAULT_FPS;
-    auto rows = Util::String::parseNumber<uint16_t>(frameInfo[0]);
-    auto columns = Util::String::parseNumber<uint16_t>(frameInfo[1]);
-    auto frameStartX = (((bufferedLfb.getResolutionX() / charWidth) - columns) / 2) * charWidth;
-    auto frameStartY = (((bufferedLfb.getResolutionY() / charHeight) - rows) / 2) * charHeight;
-    auto frameEndX = frameStartX + (columns * charWidth);
-    auto frameEndY = frameStartY + (rows * charHeight);
-
-    Util::Graphic::Ansi::prepareGraphicalApplication(false);
+    Util::Graphic::Ansi::prepareGraphicalApplication(true);
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
+    const Util::Io::DeLayout layout;
+    Util::Io::KeyDecoder keyDecoder(layout);
+
     while (true) {
-        if (Util::System::in.read() > 0) {
-            break;
+        // Exit application if ESC is pressed
+        if (Util::System::in.isReadyToRead()) {
+            if (keyDecoder.parseScancode(Util::System::in.read())) {
+                if (keyDecoder.getKeyEvent().getScancode() == Util::Io::KeyEvent::ESC) {
+                    break;
+                }
+            }
         }
 
-        auto delayLine = bufferedStream.readLine();
+        // Each frame starts with a line containing the delay.
+        // The delay is given in frames (e.g. a delay of 2 means that the frame should be displayed for 2 frames,
+        // which equals 2 * timePerFrame).
+        const auto delayLine = inputStream.readLine();
         if (delayLine.content.isEmpty()) {
+            // End of file reached, or invalid format
             break;
         }
 
-        auto delay = Util::String::parseNumber<uint32_t>(delayLine.content);
+        const auto delay = Util::String::parseNumber<size_t>(delayLine.content);
+
         bufferedLfb.clear();
 
-        bufferedLfb.drawLine(frameStartX - charWidth, frameStartY - charHeight, frameEndX + charWidth, frameStartY - charHeight, Util::Graphic::Colors::WHITE);
-        bufferedLfb.drawLine(frameStartX - charWidth, frameEndY + charHeight, frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
-        bufferedLfb.drawLine(frameStartX - charWidth, frameStartY - charHeight, frameStartX - charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
-        bufferedLfb.drawLine(frameEndX + charWidth, frameStartY - charHeight, frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
+        // Draw a border around the frame
+        bufferedLfb.drawLine(frameStartX - charWidth, frameStartY - charHeight,
+            frameEndX + charWidth, frameStartY - charHeight, Util::Graphic::Colors::WHITE);
+        bufferedLfb.drawLine(frameStartX - charWidth, frameEndY + charHeight,
+            frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
+        bufferedLfb.drawLine(frameStartX - charWidth, frameStartY - charHeight,
+            frameStartX - charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
+        bufferedLfb.drawLine(frameEndX + charWidth, frameStartY - charHeight,
+            frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
 
-        for (int16_t i = 0; i < rows - 1; i++) {
-            bufferedLfb.drawString(*font, frameStartX, frameStartY + charHeight * i, static_cast<const char*>(bufferedStream.readLine().content), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+        // Read the frame line by line and draw it to the framebuffer
+        for (size_t i = 0; i < rows; i++) {
+            const auto line = inputStream.readLine();
+            bufferedLfb.drawString(font, frameStartX, frameStartY + charHeight * i, line.content,
+                Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
         }
 
+        // Flush the framebuffer and wait for the specified delay before drawing the next frame
         bufferedLfb.flush();
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(static_cast<uint32_t>(delay * (1000 / fps))));
+        Util::Async::Thread::sleep(timePerFrame * delay);
     }
 
     Util::Graphic::Ansi::cleanupGraphicalApplication();

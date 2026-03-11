@@ -75,6 +75,10 @@ public:
         delete reinterpret_cast<uint8_t*>(buffer.get());
     }
 
+    static bool setResolution(const Io::File &lfbFile, uint16_t x, uint16_t y, uint8_t bpp);
+
+    static bool setResolution(const Io::File &lfbFile, const String &resolutionString);
+
     /// Get the horizontal resolution of the frame buffer in pixels.
     uint16_t getResolutionX() const {
         return resolutionX;
@@ -255,6 +259,12 @@ public:
     /// using the specified foreground and background colors.
     /// This method does not handle line wrapping and simply draws the characters in a single line.
     void drawString(const Font &font, uint16_t x, uint16_t y, const char *string,
+    const Color &fgColor,const Color &bgColor) const;
+
+    /// Draw a string of characters of the given bitmap font with the upper-left corner at (x, y),
+    /// using the specified foreground and background colors.
+    /// This method does not handle line wrapping and simply draws the characters in a single line.
+    void drawString(const Font &font, uint16_t x, uint16_t y, const String &string,
         const Color &fgColor,const Color &bgColor) const;
 
     /// Scroll the frame buffer content up by the specified number of lines.

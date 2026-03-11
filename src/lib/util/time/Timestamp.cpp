@@ -73,6 +73,25 @@ Timestamp Timestamp::operator-(const Timestamp &other) const {
     return Timestamp(newSeconds, newFraction);
 }
 
+Timestamp Timestamp::operator*(const size_t factor) const {
+    size_t newSeconds = seconds * factor;
+    uint64_t newFraction = static_cast<uint64_t>(fraction) * factor;
+
+    // Handle fraction overflow
+    if (newFraction >= NANOSECONDS_PER_SECOND) {
+        newSeconds += newFraction / NANOSECONDS_PER_SECOND;
+        newFraction = newFraction % NANOSECONDS_PER_SECOND;
+    }
+
+    // Handle seconds overflow
+    if (newSeconds < seconds) {
+        newSeconds = SIZE_MAX;
+        newFraction = UINT32_MAX;
+    }
+
+    return Timestamp(newSeconds, static_cast<uint32_t>(newFraction));
+}
+
 Timestamp &Timestamp::operator+=(const Timestamp &other) {
     const auto oldSeconds = seconds;
 

@@ -64,8 +64,23 @@ LinearFrameBuffer::LinearFrameBuffer(const Io::File &file) {
     buffer = Address(mapBuffer(address, resolutionY, pitch));
 }
 
+bool LinearFrameBuffer::setResolution(const Io::File &lfbFile, const uint16_t x, const uint16_t y, const uint8_t bpp) {
+    return lfbFile.controlFile(SET_RESOLUTION, Util::Array<uint32_t>({x, y, bpp}));
+}
+
+bool LinearFrameBuffer::setResolution(const Io::File &lfbFile, const String &resolutionString) {
+    const auto split1 = resolutionString.split("x");
+    const auto split2 = split1[1].split("@");
+
+    const auto x = String::parseNumber<uint16_t>(split1[0]);
+    const auto y = String::parseNumber<uint16_t>(split2[0]);
+    const auto bpp = String::parseNumber<uint8_t>(split2[1]);
+
+    return setResolution(lfbFile, x, y, bpp);
+}
+
 void LinearFrameBuffer::drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,
-    const Color &color) const
+                                 const Color &color) const
 {
     // Calculate our deltas
     auto dx = x2 - x1;
@@ -170,6 +185,12 @@ void LinearFrameBuffer::drawString(const Font &font, uint16_t x, const uint16_t 
         drawChar(font, x, y, string[i], fgColor, bgColor);
         x += font.getCharWidth();
     }
+}
+
+void LinearFrameBuffer::drawString(const Font &font, uint16_t x, const uint16_t y, const String &string,
+    const Color &fgColor, const Color &bgColor) const
+{
+    drawString(font, x, y, static_cast<const char*>(string), fgColor, bgColor);
 }
 
 void LinearFrameBuffer::scrollUp(const uint16_t lineCount, const bool clearBelow) const {
