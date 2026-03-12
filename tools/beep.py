@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-# Code to convert piano letter notes in text, playable by the 'music' command in hhuOS.
+# A script to convert piano letter notes in text, playable by the 'music' command in hhuOS.
 # https://pianoletternotes.blogspot.com/
 #
 # Original code by Nathan Reihs (nathan.reihs@gmail.com)

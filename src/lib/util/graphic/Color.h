@@ -68,6 +68,8 @@ namespace Graphic {
 /// The class stores colors in RGBA order (red first, blue last) in memory and is packed,
 /// which means it already has the correct layout for direct usage in 32-bit RGBA frame buffers.
 ///
+/// All functions are implemented directly in this header, so linking agains "lib.util.graphic" is not necessary.
+///
 /// ### Example
 /// ```c++
 /// const auto red = Util::Graphic::Color(255, 0, 0);

@@ -123,7 +123,7 @@ int32_t main(const int32_t argc, char *argv[]) {
             // Warmup round to make sure the memory is mapped
             benchmarkMemset(address, size);
 
-            for (uint32_t j = 0; j < BENCHMARK_REPETITIONS; j++) {
+            for (size_t j = 0; j < BENCHMARK_REPETITIONS; j++) {
                 results[j] = benchmarkMemset(address, size);
             }
 
@@ -139,7 +139,7 @@ int32_t main(const int32_t argc, char *argv[]) {
             sourceAddress.setRange(static_cast<uint8_t>(random.getRandomNumber(0, UINT8_MAX)), size);
             benchmarkMemcpy(sourceAddress, targetAddress, size);
 
-            for (uint32_t j = 0; j < BENCHMARK_REPETITIONS; j++) {
+            for (size_t j = 0; j < BENCHMARK_REPETITIONS; j++) {
                 results[j] = benchmarkMemcpy(sourceAddress, targetAddress, size);
             }
 

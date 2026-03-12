@@ -20,49 +20,77 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/time/Timestamp.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/base/String.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/io/stream/BufferedInputStream.h"
-#include "lib/util/io/stream/InputStream.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/sound/PcSpeaker.h"
+#include <util/base/System.h>
+#include <util/base/String.h>
+#include <util/base/ArgumentParser.h>
+#include <util/collection/Array.h>
+#include <util/graphic/Ansi.h>
+#include <util/time/Timestamp.h>
+#include <util/sound/PcSpeaker.h>
+#include <util/io/file/File.h>
+#include <util/io/key/KeyDecoder.h>
+#include <util/io/key/layout/DeLayout.h>
+#include <util/io/stream/FileInputStream.h>
+#include <util/io/stream/BufferedInputStream.h>
+#include <util/io/stream/InputStream.h>
+#include <util/io/stream/PrintStream.h>
 
-static const constexpr uint8_t BAR_LENGTH = 25;
+#include "util/collection/Pair.h"
 
-void printStatusLine(uint32_t passedTime, uint32_t songLength) {
-    auto passedSeconds = passedTime / 1000;
-    auto passedMinutes = passedSeconds / 60;
-    auto totalSeconds = songLength / 1000;
-    auto totalMinutes = totalSeconds / 60;
+const char *HELP_TEXT =
+#include "generated/README.md"
+;
 
-    auto timeString = Util::String::format("%u:%02um/%u:%02um", passedMinutes, passedSeconds - passedMinutes * 60, totalMinutes, totalSeconds - totalMinutes * 60);
-    auto percentage = static_cast<double>(passedTime) / songLength;
-    auto filledBar = static_cast<uint32_t>((BAR_LENGTH - 2) * percentage);
+constexpr uint8_t BAR_LENGTH = 25;
+
+/// Print the play status line with the passed time and a progress bar.
+void printStatusLine(const Util::Time::Timestamp &passedTime, const Util::Time::Timestamp &totalLength) {
+    const auto passedSeconds = passedTime.toSeconds();
+    const auto passedMinutes = passedTime.toMinutes();
+    const auto totalSeconds = totalLength.toSeconds();
+    const auto totalMinutes = totalLength.toMinutes();
+
+    const auto timeString = Util::String::format("%u:%02um/%u:%02um",
+        passedMinutes, passedSeconds - passedMinutes * 60,
+        totalMinutes, totalSeconds - totalMinutes * 60);
+
+    const auto percentage = passedTime.toMilliseconds() * 100 / totalLength.toMilliseconds();
+    const auto filledBar = BAR_LENGTH * percentage / 100;
 
     Util::System::out << "[";
-    for (uint32_t i = 0; i < filledBar; i++) {
+    for (size_t i = 0; i < filledBar; i++) {
         Util::System::out << "#";
     }
-    for (uint32_t i = 0; i < (BAR_LENGTH - 2) - filledBar; i++) {
+    for (size_t i = 0; i < BAR_LENGTH - filledBar; i++) {
         Util::System::out << "-";
     }
     Util::System::out << "] " << timeString << Util::Io::PrintStream::flush;
 }
 
-uint32_t calculateLength(const Util::Io::File &beepFile) {
-    auto fileStream = Util::Io::FileInputStream(beepFile);
-    auto stream = Util::Io::BufferedInputStream(fileStream);
-    uint32_t length = 0;
+/// Parse a single line from a beep file.
+/// The line must be in the format "frequency,length", where "frequency" is the frequency to play in Hz
+/// and "length" is the frequency should be played in milliseconds.
+Util::Pair<size_t, Util::Time::Timestamp> parseBeepLine(const Util::String &line) {
+    const auto split = line.split(",");
+    if (split.length() != 2) {
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "beep: Invalid line in beep file!");
+    }
+
+    const auto frequency = Util::String::parseNumber<size_t>(split[0]);
+    const auto length = Util::String::parseNumber<size_t>(split[1]);
+
+    return Util::Pair<size_t, Util::Time::Timestamp>(frequency, Util::Time::Timestamp::ofMilliseconds(length));
+}
+
+/// Calculate the play length of a given beep file
+Util::Time::Timestamp calculateLength(const Util::Io::File &beepFile) {
+    Util::Io::FileInputStream fileStream(beepFile);
+    Util::Io::BufferedInputStream stream(fileStream);
+    Util::Time::Timestamp length;
 
     auto line = stream.readLine();
     while (!line.endOfFile) {
-        length += Util::String::parseNumber<uint32_t>(line.content.split(",")[1]);
+        length += parseBeepLine(line.content).getSecond();
         line = stream.readLine();
     }
 
@@ -70,11 +98,8 @@ uint32_t calculateLength(const Util::Io::File &beepFile) {
 }
 
 int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Play tunes from .beep-files via the PC speaker.\n"
-                               "Usage: beep [FILE]\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
@@ -87,39 +112,52 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto beepFile = Util::Io::File(arguments[0]);
+    const auto beepFile = Util::Io::File(arguments[0]);
     if (!beepFile.exists() || beepFile.isDirectory()) {
-        Util::System::error << "beep: '" << arguments[0] << "' could not be opened!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "beep: Failed to open '" << arguments[0] << "'!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto speaker = Util::Sound::PcSpeaker(Util::Io::File("/device/speaker"));
-    auto fileStream = Util::Io::FileInputStream(beepFile);
-    auto stream = Util::Io::BufferedInputStream(fileStream);
+    Util::Sound::PcSpeaker speaker(Util::Io::File("/device/speaker"));
+    Util::Io::FileInputStream fileStream(beepFile);
+    Util::Io::BufferedInputStream stream(fileStream);
 
-    uint32_t passedTime = 0;
-    auto songLength = calculateLength(beepFile);
+    Util::Time::Timestamp passedTime;
+    const auto songLength = calculateLength(beepFile);
 
+    Util::Graphic::Ansi::enableKeyboardScancodes();
     Util::Graphic::Ansi::disableCursor();
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
-    Util::System::out << "Playing '" << beepFile.getName() << "'... Press <ENTER> to stop." << Util::Io::PrintStream::ln;
+    const Util::Io::DeLayout layout;
+    Util::Io::KeyDecoder keyDecoder(layout);
+
+    Util::System::out << "Playing '" << beepFile.getName() <<
+        "'. Press <ESC> to stop." << Util::Io::PrintStream::ln;
 
     auto line = stream.readLine();
     while (!line.endOfFile) {
-        if (Util::System::in.read() > 0) {
-            break;
+        // Exit application if ESC is pressed
+        if (Util::System::in.isReadyToRead()) {
+            if (keyDecoder.parseScancode(Util::System::in.read())) {
+                if (keyDecoder.getKeyEvent().getScancode() == Util::Io::KeyEvent::ESC) {
+                    break;
+                }
+            }
         }
 
-        auto split = line.content.split(",");
-        auto frequency = Util::String::parseNumber<uint32_t>(split[0]);
-        auto length = Util::String::parseNumber<uint32_t>(split[1]);
+        // Parse the current line into a frequency and length
+        const auto lineData = parseBeepLine(line.content);
+        const auto frequency = lineData.getFirst();
+        const auto length = lineData.getSecond();
 
+        // Update the status line
         Util::Graphic::Ansi::saveCursorPosition();
         printStatusLine(passedTime, songLength);
         Util::Graphic::Ansi::restoreCursorPosition();
 
-        speaker.play(frequency, Util::Time::Timestamp::ofMilliseconds(length));
+        // Play the current tone
+        speaker.play(frequency, length);
         passedTime += length;
 
         line = stream.readLine();
@@ -134,5 +172,6 @@ int32_t main(int32_t argc, char *argv[]) {
     Util::Graphic::Ansi::clearLine();
     Util::Graphic::Ansi::enableCursor();
 
+    Util::Graphic::Ansi::cleanupGraphicalApplication();
     return 0;
 }

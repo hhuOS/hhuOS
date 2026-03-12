@@ -14,6 +14,8 @@ Supported options:
  * -s, --scale: Set a resolution scaling factor (Default: 1.0). The factor must be less than or equal to 1.0, and it scales the display of the animation accordingly. For example, a factor of 0.5 will render the animation at half the original size and scale it up to fit the display resolution. This might improve performance on lower-end hardware at the cost of image quality.
  * -h, --help: Show this help message and exit.
 
+Press Escape to stop the playback of the asciimation.
+
 Asciimation files are text files containing frames of ASCII art.
 The format was invented by Simon Jansen and is used in his Star Wars asciimation project (https://www.asciimation.co.nz/).  
 It works by placing frames of ASCII art one after another in a text file, separated by a delay number, which indicates how long to wait before displaying the next frame.  

@@ -23,7 +23,6 @@ include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/l
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.math lib.time)
 target_sources(${PROJECT_NAME} PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/graphic/Ansi.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/BitmapFile.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/BufferedLinearFrameBuffer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/Image.cpp

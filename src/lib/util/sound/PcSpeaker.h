@@ -106,14 +106,14 @@ public:
     /// This is done by writing the frequency to the PC speaker device file, given in the constructor.
     /// This method returns immediately after writing the frequency. The sound will continue to play until
     /// a new frequency is written or the speaker is turned off using `turnOff()`.
-    void play(uint16_t frequency) {
+    void play(const uint16_t frequency) {
         const auto frequencyString = String::format("%u", frequency);
         stream.write(static_cast<const uint8_t*>(frequencyString), 0, frequencyString.length());
     }
 
     /// Play a sound at the specified frequency for a given length of time.
     /// This method writes the frequency to the PC speaker device file and then sleeps for the specified length of time.
-    void play(uint16_t frequency, const Time::Timestamp &length) {
+    void play(const uint16_t frequency, const Time::Timestamp &length) {
         play(frequency);
         Async::Thread::sleep(length);
     }

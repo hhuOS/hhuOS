@@ -19,9 +19,16 @@
 project(beep)
 message(STATUS "Project " ${PROJECT_NAME})
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
+add_compile_options("-Wpedantic")
+
+make_readme_includable(${HHUOS_SRC_DIR}/application/beep)
+
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/"
         COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/")
 
+# Do not include the beep files in redistributable builds (e.g. GitHub Releases).
 if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
     add_custom_target(beep-files DEPENDS
             "${CMAKE_BINARY_DIR}/beep/")
@@ -88,11 +95,7 @@ else()
 endif()
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-
-
-set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/beep/beep.cpp)
-
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic lib.user.sound)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.sound)
+target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/application/beep/beep.cpp)

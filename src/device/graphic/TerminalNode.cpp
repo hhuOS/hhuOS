@@ -80,7 +80,6 @@ bool TerminalNode::control(uint32_t request, const Util::Array<uint32_t> &parame
             return true;
         case Util::Graphic::Terminal::Command::ENABLE_KEYBOARD_SCANCODES:
             terminal->setEcho(false);
-            terminal->setAnsiParsing(false);
             terminal->setLineAggregation(false);
             terminal->setKeyboardScancodes(true);
             return true;

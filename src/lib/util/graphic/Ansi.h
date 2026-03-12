@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 
+#include "Terminal.h"
 #include "util/base/String.h"
 #include "util/base/System.h"
 #include "util/graphic/Color.h"
@@ -32,9 +33,48 @@
 /// Most function use ANSI escape sequences to control text formatting, colors and cursor movement.
 /// Some special function use a control system call on the standard input/output file descriptors
 /// to change terminal settings (e.g. enabling/disabling echoing of input characters).
+///
+/// All functions are implemented directly in this header, so linking agains "lib.util.graphic" is not necessary.
 namespace Util {
 namespace Graphic {
 namespace Ansi {
+
+static constexpr char ESCAPE_SEQUENCE_START = 0x1b;
+static constexpr const char *RESET = "\u001b[0m";
+static constexpr const char *FOREGROUND_BLACK = "\u001b[30m";
+static constexpr const char *FOREGROUND_RED = "\u001b[31m";
+static constexpr const char *FOREGROUND_GREEN = "\u001b[32m";
+static constexpr const char *FOREGROUND_YELLOW = "\u001b[33m";
+static constexpr const char *FOREGROUND_BLUE = "\u001b[34m";
+static constexpr const char *FOREGROUND_MAGENTA = "\u001b[35m";
+static constexpr const char *FOREGROUND_CYAN = "\u001b[36m";
+static constexpr const char *FOREGROUND_WHITE = "\u001b[37m";
+static constexpr const char *FOREGROUND_DEFAULT = "\u001b[39m";
+static constexpr const char *FOREGROUND_BRIGHT_BLACK = "\u001b[90m";
+static constexpr const char *FOREGROUND_BRIGHT_RED = "\u001b[91m";
+static constexpr const char *FOREGROUND_BRIGHT_GREEN = "\u001b[92m";
+static constexpr const char *FOREGROUND_BRIGHT_YELLOW = "\u001b[93m";
+static constexpr const char *FOREGROUND_BRIGHT_BLUE = "\u001b[94m";
+static constexpr const char *FOREGROUND_BRIGHT_MAGENTA = "\u001b[95m";
+static constexpr const char *FOREGROUND_BRIGHT_CYAN = "\u001b[96m";
+static constexpr const char *FOREGROUND_BRIGHT_WHITE = "\u001b[97m";
+static constexpr const char *BACKGROUND_BLACK = "\u001b[40m";
+static constexpr const char *BACKGROUND_RED = "\u001b[41m";
+static constexpr const char *BACKGROUND_GREEN = "\u001b[42m";
+static constexpr const char *BACKGROUND_YELLOW = "\u001b[43m";
+static constexpr const char *BACKGROUND_BLUE = "\u001b[44m";
+static constexpr const char *BACKGROUND_MAGENTA = "\u001b[45m";
+static constexpr const char *BACKGROUND_CYAN = "\u001b[46m";
+static constexpr const char *BACKGROUND_WHITE = "\u001b[47m";
+static constexpr const char *BACKGROUND_DEFAULT = "\u001b[49m";
+static constexpr const char *BACKGROUND_BRIGHT_BLACK = "\u001b[100m";
+static constexpr const char *BACKGROUND_BRIGHT_RED = "\u001b[101m";
+static constexpr const char *BACKGROUND_BRIGHT_GREEN = "\u001b[102m";
+static constexpr const char *BACKGROUND_BRIGHT_YELLOW = "\u001b[103m";
+static constexpr const char *BACKGROUND_BRIGHT_BLUE = "\u001b[104m";
+static constexpr const char *BACKGROUND_BRIGHT_MAGENTA = "\u001b[105m";
+static constexpr const char *BACKGROUND_BRIGHT_CYAN = "\u001b[106m";
+static constexpr const char *BACKGROUND_BRIGHT_WHITE = "\u001b[107m";
 
 /// The standard 8 ANSI colors.
 enum AnsiColor : uint8_t {
@@ -106,54 +146,100 @@ struct CursorPosition {
 
 /// Enable echoing of input characters for the standard input.
 /// In practice, this means that characters read from standard input will also be printed to standard output.
-void enableEcho();
+inline void enableEcho() {
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ECHO, {true});
+}
 
 /// Disable echoing of input characters for the standard input.
 /// In practice, this means that characters read from standard input will not be printed to standard output.
-void disableEcho();
+inline void disableEcho() {
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ECHO, {false});
+}
 
 /// Enable line aggregation for the standard input.
 /// This causes the underlying terminal to buffer input until a newline is encountered.
-void enableLineAggregation();
+inline void enableLineAggregation() {
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_LINE_AGGREGATION, {true});
+}
 
 /// Disable line aggregation for the standard input.
 /// This causes the underlying terminal to provide input characters immediately.
-void disableLineAggregation();
+inline void disableLineAggregation() {
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_LINE_AGGREGATION, {false});
+}
 
 /// Enable the display of the cursor for the standard output.
-void enableCursor();
+inline void enableCursor() {
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_CURSOR, {true});
+}
 
 /// Disable the display of the cursor for the standard output.
-void disableCursor();
+inline void disableCursor() {
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_CURSOR, {false});
+}
 
 /// Enable ANSI escape sequence parsing for the standard output.
 /// This allows the use of ANSI escape sequences to control text formatting and cursor movement
 /// in the underlying terminal.
-void enableAnsiParsing();
+inline void enableAnsiParsing() {
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ANSI_PARSING, {true});
+}
 
 /// Disable ANSI escape sequence parsing for the standard output.
 /// This prevents the underlying terminal from interpreting ANSI escape sequences,
 /// causing them to be displayed as plain text.
-void disableAnsiParsing();
+inline void disableAnsiParsing() {
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ANSI_PARSING, {false});
+}
 
 /// Prepare the standard input terminal for graphical application usage.
 /// This disables the cursor, line aggregation and ANSI parsing, so that each input character can be read immediately.
 /// If `enableScancodes` is true, raw PS/2 keyboard scancodes will be provided instead of ASCII characters.
 /// This is useful for applications that need to handle special keys or key combinations (e.g. games).
-void prepareGraphicalApplication(bool enableScancodes);
+inline void prepareGraphicalApplication(bool enableScancodes) {
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_RAW_MODE,
+        Util::Array<uint32_t>(0));
+
+    if (enableScancodes) {
+        Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_KEYBOARD_SCANCODES,
+            Util::Array<uint32_t>(0));
+    }
+
+    disableCursor();
+}
 
 /// Restore the standard input terminal from graphical application usage.
 /// This re-enables the cursor, line aggregation and ANSI parsing.
-void cleanupGraphicalApplication();
+inline void cleanupGraphicalApplication() {
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_CANONICAL_MODE,
+        Util::Array<uint32_t>(0));
+
+    enableCursor();
+}
 
 /// Enable raw mode for the standard input terminal.
 /// In raw mode, input is made available character by character, without any processing or interpretation.
 /// Furthermore, echoing is disabled.
-void enableRawMode();
+inline void enableRawMode() {
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_RAW_MODE,
+        Util::Array<uint32_t>(0));
+}
 
 /// Enable canonical mode for the standard input terminal.
 /// In canonical mode, input is processed line by line and echoing parsing of ANSI escape sequences is enabled.
-void enableCanonicalMode();
+inline void enableCanonicalMode() {
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_CANONICAL_MODE,
+        Util::Array<uint32_t>(0));
+}
+
+/// Enable the provision of raw PS/2 keyboard scancodes for the standard input.
+/// This disables any decoding of keyboard scancodes in the terminal,
+/// causing raw scancodes to be provided instead of ASCII characters.
+/// As a side effect, echo and line aggregation are also disabled.
+inline void enableKeyboardScancodes() {
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_KEYBOARD_SCANCODES,
+        Util::Array<uint32_t>(0));
+}
 
 /// Generate an ANSI escape sequence for setting the foreground color using an 8-bit color index.
 /// The index is in the range 0-255, where the first 16 colors are the standard ANSI colors,
@@ -169,7 +255,9 @@ void enableCanonicalMode();
 ///     Util::Graphic::Ansi::RESET << // Reset colors and effects
 ///     Util::Io::PrintStream::flush; // Flush output
 /// ```
-String foreground8BitColor(uint8_t colorIndex);
+inline String foreground8BitColor(uint8_t colorIndex) {
+    return String::format("\u001b[38;5;%um", colorIndex);
+}
 
 /// Generate an ANSI escape sequence for setting the background color using an 8-bit color index.
 /// The index is in the range 0-255, where the first 16 colors are the standard ANSI colors,
@@ -185,7 +273,9 @@ String foreground8BitColor(uint8_t colorIndex);
 ///     Util::Graphic::Ansi::RESET << // Reset colors and effects
 ///     Util::Io::PrintStream::flush; // Flush output
 /// ```
-String background8BitColor(uint8_t colorIndex);
+inline String background8BitColor(uint8_t colorIndex) {
+    return String::format("\u001b[48;5;%um", colorIndex);
+}
 
 /// Generate an ANSI escape sequence for setting the foreground color using a 24-bit RGB color.
 /// The returned string can be printed to the terminal to change the foreground color.
@@ -198,7 +288,9 @@ String background8BitColor(uint8_t colorIndex);
 ///     Util::Graphic::Ansi::RESET << // Reset colors and effects
 ///     Util::Io::PrintStream::flush; // Flush output
 /// ```
-String foreground24BitColor(const Color &color);
+inline String foreground24BitColor(const Color &color) {
+    return String::format("\u001b[38;2;%u;%u;%um", color.getRed(), color.getGreen(), color.getBlue());
+}
 
 /// Generate an ANSI escape sequence for setting the background color using a 24-bit RGB color.
 /// The returned string can be printed to the terminal to change the background color.
@@ -211,7 +303,9 @@ String foreground24BitColor(const Color &color);
 ///     Util::Graphic::Ansi::RESET << // Reset colors and effects
 ///     Util::Io::PrintStream::flush; // Flush output
 /// ```
-String background24BitColor(const Color &color);
+inline String background24BitColor(const Color &color) {
+    return String::format("\u001b[48;2;%u;%u;%um", color.getRed(), color.getGreen(), color.getBlue());
+}
 
 /// Set the foreground color of the standard output using a standard ANSI color.
 /// The `bright` parameter specifies whether to use the bright variant of the color.
@@ -221,7 +315,9 @@ String background24BitColor(const Color &color);
 /// Util::Graphic::Ansi::setForegroundColor(Util::Graphic::Ansi::RED, true); // Set foreground color to bright red
 /// Util ::System::out << "This text is bright red!" << Util::Io::PrintStream::flush; // Print text
 /// ```
-void setForegroundColor(AnsiColor color, bool bright);
+inline void setForegroundColor(AnsiColor color, bool bright) {
+    System::out << "\u001b[" << Io::PrintStream::dec << color + (bright ? 90 : 30) << "m" << Io::PrintStream::flush;
+}
 
 /// Set the background color of the standard output using a standard ANSI color.
 /// The `bright` parameter specifies whether to use the bright variant of the color.
@@ -231,7 +327,9 @@ void setForegroundColor(AnsiColor color, bool bright);
 /// Util::Graphic::Ansi::setBackgroundColor(Util::Graphic::Ansi::BLUE, true); // Set background color to bright blue
 /// Util::System::out << "This text has a bright blue background!" << Util::Io::PrintStream::flush; // Print text
 /// ```
-void setBackgroundColor(AnsiColor color, bool bright);
+inline void setBackgroundColor(AnsiColor color, bool bright) {
+    System::out << "\u001b[" << Io::PrintStream::dec << color + (bright ? 100 : 40) << "m" << Io::PrintStream::flush;
+}
 
 /// Set the foreground color of the standard output using an 8-bit color index.
 /// The index is in the range 0-255, where the first 16 colors are the standard ANSI colors,
@@ -243,7 +341,9 @@ void setBackgroundColor(AnsiColor color, bool bright);
 /// Util::Graphic::Ansi::setForegroundColor(196); // Set foreground color to bright red
 /// Util::System::out << "This text is red!" << Util::Io::PrintStream::flush; // Print text
 /// ```
-void setForegroundColor(uint8_t colorIndex);
+inline void setForegroundColor(uint8_t colorIndex) {
+    System::out << "\u001b[38;5;" << Io::PrintStream::dec << colorIndex << "m" << Io::PrintStream::flush;
+}
 
 /// Set the background color of the standard output using an 8-bit color index.
 /// The index is in the range 0-255, where the first 16 colors are the standard ANSI colors,
@@ -255,7 +355,9 @@ void setForegroundColor(uint8_t colorIndex);
 /// Util::Graphic::Ansi::setBackgroundColor(21); // Set background color to bright blue
 /// Util::System::out << "This text has a blue background!" << Util::Io::PrintStream::flush; // Print text
 /// ```
-void setBackgroundColor(uint8_t colorIndex);
+inline void setBackgroundColor(uint8_t colorIndex) {
+    System::out << "\u001b[48;5;" << Io::PrintStream::dec << colorIndex << "m" << Io::PrintStream::flush;
+}
 
 /// Set the foreground color of the standard output using a 24-bit RGB color.
 ///
@@ -264,7 +366,9 @@ void setBackgroundColor(uint8_t colorIndex);
 /// Util::Graphic::Ansi::setForegroundColor(Util::Graphic::Color(255, 100, 0)); // Set foreground color to orange
 /// Util::System::out << "This text is orange!" << Util::Io::PrintStream::flush; // Print text
 /// ```
-void setForegroundColor(const Color &color);
+inline void setForegroundColor(const Color &color) {
+    System::out << "\u001b[38;2;" << Io::PrintStream::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintStream::flush;
+}
 
 /// Set the background color of the standard output using a 24-bit RGB color.
 ///
@@ -273,7 +377,9 @@ void setForegroundColor(const Color &color);
 /// Util::Graphic::Ansi::setBackgroundColor(Util::Graphic::Color(0, 100, 255)); // Set background color to light blue
 /// Util::System::out << "This text has a light blue background!" << Util::Io::PrintStream::flush; // Print text
 /// ```
-void setBackgroundColor(const Color &color);
+inline void setBackgroundColor(const Color &color) {
+    System::out << "\u001b[48;2;" << Io::PrintStream::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintStream::flush;
+}
 
 /// Reset the foreground color of the standard output to the default color of the terminal (usually white).
 ///
@@ -284,7 +390,9 @@ void setBackgroundColor(const Color &color);
 /// Util::Graphic::Ansi::resetForegroundColor(); // Reset foreground color to default
 /// Util::System::out << "This text is in the default color!" << Util::Io::PrintStream::flush; // Print text
 /// ```
-void resetForegroundColor();
+inline void resetForegroundColor() {
+    System::out << "\u001b[39m" << Io::PrintStream::flush;
+}
 
 /// Reset the background color of the standard output to the default color of the terminal (usually black).
 ///
@@ -295,7 +403,9 @@ void resetForegroundColor();
 /// Util::Graphic::Ansi::resetBackgroundColor(); // Reset background color to default
 /// Util::System::out << "This text has the default background color!" << Util::Io::PrintStream::flush; // Print text
 /// ```
-void resetBackgroundColor();
+inline void resetBackgroundColor() {
+    System::out << "\u001b[49m" << Io::PrintStream::flush;
+}
 
 /// Reset all colors and graphic effects of the standard output to their default values.
 /// This resets both foreground and background colors, as well as any applied text effects (like bold, underline, etc.).
@@ -308,65 +418,120 @@ void resetBackgroundColor();
 /// Util::Graphic::Ansi::resetColorsAndEffects(); // Reset colors and effects
 /// Util::System::out << "This text is in the default colors!" << Util::Io::PrintStream::flush;
 /// ```
-void resetColorsAndEffects();
+inline void resetColorsAndEffects() {
+    System::out << "\u001b[0m" << Io::PrintStream::flush;
+}
 
 /// Set the cursor position in the terminal to the specified position.
-void setPosition(const CursorPosition &position);
+inline void setPosition(const CursorPosition &position) {
+    System::out << "\u001b[" << Io::PrintStream::dec << position.row << ";" << position.column << "H" <<
+        Io::PrintStream::flush;
+}
 
 /// Move the cursor up by the specified number of lines.
-void moveCursorUp(uint16_t lines);
+inline void moveCursorUp(uint16_t lines) {
+    System::out << "\u001b[" << Io::PrintStream::dec << lines << "A" << Io::PrintStream::flush;
+}
 
 /// Move the cursor down by the specified number of lines.
-void moveCursorDown(uint16_t lines);
+inline void moveCursorDown(uint16_t lines) {
+    System::out << "\u001b[" << Io::PrintStream::dec << lines << "B" << Io::PrintStream::flush;
+}
 
 /// Move the cursor right by the specified number of columns.
-void moveCursorRight(uint16_t columns);
+inline void moveCursorRight(uint16_t columns) {
+    System::out << "\u001b[" << Io::PrintStream::dec << columns << "C" << Io::PrintStream::flush;
+}
 
 /// Move the cursor left by the specified number of columns.
-void moveCursorLeft(uint16_t columns);
+inline void moveCursorLeft(uint16_t columns) {
+    System::out << "\u001b[" << Io::PrintStream::dec << columns << "D" << Io::PrintStream::flush;
+}
 
 /// Move the cursor to the beginning of the next line, offset by the specified number of lines.
-void moveCursorToBeginningOfNextLine(uint16_t offset);
+inline void moveCursorToBeginningOfNextLine(uint16_t offset) {
+    System::out << "\u001b[" << Io::PrintStream::dec << offset << "E" << Io::PrintStream::flush;
+}
 
 /// Move the cursor to the beginning of the previous line, offset by the specified number of lines.
-void moveCursorToBeginningOfPreviousLine(uint16_t offset);
+inline void moveCursorToBeginningOfPreviousLine(uint16_t offset) {
+    System::out << "\u001b[" << Io::PrintStream::dec << offset << "F" << Io::PrintStream::flush;
+}
 
 /// Set the row of the cursor to the specified value.
-void setColumn(uint16_t column);
+inline void setColumn(uint16_t column) {
+    System::out << "\u001b[" << Io::PrintStream::dec << column << "G" << Io::PrintStream::flush;
+}
 
 /// Save the current cursor position.
 /// The position can be restored later using `restoreCursorPosition()`.
 /// Only one position can be saved at a time.
-void saveCursorPosition();
+inline void saveCursorPosition() {
+    System::out << "\u001b[s" << Io::PrintStream::flush;
+}
 
 /// Restore the cursor position to the last saved position using `saveCursorPosition()`.
 /// If no position has been saved, the cursor position remains unchanged.
-void restoreCursorPosition();
+inline void restoreCursorPosition() {
+    System::out << "\u001b[u" << Io::PrintStream::flush;
+}
 
 /// Clear the entire screen and move the cursor to the home position (0,0).
-void clearScreen();
+inline void clearScreen() {
+    System::out << "\u001b[2J" << Io::PrintStream::flush;
+}
 
 /// Clear the screen from the current cursor position to the end of the screen.
-void clearScreenFromCursor();
+inline void clearScreenFromCursor() {
+    System::out << "\u001b[0J" << Io::PrintStream::flush;
+}
 
 /// Clear the screen from the beginning of the screen to the current cursor position.
-void clearScreenToCursor();
+inline void clearScreenToCursor() {
+    System::out << "\u001b[1J" << Io::PrintStream::flush;
+}
 
 /// Clear the entire current line.
-void clearLine();
+inline void clearLine() {
+    System::out << "\u001b[2K" << Io::PrintStream::flush;
+}
 
 /// Clear the current line from the cursor position to the end of the line.
-void clearLineFromCursor();
+inline void clearLineFromCursor() {
+    System::out << "\u001b[0K" << Io::PrintStream::flush;
+}
 
 /// Clear the current line from the beginning of the line to the cursor position.
-void clearLineToCursor();
+inline void clearLineToCursor() {
+    System::out << "\u001b[1K" << Io::PrintStream::flush;
+}
 
 /// Get the current cursor position in the terminal.
-CursorPosition getCursorPosition();
+inline CursorPosition getCursorPosition() {
+    System::out << "\u001b[6n" << Io::PrintStream::flush;
+
+    String positionString;
+    char currentChar = System::in.read();
+    while (currentChar != 'R') {
+        positionString += currentChar;
+        currentChar = System::in.read();
+    }
+
+    auto split = positionString.substring(2).split(";");
+    return CursorPosition{String::parseNumber<uint16_t>(split[1]), String::parseNumber<uint16_t>(split[0])};
+}
 
 /// Get the limits of the cursor position in the terminal (maximum columns and rows).
 /// This is typically the size of the terminal window.
-CursorPosition getCursorLimits();
+inline CursorPosition getCursorLimits() {
+    const auto position = getCursorPosition();
+    setPosition(CursorPosition{UINT16_MAX, UINT16_MAX});
+
+    const auto size = getCursorPosition();
+    setPosition(position);
+
+    return size;
+}
 
 /// Read a character from the specified input stream (default: standard input).
 /// This function handles ANSI escape sequences for special keys (like arrow keys) and returns
@@ -382,44 +547,41 @@ CursorPosition getCursorLimits();
 ///     Util::System::out << "Character pressed: " << static_cast<char>(ch) << Util::Io::PrintStream::flush;
 /// }
 /// ```
-int16_t readChar(Io::InputStream &stream = System::in);
+inline int16_t readChar(Io::InputStream &stream = System::in) {
+    const String ESCAPE_END_CODES("ABCDEFGHJKmnsu");
 
-static constexpr char ESCAPE_SEQUENCE_START = 0x1b;
-static constexpr const char *RESET = "\u001b[0m";
-static constexpr const char *FOREGROUND_BLACK = "\u001b[30m";
-static constexpr const char *FOREGROUND_RED = "\u001b[31m";
-static constexpr const char *FOREGROUND_GREEN = "\u001b[32m";
-static constexpr const char *FOREGROUND_YELLOW = "\u001b[33m";
-static constexpr const char *FOREGROUND_BLUE = "\u001b[34m";
-static constexpr const char *FOREGROUND_MAGENTA = "\u001b[35m";
-static constexpr const char *FOREGROUND_CYAN = "\u001b[36m";
-static constexpr const char *FOREGROUND_WHITE = "\u001b[37m";
-static constexpr const char *FOREGROUND_DEFAULT = "\u001b[39m";
-static constexpr const char *FOREGROUND_BRIGHT_BLACK = "\u001b[90m";
-static constexpr const char *FOREGROUND_BRIGHT_RED = "\u001b[91m";
-static constexpr const char *FOREGROUND_BRIGHT_GREEN = "\u001b[92m";
-static constexpr const char *FOREGROUND_BRIGHT_YELLOW = "\u001b[93m";
-static constexpr const char *FOREGROUND_BRIGHT_BLUE = "\u001b[94m";
-static constexpr const char *FOREGROUND_BRIGHT_MAGENTA = "\u001b[95m";
-static constexpr const char *FOREGROUND_BRIGHT_CYAN = "\u001b[96m";
-static constexpr const char *FOREGROUND_BRIGHT_WHITE = "\u001b[97m";
-static constexpr const char *BACKGROUND_BLACK = "\u001b[40m";
-static constexpr const char *BACKGROUND_RED = "\u001b[41m";
-static constexpr const char *BACKGROUND_GREEN = "\u001b[42m";
-static constexpr const char *BACKGROUND_YELLOW = "\u001b[43m";
-static constexpr const char *BACKGROUND_BLUE = "\u001b[44m";
-static constexpr const char *BACKGROUND_MAGENTA = "\u001b[45m";
-static constexpr const char *BACKGROUND_CYAN = "\u001b[46m";
-static constexpr const char *BACKGROUND_WHITE = "\u001b[47m";
-static constexpr const char *BACKGROUND_DEFAULT = "\u001b[49m";
-static constexpr const char *BACKGROUND_BRIGHT_BLACK = "\u001b[100m";
-static constexpr const char *BACKGROUND_BRIGHT_RED = "\u001b[101m";
-static constexpr const char *BACKGROUND_BRIGHT_GREEN = "\u001b[102m";
-static constexpr const char *BACKGROUND_BRIGHT_YELLOW = "\u001b[103m";
-static constexpr const char *BACKGROUND_BRIGHT_BLUE = "\u001b[104m";
-static constexpr const char *BACKGROUND_BRIGHT_MAGENTA = "\u001b[105m";
-static constexpr const char *BACKGROUND_BRIGHT_CYAN = "\u001b[106m";
-static constexpr const char *BACKGROUND_BRIGHT_WHITE = "\u001b[107m";
+    char input = stream.read();
+    if (input == ESCAPE_SEQUENCE_START) {
+        String escapeSequence = input;
+
+        do {
+            input = stream.read();
+            escapeSequence += input;
+        } while (!ESCAPE_END_CODES.contains(input));
+
+        switch (input) {
+            case 'A':
+                return UP;
+            case 'B':
+                return DOWN;
+            case 'C':
+                return RIGHT;
+            case 'D':
+                return LEFT;
+            case 'H':
+                return HOME;
+            case 'F':
+                return END;
+            default:
+                enableAnsiParsing();
+                System::out << escapeSequence << Io::PrintStream::flush;
+                disableAnsiParsing();
+                return readChar(stream);
+        }
+    }
+
+    return input;
+}
 
 static const Color COLOR_TABLE_256[256] = {
     // 16 predefined colors, matching the 4-bit ANSI colors
