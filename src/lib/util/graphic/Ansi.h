@@ -21,7 +21,7 @@
 #ifndef HHUOS_LIB_UTIL_GRAPHIC_ANSI_H
 #define HHUOS_LIB_UTIL_GRAPHIC_ANSI_H
 
-#include <stdint.h>
+#include <stddef.h>
 
 #include "Terminal.h"
 #include "util/base/String.h"
@@ -147,49 +147,53 @@ struct CursorPosition {
 /// Enable echoing of input characters for the standard input.
 /// In practice, this means that characters read from standard input will also be printed to standard output.
 inline void enableEcho() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ECHO, {true});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ECHO, Util::Array<size_t>({true}));
 }
 
 /// Disable echoing of input characters for the standard input.
 /// In practice, this means that characters read from standard input will not be printed to standard output.
 inline void disableEcho() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ECHO, {false});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ECHO, Util::Array<size_t>({false}));
 }
 
 /// Enable line aggregation for the standard input.
 /// This causes the underlying terminal to buffer input until a newline is encountered.
 inline void enableLineAggregation() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_LINE_AGGREGATION, {true});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_LINE_AGGREGATION,
+        Util::Array<size_t>({true}));
 }
 
 /// Disable line aggregation for the standard input.
 /// This causes the underlying terminal to provide input characters immediately.
 inline void disableLineAggregation() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_LINE_AGGREGATION, {false});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_LINE_AGGREGATION,
+        Util::Array<size_t>({false}));
 }
 
 /// Enable the display of the cursor for the standard output.
 inline void enableCursor() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_CURSOR, {true});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_CURSOR, Util::Array<size_t>({true}));
 }
 
 /// Disable the display of the cursor for the standard output.
 inline void disableCursor() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_CURSOR, {false});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_CURSOR, Util::Array<size_t>({false}));
 }
 
 /// Enable ANSI escape sequence parsing for the standard output.
 /// This allows the use of ANSI escape sequences to control text formatting and cursor movement
 /// in the underlying terminal.
 inline void enableAnsiParsing() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ANSI_PARSING, {true});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ANSI_PARSING,
+        Util::Array<size_t>({true}));
 }
 
 /// Disable ANSI escape sequence parsing for the standard output.
 /// This prevents the underlying terminal from interpreting ANSI escape sequences,
 /// causing them to be displayed as plain text.
 inline void disableAnsiParsing() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ANSI_PARSING, {false});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ANSI_PARSING,
+        Util::Array<size_t>({false}));
 }
 
 /// Prepare the standard input terminal for graphical application usage.
@@ -198,11 +202,11 @@ inline void disableAnsiParsing() {
 /// This is useful for applications that need to handle special keys or key combinations (e.g. games).
 inline void prepareGraphicalApplication(bool enableScancodes) {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_RAW_MODE,
-        Util::Array<uint32_t>(0));
+        Util::Array<size_t>(0));
 
     if (enableScancodes) {
         Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_KEYBOARD_SCANCODES,
-            Util::Array<uint32_t>(0));
+            Util::Array<size_t>(0));
     }
 
     disableCursor();
@@ -212,7 +216,7 @@ inline void prepareGraphicalApplication(bool enableScancodes) {
 /// This re-enables the cursor, line aggregation and ANSI parsing.
 inline void cleanupGraphicalApplication() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_CANONICAL_MODE,
-        Util::Array<uint32_t>(0));
+        Util::Array<size_t>(0));
 
     enableCursor();
 }
@@ -222,14 +226,14 @@ inline void cleanupGraphicalApplication() {
 /// Furthermore, echoing is disabled.
 inline void enableRawMode() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_RAW_MODE,
-        Util::Array<uint32_t>(0));
+        Util::Array<size_t>(0));
 }
 
 /// Enable canonical mode for the standard input terminal.
 /// In canonical mode, input is processed line by line and echoing parsing of ANSI escape sequences is enabled.
 inline void enableCanonicalMode() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_CANONICAL_MODE,
-        Util::Array<uint32_t>(0));
+        Util::Array<size_t>(0));
 }
 
 /// Enable the provision of raw PS/2 keyboard scancodes for the standard input.
@@ -238,7 +242,7 @@ inline void enableCanonicalMode() {
 /// As a side effect, echo and line aggregation are also disabled.
 inline void enableKeyboardScancodes() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_KEYBOARD_SCANCODES,
-        Util::Array<uint32_t>(0));
+        Util::Array<size_t>(0));
 }
 
 /// Generate an ANSI escape sequence for setting the foreground color using an 8-bit color index.
@@ -367,7 +371,8 @@ inline void setBackgroundColor(uint8_t colorIndex) {
 /// Util::System::out << "This text is orange!" << Util::Io::PrintStream::flush; // Print text
 /// ```
 inline void setForegroundColor(const Color &color) {
-    System::out << "\u001b[38;2;" << Io::PrintStream::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintStream::flush;
+    System::out << "\u001b[38;2;" << Io::PrintStream::dec <<
+        color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintStream::flush;
 }
 
 /// Set the background color of the standard output using a 24-bit RGB color.
@@ -378,7 +383,8 @@ inline void setForegroundColor(const Color &color) {
 /// Util::System::out << "This text has a light blue background!" << Util::Io::PrintStream::flush; // Print text
 /// ```
 inline void setBackgroundColor(const Color &color) {
-    System::out << "\u001b[48;2;" << Io::PrintStream::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintStream::flush;
+    System::out << "\u001b[48;2;" << Io::PrintStream::dec <<
+        color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintStream::flush;
 }
 
 /// Reset the foreground color of the standard output to the default color of the terminal (usually white).

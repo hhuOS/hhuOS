@@ -19,19 +19,13 @@
  */
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include <util/base/ArgumentParser.h>
 #include <util/base/String.h>
 #include <util/base/System.h>
 #include <util/collection/Array.h>
 #include <util/graphic/Ansi.h>
-#include <util/graphic/LinearFrameBuffer.h>
-#include <util/graphic/BufferedLinearFrameBuffer.h>
-#include <util/graphic/Colors.h>
-#include <util/graphic/Font.h>
-#include <util/graphic/font/Mini4x6.h>
-#include <util/graphic/font/Terminal8x16.h>
-#include <util/graphic/font/Terminal8x8.h>
 #include <util/io/file/File.h>
 #include <util/io/stream/InputStream.h>
 #include <util/io/stream/FileInputStream.h>
@@ -46,26 +40,11 @@ const char *HELP_TEXT =
 #include "generated/README.md"
 ;
 
-/// Selects a font based on the vertical resolution of the framebuffer.
-const Util::Graphic::Font& selectFont(const uint16_t resolutionY) {
-    if (resolutionY < 350) {
-        return Util::Graphic::Fonts::MINI_4x6;
-    }
-
-    if (resolutionY < 500) {
-        return Util::Graphic::Fonts::TERMINAL_8x8;
-    }
-
-    return Util::Graphic::Fonts::TERMINAL_8x16;
-}
-
 int32_t main(int32_t argc, char *argv[]) {
     Util::ArgumentParser argumentParser;
     argumentParser.setHelpText(HELP_TEXT);
 
     argumentParser.addArgument("fps", false, "f");
-    argumentParser.addArgument("resolution", false, "r");
-    argumentParser.addArgument("scale", false, "s");
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
@@ -84,23 +63,8 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto lfbFile = Util::Io::File("/device/lfb");
-    if (argumentParser.hasArgument("resolution")) {
-        const auto resolution = argumentParser.getArgument("resolution");
-        Util::Graphic::LinearFrameBuffer::setResolution(lfbFile, resolution);
-    }
-
-    const auto scaleString = argumentParser.getArgument("scale", "1.0");
-    const auto scaleFactor = Util::String::parseFloat<float>(scaleString);
-    const Util::Graphic::LinearFrameBuffer lfb(lfbFile);
-    const Util::Graphic::BufferedLinearFrameBuffer bufferedLfb(lfb, scaleFactor);
-
     Util::Io::FileInputStream fileInputStream(file);
     Util::Io::BufferedInputStream inputStream(fileInputStream);
-
-    const auto &font = selectFont(bufferedLfb.getResolutionY());
-    const auto charWidth = font.getCharWidth();
-    const auto charHeight = font.getCharHeight();
 
     const auto fpsString = argumentParser.getArgument("fps", "15");
     const auto fps = Util::String::parseNumber<size_t>(fpsString);
@@ -109,12 +73,20 @@ int32_t main(int32_t argc, char *argv[]) {
     const auto frameInfo = inputStream.readLine().content.split(",");
     const auto rows = Util::String::parseNumber<uint16_t>(frameInfo[0]);
     const auto columns = Util::String::parseNumber<uint16_t>(frameInfo[1]);
-    const auto frameStartX = (bufferedLfb.getResolutionX() / charWidth - columns) / 2 * charWidth;
-    const auto frameStartY = (bufferedLfb.getResolutionY() / charHeight - rows) / 2 * charHeight;
-    const auto frameEndX = frameStartX + columns * charWidth;
-    const auto frameEndY = frameStartY + rows * charHeight;
 
-    Util::Graphic::Ansi::prepareGraphicalApplication(true);
+    // Adjust cursor position so the frame fits in the terminal
+    const auto terminalResolution = Util::Graphic::Ansi::getCursorLimits();
+    const auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
+    if (rows > terminalResolution.row - cursorPosition.row) {
+        const auto newRow = static_cast<uint16_t>(terminalResolution.row < rows ? 0 : terminalResolution.row - rows);
+        Util::Graphic::Ansi::setPosition(Util::Graphic::Ansi::CursorPosition{0, newRow});
+    }
+
+    const auto maxRows = rows > terminalResolution.row ? terminalResolution.row : rows;
+    const auto maxColumns = columns > terminalResolution.column ? terminalResolution.column : columns;
+
+    Util::Graphic::Ansi::enableKeyboardScancodes();
+    Util::Graphic::Ansi::disableCursor();
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
     const Util::Io::DeLayout layout;
@@ -134,36 +106,46 @@ int32_t main(int32_t argc, char *argv[]) {
         // The delay is given in frames (e.g. a delay of 2 means that the frame should be displayed for 2 frames,
         // which equals 2 * timePerFrame).
         const auto delayLine = inputStream.readLine();
-        if (delayLine.content.isEmpty()) {
+        if (delayLine.content.isEmpty() || delayLine.endOfFile) {
             // End of file reached, or invalid format
             break;
         }
 
+        // Calculate display time for current frame
         const auto delay = Util::String::parseNumber<size_t>(delayLine.content);
+        const auto targetFrameTime = timePerFrame * delay;
 
-        bufferedLfb.clear();
+        // Save cursor position at the beginning of the frame
+        Util::Graphic::Ansi::saveCursorPosition();
+        const auto frameStartTime = Util::Time::Timestamp::getSystemTime();
 
-        // Draw a border around the frame
-        bufferedLfb.drawLine(frameStartX - charWidth, frameStartY - charHeight,
-            frameEndX + charWidth, frameStartY - charHeight, Util::Graphic::Colors::WHITE);
-        bufferedLfb.drawLine(frameStartX - charWidth, frameEndY + charHeight,
-            frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
-        bufferedLfb.drawLine(frameStartX - charWidth, frameStartY - charHeight,
-            frameStartX - charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
-        bufferedLfb.drawLine(frameEndX + charWidth, frameStartY - charHeight,
-            frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
-
-        // Read the frame line by line and draw it to the framebuffer
+        // Read the frame line by line and draw it to the terminal
         for (size_t i = 0; i < rows; i++) {
             const auto line = inputStream.readLine();
-            bufferedLfb.drawString(font, frameStartX, frameStartY + charHeight * i, line.content,
-                Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+            if (i < maxRows) {
+                Util::System::out << line.content.substring(0, maxColumns) << Util::Io::PrintStream::ln;
+            }
         }
 
-        // Flush the framebuffer and wait for the specified delay before drawing the next frame
-        bufferedLfb.flush();
-        Util::Async::Thread::sleep(timePerFrame * delay);
+        // Flush the terminal and wait for the specified delay before drawing the next frame
+        Util::System::out << Util::Io::PrintStream::flush;
+
+        const auto frameTime = Util::Time::Timestamp::getSystemTime() - frameStartTime;
+        if (frameTime < targetFrameTime) {
+            Util::Async::Thread::sleep(targetFrameTime - frameTime);
+        }
+
+        // Restore cursor position for drawing the next frame
+        Util::Graphic::Ansi::restoreCursorPosition();
     }
+
+    // Clean up terminal
+    Util::Graphic::Ansi::saveCursorPosition();
+    for (size_t i = 0; i < rows; i++) {
+        Util::Graphic::Ansi::clearLineFromCursor();
+        Util::Graphic::Ansi::moveCursorToBeginningOfNextLine(0);
+    }
+    Util::Graphic::Ansi::restoreCursorPosition();
 
     Util::Graphic::Ansi::cleanupGraphicalApplication();
     return 0;

@@ -36,13 +36,13 @@ else()
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/asciimation/star_wars.txt"
             COMMAND wget "https://www.asciimation.co.nz/asciimation/SwPlay.jar"
             COMMAND unzip -u "SwPlay.jar" -d "star_wars"
-            COMMAND /bin/echo 13,67 | /bin/cat - "star_wars/data/sw1.txt" >> "${CMAKE_BINARY_DIR}/asciimation/star_wars.txt"
+            COMMAND /bin/echo 13,67 | /bin/cat - "star_wars/data/sw1.txt" > "${CMAKE_BINARY_DIR}/asciimation/star_wars.txt"
             DEPENDS "${CMAKE_BINARY_DIR}/asciimation/")
 
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/asciimation/jar_jar.txt"
             COMMAND wget "https://www.asciimation.co.nz/asciimation/jjplay.jar"
             COMMAND unzip -u "jjplay.jar" -d "jar_jar"
-            COMMAND /bin/echo 22,81 | /bin/cat - "jar_jar/data/jj1.txt" >> "${CMAKE_BINARY_DIR}/asciimation/jar_jar.txt"
+            COMMAND /bin/echo 22,81 | /bin/cat - "jar_jar/data/jj1.txt" > "${CMAKE_BINARY_DIR}/asciimation/jar_jar.txt"
             DEPENDS "${CMAKE_BINARY_DIR}/asciimation/")
 
     add_custom_target(asciimation-star-wars DEPENDS
@@ -52,6 +52,6 @@ endif()
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base)
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/application/asciimate/asciimate.cpp)
