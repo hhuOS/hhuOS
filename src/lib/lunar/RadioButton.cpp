@@ -110,7 +110,7 @@ void RadioButton::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
     }
 
     lfb.drawString(font, posX + diameter + GAP_X, posY, static_cast<const char*>(text),
-        style.textColor, style.textBackgroundColor);
+                   style.textColor, style.textBackgroundColor);
 
     Widget::draw(lfb);
 }

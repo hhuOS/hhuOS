@@ -58,7 +58,7 @@ Window::Window(const uint16_t width, const uint16_t height, const Util::String &
 
     const auto processId = Util::Async::Process::getCurrentProcess().getId();
     createPipe(Util::String::format("event-%u", id));
-    eventRunnable = new EventRunnable(Util::String::format("/process/%u/pipes/event-%u", processId, id));
+    eventRunnable = new EventRunnable(Util::String::format(EVENT_PIPE_PATH, processId, id));
     Util::Async::Thread::createThread("Kepler-Event-Runnable", eventRunnable);
 
     if (!pipe.sendSignal(CLIENT_WINDOW_INITIALIZED)) {

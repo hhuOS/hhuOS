@@ -107,7 +107,7 @@ void Graphics::drawStringDirectAbsolute(const uint16_t posX, const uint16_t posY
         glDrawText(reinterpret_cast<const GLubyte*>(string), posX, posY, color.getRGB32());
     } else {
         bufferedLfb.drawString(Util::Graphic::Fonts::TERMINAL_8x8, posX, posY, string,
-            color, Util::Graphic::Colors::INVISIBLE);
+                               color, Util::Graphic::Colors::INVISIBLE);
     }
 }
 
@@ -321,9 +321,9 @@ void Graphics::drawString2D(const Util::Math::Vector2<float> &position, const ch
     }
 
     bufferedLfb.drawString(Util::Graphic::Fonts::TERMINAL_8x8,
-        static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX),
-        static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY),
-        string, color, Util::Graphic::Colors::INVISIBLE);
+                           static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX),
+                           static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY),
+                           string, color, Util::Graphic::Colors::INVISIBLE);
 }
 
 void Graphics::drawString2D(const Util::Math::Vector2<float> &position, const Util::String &string) const {

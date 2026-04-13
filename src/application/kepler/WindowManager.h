@@ -30,6 +30,7 @@
 #include "util/collection/ArrayList.h"
 #include "util/graphic/LinearFrameBuffer.h"
 #include "util/graphic/BufferedLinearFrameBuffer.h"
+#include "util/graphic/Image.h"
 #include "util/io/key/KeyDecoder.h"
 #include "util/io/key/layout/DeLayout.h"
 #include "util/time/Timestamp.h"
@@ -57,7 +58,10 @@ private:
     Util::Graphic::LinearFrameBuffer &lfb;
     Util::Graphic::BufferedLinearFrameBuffer doubleLfb;
     Util::Graphic::BufferedLinearFrameBuffer tripleLfb;
-    bool needRedraw = false;
+    bool needRedraw = true;
+    bool fullRedraw = true;
+
+    Util::Graphic::Image *logo = nullptr;
 
     MouseInputHandler mouseInputHandler;
     Util::Io::KeyDecoder keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
@@ -71,8 +75,8 @@ private:
     size_t nextClientId = 0;
 
     bool isDragging = false;
-    uint16_t lastDragX = 0;
-    uint16_t lastDragY = 0;
+    int32_t dragX = 0;
+    int32_t dragY = 0;
 
     static constexpr size_t TARGET_FPS = 60;
     static const Util::Time::Timestamp TARGET_FRAMETIME;

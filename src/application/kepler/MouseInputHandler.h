@@ -45,6 +45,14 @@ public:
         return mouseY;
     }
 
+    int16_t getRelativeMovementX() const {
+        return mouseMovementX;
+    }
+
+    int16_t getRelativeMovementY() const {
+        return mouseMovementY;
+    }
+
     bool hasMousePositionChanged() const {
         return mousePositionChanged;
     }
@@ -66,12 +74,14 @@ private:
     Util::Io::FileInputStream mouseInputStream = Util::Io::FileInputStream("/device/mouse");
 
     size_t mouseInputIndex = 0;
-    uint8_t mouseInputBuffer[4];
+    uint8_t mouseInputBuffer[4]{};
 
     int32_t mouseX = 0;
     int32_t mouseY = 0;
     int32_t maxMouseX = 0;
     int32_t maxMouseY = 0;
+    int16_t mouseMovementX = 0;
+    int16_t mouseMovementY = 0;
     bool mousePositionChanged = false;
 
     uint8_t currentMouseButtonState = 0;

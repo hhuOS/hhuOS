@@ -43,8 +43,8 @@ void WindowStack::setFocus(ClientWindow *window) {
 ClientWindow* WindowStack::getWindowAt(const uint16_t x, const uint16_t y) const {
     for (size_t i = windows.size() - 1; i < windows.size(); i--) {
         auto *window = windows.get(i);
-        const auto coords = window->containsPoint(x, y);
-        if (coords.valid) {
+        const auto mouseEvent = window->containsPoint(x, y);
+        if (mouseEvent.area != ClientWindow::NONE) {
             return window;
         }
     }

@@ -22,7 +22,7 @@
 
 #include "ClientWindow.h"
 
-Client::Client(const size_t id, size_t processId, Util::Io::FileInputStream *inputStream, Util::Io::FileOutputStream *outputStream) :
+Client::Client(const size_t id, const size_t processId, Util::Io::FileInputStream *inputStream, Util::Io::FileOutputStream *outputStream) :
     id(id), processId(processId), inputStream(inputStream), outputStream(outputStream) {}
 
 Client::~Client() {

@@ -116,7 +116,7 @@ void CheckBox::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
 
     // Draw text
     lfb.drawString(font, textX, textY, static_cast<const char*>(text),
-        style.textColor, Util::Graphic::Colors::INVISIBLE);
+                   style.textColor, Util::Graphic::Colors::INVISIBLE);
 
     Widget::draw(lfb);
 }

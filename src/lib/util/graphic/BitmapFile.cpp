@@ -39,12 +39,14 @@ BitmapFile* BitmapFile::open(const String &path) {
 
     // Check signature
     if (header.signature[0] != 'B' || header.signature[1] != 'M') {
-        Panic::fire(Panic::UNSUPPORTED_OPERATION, "BitmapFile: Invalid bitmap signature");
+        delete[] buffer;
+        return nullptr;
     }
 
     // Check if color depth is supported
     if (header.bitmapBitsPerPixel != 16 && header.bitmapBitsPerPixel != 24 && header.bitmapBitsPerPixel != 32) {
-        Panic::fire(Panic::UNSUPPORTED_OPERATION, "BitmapFile: Unsupported color depth");
+        delete[] buffer;
+        return nullptr;
     }
 
     // Parse bitmap data

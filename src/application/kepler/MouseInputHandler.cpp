@@ -43,6 +43,17 @@ bool MouseInputHandler::checkMouseInput() {
 
         mousePositionChanged = mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0;
         if (mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0) {
+            if (mouseX > 0 && mouseX < maxMouseX - 1) {
+                mouseMovementX = mouseUpdate.xMovement;
+            } else {
+                mouseMovementX = 0;
+            }
+            if (mouseY > 0 && mouseY < maxMouseY - 1) {
+                mouseMovementY = -mouseUpdate.yMovement;
+            } else {
+                mouseMovementY = 0;
+            }
+
             mouseX += mouseUpdate.xMovement;
             mouseY -= mouseUpdate.yMovement;
 
