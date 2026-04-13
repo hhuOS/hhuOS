@@ -23,6 +23,7 @@
 
 #include <stddef.h>
 
+#include "MouseInputHandler.h"
 #include "WindowStack.h"
 #include "util/graphic/LinearFrameBuffer.h"
 #include "util/graphic/font/Terminal8x8.h"
@@ -34,10 +35,17 @@ class ClientWindow {
 
 public:
 
-    struct MouseCoordinates {
-        int32_t x = 0;
-        int32_t y = 0;
-        bool valid = false;
+    enum WindowArea {
+        CONTENT,
+        TITLE_BAR,
+        BORDER,
+        NONE
+    };
+
+    struct MouseEvent {
+        WindowArea area = NONE;
+        int32_t contentPosX = 0;
+        int32_t contentPosY = 0;
     };
 
     ClientWindow(size_t id, size_t processId, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const Util::String &title, Util::Async::SharedMemory *buffer);
@@ -48,15 +56,15 @@ public:
 
     [[nodiscard]] Util::Async::SharedMemory& getBuffer() const;
 
-    [[nodiscard]] uint16_t getPosX() const;
+    [[nodiscard]] int32_t getPosX() const;
 
-    void setPosX(uint16_t posX) {
+    void setPosX(const int32_t posX) {
         ClientWindow::posX = posX;
     }
 
-    [[nodiscard]] uint16_t getPosY() const;
+    [[nodiscard]] int32_t getPosY() const;
 
-    void setPosY(uint16_t posY) {
+    void setPosY(const int32_t posY) {
         ClientWindow::posY = posY;
     }
 
@@ -70,7 +78,7 @@ public:
 
     void setDirty(bool dirty);
 
-    MouseCoordinates containsPoint(uint16_t x, uint16_t y) const;
+    MouseEvent containsPoint(uint16_t x, uint16_t y) const;
 
     bool overlapsWith(const ClientWindow &other) const;
 
@@ -80,7 +88,11 @@ public:
 
     void sendKeyEvent(const Kepler::Event::KeyEvent &event);
 
-    void drawFrame(const Util::Graphic::LinearFrameBuffer &lfb, const Util::Graphic::Color &color) const;
+    void drawBorder(const Util::Graphic::LinearFrameBuffer &lfb, const Util::Graphic::Color &color) const;
+
+    void drawBorderAt(int32_t x, int32_t y, const Util::Graphic::LinearFrameBuffer &lfb, const Util::Graphic::Color &color) const;
+
+    void drawTitleBar(const Util::Graphic::LinearFrameBuffer &lfb, const Util::Graphic::Color &color) const;
 
     void flush(const Util::Graphic::LinearFrameBuffer &lfb) const;
 
@@ -88,8 +100,8 @@ private:
 
     size_t id;
 
-    uint16_t posX = 0;
-    uint16_t posY = 0;
+    int32_t posX = 0;
+    int32_t posY = 0;
     uint16_t width = 0;
     uint16_t height = 0;
 
@@ -100,7 +112,12 @@ private:
 
     bool dirty = true;
 
+    uint16_t titleOffsetX;
+
     static const Util::Graphic::Font &TITLE_FONT;
+    static const uint16_t TITLE_BAR_HEIGHT;
+    static const uint16_t TITLE_OFFSET_Y;
+    static constexpr uint16_t BORDER_WIDTH = 1;
 };
 
 #endif

@@ -72,7 +72,7 @@ void Label::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
         }
 
         lfb.drawString(font, posX, linePosition, static_cast<const char*>(line),
-            style.textColor, style.textBackgroundColor);
+                       style.textColor, style.textBackgroundColor);
 
         linePosition += font.getCharHeight();
     }

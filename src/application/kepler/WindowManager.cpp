@@ -27,6 +27,7 @@
 #include "util/io/key/MouseDecoder.h"
 #include "lib/interface.h"
 #include "util/base/System.h"
+#include "util/graphic/BitmapFile.h"
 
 const Util::Time::Timestamp WindowManager::TARGET_FRAMETIME =
     Util::Time::Timestamp::ofNanoseconds(1000000000 / TARGET_FPS);
@@ -42,6 +43,8 @@ WindowManager::WindowManager(Util::Graphic::LinearFrameBuffer &lfb) : lfb(lfb), 
     auto desktopFileStream = Util::Io::FileOutputStream(desktopFile);
     desktopFileStream.write(static_cast<const uint8_t*>(idString), 0, idString.length());
 
+    logo = Util::Graphic::BitmapFile::open("/user/demo/logo.bmp");
+
     createNextPipe();
 }
 
@@ -50,6 +53,7 @@ void WindowManager::run() {
     auto lastTimestamp = Util::Time::Timestamp::getSystemTime();
     auto fpsTimer = Util::Time::Timestamp();
     size_t fpsCounter = 0;
+    Util::String fpsString = "FPS:";
 
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
@@ -104,6 +108,7 @@ void WindowManager::run() {
         // Check windows against mouse positions
         if (mouseInputHandler.checkMouseInput()) {
             dispatchMouseEvents();
+            needRedraw = true;
             yield = false; // Work has been done, do not yield
         }
 
@@ -116,17 +121,28 @@ void WindowManager::run() {
             }
         }
 
+        // Clear screen if a full redraw is needed (e.g., after dragging a window)
+        if (fullRedraw) {
+            tripleLfb.clear();
+            tripleLfb.drawImage(*logo, (lfb.getResolutionX() - logo->getWidth()) / 2,
+                (lfb.getResolutionY() - logo->getHeight()) / 2);
+        }
+
         // Draw dirty windows
         for (auto *window : windowStack) {
-            if (window->isDirty()) {
-                window->drawFrame(tripleLfb, windowStack.isFocussed(window) ?
-                    Util::Graphic::Colors::HHU_BLUE : Util::Graphic::Colors::HHU_ICE_BLUE);
+            if (fullRedraw || window->isDirty()) {
+                const auto color = windowStack.isFocussed(window) ?
+                    Util::Graphic::Colors::HHU_BLUE : Util::Graphic::Colors::HHU_ICE_BLUE;
+                window->drawBorder(tripleLfb, color);
+                window->drawTitleBar(tripleLfb, color);
                 window->flush(tripleLfb);
                 window->setDirty(false);
                 needRedraw = true;
                 yield = false; // Work has been done, do not yield
             }
         }
+
+        fullRedraw = false;
 
         // Flush frame buffer at target framerate
         const auto now = Util::Time::Timestamp::getSystemTime();
@@ -137,16 +153,18 @@ void WindowManager::run() {
             fpsCounter++;
 
             if (fpsTimer >= Util::Time::Timestamp::ofSeconds(1)) {
-                tripleLfb.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0,
-                    static_cast<const char*>(Util::String::format("FPS: %u", fpsCounter)),
-                    Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
-
                 needRedraw = true;
+                fpsString = Util::String::format("FPS: %u", fpsCounter);
                 fpsTimer = Util::Time::Timestamp();
                 fpsCounter = 0;
             }
 
             if (needRedraw) {
+                // Draw FPS string
+                tripleLfb.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0,
+                    static_cast<const char*>(fpsString), Util::Graphic::Colors::WHITE,
+                    Util::Graphic::Colors::BLACK);
+
                 // Flush windows into double buffer
                 tripleLfb.flush();
 
@@ -158,6 +176,11 @@ void WindowManager::run() {
                 doubleLfb.drawLine(xStart, mouseY, mouseX + 10, mouseY, Util::Graphic::Colors::RED);
                 doubleLfb.drawLine(mouseX, yStart, mouseX, mouseY + 10, Util::Graphic::Colors::RED);
 
+                // Draw border of dragged window (if any)
+                if (isDragging) {
+                    windowStack.getFocussedWindow()->drawBorderAt(dragX, dragY, doubleLfb, Util::Graphic::Colors::HHU_BLUE);
+                }
+
                 // Flush double buffer to screen
                 doubleLfb.flush();
                 needRedraw = false;
@@ -167,7 +190,7 @@ void WindowManager::run() {
             yield = false; // Work has been done, do not yield
         }
 
-        // Yield if no work has been done (i.e. no input, no commands, no redraw)
+        // Yield if no work has been done (i.e., no input, no commands, no redraw)
         if (yield) {
             Util::Async::Thread::yield();
         }
@@ -178,71 +201,72 @@ void WindowManager::dispatchMouseEvents() {
     const auto mouseX = mouseInputHandler.getMousePosX();
     const auto mouseY = mouseInputHandler.getMousePosY();
 
+    if (isDragging) {
+        if (mouseInputHandler.isButtonCurrentlyPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
+            dragX += mouseInputHandler.getRelativeMovementX();
+            dragY += mouseInputHandler.getRelativeMovementY();
+        } else {
+            isDragging = false;
+            auto *window = windowStack.getFocussedWindow();
+            window->setPosX(dragX);
+            window->setPosY(dragY);
+            window->setDirty(true);
+            fullRedraw = true;
+        }
+
+        return;
+    }
+
     auto *mouseHoveredWindow = windowStack.getWindowAt(mouseX, mouseY);
     if (mouseHoveredWindow != nullptr) {
-        const auto windowMouseCoords = mouseHoveredWindow->containsPoint(mouseX, mouseY);
+        const auto windowMouseEvent = mouseHoveredWindow->containsPoint(mouseX, mouseY);
 
-        // Check if mouse is inside  the window, but outside its content area (e.g. title bar or borders).
-        // In this case, we want to set the focus to the window on mouse click, but not send a mouse event.
-        if (windowMouseCoords.y < 0) {
+        // Set focus on mouse click if mouse is inside the window
+        if (windowMouseEvent.area != ClientWindow::NONE) {
             if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::LEFT_BUTTON)
                 || mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::RIGHT_BUTTON)
                 || mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::MIDDLE_BUTTON))
             {
                 windowStack.setFocus(mouseHoveredWindow);
             }
+        }
 
+        // Handle mouse inside the title bar (dragging)
+        if (windowMouseEvent.area == ClientWindow::TITLE_BAR || windowMouseEvent.area == ClientWindow::BORDER) {
             // If the left mouse button is pressed inside the title bar, start dragging the window
-            if (mouseInputHandler.isButtonCurrentlyPressed(Util::Io::MouseDecoder::LEFT_BUTTON) && windowMouseCoords.y < 0) {
-                if (isDragging) {
-                    const auto diffX = mouseX - lastDragX;
-                    const auto diffY = mouseY - lastDragY;
-                    mouseHoveredWindow->setPosX(mouseHoveredWindow->getPosX() + diffX);
-                    mouseHoveredWindow->setPosY(mouseHoveredWindow->getPosY() + diffY);
-                    mouseHoveredWindow->setDirty(true);
-                }
-
+            if (mouseInputHandler.isButtonCurrentlyPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
                 isDragging = true;
-                lastDragX = mouseX;
-                lastDragY = mouseY;
-            } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::LEFT_BUTTON)) {
-                isDragging = false;
+                dragX = mouseHoveredWindow->getPosX();
+                dragY = mouseHoveredWindow->getPosY();
             }
-        } else { // Mouse is inside the content area of the window, send mouse events
+        } else if (windowMouseEvent.area == ClientWindow::CONTENT) {
+            // Send hover event if mouse position has changed
             if (mouseInputHandler.hasMousePositionChanged()) {
-                mouseHoveredWindow->sendMouseHoverEvent(Kepler::Event::MouseHover(windowMouseCoords.x, windowMouseCoords.y));
+                mouseHoveredWindow->sendMouseHoverEvent(Kepler::Event::MouseHover(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY));
             }
 
+            // Check mouse button states
             if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
-                // Left mouse button pressed
-                windowStack.setFocus(mouseHoveredWindow);
-                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
                     Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::PRESS));
             } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::LEFT_BUTTON)) {
-                // Left mouse button released
-                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
                     Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::RELEASE));
             }
 
             if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::RIGHT_BUTTON)) {
-                // Right mouse button pressed
-                windowStack.setFocus(mouseHoveredWindow);
-                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
                     Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::PRESS));
             } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::RIGHT_BUTTON)) {
-                // Right mouse button released
-                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
                     Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::RELEASE));
             }
 
             if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::MIDDLE_BUTTON)) {
-                // Middle mouse button pressed
-                windowStack.setFocus(mouseHoveredWindow);
-                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
                     Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::PRESS));
             } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::MIDDLE_BUTTON)) {
-                // Middle mouse button released
-                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
                     Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::RELEASE));
             }
         }
@@ -298,15 +322,36 @@ void WindowManager::flushWindow(const Client &client) const {
     request.readFromStream(inputStream);
     inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
-    const auto *window = windowStack.getWindowById(request.getWindowId());
-    if (window == nullptr) {
+    // Run through the window stack (back to front), skipping all windows behind the flushing window.
+    // All windows on top of the flushing window are marked dirty if they overlap with it
+    // or any other window that needs to be redrawn due to the flush
+    ClientWindow *requestWindow = nullptr; // The window that requested the flush
+    Util::ArrayList<ClientWindow*> dirtyWindows; // List of windows that need to be redrawn
+    for (auto *window : windowStack) {
+        if (window->getId() == request.getWindowId()) {
+            // Flushing window found -> Mark dirty
+            requestWindow = window;
+            dirtyWindows.add(requestWindow);
+            window->setDirty(true);
+        } else if (requestWindow != nullptr) {
+            for (const auto *dirtyWindow : dirtyWindows) {
+                if (window->overlapsWith(*dirtyWindow)) {
+                    // Window is drawn on top of another dirty window -> Mark dirty
+                    dirtyWindows.add(window);
+                    window->setDirty(true);
+                }
+            }
+        }
+    }
+
+    // Flushing window not found (Invalid request)
+    if (requestWindow == nullptr) {
         const auto response = Kepler::Response::Flush(false);
         response.writeToStream(outputStream);
         return;
     }
 
-    window->flush(tripleLfb);
-
+    // Flush request successfully executed
     const auto response = Kepler::Response::Flush(true);
     response.writeToStream(outputStream);
 }

@@ -79,7 +79,7 @@ void Button::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
 
     // Draw button
     lfb.drawString(font, textX, textY, static_cast<const char*>(text),
-        style.textColor, style.textBackgroundColor);
+                   style.textColor, style.textBackgroundColor);
 
     Widget::draw(lfb);
 }

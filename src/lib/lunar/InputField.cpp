@@ -67,7 +67,7 @@ void InputField::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
         text.length());
 
     lfb.drawString(font, posX + PADDING_X, posY + PADDING_Y, static_cast<const char*>(visibleText),
-        style.textColor, style.textBackgroundColor);
+                   style.textColor, style.textBackgroundColor);
 
     if (isFocused()) {
         const auto caretX = posX + PADDING_X + visibleText.length() * font.getCharWidth();

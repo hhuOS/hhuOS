@@ -87,7 +87,7 @@ void LinearFrameBufferTerminal::clear(const Color &foregroundColor, const Color 
         for (int32_t i = 0; i < (endColumn - startColumn + 1) * font.getCharWidth(); i++) {
             for (int32_t j = 0; j < font.getCharHeight(); j++) {
                 shadowLfb.drawPixel(startColumn * font.getCharWidth() + i,
-                    startRow * font.getCharHeight() + j, backgroundColor);
+                                    startRow * font.getCharHeight() + j, backgroundColor);
             }
         }
     } else if (startRow < endRow) {
@@ -95,7 +95,7 @@ void LinearFrameBufferTerminal::clear(const Color &foregroundColor, const Color 
         for (int32_t y = 0; y < font.getCharHeight(); y++) {
             for (int32_t x = 0; x < getColumns() - startColumn * font.getCharWidth(); x++) {
                 shadowLfb.drawPixel(startColumn * font.getCharWidth() + x,
-                    startRow * font.getCharHeight() + y, backgroundColor);
+                                    startRow * font.getCharHeight() + y, backgroundColor);
             }
         }
 
@@ -132,7 +132,7 @@ void LinearFrameBufferTerminal::setPosition(const uint16_t column, const uint16_
 
     const auto character = characterBuffer[currentRow * getColumns() + currentColumn];
     lfb.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), character.value,
-        character.foregroundColor, character.backgroundColor);
+                 character.foregroundColor, character.backgroundColor);
 
     currentColumn = column;
     currentRow = row;
@@ -189,11 +189,11 @@ void LinearFrameBufferTerminal::CursorRunnable::draw() const {
         terminal.currentRow * terminal.getColumns() + terminal.currentColumn];
 
     terminal.lfb.drawChar(terminal.font,
-        terminal.currentColumn * terminal.font.getCharWidth(),
-        terminal.currentRow * terminal.font.getCharHeight(),
-        visible ? cursor : character.value,
-        character.foregroundColor,
-        character.backgroundColor);
+                          terminal.currentColumn * terminal.font.getCharWidth(),
+                          terminal.currentRow * terminal.font.getCharHeight(),
+                          visible ? cursor : character.value,
+                          character.foregroundColor,
+                          character.backgroundColor);
 }
 
 void LinearFrameBufferTerminal::scrollUp() {

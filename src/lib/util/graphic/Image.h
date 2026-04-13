@@ -37,7 +37,7 @@ class Image {
 
 public:
     /// Create a new image instance, wrapping a pixel buffer with the specified width, and height.
-    /// The pixel buffer must be heap allocated and the image instance will take ownership of it.
+    /// The pixel buffer must be heap allocated, and the image instance will take ownership of it.
     /// This means that the pixel buffer will be deleted when the image instance is destroyed.
     Image(const uint16_t width, const uint16_t height, const Color *pixelBuffer) :
         width(width), height(height), pixelBuffer(pixelBuffer) {}
