@@ -50,6 +50,8 @@ public:
         eventRunnable->registerListener(listener);
     }
 
+    static constexpr const char *EVENT_PIPE_PATH = "/process/%u/pipes/event-%u";
+
 private:
 
     size_t id = 0;

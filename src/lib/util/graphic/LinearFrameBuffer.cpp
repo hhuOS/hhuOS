@@ -36,7 +36,7 @@
 namespace Util {
 namespace Graphic {
 
-void swap(uint16_t *a, uint16_t *b) {
+void swap(int32_t *a, int32_t *b) {
     const auto h = *a;
     *a = *b;
     *b = h;
@@ -80,7 +80,42 @@ bool LinearFrameBuffer::setResolution(const Io::File &lfbFile, const String &res
     return setResolution(lfbFile, x, y, bpp);
 }
 
-void LinearFrameBuffer::drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const Color &color) const {
+void LinearFrameBuffer::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const Color &color) const {
+    if ((x1 < 0 && x2 < 0) || (x1 > resolutionX && x2 >= resolutionX)) {
+        return;
+    }
+    if ((y1 < 0 && y2 < 0) || (y1 > resolutionY && y2 >= resolutionY)) {
+        return;
+    }
+
+    if (x1 < 0) {
+        x1 = 0;
+    }
+    if (x1 >= resolutionX) {
+        x1 = resolutionX - 1;
+    }
+
+    if (y1 < 0) {
+        y1 = 0;
+    }
+    if (y1 >= resolutionY) {
+        y1 = resolutionY - 1;
+    }
+
+    if (x2 < 0) {
+        x2 = 0;
+    }
+    if (x2 >= resolutionX) {
+        x2 = resolutionX - 1;
+    }
+
+    if (y2 < 0) {
+        y2 = 0;
+    }
+    if (y2 >= resolutionY) {
+        y2 = resolutionY - 1;
+    }
+
     // Calculate our deltas
     auto dx = x2 - x1;
     auto dy = y2 - y1;
@@ -122,7 +157,7 @@ void LinearFrameBuffer::drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t
     }
 }
 
-void LinearFrameBuffer::drawRectangle(const uint16_t x, const uint16_t y, const uint16_t width, const uint16_t height,
+void LinearFrameBuffer::drawRectangle(const int32_t x, const int32_t y, const uint16_t width, const uint16_t height,
     const Color &color) const
 {
     drawLine(x, y, x + width - 1, y, color);
@@ -131,28 +166,26 @@ void LinearFrameBuffer::drawRectangle(const uint16_t x, const uint16_t y, const 
     drawLine(x + width - 1, y, x + width - 1, y + height - 1, color);
 }
 
-void LinearFrameBuffer::drawSquare(const uint16_t x, const uint16_t y, const uint16_t size, const Color &color) const {
+void LinearFrameBuffer::drawSquare(const int32_t x, const int32_t y, const uint16_t size, const Color &color) const {
     drawRectangle(x, y, size, size, color);
 }
 
-void LinearFrameBuffer::fillRectangle(const uint16_t x, const uint16_t y, const uint16_t width, const uint16_t height,
+void LinearFrameBuffer::fillRectangle(const int32_t x, const int32_t y, const uint16_t width, const uint16_t height,
     const Color &color) const
 {
-    const uint16_t endX = x + width - 1;
-    const uint16_t endY = y + height -1;
+    const auto endX = x + width - 1;
+    const auto endY = y + height -1;
 
-    for (uint16_t i = y; i <= endY; i++) {
+    for (auto i = y; i <= endY; i++) {
         drawLine(x, i, endX, i, color);
     }
 }
 
-void LinearFrameBuffer::fillSquare(const uint16_t x, const uint16_t y, const uint16_t size, const Color &color) const {
+void LinearFrameBuffer::fillSquare(const int32_t x, const int32_t y, const uint16_t size, const Color &color) const {
     fillRectangle(x, y, size, size, color);
 }
 
-void LinearFrameBuffer::drawCircle(const uint16_t x, const uint16_t y, const uint16_t radius,
-    const Color &color) const
-{
+void LinearFrameBuffer::drawCircle(const int32_t x, const int32_t y, const uint16_t radius, const Color &color) const {
     for (int32_t dy = -radius; dy <= radius; dy++) {
         const auto dx = static_cast<int32_t>(Math::sqrt(static_cast<float>(radius * radius - dy * dy)));
 
@@ -161,9 +194,7 @@ void LinearFrameBuffer::drawCircle(const uint16_t x, const uint16_t y, const uin
     }
 }
 
-void LinearFrameBuffer::fillCircle(const uint16_t x, const uint16_t y, const uint16_t radius,
-    const Color &color) const
-{
+void LinearFrameBuffer::fillCircle(const int32_t x, const int32_t y, const uint16_t radius, const Color &color) const {
     for (int32_t dy = -radius; dy <= radius; dy++) {
         const auto dxLimit = static_cast<int32_t>(Math::sqrt(static_cast<float>(radius * radius - dy * dy)));
 
@@ -173,13 +204,13 @@ void LinearFrameBuffer::fillCircle(const uint16_t x, const uint16_t y, const uin
     }
 }
 
-void LinearFrameBuffer::drawChar(const Font &font, const uint16_t x, const uint16_t y, const char c,
+void LinearFrameBuffer::drawChar(const Font &font, const int32_t x, const int32_t y, const char c,
     const Color &fgColor, const Color &bgColor) const
 {
     drawMonoBitmap(x, y, font.getCharWidth(), font.getCharHeight(), fgColor, bgColor, font.getChar(c));
 }
 
-void LinearFrameBuffer::drawString(const Font &font, uint16_t x, const uint16_t y, const char *string,
+void LinearFrameBuffer::drawString(const Font &font, int32_t x, const int32_t y, const char *string,
     const Color &fgColor, const Color &bgColor) const
 {
     for (uint32_t i = 0; string[i] >= 0x20 && string[i] <= 0x7e; ++i) {
@@ -188,14 +219,26 @@ void LinearFrameBuffer::drawString(const Font &font, uint16_t x, const uint16_t 
     }
 }
 
-void LinearFrameBuffer::drawString(const Font &font, uint16_t x, const uint16_t y, const String &string,
+void LinearFrameBuffer::drawString(const Font &font, const int32_t x, const int32_t y, const String &string,
     const Color &fgColor, const Color &bgColor) const
 {
     drawString(font, x, y, static_cast<const char*>(string), fgColor, bgColor);
 }
 
+void LinearFrameBuffer::drawImage(const Image &image, const int32_t x, const int32_t y) const {
+    const auto pixelBuffer = image.getPixelBuffer();
+    const auto width = image.getWidth();
+    const auto height = image.getHeight();
+
+    for (uint16_t offsetY = 0; offsetY < height; ++offsetY) {
+        for (uint16_t offsetX = 0; offsetX < width; ++offsetX) {
+            drawPixel(x + offsetX, y + offsetY, pixelBuffer[offsetY * width + offsetX]);
+        }
+    }
+}
+
 void LinearFrameBuffer::scrollUp(const uint16_t lineCount, const bool clearBelow) const {
-    // Move screen buffer upwards by the given amount of lines
+    // Move screen buffer upwards by the given number of lines
     const auto source = buffer.add(pitch * lineCount);
     buffer.copyRange(source, pitch * (resolutionY - lineCount));
 
@@ -206,7 +249,18 @@ void LinearFrameBuffer::scrollUp(const uint16_t lineCount, const bool clearBelow
     }
 }
 
-void LinearFrameBuffer::drawLineMajorAxis(uint16_t x, uint16_t y, const int8_t xMovement, const int8_t yMovement,
+uint8_t* LinearFrameBuffer::mapBuffer(const uint32_t physicalAddress, const uint16_t resolutionY,
+    const uint16_t pitch)
+{
+    const auto pageOffset = physicalAddress % PAGESIZE;
+    const auto sizeWithOffset = pageOffset + pitch * resolutionY;
+    const auto pageCount = (sizeWithOffset + PAGESIZE - 1) / PAGESIZE;
+
+    auto *virtualAddress = mapIO(physicalAddress, pageCount);
+    return static_cast<uint8_t*>(virtualAddress) + pageOffset;
+}
+
+void LinearFrameBuffer::drawLineMajorAxis(int32_t x, int32_t y, const int8_t xMovement, const int8_t yMovement,
     int32_t dx, const int32_t dy, const bool majorAxisX, const Color &color) const
 {
     // Calculate some constants
@@ -243,7 +297,7 @@ void LinearFrameBuffer::drawLineMajorAxis(uint16_t x, uint16_t y, const int8_t x
     }
 }
 
-void LinearFrameBuffer::drawLineSingleAxis(uint16_t x, uint16_t y, const int8_t movement, int32_t dx,
+void LinearFrameBuffer::drawLineSingleAxis(int32_t x, int32_t y, const int8_t movement, int32_t dx,
     const bool majorAxisX, const Color &color) const
 {
     // Draw the first pixel
@@ -261,7 +315,7 @@ void LinearFrameBuffer::drawLineSingleAxis(uint16_t x, uint16_t y, const int8_t 
     }
 }
 
-void LinearFrameBuffer::drawMonoBitmap(const uint16_t x, const uint16_t y, const uint16_t width, const uint16_t height,
+void LinearFrameBuffer::drawMonoBitmap(const int32_t x, const int32_t y, const uint16_t width, const uint16_t height,
     const Color &fgColor, const Color &bgColor, const uint8_t *bitmap) const
 {
     // Each bit in the bitmap represents a pixel (1 = fgColor, 0 = bgColor)
@@ -270,8 +324,8 @@ void LinearFrameBuffer::drawMonoBitmap(const uint16_t x, const uint16_t y, const
     const uint16_t widthInBytes = (width + 7) / 8;
 
     for (uint16_t offsetY = 0; offsetY < height; ++offsetY) {
-        uint16_t posX = x;
-        const uint16_t posY = y + offsetY;
+        auto posX = x;
+        const auto posY = y + offsetY;
 
         // Iterate over bytes in a row
         for (uint16_t xByte = 0; xByte < widthInBytes; ++xByte) {
@@ -290,17 +344,6 @@ void LinearFrameBuffer::drawMonoBitmap(const uint16_t x, const uint16_t y, const
             bitmap++;
         }
     }
-}
-
-uint8_t* LinearFrameBuffer::mapBuffer(const uint32_t physicalAddress, const uint16_t resolutionY,
-    const uint16_t pitch)
-{
-    const auto pageOffset = physicalAddress % PAGESIZE;
-    const auto sizeWithOffset = pageOffset + pitch * resolutionY;
-    const auto pageCount = (sizeWithOffset + PAGESIZE - 1) / PAGESIZE;
-
-    auto *virtualAddress = mapIO(physicalAddress, pageCount);
-    return static_cast<uint8_t*>(virtualAddress) + pageOffset;
 }
 
 }

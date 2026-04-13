@@ -80,7 +80,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
 		COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/doom" "user"
 		COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/quake" "user"
 		COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/roms" "user"
-        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/wav" "user"
 		COMMAND /bin/rm -f "${CMAKE_BINARY_DIR}/part.img"
         COMMAND mkfs.fat -C "${CMAKE_BINARY_DIR}/part.img" $<IF:$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>,200704,96256>
         COMMAND mcopy -s -o -i "${CMAKE_BINARY_DIR}/part.img" * ::/

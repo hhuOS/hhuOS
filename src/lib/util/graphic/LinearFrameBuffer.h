@@ -28,6 +28,7 @@
 
 #include <util/base/Address.h>
 #include <util/io/file/File.h>
+#include <util/graphic/Image.h>
 
 namespace Util {
 namespace Graphic {
@@ -162,9 +163,9 @@ public:
     }
 
     /// Set the pixel at the given coordinates to the specified color.
-    __attribute__((always_inline)) void drawPixel(const uint16_t x, const uint16_t y, const Color &color) const {
+    __attribute__((always_inline)) void drawPixel(const int32_t x, const int32_t y, const Color &color) const {
         // Pixels outside the visible area won't be drawn
-        if (x >= resolutionX || y >= resolutionY) {
+        if (x < 0 || x >= resolutionX || y < 0 || y >= resolutionY) {
             return;
         }
 
@@ -254,45 +255,48 @@ public:
     }
 
     /// Draw a line from (x1, y1) to (x2, y2) with the specified color using Bresenham's line algorithm.
-    void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const Color &color) const;
+    void drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const Color &color) const;
 
     /// Draw the outline of a rectangle with the upper-left corner at (x, y),
     /// the specified width and height, and the given color.
-    void drawRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &color) const;
+    void drawRectangle(int32_t x, int32_t y, uint16_t width, uint16_t height, const Color &color) const;
 
     /// Draw the outline of a square with the upper-left corner at (x, y),
     /// the specified size, and the given color.
-    void drawSquare(uint16_t x, uint16_t y, uint16_t size, const Color &color) const;
+    void drawSquare(int32_t x, int32_t y, uint16_t size, const Color &color) const;
 
     /// Draw a filled rectangle with the upper-left corner at (x, y),
     /// the specified width and height, and the given color.
-    void fillRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &color) const;
+    void fillRectangle(int32_t x, int32_t y, uint16_t width, uint16_t height, const Color &color) const;
 
     /// Draw a filled square with the upper-left corner at (x, y),
     /// the specified size, and the given color.
-    void fillSquare(uint16_t x, uint16_t y, uint16_t size, const Color &color) const;
+    void fillSquare(int32_t x, int32_t y, uint16_t size, const Color &color) const;
 
     /// Draw the outline of a circle centered at (x, y) with the specified radius and color.
-    void drawCircle(uint16_t x, uint16_t y, uint16_t radius, const Color& color) const;
+    void drawCircle(int32_t x, int32_t y, uint16_t radius, const Color& color) const;
 
     /// Draw a filled circle centered at (x, y) with the specified radius and color.
-    void fillCircle(uint16_t x, uint16_t y, uint16_t radius, const Color& color) const;
+    void fillCircle(int32_t x, int32_t y, uint16_t radius, const Color& color) const;
 
     /// Draw a character of the given bitmap font with the upper-left corner at (x, y),
     /// using the specified foreground and background colors.
-    void drawChar(const Font &font, uint16_t x, uint16_t y, char c, const Color &fgColor, const Color &bgColor) const;
+    void drawChar(const Font &font, int32_t x, int32_t y, char c, const Color &fgColor, const Color &bgColor) const;
 
     /// Draw a string of characters of the given bitmap font with the upper-left corner at (x, y),
     /// using the specified foreground and background colors.
     /// This method does not handle line wrapping and simply draws the characters in a single line.
-    void drawString(const Font &font, uint16_t x, uint16_t y, const char *string,
-    const Color &fgColor,const Color &bgColor) const;
+    void drawString(const Font &font, int32_t x, int32_t y, const char *string,
+        const Color &fgColor, const Color &bgColor) const;
 
     /// Draw a string of characters of the given bitmap font with the upper-left corner at (x, y),
     /// using the specified foreground and background colors.
     /// This method does not handle line wrapping and simply draws the characters in a single line.
-    void drawString(const Font &font, uint16_t x, uint16_t y, const String &string,
-        const Color &fgColor,const Color &bgColor) const;
+    void drawString(const Font &font, int32_t x, int32_t y, const String &string,
+        const Color &fgColor, const Color &bgColor) const;
+
+    /// Draw a bitmap image at the given position
+    void drawImage(const Image &image, int32_t x, int32_t y) const;
 
     /// Scroll the frame buffer content up by the specified number of lines.
     /// If `clearBelow` is true, the area below the scrolled content is cleared to black.
@@ -302,13 +306,13 @@ private:
 
     static uint8_t* mapBuffer(uint32_t physicalAddress, uint16_t resolutionY, uint16_t pitch);
 
-    void drawLineMajorAxis(uint16_t x, uint16_t y, int8_t xMovement, int8_t yMovement, int32_t dx, int32_t dy,
+    void drawLineMajorAxis(int32_t x, int32_t y, int8_t xMovement, int8_t yMovement, int32_t dx, int32_t dy,
         bool majorAxisX, const Color &color) const;
 
-    void drawLineSingleAxis(uint16_t x, uint16_t y, int8_t movement, int32_t dx, bool majorAxisX,
+    void drawLineSingleAxis(int32_t x, int32_t y, int8_t movement, int32_t dx, bool majorAxisX,
         const Color &color) const;
 
-    void drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &fgColor,
+    void drawMonoBitmap(int32_t x, int32_t y, uint16_t width, uint16_t height, const Color &fgColor,
         const Color &bgColor, const uint8_t *bitmap) const;
 
     Address buffer;
