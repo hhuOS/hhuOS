@@ -41,7 +41,7 @@ Window::Window(const uint16_t width, const uint16_t height, const Util::String &
     id = response.getId();
 
     const auto bytesPerPixel = (response.getColorDepth() == 15 ? 16 : response.getColorDepth()) / 8;
-    const auto bufferSize = response.getSizeX() * response.getSizeY() * bytesPerPixel;
+    const auto bufferSize = response.getWidth() * response.getHeight() * bytesPerPixel;
     const auto bufferPages = bufferSize % Util::PAGESIZE == 0 ?
         bufferSize / Util::PAGESIZE : bufferSize / Util::PAGESIZE + 1;
 
@@ -53,8 +53,8 @@ Window::Window(const uint16_t width, const uint16_t height, const Util::String &
     }
 
     auto *windowBuffer = reinterpret_cast<void*>(sharedMemory->getAddress().get());
-    lfb = new Util::Graphic::LinearFrameBuffer(windowBuffer, response.getSizeX(), response.getSizeY(),
-        response.getColorDepth(), response.getSizeX() * bytesPerPixel);
+    lfb = new Util::Graphic::LinearFrameBuffer(windowBuffer, response.getWidth(), response.getHeight(),
+        response.getColorDepth(), response.getWidth() * bytesPerPixel);
 
     const auto processId = Util::Async::Process::getCurrentProcess().getId();
     createPipe(Util::String::format("event-%u", id));
