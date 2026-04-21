@@ -88,4 +88,17 @@ bool Window::flush() const {
     return response.isSuccess();
 }
 
+bool Window::setTitle(const Util::String &title) const {
+    if (!pipe.sendRequest(Request::SetWindowTitle(id, title))) {
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
+    }
+
+    auto response = Response::SetWindowTitle();
+    if (!pipe.receiveResponse(response)) {
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
+    }
+
+    return response.isSuccess();
+}
+
 }

@@ -68,8 +68,28 @@ uint16_t CreateWindow::getHeight() const {
     return height;
 }
 
-Util::String CreateWindow::getTitle() const {
+const Util::String& CreateWindow::getTitle() const {
     return title;
+}
+
+SetWindowTitle::SetWindowTitle(const size_t windowId, const Util::String &title) :
+    windowId(windowId), title(title) {}
+
+bool SetWindowTitle::writeToStream(Util::Io::OutputStream &stream) const {
+    return Util::Io::NumberUtil::writeUnsigned8BitValue(SET_WINDOW_TITLE, stream) &&
+        title.writeToStream(stream);
+}
+
+bool SetWindowTitle::readFromStream(Util::Io::InputStream &stream) {
+    return title.readFromStream(stream);
+}
+
+const Util::String& SetWindowTitle::getTitle() const {
+    return title;
+}
+
+size_t SetWindowTitle::getWindowId() const {
+    return windowId;
 }
 
 Flush::Flush(const size_t windowId) : windowId(windowId) {}
@@ -125,6 +145,21 @@ uint16_t CreateWindow::getSizeY() const {
 
 uint8_t CreateWindow::getColorDepth() const {
     return colorDepth;
+}
+
+SetWindowTitle::SetWindowTitle(const bool success) : success(success) {}
+
+bool SetWindowTitle::writeToStream(Util::Io::OutputStream &stream) const {
+    return Util::Io::NumberUtil::writeUnsigned8BitValue(success ? 1 : 0, stream);
+}
+
+bool SetWindowTitle::readFromStream(Util::Io::InputStream &stream) {
+    success = Util::Io::NumberUtil::readUnsigned8BitValue(stream) != 0;
+    return true;
+}
+
+bool SetWindowTitle::isSuccess() const {
+    return success;
 }
 
 Flush::Flush(const bool success) : success(success) {}
