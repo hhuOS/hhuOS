@@ -48,15 +48,17 @@ public:
 
     Connect() = default;
 
-    Connect(size_t processId, const Util::String &pipeName);
+    Connect(const size_t processId, const Util::String &pipeName) : processId(processId), pipeName(pipeName) {}
 
     bool writeToStream(Util::Io::OutputStream &stream) const override;
 
     bool readFromStream(Util::Io::InputStream &stream) override;
 
-    [[nodiscard]] Util::String getPipePath() const;
+    Util::String getPipePath() const {
+        return Util::String::format("/process/%u/pipes/%s", processId, static_cast<const char*>(pipeName));
+    }
 
-    [[nodiscard]] size_t getProcessId() const {
+    size_t getProcessId() const {
         return processId;
     }
 
@@ -72,17 +74,24 @@ public:
 
     CreateWindow() = default;
 
-    CreateWindow(uint16_t width, uint16_t height, const Util::String &title);
+    CreateWindow(const uint16_t width, const uint16_t height, const Util::String &title) :
+        width(width), height(height), title(title) {}
 
     bool writeToStream(Util::Io::OutputStream &stream) const override;
 
     bool readFromStream(Util::Io::InputStream &stream) override;
 
-    [[nodiscard]] uint16_t getWidth() const;
+    uint16_t getWidth() const {
+        return width;
+    }
 
-    [[nodiscard]] uint16_t getHeight() const;
+    uint16_t getHeight() const {
+        return height;
+    }
 
-    [[nodiscard]] const Util::String& getTitle() const;
+    const Util::String& getTitle() const {
+        return title;
+    }
 
 private:
 
@@ -97,15 +106,19 @@ public:
 
     SetWindowTitle() = default;
 
-    explicit SetWindowTitle(size_t windowId, const Util::String &title);
+    explicit SetWindowTitle(const size_t windowId, const Util::String &title) : windowId(windowId), title(title) {}
 
     bool writeToStream(Util::Io::OutputStream &stream) const override;
 
     bool readFromStream(Util::Io::InputStream &stream) override;
 
-    [[nodiscard]] const Util::String& getTitle() const;
+    const Util::String& getTitle() const {
+        return title;
+    }
 
-    [[nodiscard]] size_t getWindowId() const;
+    size_t getWindowId() const {
+        return windowId;
+    }
 
 private:
 
@@ -119,13 +132,15 @@ public:
 
     Flush() = default;
 
-    explicit Flush(size_t windowId);
+    explicit Flush(const size_t windowId) : windowId(windowId) {}
 
     bool writeToStream(Util::Io::OutputStream &stream) const override;
 
     bool readFromStream(Util::Io::InputStream &stream) override;
 
-    [[nodiscard]] size_t getWindowId() const;
+    size_t getWindowId() const {
+        return windowId;
+    }
 
 private:
 
@@ -136,25 +151,55 @@ private:
 
 namespace Response {
 
-class CreateWindow final : public Util::Async::Streamable {
+class BasicResponse : public Util::Async::Streamable {
 
 public:
 
-    CreateWindow() = default;
+    BasicResponse() = default;
 
-    CreateWindow(size_t id, uint16_t width, uint16_t height, uint8_t colorDepth);
+    explicit BasicResponse(const bool success) : success(success) {}
 
     bool writeToStream(Util::Io::OutputStream &stream) const override;
 
     bool readFromStream(Util::Io::InputStream &stream) override;
 
-    [[nodiscard]] size_t getId() const;
+    bool isSuccess() const {
+        return success;
+    }
 
-    [[nodiscard]] uint16_t getSizeX() const;
+private:
 
-    [[nodiscard]] uint16_t getSizeY() const;
+    bool success = false;
+};
 
-    [[nodiscard]] uint8_t getColorDepth() const;
+class CreateWindow final : public BasicResponse {
+
+public:
+
+    CreateWindow() = default;
+
+    CreateWindow(const size_t id, const uint16_t width, const uint16_t height, const uint8_t colorDepth) :
+        BasicResponse(true), id(id), width(width), height(height), colorDepth(colorDepth) {}
+
+    bool writeToStream(Util::Io::OutputStream &stream) const override;
+
+    bool readFromStream(Util::Io::InputStream &stream) override;
+
+    size_t getId() const {
+        return id;
+    }
+
+    uint16_t getWidth() const {
+        return width;
+    }
+
+    uint16_t getHeight() const {
+        return height;
+    }
+
+    uint8_t getColorDepth() const {
+        return colorDepth;
+    }
 
 private:
 
@@ -164,42 +209,22 @@ private:
     uint8_t colorDepth = 0;
 };
 
-class SetWindowTitle final : public Util::Async::Streamable {
+class SetWindowTitle final : public BasicResponse {
 
 public:
 
     SetWindowTitle() = default;
 
-    explicit SetWindowTitle(bool success);
-
-    bool writeToStream(Util::Io::OutputStream &stream) const override;
-
-    bool readFromStream(Util::Io::InputStream &stream) override;
-
-    [[nodiscard]] bool isSuccess() const;
-
-private:
-
-    bool success = false;
+    explicit SetWindowTitle(const bool success) : BasicResponse(success) {}
 };
 
-class Flush final : public Util::Async::Streamable {
+class Flush final : public BasicResponse {
 
 public:
 
     Flush() = default;
 
-    explicit Flush(bool success);
-
-    bool writeToStream(Util::Io::OutputStream &stream) const override;
-
-    bool readFromStream(Util::Io::InputStream &stream) override;
-
-    [[nodiscard]] bool isSuccess() const;
-
-private:
-
-    bool success = false;
+    explicit Flush(const bool success) : BasicResponse(success) {}
 };
 
 }
@@ -224,11 +249,11 @@ public:
 
     bool readFromStream(Util::Io::InputStream &stream) override;
 
-    [[nodiscard]] uint16_t getPosX() const {
+    uint16_t getPosX() const {
         return posX;
     }
 
-    [[nodiscard]] uint16_t getPosY() const {
+    uint16_t getPosY() const {
         return posY;
     }
 

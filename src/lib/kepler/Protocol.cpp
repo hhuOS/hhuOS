@@ -27,8 +27,6 @@ namespace Kepler {
 
 namespace Request {
 
-Connect::Connect(const size_t processId, const Util::String &pipeName) : processId(processId), pipeName(pipeName) {}
-
 bool Connect::writeToStream(Util::Io::OutputStream &stream) const {
     return Util::Io::NumberUtil::writeUnsigned8BitValue(CONNECT, stream) &&
         Util::Io::NumberUtil::writeUnsigned32BitValue(processId, stream) &&
@@ -39,13 +37,6 @@ bool Connect::readFromStream(Util::Io::InputStream &stream) {
     processId = Util::Io::NumberUtil::readUnsigned32BitValue(stream);
     return pipeName.readFromStream(stream);
 }
-
-Util::String Connect::getPipePath() const {
-    return Util::String::format("/process/%u/pipes/%s", processId, static_cast<const char*>(pipeName));
-}
-
-CreateWindow::CreateWindow(const uint16_t width, const uint16_t height, const Util::String &title) :
-    width(width), height(height), title(title) {}
 
 bool CreateWindow::writeToStream(Util::Io::OutputStream &stream) const {
     return Util::Io::NumberUtil::writeUnsigned8BitValue(CREATE_WINDOW, stream) &&
@@ -60,21 +51,6 @@ bool CreateWindow::readFromStream(Util::Io::InputStream &stream) {
     return title.readFromStream(stream);
 }
 
-uint16_t CreateWindow::getWidth() const {
-    return width;
-}
-
-uint16_t CreateWindow::getHeight() const {
-    return height;
-}
-
-const Util::String& CreateWindow::getTitle() const {
-    return title;
-}
-
-SetWindowTitle::SetWindowTitle(const size_t windowId, const Util::String &title) :
-    windowId(windowId), title(title) {}
-
 bool SetWindowTitle::writeToStream(Util::Io::OutputStream &stream) const {
     return Util::Io::NumberUtil::writeUnsigned8BitValue(SET_WINDOW_TITLE, stream) &&
         title.writeToStream(stream);
@@ -83,16 +59,6 @@ bool SetWindowTitle::writeToStream(Util::Io::OutputStream &stream) const {
 bool SetWindowTitle::readFromStream(Util::Io::InputStream &stream) {
     return title.readFromStream(stream);
 }
-
-const Util::String& SetWindowTitle::getTitle() const {
-    return title;
-}
-
-size_t SetWindowTitle::getWindowId() const {
-    return windowId;
-}
-
-Flush::Flush(const size_t windowId) : windowId(windowId) {}
 
 bool Flush::writeToStream(Util::Io::OutputStream &stream) const {
     return Util::Io::NumberUtil::writeUnsigned8BitValue(FLUSH, stream) &&
@@ -104,77 +70,34 @@ bool Flush::readFromStream(Util::Io::InputStream &stream) {
     return true;
 }
 
-size_t Flush::getWindowId() const {
-    return windowId;
-}
-
 }
 
 namespace Response {
+bool BasicResponse::writeToStream(Util::Io::OutputStream &stream) const {
+    return Util::Io::NumberUtil::writeUnsigned8BitValue(success ? 1 : 0, stream);
+}
 
-CreateWindow::CreateWindow(const size_t id, const uint16_t width, const uint16_t height, const uint8_t colorDepth) :
-    id(id), width(width), height(height), colorDepth(colorDepth) {}
+bool BasicResponse::readFromStream(Util::Io::InputStream &stream) {
+    success = Util::Io::NumberUtil::readUnsigned8BitValue(stream) != 0;
+    return true;
+}
 
 bool CreateWindow::writeToStream(Util::Io::OutputStream &stream) const {
-    return Util::Io::NumberUtil::writeUnsigned32BitValue(id, stream) &&
+    return BasicResponse::writeToStream(stream) &&
+        Util::Io::NumberUtil::writeUnsigned32BitValue(id, stream) &&
         Util::Io::NumberUtil::writeUnsigned16BitValue(width, stream) &&
         Util::Io::NumberUtil::writeUnsigned16BitValue(height, stream) &&
         Util::Io::NumberUtil::writeUnsigned8BitValue(colorDepth, stream);
 }
 
 bool CreateWindow::readFromStream(Util::Io::InputStream &stream) {
+    BasicResponse::readFromStream(stream);
     id = Util::Io::NumberUtil::readUnsigned32BitValue(stream);
     width = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
     height = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
     colorDepth = Util::Io::NumberUtil::readUnsigned8BitValue(stream);
 
     return true;
-}
-
-size_t CreateWindow::getId() const {
-    return id;
-}
-
-uint16_t CreateWindow::getSizeX() const {
-    return width;
-}
-
-uint16_t CreateWindow::getSizeY() const {
-    return height;
-}
-
-uint8_t CreateWindow::getColorDepth() const {
-    return colorDepth;
-}
-
-SetWindowTitle::SetWindowTitle(const bool success) : success(success) {}
-
-bool SetWindowTitle::writeToStream(Util::Io::OutputStream &stream) const {
-    return Util::Io::NumberUtil::writeUnsigned8BitValue(success ? 1 : 0, stream);
-}
-
-bool SetWindowTitle::readFromStream(Util::Io::InputStream &stream) {
-    success = Util::Io::NumberUtil::readUnsigned8BitValue(stream) != 0;
-    return true;
-}
-
-bool SetWindowTitle::isSuccess() const {
-    return success;
-}
-
-Flush::Flush(const bool success) : success(success) {}
-
-bool Flush::writeToStream(Util::Io::OutputStream &stream) const {
-    return Util::Io::NumberUtil::writeUnsigned8BitValue(success ? 1 : 0, stream);
-}
-
-bool Flush::readFromStream(Util::Io::InputStream &stream) {
-    success = Util::Io::NumberUtil::readUnsigned8BitValue(stream) != 0;
-    return true;
-}
-
-bool Flush::isSuccess() const {
-    return success;
 }
 
 }
