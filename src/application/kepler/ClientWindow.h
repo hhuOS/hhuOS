@@ -74,6 +74,11 @@ public:
 
     [[nodiscard]] Util::String getTitle() const;
 
+    void setTitle(const Util::String &title) {
+        ClientWindow::title = title;
+        titleOffsetX = (width + 2 * BORDER_WIDTH - title.length() * TITLE_FONT.getCharWidth()) / 2;
+    }
+
     [[nodiscard]] bool isDirty() const;
 
     void setDirty(bool dirty);

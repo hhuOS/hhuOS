@@ -32,6 +32,7 @@ namespace Kepler {
 enum Command : uint8_t {
     CONNECT,
     CREATE_WINDOW,
+    SET_WINDOW_TITLE,
     FLUSH
 };
 
@@ -55,7 +56,7 @@ public:
 
     [[nodiscard]] Util::String getPipePath() const;
 
-    size_t getProcessId() const {
+    [[nodiscard]] size_t getProcessId() const {
         return processId;
     }
 
@@ -81,12 +82,34 @@ public:
 
     [[nodiscard]] uint16_t getHeight() const;
 
-    [[nodiscard]] Util::String getTitle() const;
+    [[nodiscard]] const Util::String& getTitle() const;
 
 private:
 
     uint16_t width = 0;
     uint16_t height = 0;
+    Util::String title;
+};
+
+class SetWindowTitle final : public Util::Async::Streamable {
+
+public:
+
+    SetWindowTitle() = default;
+
+    explicit SetWindowTitle(size_t windowId, const Util::String &title);
+
+    bool writeToStream(Util::Io::OutputStream &stream) const override;
+
+    bool readFromStream(Util::Io::InputStream &stream) override;
+
+    [[nodiscard]] const Util::String& getTitle() const;
+
+    [[nodiscard]] size_t getWindowId() const;
+
+private:
+
+    size_t windowId;
     Util::String title;
 };
 
@@ -139,6 +162,25 @@ private:
     uint16_t width = 0;
     uint16_t height = 0;
     uint8_t colorDepth = 0;
+};
+
+class SetWindowTitle final : public Util::Async::Streamable {
+
+public:
+
+    SetWindowTitle() = default;
+
+    explicit SetWindowTitle(bool success);
+
+    bool writeToStream(Util::Io::OutputStream &stream) const override;
+
+    bool readFromStream(Util::Io::InputStream &stream) override;
+
+    [[nodiscard]] bool isSuccess() const;
+
+private:
+
+    bool success = false;
 };
 
 class Flush final : public Util::Async::Streamable {

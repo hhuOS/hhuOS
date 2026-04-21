@@ -93,6 +93,10 @@ void WindowManager::run() {
                         createWindow(*client);
                         needRedraw = true;
                         break;
+                    case Kepler::SET_WINDOW_TITLE:
+                        setWindowTitle(*client);
+                        needRedraw = true;
+                        break;
                     case Kepler::FLUSH:
                         flushWindow(*client);
                         needRedraw = true;
@@ -310,6 +314,26 @@ void WindowManager::createWindow(const Client &client) {
     if (signal == Kepler::CLIENT_WINDOW_INITIALIZED) {
         auto *window = new ClientWindow(windowId, client.getProcessId(), posX, posY, width, height, request.getTitle(), sharedBuffer);
         windowStack.push(window);
+    }
+}
+
+void WindowManager::setWindowTitle(const Client &client) {
+    auto &inputStream = client.getInputStream();
+    auto &outputStream = client.getOutputStream();
+
+    inputStream.setAccessMode(Util::Io::File::BLOCKING);
+    auto request = Kepler::Request::SetWindowTitle();
+    request.readFromStream(inputStream);
+    inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
+
+    auto *window = windowStack.getWindowById(request.getWindowId());
+    if (window != nullptr) {
+        window->setTitle(request.getTitle());
+        const auto response = Kepler::Response::SetWindowTitle(true);
+        response.writeToStream(outputStream);
+    } else {
+        const auto response = Kepler::Response::SetWindowTitle(false);
+        response.writeToStream(outputStream);
     }
 }
 
