@@ -46,6 +46,8 @@ public:
 
     bool flush() const;
 
+    bool setTitle(const Util::String &title) const;
+
     void registerEventListener(EventListener &listener) const {
         eventRunnable->registerListener(listener);
     }

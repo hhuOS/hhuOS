@@ -56,6 +56,7 @@
 uint32_t palette[256];
 Util::Graphic::LinearFrameBuffer *lfb;
 const Kepler::Window *win;
+Util::String initialTitle = "Doom";
 Util::Io::KeyDecoder *kd;
 Util::ArrayQueue<Util::Io::KeyEvent> keyEvents(32);
 
@@ -141,7 +142,7 @@ int32_t main(int argc, char **argv) {
 	doomgeneric_Create(argc, argv);
 
     auto windowManagerPipe = Kepler::WindowManagerPipe();
-    const auto window = Kepler::Window(DOOMGENERIC_RESX, DOOMGENERIC_RESY, "Doom", windowManagerPipe);
+    const auto window = Kepler::Window(DOOMGENERIC_RESX, DOOMGENERIC_RESY, initialTitle, windowManagerPipe);
     lfb = &window.getFrameBuffer();
     win = &window;
 
@@ -343,4 +344,10 @@ int DG_GetKey(int *pressed, unsigned char *key) {
     }
 }
 
-void DG_SetWindowTitle([[maybe_unused]] const char *title) {}
+void DG_SetWindowTitle([[maybe_unused]] const char *title) {
+    if (win == nullptr) {
+        initialTitle = title;
+    } else {
+        win->setTitle(title);
+    }
+}
