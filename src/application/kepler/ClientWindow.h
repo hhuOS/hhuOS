@@ -24,6 +24,7 @@
 #include <stddef.h>
 
 #include "MouseInputHandler.h"
+#include "TitleBar.h"
 #include "WindowStack.h"
 #include "util/graphic/LinearFrameBuffer.h"
 #include "util/graphic/font/Terminal8x8.h"
@@ -34,19 +35,6 @@
 class ClientWindow {
 
 public:
-
-    enum WindowArea {
-        CONTENT,
-        TITLE_BAR,
-        BORDER,
-        NONE
-    };
-
-    struct MouseEvent {
-        WindowArea area = NONE;
-        int32_t contentPosX = 0;
-        int32_t contentPosY = 0;
-    };
 
     ClientWindow(size_t id, size_t processId, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const Util::String &title, Util::Async::SharedMemory *buffer);
 
@@ -74,14 +62,19 @@ public:
 
     [[nodiscard]] Util::String getTitle() const;
 
-    void setTitle(const Util::String &title) {
-        ClientWindow::title = title;
-        titleOffsetX = (width + 2 * BORDER_WIDTH - title.length() * TITLE_FONT.getCharWidth()) / 2;
+    void setTitle(const Util::String &title) const {
+        titleBar.setTitle(title);
+    }
+
+    TitleBar& getTitleBar() {
+        return titleBar;
     }
 
     [[nodiscard]] bool isDirty() const;
 
-    void setDirty(bool dirty);
+    void setDirty(WindowArea dirtyArea);
+
+    void setDirty();
 
     MouseEvent containsPoint(uint16_t x, uint16_t y) const;
 
@@ -93,11 +86,13 @@ public:
 
     void sendKeyEvent(const Kepler::Event::KeyEvent &event);
 
-    void drawBorder(const Util::Graphic::LinearFrameBuffer &lfb, const Util::Graphic::Color &color) const;
+    bool drawDirtyAreas(const Util::Graphic::LinearFrameBuffer &lfb, bool focused = false, bool forceRedraw = false);
 
     void drawBorderAt(int32_t x, int32_t y, const Util::Graphic::LinearFrameBuffer &lfb, const Util::Graphic::Color &color) const;
 
-    void drawTitleBar(const Util::Graphic::LinearFrameBuffer &lfb, const Util::Graphic::Color &color) const;
+    void drawBorder(const Util::Graphic::LinearFrameBuffer &lfb, bool focused = false) const;
+
+    void drawTitleBar(const Util::Graphic::LinearFrameBuffer &lfb, bool focused = false);
 
     void flush(const Util::Graphic::LinearFrameBuffer &lfb) const;
 
@@ -110,18 +105,15 @@ private:
     uint16_t width = 0;
     uint16_t height = 0;
 
-    Util::String title;
+    TitleBar titleBar;
 
     Util::Async::SharedMemory *buffer = nullptr;
     Util::Io::FileOutputStream mouseOutputStream;
 
-    bool dirty = true;
+    bool titleBarDirty = true;
+    bool borderDirty = true;
+    bool contentAreaDirty = true;
 
-    uint16_t titleOffsetX;
-
-    static const Util::Graphic::Font &TITLE_FONT;
-    static const uint16_t TITLE_BAR_HEIGHT;
-    static const uint16_t TITLE_OFFSET_Y;
     static constexpr uint16_t BORDER_WIDTH = 1;
 };
 

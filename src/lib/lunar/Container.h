@@ -75,6 +75,9 @@ public:
     /// Check whether the container or any of its child widgets need to be redrawn.
     bool requiresRedraw() const override;
 
+    /// Mark this container and all its children due for a redraw.
+    void requireRedraw() override;
+
     /// Get the child widget at the given point (posX, posY) in absolute pixel coordinates.
     /// The appropriate child widget is searched recursively, meaning that if a child widget is itself
     /// a container, its children are also searched.

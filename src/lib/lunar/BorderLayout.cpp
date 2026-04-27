@@ -186,8 +186,11 @@ size_t BorderLayout::getPreferredHeight(const Util::ArrayList<WidgetEntry> &widg
         }
     }
 
-    return northHeight + southHeight +
-        (centerHeight > westHeight ? centerHeight : westHeight > eastHeight ? westHeight : eastHeight);
+    const auto highestPosition = westHeight > centerHeight ?
+        westHeight > eastHeight ? westHeight : eastHeight :
+        centerHeight > eastHeight ? centerHeight : eastHeight;
+
+    return northHeight + southHeight + highestPosition;
 }
 
 }
