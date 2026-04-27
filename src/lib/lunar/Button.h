@@ -73,7 +73,7 @@ private:
     const Util::Graphic::Font &font;
 
     static constexpr size_t PADDING_X = 8;
-    static constexpr size_t PADDING_Y= 6;
+    static constexpr size_t PADDING_Y = 6;
 };
 
 }

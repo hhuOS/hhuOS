@@ -62,8 +62,17 @@ bool Container::requiresRedraw() const {
     return Widget::requiresRedraw() || childNeedsRedraw;
 }
 
+void Container::requireRedraw() {
+    Widget::requireRedraw();
+
+    for (const auto &child : children) {
+        child.widget->requireRedraw();
+    }
+}
+
 void Container::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
-    const auto &style = Theme::CURRENT_THEME.container().getStyle(*this);
+    const auto &style = isStyleOverridden() ?
+        getOverrideStyle().getStyle(*this) : Theme::getTheme().container().getStyle(*this);
 
     if (Widget::requiresRedraw()) {
         // Redraw whole container

@@ -45,7 +45,8 @@ void InputField::setSize(const size_t width, size_t height) {
 }
 
 void InputField::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
-    const auto &style = Theme::CURRENT_THEME.inputField().getStyle(*this);
+    const auto &style = isStyleOverridden() ?
+        getOverrideStyle().getStyle(*this) : Theme::getTheme().inputField().getStyle(*this);
 
     const auto posX = getPosX();
     const auto posY = getPosY();

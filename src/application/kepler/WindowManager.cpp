@@ -57,6 +57,8 @@ void WindowManager::run() {
 
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
+    Lunar::Theme::setTheme(new TitleBarTheme());
+
     while (true) {
         bool yield = true; // Yield to another process if no work has been done in this iteration
 
@@ -121,7 +123,7 @@ void WindowManager::run() {
         if (keyboardInput >= 0) {
             if (keyDecoder.parseScancode(keyboardInput)) {
                 const auto key = keyDecoder.getKeyEvent();
-                windowStack.getFocussedWindow()->sendKeyEvent(Kepler::Event::KeyEvent(key));
+                windowStack.getFocusedWindow()->sendKeyEvent(Kepler::Event::KeyEvent(key));
             }
         }
 
@@ -133,14 +135,9 @@ void WindowManager::run() {
         }
 
         // Draw dirty windows
+        const auto *focusedWindow = windowStack.getFocusedWindow();
         for (auto *window : windowStack) {
-            if (fullRedraw || window->isDirty()) {
-                const auto color = windowStack.isFocussed(window) ?
-                    Util::Graphic::Colors::HHU_BLUE : Util::Graphic::Colors::HHU_ICE_BLUE;
-                window->drawBorder(tripleLfb, color);
-                window->drawTitleBar(tripleLfb, color);
-                window->flush(tripleLfb);
-                window->setDirty(false);
+            if (window->drawDirtyAreas(tripleLfb, window == focusedWindow, fullRedraw)) {
                 needRedraw = true;
                 yield = false; // Work has been done, do not yield
             }
@@ -182,7 +179,7 @@ void WindowManager::run() {
 
                 // Draw border of dragged window (if any)
                 if (isDragging) {
-                    windowStack.getFocussedWindow()->drawBorderAt(dragX, dragY, doubleLfb, Util::Graphic::Colors::HHU_BLUE);
+                    windowStack.getFocusedWindow()->drawBorderAt(dragX, dragY, doubleLfb, Util::Graphic::Colors::HHU_BLUE);
                 }
 
                 // Flush double buffer to screen
@@ -206,27 +203,56 @@ void WindowManager::dispatchMouseEvents() {
     const auto mouseY = mouseInputHandler.getMousePosY();
 
     if (isDragging) {
+        // Mouse is currently dragging a window -> Check if mouse button is still pressed or dragging stops
         if (mouseInputHandler.isButtonCurrentlyPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
+            // Mouse button is still pressed -> Continue dragging
             dragX += mouseInputHandler.getRelativeMovementX();
             dragY += mouseInputHandler.getRelativeMovementY();
         } else {
+            // Mouse button has been released -> Stop dragging
             isDragging = false;
-            auto *window = windowStack.getFocussedWindow();
+
+            // Set new window position
+            auto *window = windowStack.getFocusedWindow();
             window->setPosX(dragX);
             window->setPosY(dragY);
-            window->setDirty(true);
+            window->setDirty();
             fullRedraw = true;
+
+            // Send mouse release event to title bar
+            auto *mouseHoveredWindow = windowStack.getWindowAt(mouseX, mouseY);
+            const auto windowMouseEvent = mouseHoveredWindow->containsPoint(mouseX, mouseY);
+
+            auto &titleBar = mouseHoveredWindow->getTitleBar();
+            titleBar.onMouseRelease(windowMouseEvent);
+            if (titleBar.needsRedraw()) {
+                mouseHoveredWindow->setDirty(TITLE_BAR);
+                windowStack.markWindowsOnTopDirty(mouseHoveredWindow);
+            }
         }
 
         return;
     }
 
     auto *mouseHoveredWindow = windowStack.getWindowAt(mouseX, mouseY);
-    if (mouseHoveredWindow != nullptr) {
+    if (mouseHoveredWindow == nullptr) {
+        // Mouse does not currently hover over a window.
+        // If it just left a window's title bar, we need to notify the title bar about the mouse exit.
+        if (lastHoveredTitleBarWindow != nullptr) {
+            auto &titleBar = lastHoveredTitleBarWindow->getTitleBar();
+            titleBar.onMouseExit();
+            if (titleBar.needsRedraw()) {
+                lastHoveredTitleBarWindow->setDirty(TITLE_BAR);
+                windowStack.markWindowsOnTopDirty(lastHoveredTitleBarWindow);
+            }
+
+            lastHoveredTitleBarWindow = nullptr;
+        }
+    } else {
         const auto windowMouseEvent = mouseHoveredWindow->containsPoint(mouseX, mouseY);
 
         // Set focus on mouse click if mouse is inside the window
-        if (windowMouseEvent.area != ClientWindow::NONE) {
+        if (windowMouseEvent.area != NONE) {
             if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::LEFT_BUTTON)
                 || mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::RIGHT_BUTTON)
                 || mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::MIDDLE_BUTTON))
@@ -236,42 +262,74 @@ void WindowManager::dispatchMouseEvents() {
         }
 
         // Handle mouse inside the title bar (dragging)
-        if (windowMouseEvent.area == ClientWindow::TITLE_BAR || windowMouseEvent.area == ClientWindow::BORDER) {
+        if (windowMouseEvent.area == TITLE_BAR) {
+            // Send hover and click events to title bar
+            auto &titleBar = mouseHoveredWindow->getTitleBar();
+            titleBar.onMouseHover(windowMouseEvent);
+
+            if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
+                titleBar.onMouseClick(windowMouseEvent);
+            } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::LEFT_BUTTON)) {
+                titleBar.onMouseRelease(windowMouseEvent);
+            }
+
+            if (titleBar.needsRedraw()) {
+                mouseHoveredWindow->setDirty(TITLE_BAR);
+                windowStack.markWindowsOnTopDirty(mouseHoveredWindow);
+            }
+
+            lastHoveredTitleBarWindow = mouseHoveredWindow;
+
             // If the left mouse button is pressed inside the title bar, start dragging the window
             if (mouseInputHandler.isButtonCurrentlyPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
                 isDragging = true;
                 dragX = mouseHoveredWindow->getPosX();
                 dragY = mouseHoveredWindow->getPosY();
             }
-        } else if (windowMouseEvent.area == ClientWindow::CONTENT) {
-            // Send hover event if mouse position has changed
-            if (mouseInputHandler.hasMousePositionChanged()) {
-                mouseHoveredWindow->sendMouseHoverEvent(Kepler::Event::MouseHover(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY));
+        } else {
+            if (lastHoveredTitleBarWindow != nullptr) {
+                // The mouse has just left a window's title bar and went into its content area.
+                // We need to notify the title bar about the mouse exit.
+                auto &titleBar = lastHoveredTitleBarWindow->getTitleBar();
+                titleBar.onMouseExit();
+                if (titleBar.needsRedraw()) {
+                    lastHoveredTitleBarWindow->setDirty(TITLE_BAR);
+                    windowStack.markWindowsOnTopDirty(lastHoveredTitleBarWindow);
+                }
+
+                lastHoveredTitleBarWindow = nullptr;
             }
 
-            // Check mouse button states
-            if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
-                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
-                    Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::PRESS));
-            } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::LEFT_BUTTON)) {
-                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
-                    Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::RELEASE));
-            }
+            if (windowMouseEvent.area == CONTENT) {
+                // Send hover event if mouse position has changed
+                if (mouseInputHandler.hasMousePositionChanged()) {
+                    mouseHoveredWindow->sendMouseHoverEvent(Kepler::Event::MouseHover(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY));
+                }
 
-            if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::RIGHT_BUTTON)) {
-                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
-                    Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::PRESS));
-            } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::RIGHT_BUTTON)) {
-                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
-                    Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::RELEASE));
-            }
+                // Check mouse button states
+                if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
+                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
+                        Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::PRESS));
+                } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::LEFT_BUTTON)) {
+                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
+                        Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::RELEASE));
+                }
 
-            if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::MIDDLE_BUTTON)) {
-                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
-                    Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::PRESS));
-            } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::MIDDLE_BUTTON)) {
-                mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
-                    Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::RELEASE));
+                if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::RIGHT_BUTTON)) {
+                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
+                        Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::PRESS));
+                } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::RIGHT_BUTTON)) {
+                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
+                        Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::RELEASE));
+                }
+
+                if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::MIDDLE_BUTTON)) {
+                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
+                        Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::PRESS));
+                } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::MIDDLE_BUTTON)) {
+                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
+                        Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::RELEASE));
+                }
             }
         }
     }
@@ -346,34 +404,16 @@ void WindowManager::flushWindow(const Client &client) const {
     request.readFromStream(inputStream);
     inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
-    // Run through the window stack (back to front), skipping all windows behind the flushing window.
-    // All windows on top of the flushing window are marked dirty if they overlap with it
-    // or any other window that needs to be redrawn due to the flush
-    ClientWindow *requestWindow = nullptr; // The window that requested the flush
-    Util::ArrayList<ClientWindow*> dirtyWindows; // List of windows that need to be redrawn
-    for (auto *window : windowStack) {
-        if (window->getId() == request.getWindowId()) {
-            // Flushing window found -> Mark dirty
-            requestWindow = window;
-            dirtyWindows.add(requestWindow);
-            window->setDirty(true);
-        } else if (requestWindow != nullptr) {
-            for (const auto *dirtyWindow : dirtyWindows) {
-                if (window->overlapsWith(*dirtyWindow)) {
-                    // Window is drawn on top of another dirty window -> Mark dirty
-                    dirtyWindows.add(window);
-                    window->setDirty(true);
-                }
-            }
-        }
-    }
-
-    // Flushing window not found (Invalid request)
+    auto *requestWindow = windowStack.getWindowById(request.getWindowId());
     if (requestWindow == nullptr) {
+        // Flushing window not found (Invalid request)
         const auto response = Kepler::Response::Flush(false);
         response.writeToStream(outputStream);
         return;
     }
+
+    requestWindow->setDirty(CONTENT);
+    windowStack.markWindowsOnTopDirty(requestWindow);
 
     // Flush request successfully executed
     const auto response = Kepler::Response::Flush(true);

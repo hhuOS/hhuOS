@@ -56,7 +56,7 @@ public:
     void setText(const Util::String &text);
 
     /// Get the text of the label.
-    Util::String getText() const {
+    const Util::String& getText() const {
         return text;
     }
 

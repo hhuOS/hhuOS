@@ -24,17 +24,17 @@
 
 void WindowStack::push(ClientWindow *window) {
     if (windows.size() > 0) {
-        windows.get(windows.size() - 1)->setDirty(true);
+        windows.get(windows.size() - 1)->setDirty();
     }
 
     windows.add(window);
 }
 
 void WindowStack::setFocus(ClientWindow *window) {
-    auto *oldFocus = getFocussedWindow();
+    auto *oldFocus = getFocusedWindow();
     if (window != oldFocus) {
-        window->setDirty(true);
-        oldFocus->setDirty(true);
+        window->setDirty();
+        oldFocus->setDirty();
         windows.remove(window);
         windows.add(window);
     }
@@ -44,7 +44,7 @@ ClientWindow* WindowStack::getWindowAt(const uint16_t x, const uint16_t y) const
     for (size_t i = windows.size() - 1; i < windows.size(); i--) {
         auto *window = windows.get(i);
         const auto mouseEvent = window->containsPoint(x, y);
-        if (mouseEvent.area != ClientWindow::NONE) {
+        if (mouseEvent.area != NONE) {
             return window;
         }
     }
@@ -60,4 +60,27 @@ ClientWindow* WindowStack::getWindowById(const size_t id) const {
     }
 
     return nullptr;
+}
+
+void WindowStack::markWindowsOnTopDirty(ClientWindow *window) const {
+    // Run through the window stack (back to front), skipping all windows behind the requested window.
+    // All windows on top of the request window are marked dirty if they overlap with it
+    // or any other window that needs to be redrawn
+    bool windowFound = false;
+    Util::ArrayList<ClientWindow*> overlappingWindows; // List of windows that need to be redrawn
+    for (auto *currentWindow : windows) {
+        if (windowFound) {
+            for (const auto *dirtyWindow : overlappingWindows) {
+                if (currentWindow->overlapsWith(*dirtyWindow)) {
+                    // Window is drawn on top of another dirty window -> Mark dirty
+                    overlappingWindows.add(currentWindow);
+                    currentWindow->setDirty();
+                }
+            }
+        } else if (currentWindow == window) {
+            // Requested window found
+            overlappingWindows.add(window);
+            windowFound = true;
+        }
+    }
 }

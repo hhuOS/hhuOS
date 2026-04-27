@@ -16,96 +16,108 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The widget and layout system is based on a bachelor's thesis, written by Michael Zuchniewski.
- * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_LUNAR_THEME_H
-#define HHUOS_LIB_LUNAR_THEME_H
+#ifndef HHUOS_TITLEBAR_H
+#define HHUOS_TITLEBAR_H
 
-#include <util/graphic/Colors.h>
+#include "WindowMouseEvent.h"
+#include "lunar/Container.h"
+#include "lunar/Label.h"
+#include "lunar/Theme.h"
 
-namespace Lunar {
-
-class Widget;
-
-/// Base class for all themes defining the visual appearance of widgets.
-/// A theme consists of different styles for each widget type, each style defining colors for different widget states.
-/// The global current theme can be accessed via `Theme::getTheme()` and changed via `Theme::setTheme()`.
-/// Each widget uses the current theme to determine its colors when being drawn.
-class Theme {
+class TitleBar {
 
 public:
-    /// Destroy the theme instance.
-    virtual ~Theme() = default;
 
-    /// A style defines the colors that should be used for a specific widget state.
-    /// This includes colors for the widget background, border, accent elements, text, and text background.
-    struct Style {
-        /// The color of the widget background.
-        Util::Graphic::Color widgetColor;
-        /// The color of the widget border.
-        Util::Graphic::Color borderColor;
-        /// The accent color used for highlights or other accent elements.
-        Util::Graphic::Color accentColor;
-        /// The color of the text displayed on the widget.
-        Util::Graphic::Color textColor;
-        /// The background color of the text displayed on the widget.
-        Util::Graphic::Color textBackgroundColor;
-    };
+    explicit TitleBar(const Util::String &title = "");
 
-    /// A widget style defines the styles for the different states of a widget (normal, hovered, pressed).
-    struct WidgetStyle {
-        /// Style for the normal state of the widget (i.e., not hovered or pressed).
-        Style normalStyle;
-        /// Style for the hovered state of the widget (i.e., mouse is over the widget).
-        Style hoveredStyle;
-        /// Style for the pressed state of the widget (i.e., mouse button is pressed on the widget).
-        Style pressedStyle;
-
-        /// Get the appropriate style for the given widget based on its current state.
-        const Style& getStyle(const Widget &widget) const;
-    };
-
-    // Get the current global theme.
-    static const Theme& getTheme() {
-        return *CURRENT_THEME;
+    void setTitle(const Util::String &title) const {
+        titleLabel->setText(title);
     }
 
-    /// Set the current global theme to the given theme instance.
-    /// The previous theme instance is deleted.
-    static void setTheme(const Theme *theme) {
-        delete CURRENT_THEME;
-        CURRENT_THEME = theme;
+    const Util::String& getTitle() const {
+        return titleLabel->getText();
     }
 
-    /// Get the style for container widgets.
-    virtual const WidgetStyle& container() const = 0;
+    size_t getHeight() const {
+        return height;
+    }
 
-    /// Get the style for label widgets.
-    virtual const WidgetStyle& label() const = 0;
+    void draw(const Util::Graphic::LinearFrameBuffer &lfb, int32_t posX, int32_t posY, uint16_t width, bool focused = false);
 
-    /// Get the style for button widgets.
-    virtual const WidgetStyle& button() const = 0;
+    void onMouseHover(const MouseEvent &event);
 
-    /// Get the style for checkbox widgets.
-    virtual const WidgetStyle& checkBox() const = 0;
+    void onMouseExit();
 
-    /// Get the style for radio button widgets.
-    virtual const WidgetStyle& radioButton() const = 0;
+    void onMouseClick(const MouseEvent &event);
 
-    /// Get the style for input field widgets.
-    virtual const WidgetStyle& inputField() const = 0;
+    void onMouseRelease(const MouseEvent &event);
+
+    bool needsRedraw() const;
 
 private:
 
-    /// The current global theme instance.
-    static const Theme *CURRENT_THEME;
+    Lunar::Container rootContainer;
+    Lunar::Container *titleContainer = new Lunar::Container();
+    Lunar::Container *buttonContainer = new Lunar::Container();
+    Lunar::Label *titleLabel = nullptr;
+
+    size_t height = 0;
+
+    Lunar::Widget *lastHoveredChild = nullptr;
+    Lunar::Widget *lastPressedChild = nullptr;
 };
 
-/// A theme based on the Heinrich Heine University Düsseldorf (HHU) corporate design.
-class HhuTheme final : public Theme {
+static const Lunar::Theme::WidgetStyle FOCUSED_TITLE_BAR_STYLE = {
+    {
+        Util::Graphic::Colors::HHU_BLUE,
+        Util::Graphic::Colors::HHU_BLUE,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::INVISIBLE
+    },
+    {
+        Util::Graphic::Colors::HHU_BLUE,
+        Util::Graphic::Colors::HHU_BLUE,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::INVISIBLE
+    },
+    {
+        Util::Graphic::Colors::HHU_BLUE,
+        Util::Graphic::Colors::HHU_BLUE,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::INVISIBLE
+    }
+};
+
+static const Lunar::Theme::WidgetStyle CLOSE_BUTTON_STYLE = {
+    {
+        Util::Graphic::Colors::HHU_RED.withSaturation(50),
+        Util::Graphic::Colors::HHU_RED,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::BLACK,
+        Util::Graphic::Colors::HHU_RED.withSaturation(50)
+    },
+    {
+        Util::Graphic::Colors::HHU_RED.withSaturation(75),
+        Util::Graphic::Colors::HHU_RED,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::BLACK,
+        Util::Graphic::Colors::HHU_RED.withSaturation(75)
+    },
+    {
+        Util::Graphic::Colors::HHU_RED,
+        Util::Graphic::Colors::HHU_RED,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::BLACK,
+        Util::Graphic::Colors::HHU_RED
+    }
+};
+
+class TitleBarTheme final : public Lunar::Theme {
 
 public:
     /// Get the style for container widgets.
@@ -142,22 +154,22 @@ private:
 
     const WidgetStyle containerStyle = {
         {
-            Util::Graphic::Colors::WHITE,
-            Util::Graphic::Colors::WHITE,
+            Util::Graphic::Colors::HHU_ICE_BLUE,
+            Util::Graphic::Colors::HHU_ICE_BLUE,
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::INVISIBLE
         },
         {
-            Util::Graphic::Colors::WHITE,
-            Util::Graphic::Colors::WHITE,
+            Util::Graphic::Colors::HHU_ICE_BLUE,
+            Util::Graphic::Colors::HHU_ICE_BLUE,
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::INVISIBLE
         },
         {
-            Util::Graphic::Colors::WHITE,
-            Util::Graphic::Colors::WHITE,
+            Util::Graphic::Colors::HHU_ICE_BLUE,
+            Util::Graphic::Colors::HHU_ICE_BLUE,
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::INVISIBLE
@@ -170,45 +182,45 @@ private:
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::HHU_BLACK,
-            containerStyle.normalStyle.widgetColor
+            Util::Graphic::Colors::INVISIBLE
         },
         {
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::HHU_BLACK,
-            containerStyle.hoveredStyle.widgetColor
+            Util::Graphic::Colors::INVISIBLE
         },
         {
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::INVISIBLE,
             Util::Graphic::Colors::HHU_BLACK,
-            containerStyle.pressedStyle.widgetColor
+            Util::Graphic::Colors::INVISIBLE
         }
     };
 
     WidgetStyle buttonStyle = {
         {
-            Util::Graphic::Colors::HHU_BLUE.withSaturation(75),
-            Util::Graphic::Colors::HHU_DARK_BLUE,
+            Util::Graphic::Colors::HHU_TURQUOISE.withSaturation(50),
+            Util::Graphic::Colors::HHU_TURQUOISE,
             Util::Graphic::Colors::INVISIBLE,
-            Util::Graphic::Colors::HHU_ICE_BLUE.withSaturation(35),
-            Util::Graphic::Colors::HHU_BLUE.withSaturation(75)
+            Util::Graphic::Colors::BLACK,
+            Util::Graphic::Colors::HHU_TURQUOISE.withSaturation(50)
         },
         {
-            Util::Graphic::Colors::HHU_BLUE,
-            Util::Graphic::Colors::HHU_DARK_BLUE,
+            Util::Graphic::Colors::HHU_TURQUOISE.withSaturation(75),
+            Util::Graphic::Colors::HHU_TURQUOISE,
             Util::Graphic::Colors::INVISIBLE,
-            Util::Graphic::Colors::HHU_ICE_BLUE.withSaturation(35),
-            Util::Graphic::Colors::HHU_BLUE
+            Util::Graphic::Colors::BLACK,
+            Util::Graphic::Colors::HHU_TURQUOISE.withSaturation(75)
         },
         {
-            Util::Graphic::Colors::HHU_DARK_BLUE,
-            Util::Graphic::Colors::HHU_DARK_BLUE,
+            Util::Graphic::Colors::HHU_TURQUOISE,
+            Util::Graphic::Colors::HHU_TURQUOISE,
             Util::Graphic::Colors::INVISIBLE,
-            Util::Graphic::Colors::HHU_ICE_BLUE.withSaturation(35),
-            Util::Graphic::Colors::HHU_DARK_BLUE
+            Util::Graphic::Colors::BLACK,
+            Util::Graphic::Colors::HHU_TURQUOISE
         }
     };
 
@@ -262,7 +274,5 @@ private:
         }
     };
 };
-
-}
 
 #endif

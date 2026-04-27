@@ -61,7 +61,8 @@ void CheckBox::setSize(size_t width, size_t height) {
 }
 
 void CheckBox::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
-    const auto &style = Theme::CURRENT_THEME.checkBox().getStyle(*this);
+    const auto &style = isStyleOverridden() ?
+        getOverrideStyle().getStyle(*this) : Theme::getTheme().checkBox().getStyle(*this);
 
     const auto posX = getPosX();
     const auto posY = getPosY();

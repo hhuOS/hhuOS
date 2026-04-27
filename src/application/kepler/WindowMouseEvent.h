@@ -16,21 +16,24 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The widget and layout system is based on a bachelor's thesis, written by Michael Zuchniewski.
- * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#include "Theme.h"
+#ifndef HHUOS_WINDOWMOUSEEVENT_H
+#define HHUOS_WINDOWMOUSEEVENT_H
 
-#include "lunar/Widget.h"
+#include <stdint.h>
 
-namespace Lunar {
+enum WindowArea {
+    CONTENT,
+    TITLE_BAR,
+    BORDER,
+    NONE
+};
 
-const Theme::Style & Theme::WidgetStyle::getStyle(const Widget &widget) const {
-    return widget.isPressed() ? pressedStyle : widget.isHovered() ? hoveredStyle : normalStyle;
-}
+struct MouseEvent {
+    WindowArea area = NONE;
+    int32_t contentPosX = 0;
+    int32_t contentPosY = 0;
+};
 
-const Theme *Theme::CURRENT_THEME = new HhuTheme();
-
-}
+#endif
