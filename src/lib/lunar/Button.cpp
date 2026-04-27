@@ -39,7 +39,8 @@ void Button::setText(const Util::String &text) {
 }
 
 void Button::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
-    const auto &style = Theme::CURRENT_THEME.button().getStyle(*this);
+    const auto &style = isStyleOverridden() ?
+        getOverrideStyle().getStyle(*this) : Theme::getTheme().button().getStyle(*this);
 
     const auto width = getWidth();
     const auto height = getHeight();

@@ -35,20 +35,22 @@ public:
 
     void push(ClientWindow *window);
 
-    ClientWindow* getFocussedWindow() const {
+    ClientWindow* getFocusedWindow() const {
         return windows.size() > 0 ? windows.get(windows.size() - 1) : nullptr;
     }
 
     void setFocus(ClientWindow *window);
 
-    bool isFocussed(const ClientWindow *window) const {
-        const auto *focussedWindow = getFocussedWindow();
+    bool isFocussed(ClientWindow *window) const {
+        const auto *focussedWindow = getFocusedWindow();
         return window == focussedWindow;
     }
 
     ClientWindow* getWindowAt(uint16_t x, uint16_t y) const;
 
     ClientWindow* getWindowById(size_t id) const;
+
+    void markWindowsOnTopDirty(ClientWindow *window) const;
 
     Util::Iterator<ClientWindow*> begin() const override {
         return windows.begin();

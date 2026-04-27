@@ -48,15 +48,19 @@ public:
     /// Create a new linear frame buffer instance from a virtual address.
     /// This constructor should be used if the frame buffer is already mapped into the virtual address space,
     /// or if the frame buffer is not mapped to a hardware device (e.g., software frame buffer for double buffering).
+    /// By default, the linear frame buffer instance expects the virtual address to point to a heap-allocated buffer
+    /// and takes ownership of the buffer. This means it automatically deletes the buffer in its destructor.
+    /// To avoid this behavior, pass `false` as a value for `deleteBuffer`.
     LinearFrameBuffer(void *virtualAddress, const uint16_t resolutionX, const uint16_t resolutionY,
-        const uint8_t colorDepth, const uint16_t pitch) : buffer(virtualAddress), resolutionX(resolutionX),
-        resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
+        const uint8_t colorDepth, const uint16_t pitch, const bool deleteBuffer = true) :
+        buffer(virtualAddress), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth),
+        pitch(pitch), deleteBuffer(deleteBuffer) {}
 
     /// Create a new linear frame buffer instance from a physical address.
     /// This constructor maps the frame buffer from the given physical address into the virtual address space.
     /// This constructor should be used for hardware frame buffers. In user space, the physical address is typically
     /// obtained from the frame buffer device file (e.g., "/device/lfb"). However, it is more convenient to use the
-    /// constructor that takes a file as argument instead.
+    /// constructor that takes a file as an argument instead.
     LinearFrameBuffer(const size_t physicalAddress, const uint16_t resolutionX, const uint16_t resolutionY,
         const uint8_t colorDepth, const uint16_t pitch) : LinearFrameBuffer(
         mapBuffer(physicalAddress, resolutionY, pitch), resolutionX, resolutionY, colorDepth, pitch) {}
@@ -74,7 +78,9 @@ public:
 
     /// Destroy the linear frame buffer instance and delete the mapped buffer.
     virtual ~LinearFrameBuffer() {
-        delete reinterpret_cast<uint8_t*>(buffer.get());
+        if (deleteBuffer) {
+            delete reinterpret_cast<uint8_t*>(buffer.get());
+        }
     }
 
     /// Set the display resolution via the framebuffer file (i.e., '/device/lfb').
@@ -152,107 +158,10 @@ public:
     /// Read the color of a pixel at the given coordinates.
     /// CAUTION: This operation is slow on hardware frame buffers, since it requires reading from the video memory.
     /// It is recommended to use double buffering if pixel reads are required.
-    Color readPixel(const uint16_t x, const uint16_t y) const {
-        if (x > resolutionX - 1 || y > resolutionY - 1) {
-            Panic::fire(Panic::OUT_OF_BOUNDS, "LinearFrameBuffer: Trying to read a pixel out of bounds!");
-        }
-
-        const auto *address = reinterpret_cast<const uint32_t*>(
-            buffer.add(x * ((colorDepth + 7) / 8) + y * pitch).get());
-        return Color::fromRGB(*address, colorDepth);
-    }
+    Color readPixel(uint16_t x, uint16_t y) const;
 
     /// Set the pixel at the given coordinates to the specified color.
-    __attribute__((always_inline)) void drawPixel(const int32_t x, const int32_t y, const Color &color) const {
-        // Pixels outside the visible area won't be drawn
-        if (x < 0 || x >= resolutionX || y < 0 || y >= resolutionY) {
-            return;
-        }
-
-        // Invisible pixels won't be drawn
-        if (color.getAlpha() == 0) {
-            return;
-        }
-
-        // Blend if necessary
-        const Color toWrite = color.getAlpha() < 255 ? readPixel(x, y).blend(color) : color;
-
-        switch (colorDepth) {
-            case 32:
-            {
-                const auto offset = x + y * (pitch / 4);
-                auto *pixelBuffer = reinterpret_cast<uint32_t*>(buffer.get());
-
-                pixelBuffer[offset] = toWrite.getRGB32();
-
-                return;
-            }
-
-            case 24:
-            {
-                const auto rgbColor = toWrite.getRGB24();
-                const auto offset = x * 3 + y * pitch;
-                auto *pixelBuffer = reinterpret_cast<uint8_t*>(buffer.get());
-
-                pixelBuffer[offset] = rgbColor & 0xff;
-                pixelBuffer[offset + 1] = (rgbColor >> 8) & 0xff;
-                pixelBuffer[offset + 2] = (rgbColor >> 16) & 0xff;
-
-                return;
-            }
-
-            case 16:
-            {
-                const auto offset = x + y * (pitch / 2);
-                auto *pixelBuffer = reinterpret_cast<uint16_t*>(buffer.get());
-
-                pixelBuffer[offset] = toWrite.getRGB16();
-
-                return;
-            }
-
-            case 15:
-            {
-                const auto offset = x + y * (pitch / 2);
-                auto *pixelBuffer = reinterpret_cast<uint16_t*>(buffer.get());
-
-                pixelBuffer[offset] = toWrite.getRGB15();
-
-                return;
-            }
-
-            case 2: // CGA 4-color mode
-            {
-                const auto offset = x / (8 / colorDepth) + y / (4 / colorDepth) * pitch + (y % 2) * 0x2000;
-                const auto pixelValue = toWrite.getRGB2();
-                auto *pixelBuffer = reinterpret_cast<uint8_t*>(buffer.add(offset).get());
-
-                const auto pos = x & 3;
-                const auto shift = (3 - pos) * 2;
-                const auto mask = static_cast<uint8_t>(0x3u << shift);
-                *pixelBuffer = static_cast<uint8_t>((*pixelBuffer & ~mask) | ((pixelValue & 0x3u) << shift));
-
-                return;
-            }
-
-            case 1: // CGA 2-color mode
-            {
-                const auto offset = x / (8 / colorDepth) + y / (4 / colorDepth) * pitch + (y % 2) * 0x2000;
-                const auto pixelValue = toWrite.getRGB1();
-                auto *pixelBuffer = reinterpret_cast<uint8_t*>(buffer.add(offset).get());
-
-                const auto pos = x & 7;
-                const auto shift = 7 - pos;
-                const auto mask = static_cast<uint8_t>(1u << shift);
-                *pixelBuffer = static_cast<uint8_t>((*pixelBuffer & ~mask) | ((pixelValue & 0x1u) << shift));
-
-                return;
-            }
-
-            default:
-                Panic::fire(Panic::UNSUPPORTED_OPERATION, "LinearFrameBuffer: Unsupported color depth!");
-        }
-    }
+    virtual void drawPixel(int32_t x, int32_t y, const Color &color) const;
 
     /// Draw a line from (x1, y1) to (x2, y2) with the specified color using Bresenham's line algorithm.
     void drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const Color &color) const;
@@ -321,6 +230,7 @@ private:
     uint16_t resolutionY = 0;
     uint8_t colorDepth = 0;
     uint16_t pitch = 0;
+    bool deleteBuffer = true;
 };
 
 }

@@ -72,6 +72,7 @@ private:
     WindowStack windowStack;
     Util::Async::IdGenerator clientIdGenerator;
     Util::Async::IdGenerator windowIdGenerator;
+    ClientWindow *lastHoveredTitleBarWindow = nullptr;
 
     Util::Io::FileInputStream *nextPipe = nullptr;
     size_t nextClientId = 0;

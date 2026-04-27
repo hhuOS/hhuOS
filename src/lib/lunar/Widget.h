@@ -27,13 +27,14 @@
 #include <stddef.h>
 
 #include "ActionListener.h"
+#include "Theme.h"
 
 #include <util/collection/ArrayList.h>
 #include <util/graphic/LinearFrameBuffer.h>
 
 namespace Lunar {
 class Container;
-} // namespace Lunar
+}
 
 namespace Lunar {
 
@@ -118,6 +119,22 @@ public:
     /// Set whether the widget has keyboard focus.
     void setFocused(bool focused);
 
+    /// Override the global theme for this specific widget.
+    void setOverrideStyle(const Theme::WidgetStyle &style) {
+        styleOverridden = true;
+        overrideStyle = style;
+        requireRedraw();
+    }
+
+    /// Reset overridden style to the one provided by the global theme.
+    void resetStyle() {
+        if (styleOverridden) {
+            requireRedraw();
+        }
+
+        styleOverridden = false;
+    }
+
     /// Add an action listener to the widget.
     /// The listener will be notified when certain events occur on the widget (e.g., mouse clicks, key presses).
     void addActionListener(ActionListener *listener) {
@@ -158,6 +175,11 @@ public:
     /// A key is considered typed when it is pressed and then released.
     void keyTyped(const Util::Io::KeyEvent &key) const;
 
+    /// Notify the widget that it needs to be redrawn.
+    virtual void requireRedraw() {
+        needsRedraw = true;
+    }
+
     /// Check whether the widget needs to be redrawn.
     virtual bool requiresRedraw() const {
         return needsRedraw;
@@ -191,14 +213,26 @@ public:
 
 protected:
 
-    /// Notify the widget that it needs to be redrawn.
-    void requireRedraw() {
-        needsRedraw = true;
-    }
-
     /// Notify the parent container that the preferred size of the widget has changed.
     /// This can for example happen when the content of the widget changes (e.g., text in a label).
     void reportPreferredSizeChange() const;
+
+    /// Check whether the style for this widget has been overriden.
+    /// If this is the case, the `draw()` implementation should use the override style
+    /// instead of the one provided by the global theme.
+    bool isStyleOverridden() const {
+        return styleOverridden;
+    }
+
+    /// Get the override style.
+    /// If the style has not been overridden, this function will fire a panic.
+    const Theme::WidgetStyle& getOverrideStyle() const {
+        if (!styleOverridden) {
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Widget: Style not overridden!");
+        }
+
+        return overrideStyle;
+    }
 
 private:
 
@@ -246,6 +280,9 @@ private:
     const bool redrawOnFocusChange;
 
     bool needsRedraw = true;
+
+    bool styleOverridden = false;
+    Theme::WidgetStyle overrideStyle;
 
     Container *parent = nullptr;
 

@@ -52,7 +52,8 @@ void Label::setSize(size_t width, size_t height) {
 }
 
 void Label::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
-    const auto &style = Theme::CURRENT_THEME.label().getStyle(*this);
+    const auto &style = isStyleOverridden() ?
+        getOverrideStyle().getStyle(*this) : Theme::getTheme().label().getStyle(*this);
 
     const auto posX = getPosX();
     const auto posY = getPosY();

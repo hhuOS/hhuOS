@@ -80,6 +80,106 @@ bool LinearFrameBuffer::setResolution(const Io::File &lfbFile, const String &res
     return setResolution(lfbFile, x, y, bpp);
 }
 
+Color LinearFrameBuffer::readPixel(const uint16_t x, const uint16_t y) const {
+    if (x > resolutionX - 1 || y > resolutionY - 1) {
+        Panic::fire(Panic::OUT_OF_BOUNDS, "LinearFrameBuffer: Trying to read a pixel out of bounds!");
+    }
+
+    const auto *address = reinterpret_cast<const uint32_t*>(buffer.add(x * ((colorDepth + 7) / 8) + y * pitch).get());
+    return Color::fromRGB(*address, colorDepth);
+}
+
+void LinearFrameBuffer::drawPixel(const int32_t x, const int32_t y, const Color &color) const {
+    // Pixels outside the visible area won't be drawn
+    if (x < 0 || x >= resolutionX || y < 0 || y >= resolutionY) {
+        return;
+    }
+
+    // Invisible pixels won't be drawn
+    if (color.getAlpha() == 0) {
+        return;
+    }
+
+    // Blend if necessary
+    const Color toWrite = color.getAlpha() < 255 ? readPixel(x, y).blend(color) : color;
+
+    switch (colorDepth) {
+        case 32:
+        {
+            const auto offset = x + y * (pitch / 4);
+            auto *pixelBuffer = reinterpret_cast<uint32_t*>(buffer.get());
+
+            pixelBuffer[offset] = toWrite.getRGB32();
+
+            return;
+        }
+
+        case 24:
+        {
+            const auto rgbColor = toWrite.getRGB24();
+            const auto offset = x * 3 + y * pitch;
+            auto *pixelBuffer = reinterpret_cast<uint8_t*>(buffer.get());
+
+            pixelBuffer[offset] = rgbColor & 0xff;
+            pixelBuffer[offset + 1] = (rgbColor >> 8) & 0xff;
+            pixelBuffer[offset + 2] = (rgbColor >> 16) & 0xff;
+
+            return;
+        }
+
+        case 16:
+        {
+            const auto offset = x + y * (pitch / 2);
+            auto *pixelBuffer = reinterpret_cast<uint16_t*>(buffer.get());
+
+            pixelBuffer[offset] = toWrite.getRGB16();
+
+            return;
+        }
+
+        case 15:
+        {
+            const auto offset = x + y * (pitch / 2);
+            auto *pixelBuffer = reinterpret_cast<uint16_t*>(buffer.get());
+
+            pixelBuffer[offset] = toWrite.getRGB15();
+
+            return;
+        }
+
+        case 2: // CGA 4-color mode
+        {
+            const auto offset = x / (8 / colorDepth) + y / (4 / colorDepth) * pitch + (y % 2) * 0x2000;
+            const auto pixelValue = toWrite.getRGB2();
+            auto *pixelBuffer = reinterpret_cast<uint8_t*>(buffer.add(offset).get());
+
+            const auto pos = x & 3;
+            const auto shift = (3 - pos) * 2;
+            const auto mask = static_cast<uint8_t>(0x3u << shift);
+            *pixelBuffer = static_cast<uint8_t>((*pixelBuffer & ~mask) | ((pixelValue & 0x3u) << shift));
+
+            return;
+        }
+
+        case 1: // CGA 2-color mode
+        {
+            const auto offset = x / (8 / colorDepth) + y / (4 / colorDepth) * pitch + (y % 2) * 0x2000;
+            const auto pixelValue = toWrite.getRGB1();
+            auto *pixelBuffer = reinterpret_cast<uint8_t*>(buffer.add(offset).get());
+
+            const auto pos = x & 7;
+            const auto shift = 7 - pos;
+            const auto mask = static_cast<uint8_t>(1u << shift);
+            *pixelBuffer = static_cast<uint8_t>((*pixelBuffer & ~mask) | ((pixelValue & 0x1u) << shift));
+
+            return;
+        }
+
+        default:
+            Panic::fire(Panic::UNSUPPORTED_OPERATION, "LinearFrameBuffer: Unsupported color depth!");
+    }
+}
+
 void LinearFrameBuffer::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const Color &color) const {
     if ((x1 < 0 && x2 < 0) || (x1 > resolutionX && x2 >= resolutionX)) {
         return;
