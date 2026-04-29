@@ -269,6 +269,11 @@ void WindowManager::dispatchMouseEvents() {
 
             if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
                 titleBar.onMouseClick(windowMouseEvent);
+
+                // If the left mouse button is pressed inside the title bar, start dragging the window
+                isDragging = true;
+                dragX = mouseHoveredWindow->getPosX();
+                dragY = mouseHoveredWindow->getPosY();
             } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::LEFT_BUTTON)) {
                 titleBar.onMouseRelease(windowMouseEvent);
             }
@@ -279,13 +284,6 @@ void WindowManager::dispatchMouseEvents() {
             }
 
             lastHoveredTitleBarWindow = mouseHoveredWindow;
-
-            // If the left mouse button is pressed inside the title bar, start dragging the window
-            if (mouseInputHandler.isButtonCurrentlyPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
-                isDragging = true;
-                dragX = mouseHoveredWindow->getPosX();
-                dragY = mouseHoveredWindow->getPosY();
-            }
         } else {
             if (lastHoveredTitleBarWindow != nullptr) {
                 // The mouse has just left a window's title bar and went into its content area.
