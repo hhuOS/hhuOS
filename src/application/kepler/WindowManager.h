@@ -45,6 +45,10 @@ public:
 
 private:
 
+    bool checkNextPipe();
+
+    bool checkClients();
+
     void dispatchMouseEvents();
 
     void createNextPipe();

@@ -466,6 +466,7 @@ int32_t main(const int32_t argc, char *argv[]) {
         // Play the mixed audio samples
         audioChannel.write(mixedAudioBuffer, 0, AUDIO_SAMPLES);
 
+        lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %02u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
         // Update FPS display
         lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0,
             static_cast<const char*>(Util::String::format("FPS: %u", fps)),

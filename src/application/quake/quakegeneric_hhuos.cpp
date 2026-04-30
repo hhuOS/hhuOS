@@ -139,7 +139,7 @@ void QG_DrawFrame(void *pixels) {
 
     drawFrame(pixels);
 
-    lfb->drawString(*fpsFont, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+    lfb->drawString(*fpsFont, 0, 0, static_cast<const char*>(Util::String::format("FPS: %02u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
     fpsCounter++;
     fpsTimer += (Util::Time::Timestamp::getSystemTime() - lastFrameTime);

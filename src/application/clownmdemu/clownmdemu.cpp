@@ -479,7 +479,7 @@ int32_t main(int32_t argc, char *argv[]) {
         ClownMDEmu_Iterate(&emulator);
 
         // Update FPS display
-        const auto fpsString = Util::String::format("FPS: %u", fps);
+        const auto fpsString = Util::String::format("FPS: %02u", fps);
         lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(fpsString),
             Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
