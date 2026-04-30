@@ -19,7 +19,7 @@
 project(limine)
 message(STATUS "Project " ${PROJECT_NAME})
 
-set(LIMINE_VERSION "10")
+set(LIMINE_VERSION "12.0.2")
 
 set(LIMINE_CONFIG "\
 default_entry: 1\\n\
@@ -47,20 +47,21 @@ verbose: yes\\n\
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/limine/iso/limine-uefi-cd.bin" "${CMAKE_BINARY_DIR}/limine/iso/limine-bios-cd.bin" "${CMAKE_BINARY_DIR}/limine/iso/limine-bios.sys" "${CMAKE_BINARY_DIR}/limine/iso/EFI/BOOT/BOOTIA32.EFI" "${CMAKE_BINARY_DIR}/limine/iso/EFI/BOOT/BOOTX64.EFI"
         COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/limine/iso/EFI/BOOT"
-        COMMAND wget "-O" "${CMAKE_BINARY_DIR}/limine/limine.zip" "https://codeberg.org/Limine/Limine/archive/v${LIMINE_VERSION}.x-binary.zip"
-        COMMAND unzip "-o" "${CMAKE_BINARY_DIR}/limine/limine.zip" -d "${CMAKE_BINARY_DIR}/limine/"
-        COMMAND /bin/cp "${CMAKE_BINARY_DIR}/limine/limine/limine-uefi-cd.bin" "${CMAKE_BINARY_DIR}/limine/iso/"
-        COMMAND /bin/cp "${CMAKE_BINARY_DIR}/limine/limine/limine-bios-cd.bin" "${CMAKE_BINARY_DIR}/limine/iso/"
-        COMMAND /bin/cp "${CMAKE_BINARY_DIR}/limine/limine/limine-bios.sys" "${CMAKE_BINARY_DIR}/limine/iso/"
-        COMMAND /bin/cp "${CMAKE_BINARY_DIR}/limine/limine/BOOTIA32.EFI" "${CMAKE_BINARY_DIR}/limine/iso/EFI/BOOT/"
-        COMMAND /bin/cp "${CMAKE_BINARY_DIR}/limine/limine/BOOTX64.EFI" "${CMAKE_BINARY_DIR}/limine/iso/EFI/BOOT/"
-        COMMAND /bin/rm "${CMAKE_BINARY_DIR}/limine/limine.zip")
+        COMMAND cd "${CMAKE_BINARY_DIR}/limine/"
+        COMMAND wget "https://github.com/Limine-Bootloader/Limine/releases/download/v${LIMINE_VERSION}/limine-binary.tar.gz"
+        COMMAND tar "-xzf" "${CMAKE_BINARY_DIR}/limine/limine-binary.tar.gz"
+        COMMAND /bin/cp "limine-binary/limine-uefi-cd.bin" "iso/"
+        COMMAND /bin/cp "limine-binary/limine-bios-cd.bin" "iso/"
+        COMMAND /bin/cp "limine-binary/limine-bios.sys" "iso/"
+        COMMAND /bin/cp "limine-binary/BOOTIA32.EFI" "iso/EFI/BOOT/"
+        COMMAND /bin/cp "limine-binary/BOOTX64.EFI" "iso/EFI/BOOT/"
+        COMMAND /bin/rm "limine-binary.tar.gz")
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/limine/limine-executable"
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/limine/limine/"
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/limine/limine-binary/"
         COMMAND make
         COMMAND /bin/cp "limine" "../limine-executable"
-        COMMAND /bin/rm "-r" "../limine/"
+        COMMAND /bin/rm "-r" "../limine-binary/"
         DEPENDS "${CMAKE_BINARY_DIR}/limine/iso/limine-uefi-cd.bin" "${CMAKE_BINARY_DIR}/limine/iso/limine-bios-cd.bin" "${CMAKE_BINARY_DIR}/limine/iso/limine-bios.sys" "${CMAKE_BINARY_DIR}/limine/iso/EFI/BOOT/BOOTIA32.EFI" "${CMAKE_BINARY_DIR}/limine/iso/EFI/BOOT/BOOTX64.EFI")
 
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-limine.iso"
