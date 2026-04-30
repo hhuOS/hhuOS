@@ -199,7 +199,7 @@ void nes_flush_buf16(const PixelBuf *buf) {
 }
 
 void nes_flip_display() {
-    const auto fpsString = Util::String::format("FPS: %u", fps);
+    const auto fpsString = Util::String::format("FPS: %02u", fps);
     bufferedLfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(fpsString), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
     bufferedLfb->flush();
