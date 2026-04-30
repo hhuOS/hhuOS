@@ -213,7 +213,7 @@ void DG_DrawFrame() {
 
     drawFrame();
 
-    lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+    lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %02u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
     fpsCounter++;
     fpsTimer += (Util::Time::Timestamp::getSystemTime() - lastFrameTime);

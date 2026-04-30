@@ -167,7 +167,7 @@ void Engine::drawStatus() {
     graphics.setColor(Util::Graphic::Colors::WHITE);
 
     graphics.drawStringDirectAbsolute(10, 10,
-        Util::String::format("FPS: %u | Frame time: %.1fms",
+        Util::String::format("FPS: %02u | Frame time: %.1fms",
             status.framesPerSecond,
             status.frameTime.toSecondsFloat<float>() * 1000));
 

@@ -63,68 +63,31 @@ void WindowManager::run() {
         bool yield = true; // Yield to another process if no work has been done in this iteration
 
         // Handle new client connections
-        if (nextPipe->isReadyToRead()) {
-            nextPipe->setAccessMode(Util::Io::File::BLOCKING);
-            const auto command = static_cast<Kepler::Command>(
-                Util::Io::NumberUtil::readUnsigned8BitValue(*nextPipe));
-
-            if (command != Kepler::CONNECT) {
-                continue;
-            }
-
-            auto request = Kepler::Request::Connect();
-            request.readFromStream(*nextPipe);
-            nextPipe->setAccessMode(Util::Io::File::NON_BLOCKING);
-
-            auto *outputPipe = new Util::Io::FileOutputStream(request.getPipePath());
-            clients.add(new Client(nextClientId, request.getProcessId(), nextPipe, outputPipe));
-
-            createNextPipe();
+        if (checkNextPipe()) {
             yield = false; // Work has been done, do not yield
         }
 
         // Handle client commands
-        for (const auto *client : clients) {
-            auto &inputStream = client->getInputStream();
-            if (inputStream.isReadyToRead()) {
-                const auto command = static_cast<Kepler::Command>(
-                    Util::Io::NumberUtil::readUnsigned8BitValue(inputStream));
-
-                switch (command) {
-                    case Kepler::CREATE_WINDOW:
-                        createWindow(*client);
-                        needRedraw = true;
-                        break;
-                    case Kepler::SET_WINDOW_TITLE:
-                        setWindowTitle(*client);
-                        needRedraw = true;
-                        break;
-                    case Kepler::FLUSH:
-                        flushWindow(*client);
-                        needRedraw = true;
-                        break;
-                    default:
-                        break;
-                }
-
-                yield = false; // Work has been done, do not yield
-            }
+        if (checkClients()) {
+            yield = false; // Work has been done, do not yield
         }
 
         // Check windows against mouse positions
-        if (mouseInputHandler.checkMouseInput()) {
+        while (mouseInputHandler.checkMouseInput()) {
             dispatchMouseEvents();
             needRedraw = true;
             yield = false; // Work has been done, do not yield
         }
 
-        // Check keyboard input for focussed window
-        const auto keyboardInput = Util::System::in.read();
-        if (keyboardInput >= 0) {
+        // Check keyboard input for focused window
+        auto keyboardInput = Util::System::in.read();
+        while (keyboardInput >= 0) {
             if (keyDecoder.parseScancode(keyboardInput)) {
                 const auto key = keyDecoder.getKeyEvent();
                 windowStack.getFocusedWindow()->sendKeyEvent(Kepler::Event::KeyEvent(key));
             }
+
+            keyboardInput = Util::System::in.read();
         }
 
         // Clear screen if a full redraw is needed (e.g., after dragging a window)
@@ -155,7 +118,7 @@ void WindowManager::run() {
 
             if (fpsTimer >= Util::Time::Timestamp::ofSeconds(1)) {
                 needRedraw = true;
-                fpsString = Util::String::format("FPS: %u", fpsCounter);
+                fpsString = Util::String::format("FPS: %02u", fpsCounter);
                 fpsTimer = Util::Time::Timestamp();
                 fpsCounter = 0;
             }
@@ -196,6 +159,62 @@ void WindowManager::run() {
             Util::Async::Thread::yield();
         }
     }
+}
+
+bool WindowManager::checkNextPipe() {
+    if (nextPipe->isReadyToRead()) {
+        nextPipe->setAccessMode(Util::Io::File::BLOCKING);
+        const auto command = static_cast<Kepler::Command>(Util::Io::NumberUtil::readUnsigned8BitValue(*nextPipe));
+
+        if (command == Kepler::CONNECT) {
+            auto request = Kepler::Request::Connect();
+            request.readFromStream(*nextPipe);
+            nextPipe->setAccessMode(Util::Io::File::NON_BLOCKING);
+
+            auto *outputPipe = new Util::Io::FileOutputStream(request.getPipePath());
+            clients.add(new Client(nextClientId, request.getProcessId(), nextPipe, outputPipe));
+
+            createNextPipe();
+        }
+
+        nextPipe->setAccessMode(Util::Io::File::NON_BLOCKING);
+        return true;
+    }
+
+    return false;
+}
+
+bool WindowManager::checkClients() {
+    bool requestReceived = false;
+
+    for (const auto *client : clients) {
+        auto &inputStream = client->getInputStream();
+        if (inputStream.isReadyToRead()) {
+            const auto command = static_cast<Kepler::Command>(
+                Util::Io::NumberUtil::readUnsigned8BitValue(inputStream));
+
+            switch (command) {
+                case Kepler::CREATE_WINDOW:
+                    createWindow(*client);
+                    needRedraw = true;
+                    break;
+                case Kepler::SET_WINDOW_TITLE:
+                    setWindowTitle(*client);
+                    needRedraw = true;
+                    break;
+                case Kepler::FLUSH:
+                    flushWindow(*client);
+                    needRedraw = true;
+                    break;
+                default:
+                    break;
+            }
+
+            requestReceived = true;
+        }
+    }
+
+    return requestReceived;
 }
 
 void WindowManager::dispatchMouseEvents() {

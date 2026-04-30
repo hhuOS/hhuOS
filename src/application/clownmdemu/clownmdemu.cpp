@@ -408,7 +408,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
         ClownMDEmu_Iterate(&emulator);
 
-        lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+        lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %02u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
         auto renderTime = Util::Time::Timestamp::getSystemTime() - startTime;
         if (renderTime < targetFrameTime) {
