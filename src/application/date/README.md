@@ -4,7 +4,7 @@ Print the system date and time to the standard output.
 
 Usage
 -----
-```sh
+```
 date [FORMAT]
 ```
 
@@ -37,7 +37,7 @@ Supported options:
 
 Examples
 --------
-```sh
+```
 [/]> date
 Tue Jan  6 16:43:51 UTC 2026
 [/]> date "%Y-%m-%d %H:%M:%S"

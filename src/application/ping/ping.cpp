@@ -60,7 +60,7 @@ int32_t main(int32_t argc, char *argv[]) {
     uint32_t count = argumentParser.hasArgument("count") ? Util::String::parseNumber<uint32_t>(argumentParser.getArgument("count")) : 10;
     auto destinationAddress = Util::Network::Ip4::Ip4Address(arguments[0]);
 
-    auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ICMP);
+    const Util::Network::Socket socket(Util::Network::Socket::ICMP);
     socket.setTimeout(Util::Time::Timestamp::ofSeconds(5));
 
     if (!socket.bind(Util::Network::Ip4::Ip4Address::ANY)) {

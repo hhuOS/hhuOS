@@ -39,7 +39,7 @@ namespace Udp {
 /// ## Example
 /// ```c++
 /// // Create a new UDP socket
-/// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::UDP);
+/// Util::Network::Socket socket(Util::Network::Socket::UDP);
 ///
 /// // Bind the socket to a specific address
 /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {

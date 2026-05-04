@@ -19,13 +19,16 @@
 project(ip)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
+add_compile_options("-Wpedantic")
 
-set(SOURCE_FILES
+make_readme_includable(${HHUOS_SRC_DIR}/application/ip)
+
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME}  lib.user.runtime lib.user.base lib.user.network)
+target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/application/ip/ip.cpp
         ${HHUOS_SRC_DIR}/application/ip/Address.cpp
         ${HHUOS_SRC_DIR}/application/ip/Route.cpp)
-
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.network)

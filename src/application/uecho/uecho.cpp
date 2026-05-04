@@ -135,7 +135,7 @@ int32_t main(int32_t argc, char *argv[]) {
         bindAddress = Util::Network::Ip4::Ip4PortAddress(DEFAULT_PORT);
     }
 
-    auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::UDP);
+    Util::Network::Socket socket(Util::Network::Socket::UDP);
     socket.setTimeout(Util::Time::Timestamp::ofSeconds(5));
 
     if (!socket.bind(bindAddress)) {

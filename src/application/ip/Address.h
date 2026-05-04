@@ -18,56 +18,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ADDRESS_H
-#define HHUOS_ADDRESS_H
+#ifndef HHUOS_APPLICATION_IP_ADDRESS_H
+#define HHUOS_APPLICATION_IP_ADDRESS_H
 
 #include <stdint.h>
 
-#include "lib/util/collection/Array.h"
-#include "lib/util/base/String.h"
+#include <util/collection/Array.h>
+#include <util/base/String.h>
 
+/// Subcommand for the `ip` program to show and modify IPv4 addresses of network devices.
 class Address {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// Create a new instance from the program arguments given to `ip` for this subcommand.
+    /// For example, if the user calls `ip addr show eth0`, the `ip` program passes `[show, eth0]` to this subcommand.
     explicit Address(const Util::Array<Util::String> &arguments);
 
-    /**
-     * Copy Constructor.
-     */
-    Address(const Address &other) = delete;
+    /// Parse the arguments given in the constructor and execute the subcommand.
+    /// On success, 0 is returned.
+    int32_t parse() const;
 
-    /**
-     * Assignment operator.
-     */
-    Address &operator=(const Address &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Address() = default;
-
-    int32_t parse();
-
-    int32_t show();
-
-    int32_t remove();
-
-    int32_t add();
-
-    static const constexpr char *COMMAND = "address";
+    /// The name of this subcommand (used for argument parsing)
+    static constexpr const char *COMMAND = "address";
 
 private:
+
+    int32_t show() const;
+
+    int32_t remove() const;
+
+    int32_t add() const;
 
     static void printDeviceInfo(const Util::String &deviceName);
 
     const Util::Array<Util::String> arguments;
 
-    static const constexpr char *COMMAND_SHOW = "show";
-    static const constexpr char *COMMAND_REMOVE = "delete";
-    static const constexpr char *COMMAND_ADD = "add";
+    static constexpr const char *COMMAND_SHOW = "show";
+    static constexpr const char *COMMAND_REMOVE = "delete";
+    static constexpr const char *COMMAND_ADD = "add";
 };
 
 

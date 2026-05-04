@@ -4,7 +4,7 @@ Play asciimation (ASCII animation) files in the terminal.
 
 Usage
 -----
-```sh
+```
 asciimate FILE
 ```
 
@@ -24,6 +24,6 @@ A redistributable build of hhuOS (e.g. from GitHub Releases) does not include th
 
 Examples
 --------
-```sh
+```
 [/]> asciimate /user/asciimation/star_wars.txt
 ```

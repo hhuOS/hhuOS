@@ -4,7 +4,7 @@ Write the first part of files to standard output.
 
 Usage
 -----
-```sh
+```
 head [OPTION]... [FILE]...
 ```
 
@@ -18,7 +18,7 @@ If no options are given, the first 10 lines of each file are printed.
 
 Examples
 --------
-```sh
+```
 [/]> echo "Hello, World!" > file.txt
 [/]> head file.txt
 Hello, World!
@@ -32,7 +32,7 @@ Hello, Wor
 H
 ```
 
-```sh
+```
 [/]> echo Hello > file1.txt
 [/]> echo World > file2.txt
 [/]> head file1.txt file2.txt

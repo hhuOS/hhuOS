@@ -38,17 +38,15 @@ namespace Network {
 
 Socket::Socket(const int32_t fileDescriptor, const Type type) : fileDescriptor(fileDescriptor), type(type) {}
 
-Socket::~Socket() {
-    closeFile(fileDescriptor);
-}
-
-Socket Socket::createSocket(const Type type) {
-    const auto fileDescriptor = ::createSocket(type);
+Socket::Socket(const Type type) : type(type) {
+    fileDescriptor = createSocket(type);
     if (fileDescriptor == -1) {
         Util::Panic::fire(Panic::ILLEGAL_STATE, "Failed to open socket!");
     }
+}
 
-    return {fileDescriptor, type};
+Socket::~Socket() {
+    closeFile(fileDescriptor);
 }
 
 void Socket::setTimeout(const Time::Timestamp timeout) const {
@@ -136,7 +134,7 @@ Array<Ip4::Ip4Route> Socket::getRoutes() const {
     }
 
     // If the last device name is empty, the array has not been filled completely.
-    // This means we are finished. Otherwise, the arrays were not large enough and we try again with larger arrays.
+    // This means we are finished. Otherwise, the arrays were not large enough, and we try again with larger arrays.
     while (!String(devices[devices.length() - 1]).isEmpty()) {
         sourceAddresses = Array<Ip4::Ip4Address>(sourceAddresses.length() * 2);
         targetAddresses = Array<Ip4::Ip4SubnetAddress>(targetAddresses.length() * 2);

@@ -4,7 +4,7 @@ Mount a filesystem at a specified directory.
 
 Usage
 -----
-```sh
+```
 mkdir [OPTION]... DEVICE PATH
 ```
 
@@ -16,7 +16,7 @@ Mount the filesystem on the specified DEVICE to the specified PATH.
 
 Examples
 --------
-```sh
+```
 [/]> ls /media/floppy
 bin/ books/
 [/]> mount -t Filesystem::Fat::FatDriver floppy0 /media/floppy

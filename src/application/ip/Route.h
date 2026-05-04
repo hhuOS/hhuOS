@@ -18,49 +18,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ROUTE_H
-#define HHUOS_ROUTE_H
+#ifndef HHUOS_APPLICATION_IP_ROUTE_H
+#define HHUOS_APPLICATION_IP_ROUTE_H
 
 #include <stdint.h>
 
-#include "lib/util/collection/Array.h"
-#include "lib/util/base/String.h"
-#include "lib/util/network/ip4/Ip4Route.h"
+#include <util/collection/Array.h>
+#include <util/base/String.h>
+#include <util/network/ip4/Ip4Route.h>
 
-namespace Util {
-namespace Network {
-namespace Ip4 {
-class Ip4Address;
-}  // namespace Ip4
-}  // namespace Network
-}  // namespace Util
-
+/// Subcommand for the `ip` program to show and modify IPv4 routes of network devices.
 class Route {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// Create a new instance from the program arguments given to `ip` for this subcommand.
+    /// For example, if the user calls `ip route show eth0`, the `ip` program passes `[show, eth0]` to this subcommand.
     explicit Route(const Util::Array<Util::String> &arguments);
 
-    /**
-     * Copy Constructor.
-     */
-    Route(const Route &other) = delete;
+    /// Parse the arguments given in the constructor and execute the subcommand.
+    /// On success, 0 is returned.
+    int32_t parse() const;
 
-    /**
-     * Assignment operator.
-     */
-    Route &operator=(const Route &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Route() = default;
-
-    static const constexpr char *COMMAND = "route";
-
-    int32_t parse();
+    /// The name of this subcommand (used for argument parsing)
+    static constexpr const char *COMMAND = "route";
 
 private:
 
@@ -74,9 +54,9 @@ private:
 
     const Util::Array<Util::String> arguments;
 
-    static const constexpr char *COMMAND_SHOW = "show";
-    static const constexpr char *COMMAND_REMOVE = "delete";
-    static const constexpr char *COMMAND_ADD = "add";
+    static constexpr const char *COMMAND_SHOW = "show";
+    static constexpr const char *COMMAND_REMOVE = "delete";
+    static constexpr const char *COMMAND_ADD = "add";
 };
 
 

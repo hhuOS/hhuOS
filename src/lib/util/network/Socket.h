@@ -47,7 +47,7 @@ namespace Network {
 /// ## Example
 /// ```c++
 /// // Create a new UDP socket
-/// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::UDP);
+/// Util::Network::Socket socket(Util::Network::Socket::UDP);
 ///
 /// // Bind the socket to a specific address
 /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
@@ -119,6 +119,16 @@ public:
         ADD_ROUTE
     };
 
+    /// Create a new socket instance with the given type.
+    /// The socket is created in the kernel via a system call and can be controlled via this instance
+    ///
+    /// ### Example
+    /// ```c++
+    /// // Create a new UDP socket
+    /// Util::Network::Socket socket(Util::Network::Socket::UDP);
+    /// ```
+    explicit Socket(Type type);
+
     /// Sockets are not copyable, so the copy constructor is deleted.
     Socket(const Socket &other) = delete;
 
@@ -128,22 +138,12 @@ public:
     /// Close the socket and free the file descriptor.
     ~Socket();
 
-    /// Create a new socket of the given type.
-    /// The socket is created in the kernel via a system call and can be controlled via the returned instance.
-    ///
-    /// ### Example
-    /// ```c++
-    /// // Create a new UDP socket
-    /// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::UDP);
-    /// ```
-    static Socket createSocket(Type type);
-
     /// Set the timeout for receiving data on the socket.
     ///
     /// ### Example
     /// ```c++
     /// // Create a new UDP socket
-    /// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::UDP);
+    /// Util::Network::Socket socket(Util::Network::Socket::UDP);
     ///
     /// // Set a timeout for receiving data
     /// socket.setTimeout(Util::Time::Timestamp::ofSeconds(5));
@@ -159,7 +159,7 @@ public:
     /// ### Example
     /// ```c++
     /// // Create a new UDP socket
-    /// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::UDP);
+    /// Util::Network::Socket socket(Util::Network::Socket::UDP);
     ///
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
@@ -178,7 +178,7 @@ public:
     /// ### Example
     /// ```c++
     /// // Create a new UDP socket
-    /// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::UDP);
+    /// Util::Network::Socket socket(Util::Network::Socket::UDP);
     ///
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
@@ -206,7 +206,7 @@ public:
     /// ### Example
     /// ```c++
     /// // Create a new UDP socket
-    /// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::UDP);
+    /// Util::Network::Socket socket(Util::Network::Socket::UDP);
     ///
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
@@ -240,7 +240,7 @@ public:
     /// ### Example
     /// ```c++
     /// // Create a new UDP socket
-    /// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::UDP);
+    /// Util::Network::Socket socket(Util::Network::Socket::UDP);
     ///
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
@@ -270,7 +270,7 @@ public:
     /// ### Example
     /// ```c++
     /// // Create a new Ethernet socket
-    /// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
+    /// Util::Network::Socket socket(Util::Network::Socket::ETHERNET);
     ///
     /// // Read MAC address of device "eth0" from file system
     /// auto macFile = Util::Io::FileInputStream("/device/eth0/mac");
@@ -301,7 +301,7 @@ public:
     /// ### Example
     /// ```c++
     /// // Create a new Ethernet socket
-    /// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
+    /// Util::Network::Socket socket(Util::Network::Socket::ETHERNET);
     ///
     /// // Read MAC address of device "eth0" from file system
     /// auto macFile = Util::Io::FileInputStream("/device/eth0/mac");
@@ -332,7 +332,7 @@ public:
     /// ### Example
     /// ```c++
     /// // Create a new Ethernet socket
-    /// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
+    /// Util::Network::Socket socket(Util::Network::Socket::ETHERNET);
     ///
     /// // Read MAC address of device "eth0" from file system
     /// auto macFile = Util::Io::FileInputStream("/device/eth0/mac");
@@ -363,7 +363,7 @@ public:
     /// ### Example
     /// ```c++
     /// // Create a new IPv4 socket
-    /// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
+    /// Util::Network::Socket socket(Util::Network::Socket::IP4);
     ///
     /// // Bind the socket to a specific IPv4 address
     /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
@@ -392,7 +392,7 @@ public:
     /// ### Example
     /// ```c++
     /// // Create a new IPv4 socket
-    /// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
+    /// Util::Network::Socket socket(Util::Network::Socket::IP4);
     ///
     /// // Bind the socket to a specific IPv4 address
     /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
@@ -421,7 +421,7 @@ public:
     /// ### Example
     /// ```c++
     /// // Create a new IPv4 socket
-    /// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
+    /// Util::Network::Socket socket(Util::Network::Socket::IP4);
     ///
     /// // Bind the socket to a specific IPv4 address
     /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
@@ -457,7 +457,7 @@ private:
 
     Socket(int32_t fileDescriptor, Type type);
 
-    int32_t fileDescriptor;
+    int32_t fileDescriptor = -1;
     Type type;
 };
 

@@ -4,7 +4,7 @@ List directory contents.
 
 Usage
 -----
-```sh
+```
 ls [FILE]...
 ```
 
@@ -17,7 +17,7 @@ If multiple FILEs are specified, list the contents of each FILE in alphabetical 
 
 Examples
 --------
-```sh
+```
 [/]> mkdir folder
 [/]> ls folder
 

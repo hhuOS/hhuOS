@@ -40,7 +40,7 @@ namespace Icmp {
 /// ## Example
 /// ```c++
 /// // Create a new ICMP socket
-/// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ICMP);
+/// Util::Network::Socket socket(Util::Network::Socket::ICMP);
 ///
 /// // Bind the socket to the "0.0.0.0" address to listen for all ICMP messages.
 /// if (!socket.bind(Util::Network::Ip4::Ip4Address::ANY)) {

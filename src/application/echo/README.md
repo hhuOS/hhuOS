@@ -6,7 +6,7 @@ separated by spaces.
 
 Usage
 -----
-```sh
+```
 echo [STRING]...
 ```
 
@@ -15,7 +15,7 @@ Supported options:
 
 Examples
 --------
-```sh
+```
 [/]> echo Hello, World!
 Hello, World!
 [/]> echo This is a simple echo application.

@@ -4,7 +4,7 @@ Create directories.
 
 Usage
 -----
-```sh
+```
 mkdir [OPTION]... DIRECTORY...
 ```
 
@@ -17,7 +17,7 @@ The parent directories must already exist in order to create a new directory.
 
 Examples
 --------
-```sh
+```
 [/]> mkdir dir1
 [/]> cd dir1
 [/dir1]> mkdir subdir1

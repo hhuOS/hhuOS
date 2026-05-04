@@ -4,7 +4,7 @@ Terminate processes by PID.
 
 Usage
 -----
-```sh
+```
 kill PID...
 ```
 
@@ -16,7 +16,7 @@ Examples
 This example starts the program `beep` to play a sound file via the PC Speaker in the background.
 It then lists the running processes with `ps`, terminates the `beep` process using `kill`,
 and lists the running processes again to confirm that `beep` has been terminated.
-```sh
+```
 [/]> beep /user/beep/tetris.beep > /device/null
 [/]> ps
 PID   Threads Name

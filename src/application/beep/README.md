@@ -4,7 +4,7 @@ Play beep file via the PC speaker.
 
 Usage
 -----
-```sh
+```
 beep FILE
 ```
 
@@ -26,6 +26,6 @@ A redistributable build of hhuOS (e.g. from GitHub Releases) does not include th
 
 Examples
 --------
-```sh
+```
 [/]> beep /user/beep/tetris.beep
 ```

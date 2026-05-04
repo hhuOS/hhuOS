@@ -4,7 +4,7 @@ Display file contents in hexadecimal format.
 
 Usage
 -----
-```sh
+```
 hexdump [OPTION]... [FILE]...
 ```
 
@@ -18,7 +18,7 @@ When multiple FILEs are specified, they are processed sequentially as if they we
 
 Examples
 --------
-```sh
+```
 [/]> echo Hello > file1.txt
 [/]> echo World > file2.txt
 [/]> hexdump file1.txt

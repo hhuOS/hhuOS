@@ -212,7 +212,21 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
             auto &targetNextHops = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4Address>*>(parameters[2]);
             auto &targetDevices = *reinterpret_cast<Util::Array<char*>*>(parameters[3]);
 
+            if (sourceAddresses.length() == 0 || sourceAddresses.length() != targetAddresses.length() || sourceAddresses.length() != targetNextHops.length() || sourceAddresses.length() != targetDevices.length()) {
+                return false;
+            }
+
             auto routes = routingModule.getRoutes(*reinterpret_cast<Util::Network::Ip4::Ip4Address*>(bindAddress));
+            if (routes.length() == 0) {
+                sourceAddresses[0] = Util::Network::Ip4::Ip4Address::ANY;
+                targetAddresses[0] = Util::Network::Ip4::Ip4SubnetAddress();
+                targetNextHops[0] = Util::Network::Ip4::Ip4Address::ANY;
+                targetDevices[0] = static_cast<char*>(memoryService.allocateUserMemory(sizeof(char)));
+                targetDevices[0][0] = '\0';
+
+                return true;
+            }
+
             for (uint32_t i = 0; i < routes.length() && i < targetAddresses.length(); i++) {
                 const auto &route = routes[i];
 

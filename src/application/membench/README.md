@@ -4,7 +4,7 @@ Benchmark to evaluate *memset* and *memcpy* performance.
 
 Usage
 -----
-```sh
+```
 membench OPERATION [MIN_SIZE] [MAX_SIZE]
 ```
 
@@ -22,7 +22,7 @@ Then, it will perform the actual benchmark run 10 times and report the average t
 
 Examples
 --------
-```sh
+```
 [/]> membench memset 10 15
 memset 1 KiB:	0.000004443s (230.47 MB/s)
 memset 2 KiB:	0.000005048s (405.70 MB/s)

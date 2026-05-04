@@ -20,48 +20,47 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/base/ArgumentParser.h"
+#include <util/base/System.h>
+#include <util/io/stream/PrintStream.h>
+#include <util/base/ArgumentParser.h>
+#include <util/base/String.h>
+#include <util/collection/Array.h>
+#include <util/collection/ArrayList.h>
+
 #include "Address.h"
 #include "Route.h"
-#include "lib/util/base/String.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/collection/ArrayList.h"
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Show and edit IPv4 addresses of network devices.\n"
-                               "Usage: ip [COMMAND] [ARGUMENTS...]\n"
-                               "Valid commands: { address [add | delete] [address]\n"
-                               "                  route [add | delete] [target address] [device]\n"
-                               "                  route [add | delete] [source address] [target address] [device]\n"
-                               "                  route [add | delete] [source address] [target address] [next hop] [device] }\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "ip: No arguments given!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: No arguments given!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto commandArguments = Util::ArrayList<Util::String>(arguments);
+    // Argument list to parse to subcommand (e.g., addr or route)
+    Util::ArrayList<Util::String> commandArguments(arguments);
     commandArguments.remove(arguments[0]);
 
+    // Call respective subcommand
     if (Util::String(Address::COMMAND).toLowerCase().beginsWith(arguments[0])) {
-        auto address = Address(commandArguments.toArray());
-        return address.parse();
-    } else if (Util::String(Route::COMMAND).toLowerCase().beginsWith(arguments[0])) {
-        auto route = Route(commandArguments.toArray());
-        return route.parse();
-    } else {
-        Util::System::error << "ip: Invalid command '" << arguments[0] << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
-        return -1;
+        return Address(commandArguments.toArray()).parse();
     }
+    if (Util::String(Route::COMMAND).toLowerCase().beginsWith(arguments[0])) {
+        return Route(commandArguments.toArray()).parse();
+    }
+
+    Util::System::error << "ip: Invalid command '" << arguments[0] << "'!" << Util::Io::PrintStream::lnFlush;
+    return -1;
 }

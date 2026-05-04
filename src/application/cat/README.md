@@ -5,7 +5,7 @@ If no files are specified, read from standard input.
 
 Usage
 -----
-```sh
+```
 cat [FILE]...
 ```
 
@@ -14,7 +14,7 @@ Supported options:
 
 Examples
 --------
-```sh
+```
 [/]> echo Hello > file1.txt
 [/]> echo World > file2.txt
 [/]> cat file1.txt file2.txt

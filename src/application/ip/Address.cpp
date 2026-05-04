@@ -20,30 +20,32 @@
 
 #include "Address.h"
 
-#include "lib/util/io/file/File.h"
-#include "lib/util/base/System.h"
-#include "lib/util/network/MacAddress.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/network/Socket.h"
-#include "lib/util/network/ip4/Ip4SubnetAddress.h"
+#include <lib/util/io/file/File.h>
+#include <lib/util/base/System.h>
+#include <lib/util/network/MacAddress.h>
+#include <lib/util/io/stream/FileInputStream.h>
+#include <lib/util/io/stream/PrintStream.h>
+#include <lib/util/network/Socket.h>
+#include <lib/util/network/ip4/Ip4SubnetAddress.h>
 
 Address::Address(const Util::Array<Util::String> &arguments) : arguments(arguments) {}
 
-int32_t Address::parse() {
+int32_t Address::parse() const {
     if (arguments.length() == 0 || Util::String(COMMAND_SHOW).beginsWith(arguments[0])) {
         return show();
-    } else if (Util::String(COMMAND_REMOVE).beginsWith(arguments[0])) {
+    }
+    if (Util::String(COMMAND_REMOVE).beginsWith(arguments[0])) {
         return remove();
-    } else if (Util::String(COMMAND_ADD).beginsWith(arguments[0])) {
+    }
+    if (Util::String(COMMAND_ADD).beginsWith(arguments[0])) {
         return add();
     }
 
-    Util::System::error << "ip: Invalid argument '" << arguments[0] << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    Util::System::error << "ip: Invalid argument '" << arguments[0] << "'!" << Util::Io::PrintStream::lnFlush;
     return -1;
 }
 
-int32_t Address::show() {
+int32_t Address::show() const {
     if (arguments.length() > 1) {
         printDeviceInfo(arguments[1]);
     } else {
@@ -58,85 +60,85 @@ int32_t Address::show() {
     return 0;
 }
 
-int32_t Address::remove() {
+int32_t Address::remove() const {
     if (arguments.length() < 3) {
-        Util::System::error << "ip: Missing arguments for 'address " << COMMAND_REMOVE << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Missing arguments for 'address " << COMMAND_REMOVE << "'!" << Util::Io::PrintStream::lnFlush;
         return - 1;
     }
 
-    auto ipAddress = Util::Network::Ip4::Ip4SubnetAddress(arguments[1]);
-    auto deviceName = Util::String(arguments[2]);
+    const Util::Network::Ip4::Ip4SubnetAddress ipAddress(arguments[1]);
+    const Util::String deviceName(arguments[2]);
 
-    auto macFile = Util::Io::File("/device/" + deviceName + "/mac");
+    const Util::Io::File macFile("/device/" + deviceName + "/mac");
     if (!macFile.exists()) {
-        Util::System::error << "ip: Device '" << deviceName << "' not found!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Device '" << deviceName << "' not found!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto macStream = Util::Io::FileInputStream(macFile);
-    auto macAddress = Util::Network::MacAddress(macStream.readLine().content);
+    Util::Io::FileInputStream macStream(macFile);
+    const Util::Network::MacAddress macAddress(macStream.readLine().content);
 
-    auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
+    const Util::Network::Socket socket(Util::Network::Socket::ETHERNET);
     if (!socket.bind(macAddress)) {
-        Util::System::error << "ip: Unable to bind ethernet socket to device '" << deviceName << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Unable to bind ethernet socket to device '" << deviceName << "'!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     if (!socket.removeIp4Address(ipAddress)) {
-        Util::System::error << "ip: Failed to remove IPv4 address '" << ipAddress.toString() << "' from device '" << deviceName << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Failed to remove IPv4 address '" << ipAddress.toString() << "' from device '" << deviceName << "'!" << Util::Io::PrintStream::lnFlush;
     }
 
     return 0;
 }
 
-int32_t Address::add() {
+int32_t Address::add() const {
     if (arguments.length() < 3) {
-        Util::System::error << "ip: Missing arguments for 'address " << COMMAND_ADD << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Missing arguments for 'address " << COMMAND_ADD << "'!" << Util::Io::PrintStream::lnFlush;
         return - 1;
     }
 
-    auto ipAddress = Util::Network::Ip4::Ip4SubnetAddress(arguments[1]);
-    auto deviceName = Util::String(arguments[2]);
+    const Util::Network::Ip4::Ip4SubnetAddress ipAddress(arguments[1]);
+    const Util::String deviceName(arguments[2]);
 
-    auto macFile = Util::Io::File("/device/" + deviceName + "/mac");
+    const Util::Io::File macFile("/device/" + deviceName + "/mac");
     if (!macFile.exists()) {
-        Util::System::error << "ip: Device '" << deviceName << "' not found!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Device '" << deviceName << "' not found!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto macStream = Util::Io::FileInputStream(macFile);
-    auto macAddress = Util::Network::MacAddress(macStream.readLine().content);
+    Util::Io::FileInputStream macStream(macFile);
+    const Util::Network::MacAddress macAddress(macStream.readLine().content);
 
-    auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
+    const Util::Network::Socket socket(Util::Network::Socket::ETHERNET);
     if (!socket.bind(macAddress)) {
-        Util::System::error << "ip: Unable to bind ethernet socket to device '" << deviceName << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Unable to bind ethernet socket to device '" << deviceName << "'!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     if (!socket.addIp4Address(ipAddress)) {
-        Util::System::error << "ip: Failed to remove IPv4 address '" << ipAddress.toString() << "' from device '" << deviceName << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Failed to remove IPv4 address '" << ipAddress.toString() << "' from device '" << deviceName << "'!" << Util::Io::PrintStream::lnFlush;
     }
 
     return 0;
 }
 
 void Address::printDeviceInfo(const Util::String &deviceName) {
-    auto macFile = Util::Io::File("/device/" + deviceName + "/mac");
+    const Util::Io::File macFile("/device/" + deviceName + "/mac");
     if (!macFile.exists()) {
-        Util::System::error << "ip: Device '" << deviceName << "' not found!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Device '" << deviceName << "' not found!" << Util::Io::PrintStream::lnFlush;
         return;
     }
 
-    auto macStream = Util::Io::FileInputStream(macFile);
-    auto macAddress = Util::Network::MacAddress(macStream.readLine().content);
+    Util::Io::FileInputStream macStream(macFile);
+    const Util::Network::MacAddress macAddress(macStream.readLine().content);
 
-    auto ethernetSocket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
+    const Util::Network::Socket ethernetSocket(Util::Network::Socket::ETHERNET);
     if (!ethernetSocket.bind(macAddress)) {
-        Util::System::error << "ip: Unable to bind ethernet socket to device '" << deviceName << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Unable to bind ethernet socket to device '" << deviceName << "'!" << Util::Io::PrintStream::lnFlush;
         return;
     }
 
-    auto ipAddresses = ethernetSocket.getIp4Addresses();
+    const auto ipAddresses = ethernetSocket.getIp4Addresses();
 
     Util::System::out << deviceName << ":" << Util::Io::PrintStream::ln
                       << "    MAC: " << macAddress.toString() << Util::Io::PrintStream::ln;

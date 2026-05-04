@@ -20,40 +20,44 @@
 
 #include "Route.h"
 
-#include "lib/util/base/System.h"
-#include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/network/ip4/Ip4Route.h"
-#include "lib/util/network/Socket.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/network/ip4/Ip4SubnetAddress.h"
-#include "lib/util/async/Process.h"
+#include <lib/util/base/System.h>
+#include <lib/util/network/ip4/Ip4Address.h>
+#include <lib/util/network/ip4/Ip4Route.h>
+#include <lib/util/network/Socket.h>
+#include <lib/util/io/stream/PrintStream.h>
+#include <lib/util/network/ip4/Ip4SubnetAddress.h>
+#include <lib/util/async/Process.h>
 
 Route::Route(const Util::Array<Util::String> &arguments) : arguments(arguments) {}
 
-int32_t Route::parse() {
+int32_t Route::parse() const {
     if (arguments.length() == 0 || Util::String(COMMAND_SHOW).beginsWith(arguments[0])) {
-        printRoutes(arguments.length() > 1 ? Util::Network::Ip4::Ip4Address(arguments[1]) : Util::Network::Ip4::Ip4Address::ANY);
+        printRoutes(arguments.length() > 1 ?
+            Util::Network::Ip4::Ip4Address(arguments[1]) : Util::Network::Ip4::Ip4Address::ANY);
         return 0;
-    } else if (Util::String(COMMAND_REMOVE).beginsWith(arguments[0])) {
+    }
+    if (Util::String(COMMAND_REMOVE).beginsWith(arguments[0])) {
         return remove(parseRoute(arguments));
-    } else if (Util::String(COMMAND_ADD).beginsWith(arguments[0])) {
+    }
+    if (Util::String(COMMAND_ADD).beginsWith(arguments[0])) {
         return add(parseRoute(arguments));
     }
 
-    Util::System::error << "ip: Invalid argument '" << arguments[0] << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    Util::System::error << "ip: Invalid argument '" << arguments[0] << "'!" << Util::Io::PrintStream::lnFlush;
     return -1;
 }
 
 int32_t Route::remove(const Util::Network::Ip4::Ip4Route &route) {
     const auto &address = Util::Network::Ip4::Ip4Address::ANY;
-    auto ipSocket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
+    const Util::Network::Socket ipSocket(Util::Network::Socket::IP4);
     if (!ipSocket.bind(address)) {
-        Util::System::error << "ip: Unable to bind IPv4 socket to address '" << address.toString() << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Unable to bind IPv4 socket to address '" << address.toString() << "'!"
+            << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     if (!ipSocket.removeRoute(route)) {
-        Util::System::error << "ip: Unable to remove route!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Unable to remove route!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
@@ -62,14 +66,15 @@ int32_t Route::remove(const Util::Network::Ip4::Ip4Route &route) {
 
 int32_t Route::add(const Util::Network::Ip4::Ip4Route &route) {
     const auto &address = Util::Network::Ip4::Ip4Address::ANY;
-    auto ipSocket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
+    const Util::Network::Socket ipSocket(Util::Network::Socket::IP4);
     if (!ipSocket.bind(address)) {
-        Util::System::error << "ip: Unable to bind IPv4 socket to address '" << address.toString() << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Unable to bind IPv4 socket to address '" << address.toString() << "'!"
+            << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     if (!ipSocket.addRoute(route)) {
-        Util::System::error << "ip: Unable to add route!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Unable to add route!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
@@ -78,7 +83,8 @@ int32_t Route::add(const Util::Network::Ip4::Ip4Route &route) {
 
 Util::Network::Ip4::Ip4Route Route::parseRoute(const Util::Array<Util::String> &arguments) {
     if (arguments.length() < 2) {
-        Util::System::error << "ip: Missing arguments for 'route " << COMMAND_ADD << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Missing arguments for 'route " << COMMAND_ADD << "'!"
+            << Util::Io::PrintStream::lnFlush;
         Util::Async::Process::exit(-1);
     }
 
@@ -111,13 +117,14 @@ Util::Network::Ip4::Ip4Route Route::parseRoute(const Util::Array<Util::String> &
 }
 
 int32_t Route::printRoutes(const Util::Network::Ip4::Ip4Address &address) {
-    auto ipSocket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
+    const Util::Network::Socket ipSocket(Util::Network::Socket::IP4);
     if (!ipSocket.bind(address)) {
-        Util::System::error << "ip: Unable to bind IPv4 socket to address '" << address.toString() << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Unable to bind IPv4 socket to address '" << address.toString() << "'!"
+            << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto routes = ipSocket.getRoutes();
+    const auto routes = ipSocket.getRoutes();
 
     for (const auto &route : routes) {
         Util::System::out << (route.getTargetAddress().getBitCount() == 0 ? "default" : route.getTargetAddress().toString());

@@ -39,7 +39,7 @@ namespace Ethernet {
 /// ## Example
 /// ```c++
 /// // Create a new Ethernet socket
-/// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
+/// Util::Network::Socket socket(Util::Network::Socket::ETHERNET);
 ///
 /// // Read MAC address of device "eth0" from file system
 /// auto macFile = Util::Io::FileInputStream("/device/eth0/mac");

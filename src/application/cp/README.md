@@ -4,7 +4,7 @@ Copy files.
 
 Usage
 -----
-```sh
+```
 cat SOURCE DESTINATION
 cat SOURCE... DIRECTORY
 ```
@@ -16,14 +16,14 @@ Supported options:
 
 Examples
 --------
-```sh
+```
 [/]> echo Hello > file1.txt
 [/]> cp file1.txt file2.txt
 [/]> cat file2.txt
 Hello
 ```
 
-```sh
+```
 [/]> echo Hello > file1.txt
 [/]> echo World > file2.txt
 [/]> mkdir mydir

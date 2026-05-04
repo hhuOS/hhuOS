@@ -5,7 +5,7 @@ It is not a full-featured testing framework, but rather a simple tool to verify 
 
 Usage
 -----
-```sh
+```
 echo [OPTION]...
 ```
 

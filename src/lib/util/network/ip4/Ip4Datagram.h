@@ -39,7 +39,7 @@ namespace Ip4 {
 /// ## Example
 /// ```c++
 /// // Create a new IPv4 socket
-/// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
+/// Util::Network::Socket socket(Util::Network::Socket::IP4);
 ///
 /// // Bind the socket to a specific IPv4 address
 /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
