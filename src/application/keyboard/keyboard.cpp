@@ -20,35 +20,39 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/graphic/Terminal.h"
-#include "lib/util/base/String.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/stream/PrintStream.h"
+#include <lib/util/base/System.h>
+#include <lib/util/base/ArgumentParser.h>
+#include <lib/util/io/file/File.h>
+#include <lib/util/graphic/Terminal.h>
+#include <lib/util/base/String.h>
+#include <lib/util/collection/Array.h>
+#include <lib/util/io/stream/PrintStream.h>
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Set the keyboard layout.\n"
-                               "Usage: keyboard [LAYOUT]\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "keyboard: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "keyboard: No arguments provided!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    bool success = Util::Io::File::controlFile(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::Command::SET_KEYBOARD_LAYOUT, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(static_cast<const char*>(arguments[0]))}));
+    const auto success = Util::Io::File::controlFile(Util::Io::STANDARD_INPUT,
+        Util::Graphic::Terminal::Command::SET_KEYBOARD_LAYOUT,
+        Util::Array<uint32_t>({reinterpret_cast<uint32_t>(static_cast<const char*>(arguments[0]))}));
+
     if (!success) {
-        Util::System::error << "keyboard: Failed to set layout!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "keyboard: Failed to set layout!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
