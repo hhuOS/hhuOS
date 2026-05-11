@@ -22,15 +22,18 @@
 #define HHUOS_TITLEBAR_H
 
 #include "WindowMouseEvent.h"
+#include "lunar/Button.h"
 #include "lunar/Container.h"
 #include "lunar/Label.h"
 #include "lunar/Theme.h"
+
+class ClientWindow;
 
 class TitleBar {
 
 public:
 
-    explicit TitleBar(const Util::String &title = "");
+    explicit TitleBar(ClientWindow &clientWindow, const Util::String &title = "");
 
     void setTitle(const Util::String &title) const {
         titleLabel->setText(title);
@@ -56,11 +59,17 @@ public:
 
     bool needsRedraw() const;
 
+    bool isMouseOnButton(const MouseEvent &event);
+
 private:
+
+    ClientWindow &clientWindow;
 
     Lunar::Container rootContainer;
     Lunar::Container *titleContainer = new Lunar::Container();
     Lunar::Container *buttonContainer = new Lunar::Container();
+    Lunar::Button *minimizeButton = new Lunar::Button("-");
+    Lunar::Button *closeButton = new Lunar::Button("x");
     Lunar::Label *titleLabel = nullptr;
 
     size_t height = 0;

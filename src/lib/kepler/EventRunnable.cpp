@@ -57,6 +57,10 @@ void Kepler::EventRunnable::run() {
 
                 break;
             }
+            case Event::WINDOW_CLOSE: {
+                listener->onCloseButtonPressed();
+                break;
+            }
             default:
                 Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "MouseRunnable: Unknown mouse event type received");
         }

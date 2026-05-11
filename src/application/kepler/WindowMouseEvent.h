@@ -26,6 +26,7 @@
 enum WindowArea {
     CONTENT,
     TITLE_BAR,
+    TITLE_BAR_BUTTON,
     BORDER,
     NONE
 };

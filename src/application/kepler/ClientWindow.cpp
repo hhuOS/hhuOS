@@ -20,13 +20,14 @@
 
 #include "ClientWindow.h"
 
+#include "TitleBar.h"
 #include "kepler/Window.h"
 #include "util/graphic/Colors.h"
 
 ClientWindow::ClientWindow(const size_t id, const size_t processId, const uint16_t posX, const uint16_t posY,
     const uint16_t width, const uint16_t height, const Util::String &title, Util::Async::SharedMemory *buffer) :
-    id(id), posX(posX), posY(posY), width(width), height(height), titleBar(title), buffer(buffer),
-    mouseOutputStream(Util::String::format(Kepler::Window::EVENT_PIPE_PATH, processId, id)) {}
+    id(id), posX(posX), posY(posY), width(width), height(height), titleBar(*this, title), buffer(buffer),
+    eventOutputStream(Util::String::format(Kepler::Window::EVENT_PIPE_PATH, processId, id)) {}
 
 ClientWindow::~ClientWindow() {
     delete buffer;
@@ -86,14 +87,19 @@ void ClientWindow::setDirty() {
     contentAreaDirty = true;
 }
 
-MouseEvent ClientWindow::containsPoint(const uint16_t x, const uint16_t y) const {
+MouseEvent ClientWindow::containsPoint(const uint16_t x, const uint16_t y) {
     const auto titleBarHeight = static_cast<int32_t>(titleBar.getHeight());
     const auto mouseX = x - posX;
     const auto mouseY = y - posY;
 
     // Check if mouse is inside title bar
     if (mouseX >= BORDER_WIDTH && mouseX < width && mouseY >= BORDER_WIDTH && mouseY < titleBarHeight + BORDER_WIDTH) {
-        return MouseEvent{TITLE_BAR, mouseX - BORDER_WIDTH, mouseY - BORDER_WIDTH};
+        auto event = MouseEvent{TITLE_BAR, mouseX - BORDER_WIDTH, mouseY - BORDER_WIDTH};
+
+        if (titleBar.isMouseOnButton(event)) {
+            event.area = TITLE_BAR_BUTTON;
+        }
+        return event;
     }
 
     // Check if mouse inside the border
@@ -126,15 +132,19 @@ bool ClientWindow::overlapsWith(const ClientWindow &other) const {
 }
 
 void ClientWindow::sendMouseHoverEvent(const Kepler::Event::MouseHover &event) {
-    event.writeToStream(mouseOutputStream);
+    event.writeToStream(eventOutputStream);
 }
 
 void ClientWindow::sendMouseClickEvent(const Kepler::Event::MouseClick &event) {
-    event.writeToStream(mouseOutputStream);
+    event.writeToStream(eventOutputStream);
 }
 
 void ClientWindow::sendKeyEvent(const Kepler::Event::KeyEvent &event) {
-    event.writeToStream(mouseOutputStream);
+    event.writeToStream(eventOutputStream);
+}
+
+void ClientWindow::sendWindowCloseEvent(const Kepler::Event::WindowClose &event) {
+    event.writeToStream(eventOutputStream);
 }
 
 bool ClientWindow::drawDirtyAreas(const Util::Graphic::LinearFrameBuffer &lfb, const bool focused, const bool forceRedraw) {
