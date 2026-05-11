@@ -54,12 +54,12 @@ Window::Window(const uint16_t width, const uint16_t height, const Util::String &
 
     auto *windowBuffer = reinterpret_cast<void*>(sharedMemory->getAddress().get());
     lfb = new Util::Graphic::LinearFrameBuffer(windowBuffer, response.getWidth(), response.getHeight(),
-        response.getColorDepth(), response.getWidth() * bytesPerPixel);
+        response.getColorDepth(), response.getWidth() * bytesPerPixel, false);
 
     const auto processId = Util::Async::Process::getCurrentProcess().getId();
     createPipe(Util::String::format("event-%u", id));
     eventRunnable = new EventRunnable(Util::String::format(EVENT_PIPE_PATH, processId, id));
-    Util::Async::Thread::createThread("Kepler-Event-Runnable", eventRunnable);
+    Util::Async::Thread::createThread("Kepler-Event", eventRunnable);
 
     if (!pipe.sendSignal(CLIENT_WINDOW_INITIALIZED)) {
         Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
@@ -67,6 +67,7 @@ Window::Window(const uint16_t width, const uint16_t height, const Util::String &
 }
 
 Window::~Window() {
+    destroyPipe(Util::String::format("event-%u", id));
     delete sharedMemory;
     delete lfb;
 }
@@ -94,6 +95,19 @@ bool Window::setTitle(const Util::String &title) const {
     }
 
     auto response = Response::SetWindowTitle();
+    if (!pipe.receiveResponse(response)) {
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
+    }
+
+    return response.isSuccess();
+}
+
+bool Window::close() const {
+    if (!pipe.sendRequest(Request::CloseWindow(id))) {
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
+    }
+
+    auto response = Response::CloseWindow();
     if (!pipe.receiveResponse(response)) {
         Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
     }

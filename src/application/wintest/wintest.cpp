@@ -38,6 +38,8 @@
 #include "lunar/RadioButtonGroup.h"
 #include "lunar/VerticalLayout.h"
 
+bool isRunning = true;
+
 class ClickCountListener final : public Lunar::ActionListener {
 
 public:
@@ -62,15 +64,11 @@ class ExitListener final : public Lunar::ActionListener {
 
 public:
 
-    explicit ExitListener(bool &isRunning) : isRunning(isRunning) {}
-
     void onMouseClicked() override {
         isRunning = false;
     }
 
 private:
-
-    bool &isRunning;
 };
 
 class PackListener final : public Lunar::ActionListener {
@@ -102,11 +100,12 @@ private:
     Lunar::Button &packButton;
 };
 
-class MouseEventListener final : public Kepler::EventListener {
+class GearsEventListener final : public Kepler::EventListener {
 
 public:
 
-    explicit MouseEventListener(Lunar::Container &rootContainer) : rootContainer(rootContainer) {}
+    explicit GearsEventListener(Lunar::Container &rootContainer) :
+        rootContainer(rootContainer) {}
 
     void onMouseHover(const uint16_t x, const uint16_t y) override {
         auto *hoveredChild = rootContainer.getChildAtPoint(x, y);
@@ -157,6 +156,10 @@ public:
         }
     }
 
+    void onCloseButtonPressed() override {
+        isRunning = false;
+    }
+
 private:
 
     Lunar::Container &rootContainer;
@@ -173,8 +176,8 @@ int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
     rootContainer.setSize(320, 240);
     rootContainer.setLayout(new Lunar::BorderLayout());
 
-    auto mouseListener = MouseEventListener(rootContainer);
-    window.registerEventListener(mouseListener);
+    auto eventListener = GearsEventListener(rootContainer);
+    window.registerEventListener(eventListener);
 
     // Add a label to the top
     auto *northContainer = new Lunar::Container();
@@ -189,9 +192,8 @@ int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
     auto *southContainer = new Lunar::Container();
     southContainer->setLayout(new Lunar::HorizontalLayout(10));
 
-    bool isRunning = true;
     auto *exitButton = new Lunar::Button("Exit");
-    exitButton->addActionListener(new ExitListener(isRunning));
+    exitButton->addActionListener(new ExitListener());
 
     auto *packButton = new Lunar::Button("Pack");
     packButton->addActionListener(new PackListener(rootContainer, *packButton));
@@ -264,7 +266,7 @@ int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
     bottomRightContainer->addChild(inputLabel);
     bottomRightContainer->addChild(inputField);
 
-    while (true) {
+    while (isRunning) {
         if (rootContainer.requiresRedraw()) {
             rootContainer.draw(bufferedLfb);
             bufferedLfb.flush();
@@ -274,5 +276,6 @@ int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
         }
     }
 
+    window.close();
     return 0;
 }

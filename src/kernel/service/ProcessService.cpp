@@ -204,6 +204,18 @@ ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelPro
         return currentProcess.createPipe(name);
     });
 
+    Service::getService<InterruptService>().assignSystemCall(Util::System::DESTROY_PIPE, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 1) {
+            return false;
+        }
+
+        auto &processService = Service::getService<ProcessService>();
+        auto &currentProcess = processService.getCurrentProcess();
+
+        auto *name = va_arg(arguments, const char*);
+        return currentProcess.destroyPipe(name);
+    });
+
     Service::getService<InterruptService>().assignSystemCall(Util::System::CREATE_SHARED_MEMORY, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 3) {
             return false;
@@ -217,6 +229,19 @@ ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelPro
         auto pageCount = va_arg(arguments, uint32_t);
 
         return currentProcess.createSharedMemory(name, startAddress, pageCount);
+    });
+
+    Service::getService<InterruptService>().assignSystemCall(Util::System::DESTROY_SHARED_MEMORY, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 1) {
+            return false;
+        }
+
+        auto &processService = Service::getService<ProcessService>();
+        auto &currentProcess = processService.getCurrentProcess();
+
+        auto *name = va_arg(arguments, const char*);
+
+        return currentProcess.destroySharedMemory(name);
     });
 }
 

@@ -70,6 +70,16 @@ bool Process::createPipe(const Util::String &name) {
     return true;
 }
 
+bool Process::destroyPipe(const Util::String &name) {
+    auto *pipe = pipes.remove(name);
+    if (pipe == nullptr) {
+        return false;
+    }
+
+    delete pipe;
+    return true;
+}
+
 const Util::HashMap<Util::String, Pipe*>& Process::getPipes() const {
     return pipes;
 }
@@ -86,6 +96,16 @@ bool Process::createSharedMemory(const Util::String &name, void *startAddress, u
     auto *memory = new SharedMemory(startAddress, pageCount);
     sharedMemory.put(name, memory);
 
+    return true;
+}
+
+bool Process::destroySharedMemory(const Util::String &name) {
+    auto *memory = sharedMemory.remove(name);
+    if (memory == nullptr) {
+        return false;
+    }
+
+    delete memory;
     return true;
 }
 

@@ -48,6 +48,8 @@ public:
 
     bool setTitle(const Util::String &title) const;
 
+    bool close() const;
+
     void registerEventListener(EventListener &listener) const {
         eventRunnable->registerListener(listener);
     }

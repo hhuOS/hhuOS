@@ -60,12 +60,12 @@ bool SetWindowTitle::readFromStream(Util::Io::InputStream &stream) {
     return title.readFromStream(stream);
 }
 
-bool Flush::writeToStream(Util::Io::OutputStream &stream) const {
-    return Util::Io::NumberUtil::writeUnsigned8BitValue(FLUSH, stream) &&
+bool BasicWindowRequest::writeToStream(Util::Io::OutputStream &stream) const {
+    return Util::Io::NumberUtil::writeUnsigned8BitValue(command, stream) &&
         Util::Io::NumberUtil::writeUnsigned32BitValue(windowId, stream);
 }
 
-bool Flush::readFromStream(Util::Io::InputStream &stream) {
+bool BasicWindowRequest::readFromStream(Util::Io::InputStream &stream) {
     windowId = Util::Io::NumberUtil::readUnsigned32BitValue(stream);
     return true;
 }
@@ -139,6 +139,10 @@ bool Event::KeyEvent::writeToStream(Util::Io::OutputStream &stream) const {
 
 bool Event::KeyEvent::readFromStream(Util::Io::InputStream &stream) {
     return key.readFromStream(stream);
+}
+
+bool Event::WindowClose::writeToStream(Util::Io::OutputStream &stream) const {
+    return Util::Io::NumberUtil::writeUnsigned8BitValue(WINDOW_CLOSE, stream);
 }
 
 }

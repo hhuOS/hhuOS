@@ -155,11 +155,22 @@ Util::Io::File getCurrentWorkingDirectory();
 /// Return true on success, false otherwise.
 bool createPipe(const Util::String &name);
 
+/// Destroy the pipe with the given name.
+/// Return true on success, false otherwise.
+bool destroyPipe(const Util::String &name);
+
 /// Create a shared memory region with the given name, starting at the specified address,
 /// spanning the given number of pages.
 /// The region is accessible by other processes via a file in the path "/proc/<current_process_id>/shm/<name>".
 /// Return true on success, false otherwise.
 bool createSharedMemory(const Util::String &name, void *startAddress, size_t pageCount);
+
+/// Delete the shared memory region with the given name.
+/// The region will no longer be accessible via the filesystem.
+/// However, the physical page frames occupied by the memory region remain allocated,
+/// as long as at least one other process has mapped the region.
+/// Return true on success, false otherwise.
+bool destroySharedMemory(const Util::String &name);
 
 /// Create a network socket of the specified type (e.g., UDP).
 /// Return the file descriptor of the created socket, or -1 on error.

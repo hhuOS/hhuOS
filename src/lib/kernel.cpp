@@ -198,9 +198,19 @@ bool createPipe(const Util::String &name) {
     return processService.getCurrentProcess().createPipe(name);
 }
 
+bool destroyPipe(const Util::String &name) {
+    auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
+    return processService.getCurrentProcess().destroyPipe(name);
+}
+
 bool createSharedMemory(const Util::String &name, void *startAddress, const size_t pageCount) {
     auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
     return processService.getCurrentProcess().createSharedMemory(name, startAddress, pageCount);
+}
+
+bool destroySharedMemory(const Util::String &name) {
+    auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
+    return processService.getCurrentProcess().destroySharedMemory(name);
 }
 
 int32_t createSocket(const Util::Network::Socket::Type socketType) {

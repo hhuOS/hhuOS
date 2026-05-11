@@ -23,11 +23,8 @@
 
 #include <stddef.h>
 
-#include "MouseInputHandler.h"
 #include "TitleBar.h"
-#include "WindowStack.h"
 #include "util/graphic/LinearFrameBuffer.h"
-#include "util/graphic/font/Terminal8x8.h"
 #include "util/io/stream/FileOutputStream.h"
 #include "util/async/SharedMemory.h"
 #include "kepler/Protocol.h"
@@ -76,7 +73,7 @@ public:
 
     void setDirty();
 
-    MouseEvent containsPoint(uint16_t x, uint16_t y) const;
+    MouseEvent containsPoint(uint16_t x, uint16_t y);
 
     bool overlapsWith(const ClientWindow &other) const;
 
@@ -85,6 +82,8 @@ public:
     void sendMouseClickEvent(const Kepler::Event::MouseClick &event);
 
     void sendKeyEvent(const Kepler::Event::KeyEvent &event);
+
+    void sendWindowCloseEvent(const Kepler::Event::WindowClose &event);
 
     bool drawDirtyAreas(const Util::Graphic::LinearFrameBuffer &lfb, bool focused = false, bool forceRedraw = false);
 
@@ -108,7 +107,7 @@ private:
     TitleBar titleBar;
 
     Util::Async::SharedMemory *buffer = nullptr;
-    Util::Io::FileOutputStream mouseOutputStream;
+    Util::Io::FileOutputStream eventOutputStream;
 
     bool titleBarDirty = true;
     bool borderDirty = true;
