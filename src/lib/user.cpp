@@ -177,9 +177,17 @@ bool createPipe(const Util::String &name) {
     return Util::System::call(Util::System::CREATE_PIPE, 1, static_cast<const char*>(name)) == 0;
 }
 
+bool destroyPipe(const Util::String &name) {
+    return Util::System::call(Util::System::DESTROY_PIPE, 1, static_cast<const char*>(name));
+}
+
 bool createSharedMemory(const Util::String &name, void *startAddress, const size_t pageCount) {
     return Util::System::call(Util::System::CREATE_SHARED_MEMORY, 3,
         static_cast<const char*>(name), startAddress, pageCount) == 0;
+}
+
+bool destroySharedMemory(const Util::String &name) {
+    return Util::System::call(Util::System::DESTROY_SHARED_MEMORY, 3, static_cast<const char*>(name));
 }
 
 int32_t createSocket(const Util::Network::Socket::Type socketType) {

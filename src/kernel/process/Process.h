@@ -86,9 +86,13 @@ public:
 
     bool createPipe(const Util::String &name);
 
+    bool destroyPipe(const Util::String &name);
+
     const Util::HashMap<Util::String, Pipe*>& getPipes() const;
 
     bool createSharedMemory(const Util::String &name, void *startAddress, uint32_t pageCount);
+
+    bool destroySharedMemory(const Util::String &name);
 
     const Util::HashMap<Util::String, SharedMemory*>& getSharedMemory() const;
 

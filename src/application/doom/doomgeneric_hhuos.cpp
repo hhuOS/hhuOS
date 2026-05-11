@@ -71,6 +71,8 @@ Util::Time::Timestamp fpsTimer;
 uint32_t fpsCounter = 0;
 uint32_t fps = 0;
 
+bool triangleRunning = true;
+
 void (*drawFrame)();
 
 class EventListener : public Kepler::EventListener {
@@ -83,6 +85,10 @@ public:
 
     void onKeyEvent(const Util::Io::KeyEvent &key) override {
         keyEvents.offer(key);
+    }
+
+    void onCloseButtonPressed() override {
+        triangleRunning = false;
     }
 };
 
@@ -193,7 +199,7 @@ int32_t main(int argc, char **argv) {
 
     // Run game loop
     auto oldTime = Util::Time::Timestamp::getSystemTime();
-    while (true) {
+    while (triangleRunning) {
         auto newTime = Util::Time::Timestamp::getSystemTime();
         if (oldTime == newTime) {
             Util::Async::Thread::yield();
@@ -201,6 +207,9 @@ int32_t main(int argc, char **argv) {
             doomgeneric_Tick();
         }
     }
+
+    window.close();
+    return 0;
 }
 
 void DG_Init() {

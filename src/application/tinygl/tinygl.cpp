@@ -241,6 +241,8 @@ int32_t main(const int32_t argc, char *argv[]) {
         statistics.stopFrameTime();
     }
 
+    window.close();
+
     ZB_close(glBuffer);
     glClose();
 

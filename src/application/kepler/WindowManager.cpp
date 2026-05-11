@@ -206,6 +206,9 @@ bool WindowManager::checkClients() {
                     flushWindow(*client);
                     needRedraw = true;
                     break;
+                case Kepler::CLOSE_WINDOW:
+                    closeWindow(*client);
+                    fullRedraw = true;
                 default:
                     break;
             }
@@ -282,17 +285,21 @@ void WindowManager::dispatchMouseEvents() {
 
         // Handle mouse inside the title bar (dragging)
         if (windowMouseEvent.area == TITLE_BAR) {
+            if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
+                // If the left mouse button is pressed inside the title bar, start dragging the window
+                isDragging = true;
+                dragX = mouseHoveredWindow->getPosX();
+                dragY = mouseHoveredWindow->getPosY();
+            }
+
+            lastHoveredTitleBarWindow = mouseHoveredWindow;
+        } else if (windowMouseEvent.area == TITLE_BAR_BUTTON) {
             // Send hover and click events to title bar
             auto &titleBar = mouseHoveredWindow->getTitleBar();
             titleBar.onMouseHover(windowMouseEvent);
 
             if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
                 titleBar.onMouseClick(windowMouseEvent);
-
-                // If the left mouse button is pressed inside the title bar, start dragging the window
-                isDragging = true;
-                dragX = mouseHoveredWindow->getPosX();
-                dragY = mouseHoveredWindow->getPosY();
             } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::LEFT_BUTTON)) {
                 titleBar.onMouseRelease(windowMouseEvent);
             }
@@ -389,6 +396,26 @@ void WindowManager::createWindow(const Client &client) {
     if (signal == Kepler::CLIENT_WINDOW_INITIALIZED) {
         auto *window = new ClientWindow(windowId, client.getProcessId(), posX, posY, width, height, request.getTitle(), sharedBuffer);
         windowStack.push(window);
+    }
+}
+
+void WindowManager::closeWindow(const Client &client) {
+    auto &inputStream = client.getInputStream();
+    auto &outputStream = client.getOutputStream();
+
+    inputStream.setAccessMode(Util::Io::File::BLOCKING);
+    auto request = Kepler::Request::CloseWindow();
+    request.readFromStream(inputStream);
+    inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
+
+    auto *window = windowStack.getWindowById(request.getWindowId());
+    if (window == nullptr) {
+        const auto response = Kepler::Response::CloseWindow(false);
+        response.writeToStream(outputStream);
+    } else {
+        windowStack.remove(window);
+        const auto response = Kepler::Response::CloseWindow(true);
+        response.writeToStream(outputStream);
     }
 }
 

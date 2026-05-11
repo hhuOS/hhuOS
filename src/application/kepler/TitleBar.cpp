@@ -25,20 +25,35 @@
 #include "lunar/HorizontalLayout.h"
 #include "util/graphic/LinearFrameBufferView.h"
 
-TitleBar::TitleBar(const Util::String &title) {
+class CloseButtonHandler : public Lunar::ActionListener {
+
+public:
+
+    explicit CloseButtonHandler(ClientWindow &clientWindow) : clientWindow(clientWindow) {}
+
+    void onMousePressed() override {
+        const auto event = Kepler::Event::WindowClose();
+        clientWindow.sendWindowCloseEvent(event);
+    }
+
+private:
+
+    ClientWindow &clientWindow;
+};
+
+TitleBar::TitleBar(ClientWindow &clientWindow, const Util::String &title) : clientWindow(clientWindow) {
     rootContainer.setLayout(new Lunar::BorderLayout());
 
     titleLabel = new Lunar::Label(title);
     titleContainer->setLayout(new Lunar::HorizontalLayout());
     titleContainer->addChild(titleLabel);
 
-    auto *minimizeButton = new Lunar::Button("-");
-    auto *maximizeButton = new Lunar::Button("x");
-    maximizeButton->setOverrideStyle(CLOSE_BUTTON_STYLE);
+    closeButton->setOverrideStyle(CLOSE_BUTTON_STYLE);
+    closeButton->addActionListener(new CloseButtonHandler(clientWindow));
 
     buttonContainer->setLayout(new Lunar::HorizontalLayout(5));
     buttonContainer->addChild(minimizeButton);
-    buttonContainer->addChild(maximizeButton);
+    buttonContainer->addChild(closeButton);
 
     rootContainer.addChild(titleContainer, Util::Array<size_t>{Lunar::BorderLayout::CENTER});
     rootContainer.addChild(buttonContainer, Util::Array<size_t>{Lunar::BorderLayout::EAST});
@@ -80,7 +95,10 @@ void TitleBar::onMouseHover(const MouseEvent &event) {
 }
 
 void TitleBar::onMouseExit() {
-    lastHoveredChild->mouseExited();
+    if (lastHoveredChild != nullptr) {
+        lastHoveredChild->mouseExited();
+    }
+
     lastHoveredChild = nullptr;
 }
 
@@ -107,4 +125,9 @@ void TitleBar::onMouseRelease(const MouseEvent&) {
 
 bool TitleBar::needsRedraw() const {
     return rootContainer.requiresRedraw();
+}
+
+bool TitleBar::isMouseOnButton(const MouseEvent &event) {
+    const auto *child = rootContainer.getChildAtPoint(event.contentPosX, event.contentPosY);
+    return child == minimizeButton || child == closeButton;
 }

@@ -33,7 +33,8 @@ enum Command : uint8_t {
     CONNECT,
     CREATE_WINDOW,
     SET_WINDOW_TITLE,
-    FLUSH
+    FLUSH,
+    CLOSE_WINDOW
 };
 
 enum Signal : uint8_t {
@@ -122,17 +123,17 @@ public:
 
 private:
 
-    size_t windowId;
+    size_t windowId = 0;
     Util::String title;
 };
 
-class Flush final : public Util::Async::Streamable {
+class BasicWindowRequest : public Util::Async::Streamable {
 
 public:
 
-    Flush() = default;
+    BasicWindowRequest(const Command command) : command(command) {}
 
-    explicit Flush(const size_t windowId) : windowId(windowId) {}
+    explicit BasicWindowRequest(const Command command, const size_t windowId) : command(command), windowId(windowId) {}
 
     bool writeToStream(Util::Io::OutputStream &stream) const override;
 
@@ -144,7 +145,26 @@ public:
 
 private:
 
+    Command command;
     size_t windowId = 0;
+};
+
+class CloseWindow final : public BasicWindowRequest {
+
+public:
+
+    CloseWindow() : BasicWindowRequest(CLOSE_WINDOW) {}
+
+    explicit CloseWindow(const size_t windowId) : BasicWindowRequest(CLOSE_WINDOW, windowId) {}
+};
+
+class Flush final : public BasicWindowRequest {
+
+public:
+
+    Flush() : BasicWindowRequest(FLUSH) {}
+
+    explicit Flush(const size_t windowId) : BasicWindowRequest(FLUSH, windowId) {}
 };
 
 }
@@ -227,6 +247,15 @@ public:
     explicit Flush(const bool success) : BasicResponse(success) {}
 };
 
+class CloseWindow final : public BasicResponse {
+
+public:
+
+    CloseWindow() = default;
+
+    explicit CloseWindow(const bool success) : BasicResponse(success) {}
+};
+
 }
 
 namespace Event {
@@ -234,7 +263,8 @@ namespace Event {
 enum Type : uint8_t {
     MOUSE_HOVER,
     MOUSE_CLICK,
-    KEY_EVENT
+    KEY_EVENT,
+    WINDOW_CLOSE
 };
 
 class MouseHover final : public Util::Async::Streamable {
@@ -330,6 +360,19 @@ public:
 private:
 
     Util::Io::KeyEvent key;
+};
+
+class WindowClose final : public Util::Async::Streamable {
+
+public:
+
+    WindowClose() = default;
+
+    bool writeToStream(Util::Io::OutputStream &stream) const override;
+
+    bool readFromStream(Util::Io::InputStream&) override {
+        return true;
+    }
 };
 
 }

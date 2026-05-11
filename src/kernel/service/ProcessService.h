@@ -119,7 +119,11 @@ private:
 
     static int64_t systemCallCreatePipe(const char *name);
 
+    static int64_t systemCallDestroyPipe(const char *name);
+
     static int64_t systemCallSharedMemory(const char *name, void *startAddress, uint32_t pageCount);
+
+    static int64_t systemCallDestroySharedMemory(const char *name);
 
     Scheduler scheduler;
     SchedulerCleaner *cleaner = nullptr;

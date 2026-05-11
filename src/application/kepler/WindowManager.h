@@ -55,6 +55,8 @@ private:
 
     void createWindow(const Client &client);
 
+    void closeWindow(const Client &client);
+
     void setWindowTitle(const Client &client);
 
     void flushWindow(const Client &client) const;

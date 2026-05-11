@@ -42,6 +42,9 @@ SharedMemory::SharedMemory(const size_t processId, const String &name, const siz
 
 SharedMemory::~SharedMemory() {
     delete reinterpret_cast<uint8_t*>(address.get());
+    if (process.getId() == Process::getCurrentProcess().getId()) {
+        destroySharedMemory(name);
+    }
 }
 
 bool SharedMemory::publish() const {

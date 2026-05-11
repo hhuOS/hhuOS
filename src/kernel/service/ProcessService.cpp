@@ -62,7 +62,9 @@ ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelPro
     ASSIGN_SYSTEM_CALL(Util::System::JOIN_PROCESS, ProcessService::systemCallJoinProcess);
     ASSIGN_SYSTEM_CALL(Util::System::KILL_PROCESS, ProcessService::systemCallKillProcess);
     ASSIGN_SYSTEM_CALL(Util::System::CREATE_PIPE, ProcessService::systemCallCreatePipe);
+    ASSIGN_SYSTEM_CALL(Util::System::DESTROY_PIPE, ProcessService::systemCallDestroyPipe);
     ASSIGN_SYSTEM_CALL(Util::System::CREATE_SHARED_MEMORY, ProcessService::systemCallSharedMemory);
+    ASSIGN_SYSTEM_CALL(Util::System::DESTROY_SHARED_MEMORY, ProcessService::systemCallDestroySharedMemory);
 }
 
 Process& ProcessService::createProcess(VirtualAddressSpace &addressSpace, const Util::String &name, const Util::Io::File &workingDirectory, const Util::Io::File &standardIn, const Util::Io::File &standardOut, const Util::Io::File &standardError) {
@@ -295,11 +297,25 @@ int64_t ProcessService::systemCallCreatePipe(const char *name) {
     return currentProcess.createPipe(name) ? 0 : -1;
 }
 
+int64_t ProcessService::systemCallDestroyPipe(const char *name) {
+    auto &processService = getService<ProcessService>();
+    auto &currentProcess = processService.getCurrentProcess();
+
+    return currentProcess.destroyPipe(name);
+}
+
 int64_t ProcessService::systemCallSharedMemory(const char *name, void *startAddress, const uint32_t pageCount) {
     auto &processService = getService<ProcessService>();
     auto &currentProcess = processService.getCurrentProcess();
 
     return currentProcess.createSharedMemory(name, startAddress, pageCount) ? 0 : -1;
+}
+
+int64_t ProcessService::systemCallDestroySharedMemory(const char *name) {
+    auto &processService = getService<ProcessService>();
+    auto &currentProcess = processService.getCurrentProcess();
+
+    return currentProcess.destroySharedMemory(name);
 }
 
 }

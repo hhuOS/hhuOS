@@ -30,6 +30,11 @@ void WindowStack::push(ClientWindow *window) {
     windows.add(window);
 }
 
+void WindowStack::remove(ClientWindow *window) {
+    windows.remove(window);
+    delete window;
+}
+
 void WindowStack::setFocus(ClientWindow *window) {
     auto *oldFocus = getFocusedWindow();
     if (window != oldFocus) {
