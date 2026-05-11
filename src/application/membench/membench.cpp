@@ -31,7 +31,7 @@
 #include <util/math/Random.h>
 #include <util/time/Timestamp.h>
 
-const char *HELP_TEXT =
+constexpr const char *HELP_TEXT =
 #include "generated/README.md"
 ;
 

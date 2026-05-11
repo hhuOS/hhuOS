@@ -21,9 +21,8 @@ void appExit(int32_t);
 extern "C" void _fini();
 
 void initMemoryManager(uint8_t *startAddress) {
-    new (&Util::System::getAddressSpaceHeader().heapMemoryManager)
-		Util::FreeListMemoryManager(startAddress,
-			reinterpret_cast<void*>(Util::USER_SPACE_STACK_MEMORY_START_ADDRESS));
+    new (&Util::System::getAddressSpaceHeader().heapMemoryManager) Util::FreeListMemoryManager(startAddress,
+		reinterpret_cast<void*>(Util::USER_SPACE_STACK_MEMORY_START_ADDRESS));
 
 	new (&Util::System::getAddressSpaceHeader().stackMemoryManager)
 		Util::BitmapMemoryManager(reinterpret_cast<uint8_t*>(Util::USER_SPACE_STACK_MEMORY_START_ADDRESS),

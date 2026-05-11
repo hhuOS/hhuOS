@@ -27,7 +27,7 @@
 #include <util/io/stream/PrintStream.h>
 #include <util/base/String.h>
 
-const char *HELP_TEXT =
+constexpr const char *HELP_TEXT =
 #include "generated/README.md"
 ;
 

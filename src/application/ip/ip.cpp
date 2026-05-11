@@ -30,7 +30,7 @@
 #include "Address.h"
 #include "Route.h"
 
-const char *HELP_TEXT =
+constexpr const char *HELP_TEXT =
 #include "generated/README.md"
 ;
 

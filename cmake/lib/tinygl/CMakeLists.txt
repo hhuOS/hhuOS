@@ -21,7 +21,7 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 99)
-add_compile_options("-Wpedantic")
+add_compile_options(-Wpedantic)
 
 add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-function>

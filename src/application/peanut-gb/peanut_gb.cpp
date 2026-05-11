@@ -21,700 +21,295 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <time.h>
-#include <stdio.h>
-
-#include "util/sound/AudioChannel.h"
 
 uint8_t audio_read(uint16_t addr);
 void audio_write(uint16_t addr, uint8_t val);
-
 #include "Peanut-GB/peanut_gb.h"
 
 extern "C" {
 #include "Peanut-GB/examples/sdl2/minigb_apu/minigb_apu.h"
 }
 
-#include "lib/util/base/Panic.h"
-#include "lib/util/base/Address.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/base/System.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/time/Timestamp.h"
-#include "lib/util/async/Thread.h"
-#include "lib/util/io/key/KeyDecoder.h"
-#include "lib/util/io/key/layout/DeLayout.h"
-#include "lib/util/graphic/font/Terminal8x8.h"
-#include "lib/util/io/stream/FileOutputStream.h"
-#include "lib/util/base/String.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/graphic/Color.h"
-#include "lib/util/io/key/KeyEvent.h"
-#include "lib/util/io/stream/InputStream.h"
-#include "lib/util/io/stream/PrintStream.h"
+#include "palettes.h"
 
-const constexpr uint32_t TARGET_FRAME_RATE = 60;
-const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
+#include <util/sound/AudioChannel.h>
+#include <util/base/Panic.h>
+#include <util/base/Address.h>
+#include <util/base/ArgumentParser.h>
+#include <util/base/System.h>
+#include <util/io/file/File.h>
+#include <util/io/stream/FileInputStream.h>
+#include <util/graphic/LinearFrameBuffer.h>
+#include <util/graphic/Colors.h>
+#include <util/graphic/Ansi.h>
+#include <util/time/Timestamp.h>
+#include <util/async/Thread.h>
+#include <util/io/key/KeyDecoder.h>
+#include <util/io/key/layout/DeLayout.h>
+#include <util/graphic/font/Terminal8x8.h>
+#include <util/io/stream/FileOutputStream.h>
+#include <util/base/String.h>
+#include <util/collection/Array.h>
+#include <util/io/key/KeyEvent.h>
+#include <util/io/stream/InputStream.h>
+#include <util/io/stream/PrintStream.h>
 
-const auto palettes = new Util::Graphic::Color[32][3][4] {
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF7300), Util::Graphic::Color::fromRGB32(0x944200), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x5ABDFF), Util::Graphic::Color::fromRGB32(0xFF0000), Util::Graphic::Color::fromRGB32(0x0000FF) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xADAD84), Util::Graphic::Color::fromRGB32(0x42737B), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFC542), Util::Graphic::Color::fromRGB32(0xFFD600), Util::Graphic::Color::fromRGB32(0x943A00), Util::Graphic::Color::fromRGB32(0x4A0000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFF9C), Util::Graphic::Color::fromRGB32(0x94B5FF), Util::Graphic::Color::fromRGB32(0x639473), Util::Graphic::Color::fromRGB32(0x003A3A) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFAD63), Util::Graphic::Color::fromRGB32(0x843100), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0x6BFF00), Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF524A), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0x52DE00), Util::Graphic::Color::fromRGB32(0xFF8400), Util::Graphic::Color::fromRGB32(0xFFFF00), Util::Graphic::Color::fromRGB32(0xFFFFFF) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x7BFF00), Util::Graphic::Color::fromRGB32(0xB57300), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x5ABDFF), Util::Graphic::Color::fromRGB32(0xFF0000), Util::Graphic::Color::fromRGB32(0x0000FF) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x52FF00), Util::Graphic::Color::fromRGB32(0xFF4200), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x5ABDFF), Util::Graphic::Color::fromRGB32(0xFF0000), Util::Graphic::Color::fromRGB32(0x0000FF) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF9C00), Util::Graphic::Color::fromRGB32(0xFF0000), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x5ABDFF), Util::Graphic::Color::fromRGB32(0xFF0000), Util::Graphic::Color::fromRGB32(0x0000FF) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFFF00), Util::Graphic::Color::fromRGB32(0xFF0000), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFF6352), Util::Graphic::Color::fromRGB32(0xD60000), Util::Graphic::Color::fromRGB32(0x630000), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0x0000FF), Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFFF7B), Util::Graphic::Color::fromRGB32(0x0084FF) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xA59CFF), Util::Graphic::Color::fromRGB32(0xFFFF00), Util::Graphic::Color::fromRGB32(0x006300), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF7300), Util::Graphic::Color::fromRGB32(0x944200), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFCE), Util::Graphic::Color::fromRGB32(0x63EFEF), Util::Graphic::Color::fromRGB32(0x9C8431), Util::Graphic::Color::fromRGB32(0x5A5A5A) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0x000000), Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0x000000), Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xB5B5FF), Util::Graphic::Color::fromRGB32(0xFFFF94), Util::Graphic::Color::fromRGB32(0xAD5A42), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFFF7B), Util::Graphic::Color::fromRGB32(0x0084FF), Util::Graphic::Color::fromRGB32(0xFF0000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFC542), Util::Graphic::Color::fromRGB32(0xFFD600), Util::Graphic::Color::fromRGB32(0x943A00), Util::Graphic::Color::fromRGB32(0x4A0000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x5ABDFF), Util::Graphic::Color::fromRGB32(0xFF0000), Util::Graphic::Color::fromRGB32(0x0000FF) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x8C8CDE), Util::Graphic::Color::fromRGB32(0x52528C), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFAD63), Util::Graphic::Color::fromRGB32(0x843100), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x8C8CDE), Util::Graphic::Color::fromRGB32(0x52528C), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x7BFF31), Util::Graphic::Color::fromRGB32(0x008400), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x7BFF31), Util::Graphic::Color::fromRGB32(0x008400), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFAD63), Util::Graphic::Color::fromRGB32(0x843100), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x7BFF31), Util::Graphic::Color::fromRGB32(0x008400), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x00FF00), Util::Graphic::Color::fromRGB32(0x318400), Util::Graphic::Color::fromRGB32(0x004A00) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x7BFF31), Util::Graphic::Color::fromRGB32(0x008400), Util::Graphic::Color::fromRGB32(0x004A00) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFAD63), Util::Graphic::Color::fromRGB32(0x843100), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x7BFF31), Util::Graphic::Color::fromRGB32(0x008400), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0x000000), Util::Graphic::Color::fromRGB32(0x008484), Util::Graphic::Color::fromRGB32(0xFFDE00), Util::Graphic::Color::fromRGB32(0xFFFFFF) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFF00), Util::Graphic::Color::fromRGB32(0xFF0000), Util::Graphic::Color::fromRGB32(0x630000), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x7BFF31), Util::Graphic::Color::fromRGB32(0x008400), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFF00), Util::Graphic::Color::fromRGB32(0xFF0000), Util::Graphic::Color::fromRGB32(0x630000), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x7BFF31), Util::Graphic::Color::fromRGB32(0x008400), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xA5A5A5), Util::Graphic::Color::fromRGB32(0x525252), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xA5A5A5), Util::Graphic::Color::fromRGB32(0x525252), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xA5A5A5), Util::Graphic::Color::fromRGB32(0x525252), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFA5), Util::Graphic::Color::fromRGB32(0xFF9494), Util::Graphic::Color::fromRGB32(0x9494FF), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFA5), Util::Graphic::Color::fromRGB32(0xFF9494), Util::Graphic::Color::fromRGB32(0x9494FF), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFA5), Util::Graphic::Color::fromRGB32(0xFF9494), Util::Graphic::Color::fromRGB32(0x9494FF), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x7BFF31), Util::Graphic::Color::fromRGB32(0x008400), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFAD63), Util::Graphic::Color::fromRGB32(0x843100), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFAD63), Util::Graphic::Color::fromRGB32(0x843100), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFE6C5), Util::Graphic::Color::fromRGB32(0xCE9C84), Util::Graphic::Color::fromRGB32(0x846B29), Util::Graphic::Color::fromRGB32(0x5A3108) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x7BFF31), Util::Graphic::Color::fromRGB32(0x008400), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFFF00), Util::Graphic::Color::fromRGB32(0x7B4A00), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFCE00), Util::Graphic::Color::fromRGB32(0x9C6300), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFCE00), Util::Graphic::Color::fromRGB32(0x9C6300), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFFCE00), Util::Graphic::Color::fromRGB32(0x9C6300), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        {
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF8484), Util::Graphic::Color::fromRGB32(0x943A3A), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x63A5FF), Util::Graphic::Color::fromRGB32(0x0000FF), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x7BFF31), Util::Graphic::Color::fromRGB32(0x0063C5), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        { // Black and White (not included in CGB boot rom)
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xAAAAAA), Util::Graphic::Color::fromRGB32(0x555555), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xAAAAAA), Util::Graphic::Color::fromRGB32(0x555555), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xAAAAAA), Util::Graphic::Color::fromRGB32(0x555555), Util::Graphic::Color::fromRGB32(0x000000) }  // BG
-        },
-        { // Shades of green (not included in CGB boot rom)
-                { Util::Graphic::Color::fromRGB32(0x9bbc0f), Util::Graphic::Color::fromRGB32(0x8bac0f), Util::Graphic::Color::fromRGB32(0x306230), Util::Graphic::Color::fromRGB32(0x0f380f) }, // OBJ0
-                { Util::Graphic::Color::fromRGB32(0x9bbc0f), Util::Graphic::Color::fromRGB32(0x8bac0f), Util::Graphic::Color::fromRGB32(0x306230), Util::Graphic::Color::fromRGB32(0x0f380f) }, // OBJ1
-                { Util::Graphic::Color::fromRGB32(0x9bbc0f), Util::Graphic::Color::fromRGB32(0x8bac0f), Util::Graphic::Color::fromRGB32(0x306230), Util::Graphic::Color::fromRGB32(0x0f380f) }  // BG
-        }
-};
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
 
-const auto manualPalettes = new uint16_t[14] {
-    0x1d << 8 | 0x05, // Black and White
-    0x1e << 8 | 0x05, // Shades of green
-    0x12 << 8 | 0x00, // Up
-    0x10 << 8 | 0x05, // A + Up
-    0x19 << 8 | 0x03, // B + Up
-    0x18 << 8 | 0x05, // Left
-    0x0d << 8 | 0x05, // A + Left
-    0x16 << 8 | 0x00, // B + Left
-    0x17 << 8 | 0x00, // Down
-    0x07 << 8 | 0x00, // A + Down
-    0x1a << 8 | 0x05, // B + Down
-    0x05 << 8 | 0x00, // Right
-    0x1c << 8 | 0x03, // A + Right
-    0x13 << 8 | 0x00 // B + Right
-};
+/// Frame rate that the emulator tries to run at.
+constexpr uint32_t TARGET_FRAME_RATE = 60;
+/// Time per frame if we want to hit the target frame rate.
+constexpr auto TARGET_FRAME_TIME = Util::Time::Timestamp::ofSecondsFloat(1.0f / TARGET_FRAME_RATE);
 
-uint32_t *palette = nullptr;
+/// The rom that is currently being played.
 uint8_t *rom = nullptr;
+/// The emulated cartridge ram (i.e., battery-backed storage for save games).
+/// On exit, this buffer is written to a file.
+/// If a corresponding file exists, it is loaded on start.
 uint8_t *ram = nullptr;
-uint8_t scale = 1;
-uint8_t maxScale = 1;
-uint16_t offsetX = 0;
-uint16_t offsetY = 0;
-Util::Graphic::LinearFrameBuffer *lfb = nullptr;
-Util::String saveFilePath;
 
+/// The framebuffer to draw pixels to.
+Util::Graphic::LinearFrameBuffer *lfb = nullptr;
+/// The color palette currently used to draw pixels (Can be changed using F3 and reset using F4).
+uint32_t *palette = nullptr;
+/// The scale at which the screen is rendered (Can be changed using F1 and F2).
+uint8_t scale = 1;
+/// The maximum allowed scale. This is calculated at program start depending on the screen resolution.
+uint8_t maxScale = 1;
+/// The x-axis offset to draw the screen so it is centered.
+uint16_t offsetX = 0;
+/// The y-axis offset to draw the screen so it is centered.
+uint16_t offsetY = 0;
+
+/// The Game Boy instance, containing all emulation state.
+gb_s gb;
+
+/// The sound channel used to play audio from the emulator.
+Util::Sound::AudioChannel audioChannel;
+/// The audio processing unit instance.
 minigb_apu_ctx apu;
+/// Audio buffer for the `minigb_apu` library to write new samples to.
 audio_sample_t minigbAudioBuffer[AUDIO_SAMPLES_TOTAL];
+/// The APU writes 16-bit stereo samples at 22050 Hz.
+/// However, the hhuOS audio channel expects 8-bit mono samples at 22050 Hz.
+/// This buffer is used to mix the stereo sample from `minigb_apu` into 8-bit mono samples.
 uint8_t mixedAudioBuffer[AUDIO_SAMPLES];
 
+/// Timestamp used to count the number of frames per second (is reset every second).
 Util::Time::Timestamp fpsTimer;
+/// The number of frames that have been drawn since the last `fpsTimer` reset.
 uint32_t fpsCounter = 0;
+/// The number of frames counted during the last second. This is the number displayed on the screen.
 uint32_t fps = 0;
 
+/// Write the current cartridge RAM buffer to the specified file.
+/// If the emulated game has no cartridge RAM, nothing is written.
+void writeSaveFile(const Util::String &saveFilePath) {
+    size_t saveSize;
+    if (gb_get_save_size_s(&gb, &saveSize) != 0) {
+        return;
+    }
 
-uint32_t* get_palette(uint8_t index, uint8_t flags) {
-    auto *pal = palettes[index];
-    auto ret = new uint32_t[3][4];
-
-    for (uint8_t i = 0; i < 3; i++) {
-        for (uint8_t j = 0; j < 4; j++) {
-            ret[i][j] = pal[i][j].getColorForDepth(lfb->getColorDepth());
+    const Util::Io::File saveFile(saveFilePath);
+    if (!saveFile.exists()) {
+        if (!saveFile.create(Util::Io::File::REGULAR)) {
+            Util::System::error << "peanut-gb: Failed to create save file!" << Util::Io::PrintStream::lnFlush;
+            return;
         }
     }
 
-    switch (flags) {
-        case 0x00: // OBJ0 = BG, OBJ1 = BG
-            ret[0][0] = ret[2][0];
-            ret[0][1] = ret[2][1];
-            ret[0][2] = ret[2][2];
+    Util::Io::FileOutputStream(saveFile).write(ram, 0, saveSize);
+}
 
-            ret[1][0] = ret[2][0];
-            ret[1][1] = ret[2][1];
-            ret[1][2] = ret[2][2];
-            break;
-        case 0x01: // OBJ1 = BG
-            ret[1][0] = ret[2][0];
-            ret[1][1] = ret[2][1];
-            ret[1][2] = ret[2][2];
-            break;
-        case 0x02: // OBJ1 = OBJ0, OBJ0 = BG
-            ret[1][0] = ret[0][0];
-            ret[1][1] = ret[0][1];
-            ret[1][2] = ret[0][2];
-
-            ret[0][0] = ret[2][0];
-            ret[0][1] = ret[2][1];
-            ret[0][2] = ret[2][2];
-            break;
-        case 0x03: // OBJ1 = OBJ0
-            ret[1][0] = ret[0][0];
-            ret[1][1] = ret[0][1];
-            ret[1][2] = ret[0][2];
-            break;
-        case 0x04: // OBJ0 = BG
-            ret[0][0] = ret[2][0];
-            ret[0][1] = ret[2][1];
-            ret[0][2] = ret[2][2];
-            break;
-        default:
-            break;
+/// Read the specified file into the cartridge RAM buffer.
+/// The buffer is allocated according to the emulated game.
+/// If the game has no cartridge RAM, nothing is read/allocated.
+void readSaveFile(const Util::String &saveFilePath) {
+    size_t saveSize;
+    if (gb_get_save_size_s(&gb, &saveSize) != 0) {
+        return;
     }
 
-    return reinterpret_cast<uint32_t*>(ret);
-}
+    ram = new uint8_t[saveSize];
 
-uint32_t* get_manual_palette(uint8_t manualIndex) {
-    auto index = manualPalettes[manualIndex] >> 8;
-    auto flags = manualPalettes[manualIndex] & 0xff;
-
-    return get_palette(index, flags);
-}
-
-uint32_t* gb_get_palette(gb_s *gb) {
-    char title[16]{};
-    gb_get_rom_name(gb, title);
-    auto hash = gb_colour_hash(gb);
-
-    switch (hash) {
-        case 0xb3:
-        if (title[3] == 'U') {
-            return get_palette(0x00, 0x03);
-        } else if (title[3] == 'R') {
-            return get_palette(0x05, 0x04);
-        } else if (title[3] == 'B') {
-            return get_palette(0x08, 0x05);
-        }
-        break;
-        case 0x59:
-            return get_palette(0x00, 0x05);
-        case 0xc6:
-        if (title[3] == 'A') {
-            return get_palette(0x00, 0x05);
-        } else
-        if (title[3] == ' ') {
-            return get_palette(0x1c, 0x03);
-        }
-        break;
-        case 0x8c:
-            return get_palette(0x01, 0x00);
-        case 0x86:
-        case 0xa8:
-            return get_palette(0x01, 0x05);
-        case 0xbf:
-        if (title[3] == 'C') {
-            return get_palette(0x02, 0x05);
-        } else
-        if (title[3] == ' ') {
-            return get_palette(0x0d, 0x03);
-        }
-        break;
-        case 0xce:
-        case 0xd1:
-        case 0xf0:
-            return get_palette(0x02, 0x05);
-        case 0x36:
-            return get_palette(0x03, 0x05);
-        case 0x34:
-            return get_palette(0x04, 0x03);
-        case 0x66:
-        if (title[3] == 'E') {
-            return get_palette(0x04, 0x03);
-        } else if (title[3] == 'L') {
-            return get_palette(0x1c, 0x03);
-        }
-        break;
-        case 0xf4:
-        if (title[3] == ' ') {
-            return get_palette(0x04, 0x03);
-        } else
-        if (title[3] == '-') {
-            return get_palette(0x1c, 0x05);
-        }
-        break;
-        case 0x3d:
-            return get_palette(0x05, 0x03);
-        case 0x6a:
-        if (title[3] == 'I') {
-            return get_palette(0x05, 0x03);
-        } else if (title[3] == 'K') {
-            return get_palette(0x0c, 0x05);
-        }
-        break;
-        case 0x95:
-            return get_palette(0x05, 0x04);
-        case 0x71:
-        case 0xff:
-            return get_palette(0x06, 0x00);
-        case 0x19:
-            return get_palette(0x06, 0x03);
-        case 0x3e:
-        case 0xe0:
-            return get_palette(0x06, 0x04);
-        case 0x15:
-        case 0xdb:
-            return get_palette(0x07, 0x00);
-        case 0x0d:
-            if (title[3] == 'R') {
-                return get_palette(0x07, 0x04);
-            } else if (title[3] == 'E') {
-                return get_palette(0x0c, 0x03);
-            }
-        break;
-        case 0x69:
-        case 0xf2:
-            return get_palette(0x07, 0x04);
-        case 0x88:
-            return get_palette(0x08, 0x00);
-        case 0x1d:
-            return get_palette(0x08, 0x03);
-        case 0x27:
-            if (title[3] == 'B') {
-                return get_palette(0x08, 0x05);
-            } else if (title[3] == 'N') {
-                return get_palette(0x0e, 0x05);
-            }
-        break;
-        case 0x49:
-        case 0x5c:
-            return get_palette(0x08, 0x05);
-        case 0xc9:
-            return get_palette(0x09, 0x05);
-        case 0x46:
-            if (title[3] == 'E') {
-                return get_palette(0x0a, 0x03);
-            } else if (title[3] == 'R') {
-                return get_palette(0x14, 0x05);
-            }
-        break;
-        case 0x61:
-            if (title[3] == 'E') {
-                return get_palette(0x0b, 0x01);
-            } else if (title[3] == 'A') {
-                return get_palette(0x0e, 0x05);
-            }
-            break;
-        case 0x3c:
-            return get_palette(0x0b, 0x02);
-        case 0x4e:
-            return get_palette(0x0b, 0x05);
-        case 0x9c:
-            return get_palette(0x0c, 0x02);
-        case 0x18:
-            if (title[3] == 'K') {
-                return get_palette(0x0c, 0x05);
-            } else
-            if (title[3] == 'I') {
-                return get_palette(0x1c, 0x03);
-            }
-            break;
-        case 0x6b:
-            return get_palette(0x0c, 0x05);
-        case 0xd3:
-            if (title[3] == 'R') {
-                return get_palette(0x0d, 0x01);
-            } else if (title[3] == 'I') {
-                return get_palette(0x15, 0x05);
-            }
-            break;
-        case 0x9d:
-            return get_palette(0x0d, 0x05);
-        case 0x28:
-            if (title[3] == 'F') {
-                return get_palette(0x0e, 0x03);
-            } else if (title[3] == 'A') {
-                return get_palette(0x13, 0x00);
-            }
-            break;
-        case 0x4b:
-        case 0x90:
-        case 0x9a:
-        case 0xbd:
-            return get_palette(0x0e, 0x03);
-        case 0x17:
-        case 0x8b:
-            return get_palette(0x0e, 0x05);
-        case 0x39:
-        case 0x43:
-        case 0x97:
-            return get_palette(0x0f, 0x03);
-        case 0x01:
-        case 0x10:
-        case 0x29:
-        case 0x52:
-        case 0x5d:
-        case 0x68:
-        case 0x6d:
-        case 0xf6:
-            return get_palette(0x0f, 0x05);
-        case 0x14:
-            return get_palette(0x10, 0x01);
-        case 0x70:
-            return get_palette(0x11, 0x05);
-        case 0x0c:
-        case 0x16:
-        case 0x35:
-        case 0x67:
-        case 0x75:
-        case 0x92:
-        case 0x99:
-        case 0xb7:
-            return get_palette(0x12, 0x00);
-        case 0xa5:
-            if (title[3] == 'R') {
-                return get_palette(0x12, 0x03);
-            } else if (title[3] == 'A') {
-                return get_palette(0x13, 0x00);
-            }
-            break;
-        case 0xa2:
-        case 0xf7:
-            return get_palette(0x12, 0x05);
-        case 0xe8:
-            return get_palette(0x13, 0x00);
-        case 0x58:
-            return get_palette(0x16, 0x00);
-        case 0x6f:
-            return get_palette(0x1b, 0x00);
-        case 0xaa:
-            return get_palette(0x1c, 0x01);
-        case 0x00:
-        case 0x3f:
-            return get_palette(0x1c, 0x03);
-        default:
-            break;
+    const Util::Io::File saveFile(saveFilePath);
+    if (saveFile.exists()) {
+        Util::Io::FileInputStream(saveFile).read(ram, 0, saveSize);
     }
-
-    return get_palette(0x1c, 0x03);
 }
 
-uint8_t gb_rom_read([[maybe_unused]] gb_s* gb, const uint_fast32_t addr) {
-    return rom[addr];
-}
-
-uint8_t gb_cart_ram_read([[maybe_unused]] gb_s* gb, const uint_fast32_t addr) {
-    return ram[addr];
-}
-
-void gb_cart_ram_write([[maybe_unused]] gb_s* gb, const uint_fast32_t addr, const uint8_t val) {
-    ram[addr] = val;
-}
-
-void gb_error([[maybe_unused]] gb_s* gb, const enum gb_error_e error, const uint16_t addr) {
-    switch (error) {
-        case GB_UNKNOWN_ERROR:
-            printf("Unknown error at address 0x%04X\n", addr);
-            break;
-        case GB_INVALID_OPCODE:
-            printf("Invalid opcode at address 0x%04X\n", addr);
-            break;
-        case GB_INVALID_READ:
-            printf("Invalid read at address 0x%04X\n", addr);
-            break;
-        case GB_INVALID_WRITE:
-            printf("Invalid write at address 0x%04X\n", addr);
-            break;
-        case GB_INVALID_MAX:
-            printf("Invalid max at address 0x%04X\n", addr);
-            break;
-    }
-
-    exit(error);
-}
-
-void lcd_draw_line_32bit([[maybe_unused]] gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
-    auto screenBuffer = reinterpret_cast<uint32_t*>(lfb->getBuffer().add(offsetX * 4 + (offsetY + line * scale) * lfb->getPitch()).get());
-    uint16_t resX = LCD_WIDTH * scale;
+/// LCD drawing function for 32-bit framebuffers.
+/// A pointer to this function is given to Peanut-GB using `gb_init_lcd()` during program start.
+/// Peanut-GB calls this function directly for each line of pixels.
+void drawLine32(gb_s*, const uint8_t *pixels, const uint_fast8_t line) {
+    const uint16_t resX = LCD_WIDTH * scale;
+    auto screenBuffer = reinterpret_cast<uint32_t*>(
+        lfb->getBuffer().add(offsetX * 4 + (offsetY + line * scale) * lfb->getPitch()).get());
 
     for (uint16_t y = 0; y < scale; y++) {
         for (uint16_t x = 0; x < resX; x++) {
-            uint8_t pixel = pixels[x / scale];
-            auto paletteIndex = (pixel & 0x30) >> 4;
-            auto colorIndex = pixel & 0x03;
-            auto color = palette[4 * paletteIndex + colorIndex];
+            const auto pixel = pixels[x / scale];
+            const auto color = palette[(pixel >> 2) | (pixel & 0x03)];
 
             screenBuffer[x] = color;
         }
 
-        screenBuffer += (lfb->getPitch() / 4);
+        screenBuffer += lfb->getPitch() / 4;
     }
 }
 
-void lcd_draw_line_24bit([[maybe_unused]] gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
-    auto screenBuffer = reinterpret_cast<uint8_t*>(lfb->getBuffer().add(offsetX * 3 + (offsetY + line * scale) * lfb->getPitch()).get());
-    uint16_t resX = LCD_WIDTH * scale;
+/// LCD drawing function for 24-bit framebuffers.
+/// A pointer to this function is given to Peanut-GB using `gb_init_lcd()` during program start.
+/// Peanut-GB calls this function directly for each line of pixels.
+void drawLine24(gb_s*, const uint8_t *pixels, const uint_fast8_t line) {
+    const uint16_t resX = LCD_WIDTH * scale;
+    auto screenBuffer = reinterpret_cast<uint8_t*>(
+        lfb->getBuffer().add(offsetX * 3 + (offsetY + line * scale) * lfb->getPitch()).get());
 
     for (uint16_t y = 0; y < scale; y++) {
         for (uint16_t x = 0; x < resX; x++) {
-            uint8_t pixel = pixels[x / scale];
-            auto paletteIndex = (pixel & 0x30) >> 4;
-            auto colorIndex = pixel & 0x03;
-            auto color = palette[4 * paletteIndex + colorIndex];
+            const auto pixel = pixels[x / scale];
+            const auto color = palette[(pixel >> 2) | (pixel & 0x03)];
 
             screenBuffer[x * 3] = color & 0xff;
             screenBuffer[x * 3 + 1] = (color >> 8) & 0xff;
             screenBuffer[x * 3 + 2] = (color >> 16) & 0xff;
         }
 
-        screenBuffer += (lfb->getPitch());
+        screenBuffer += lfb->getPitch();
     }
 }
 
-void lcd_draw_line_16bit([[maybe_unused]] gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
-    auto screenBuffer = reinterpret_cast<uint16_t*>(lfb->getBuffer().add(offsetX * 2 + (offsetY + line * scale) * lfb->getPitch()).get());
-    uint16_t resX = LCD_WIDTH * scale;
+/// LCD drawing function for 15/16-bit framebuffers.
+/// A pointer to this function is given to Peanut-GB using `gb_init_lcd()` during program start.
+/// Peanut-GB calls this function directly for each line of pixels.
+void drawLine16(gb_s*, const uint8_t *pixels, const uint_fast8_t line) {
+    const uint16_t resX = LCD_WIDTH * scale;
+    auto screenBuffer = reinterpret_cast<uint16_t*>(
+        lfb->getBuffer().add(offsetX * 2 + (offsetY + line * scale) * lfb->getPitch()).get());
 
     for (uint16_t y = 0; y < scale; y++) {
         for (uint16_t x = 0; x < resX; x++) {
-            uint8_t pixel = pixels[x / scale];
-            auto paletteIndex = (pixel & 0x30) >> 4;
-            auto colorIndex = pixel & 0x03;
-            auto color = palette[4 * paletteIndex + colorIndex];
+            const auto pixel = pixels[x / scale];
+            const auto color = palette[(pixel >> 2) | (pixel & 0x03)];
 
             screenBuffer[x] = color;
         }
 
-        screenBuffer += (lfb->getPitch() / 2);
+        screenBuffer += lfb->getPitch() / 2;
     }
 }
 
-void write_ram_to_file(gb_s *gb) {
-    size_t saveSize;
-    if (gb_get_save_size_s(gb, &saveSize) != 0) {
-        return;
-    }
-
-    auto saveFile = Util::Io::File(saveFilePath);
-    if (!saveFile.exists()) {
-        saveFile.create(Util::Io::File::REGULAR);
-    }
-
-    auto saveStream = Util::Io::FileOutputStream(saveFile);
-    saveStream.write(ram, 0, saveSize);
+/// Read a byte from the ROM buffer.
+/// This declared by Peanut-GB and must be implemented by the frontend.
+uint8_t gb_rom_read(gb_s*, const uint_fast32_t addr) {
+    return rom[addr];
 }
 
-void read_ram_from_file(gb_s *gb) {
-    size_t saveSize;
-    if (gb_get_save_size_s(gb, &saveSize) != 0) {
-        return;
-    }
-
-    ram = new uint8_t[saveSize];
-
-    auto saveFile = Util::Io::File(saveFilePath);
-    if (saveFile.exists()) {
-        auto saveStream = Util::Io::FileInputStream(saveFile);
-        saveStream.read(ram, 0, saveSize);
-    }
+/// Read a byte from the cartridge RAM buffer.
+/// This function is declared by Peanut-GB and must be implemented by the frontend.
+uint8_t gb_cart_ram_read(gb_s*, const uint_fast32_t addr) {
+    return ram[addr];
 }
 
-uint8_t audio_read(uint16_t addr) {
+/// Write a byte from the cartridge RAM buffer.
+/// This function is declared by Peanut-GB and must be implemented by the frontend.
+void gb_cart_ram_write(gb_s*, const uint_fast32_t addr, const uint8_t val) {
+    ram[addr] = val;
+}
+
+/// Handle emulation errors.
+/// This function is declared by Peanut-GB and must be implemented by the frontend.
+void gb_error(gb_s*, const gb_error_e error, const uint16_t addr) {
+    Util::System::error << "peanut-gb: ";
+
+    switch (error) {
+        case GB_INVALID_OPCODE:
+            Util::System::error << "Invalid opcode";
+            break;
+        case GB_INVALID_READ:
+            Util::System::error << "Invalid read";
+            break;
+        case GB_INVALID_WRITE:
+            Util::System::error << "Invalid write";
+            break;
+        case GB_INVALID_MAX:
+            Util::System::error << "Invalid max";
+            break;
+        default:
+            Util::System::error << "Unknown error";
+            break;
+    }
+
+    Util::System::error << " at address 0x" << Util::Io::PrintStream::hex << addr << Util::Io::PrintStream::lnFlush;
+    exit(error);
+}
+
+/// Read a byte from the audio processing unit.
+/// If audio is enabled during compilation, the frontend must implement this function.
+/// We simply pass the call over to `minigb_apu`.
+uint8_t audio_read(const uint16_t addr) {
     return minigb_apu_audio_read(&apu, addr);
 }
 
-void audio_write(uint16_t addr, uint8_t val) {
+/// Write a byte to the audio processing unit.
+/// If audio is enabled during compilation, the frontend must implement this function.
+/// We simply pass the call over to `minigb_apu`.
+void audio_write(const uint16_t addr, const uint8_t val) {
     minigb_apu_audio_write(&apu, addr, val);
 }
 
 int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("GameBoy emulator by 'deltabeard' (https://github.com/deltabeard/Peanut-GB).\n"
-                               "Joypad is mapped to WASD; A and B are mapped to K and J; Start is mapped to Space and Select is mapped to Enter.\n"
-                               "Use 'F1' and 'F2' to adjust screen scaling. Use 'F3' to cycle through color palettes and 'F4' to reset to default palette.\n"
-                               "Usage: peanut-gb [FILE]\n"
-                               "Options:\n"
-                               "  -s, --save: Path to save file\n"
-                               "  -r, --resolution: Set display resolution\n"
-                               "  -h, --help: Show this help message");
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
 
     argumentParser.addArgument("save", false, "s");
     argumentParser.addArgument("resolution", false, "r");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "peanut-gb: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "peanut-gb: No arguments provided!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto romFile = Util::Io::File(arguments[0]);
-    auto stream = Util::Io::FileInputStream(romFile);
+    // Read the ROM file.
+    const Util::Io::File romFile(arguments[0]);
+    Util::Io::FileInputStream stream(romFile);
 
     rom = new uint8_t[romFile.getLength()];
     stream.read(rom, 0, romFile.getLength());
 
+    // Initialize the linear frame buffer and scale/offset variables
     auto lfbFile = Util::Io::File("/device/lfb");
-
     if (argumentParser.hasArgument("resolution")) {
-        auto split1 = argumentParser.getArgument("resolution").split("x");
-        auto split2 = split1[1].split("@");
-
-        auto resolutionX = Util::String::parseNumber<uint16_t>(split1[0]);
-        auto resolutionY = Util::String::parseNumber<uint16_t>(split2[0]);
-        uint8_t colorDepth = split2.length() > 1 ? Util::String::parseNumber<uint8_t>(split2[1]) : 32;
-
-        lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
+        Util::Graphic::LinearFrameBuffer::setResolution(lfbFile,
+            argumentParser.getArgument("resolution"));
     }
 
-    auto buffer = Util::Graphic::LinearFrameBuffer(lfbFile);
+    Util::Graphic::LinearFrameBuffer buffer(lfbFile);
     lfb = &buffer;
-    maxScale = lfb->getResolutionX() / LCD_WIDTH > lfb->getResolutionY() / LCD_HEIGHT ? lfb->getResolutionY() / LCD_HEIGHT : lfb->getResolutionX() / LCD_WIDTH;
+    maxScale = lfb->getResolutionX() / LCD_WIDTH > lfb->getResolutionY() / LCD_HEIGHT ?
+        lfb->getResolutionY() / LCD_HEIGHT : lfb->getResolutionX() / LCD_WIDTH;
     scale = maxScale;
     offsetX = lfb->getResolutionX() - LCD_WIDTH * scale > 0 ? (lfb->getResolutionX() - LCD_WIDTH * scale) / 2 : 0;
     offsetY = lfb->getResolutionY() - LCD_HEIGHT * scale > 0 ? (lfb->getResolutionY() - LCD_HEIGHT * scale) / 2 : 0;
 
-    gb_s gb{};
-
+    // Initialize the emulator instance
     auto initResult = gb_init(&gb, &gb_rom_read, &gb_cart_ram_read, &gb_cart_ram_write, &gb_error, nullptr);
     if (initResult != GB_INIT_NO_ERROR) {
-        Util::System::error << "peanut-gb: Failed to initialize emulator!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "peanut-gb: Failed to initialize emulator!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
+    // Read the save file (if existing or passed as program parameter)
+    Util::String saveFilePath;
     if (argumentParser.hasArgument("save")) {
         saveFilePath = argumentParser.getArgument("save");
     } else {
@@ -724,19 +319,20 @@ int32_t main(int32_t argc, char *argv[]) {
         saveFilePath = romFile.getParent().getCanonicalPath() + "/" + Util::String(title).strip() + ".sav";
     }
 
-    read_ram_from_file(&gb);
+    readSaveFile(saveFilePath);
 
+    // Initialize Peanut-GB LCD support
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
     switch (lfb->getColorDepth()) {
         case 32:
-            gb_init_lcd(&gb, &lcd_draw_line_32bit);
+            gb_init_lcd(&gb, &drawLine32);
             break;
         case 24:
-            gb_init_lcd(&gb, &lcd_draw_line_24bit);
+            gb_init_lcd(&gb, &drawLine24);
             break;
         case 15:
         case 16:
-            gb_init_lcd(&gb, &lcd_draw_line_16bit);
+            gb_init_lcd(&gb, &drawLine16);
             break;
         default:
             Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "Unsupported color depth!");
@@ -744,24 +340,29 @@ int32_t main(int32_t argc, char *argv[]) {
 
     lfb->clear();
 
-    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
-    auto keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
-
     uint8_t manualPaletteIndex = UINT8_MAX;
-    palette = gb_get_palette(&gb);
+    palette = getPalette(&gb, lfb->getColorDepth());
 
+    // Initialize Peanut-GB real-time clock support
     auto timer = time(nullptr);
     auto date = localtime(&timer);
     gb_set_rtc(&gb, date);
 
-    Util::Sound::AudioChannel audioChannel;
+    // Initialize `minigb_apu` for audio support
     minigb_apu_audio_init(&apu);
-
     audioChannel.play();
 
+    // Initialize keyboard input
+    Util::Io::DeLayout layout;
+    Util::Io::KeyDecoder keyDecoder(layout);
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
+
+    // Enter main loop
     while (true) {
+        // Get time for frame time measurement
         auto startTime = Util::Time::Timestamp::getSystemTime();
 
+        // Read and process a single key event
         auto c = Util::System::in.read();
         if (c != -1 && keyDecoder.parseScancode(c)) {
             auto key = keyDecoder.getKeyEvent();
@@ -792,40 +393,44 @@ int32_t main(int32_t argc, char *argv[]) {
                 case Util::Io::KeyEvent::ENTER:
                     joyKey = JOYPAD_SELECT;
                     break;
-                case Util::Io::KeyEvent::F1:
+                case Util::Io::KeyEvent::F1: // Increase screen scale
                     if (key.isPressed() && scale < maxScale) {
                         scale++;
-                        offsetX = lfb->getResolutionX() - LCD_WIDTH * scale > 0 ? (lfb->getResolutionX() - LCD_WIDTH * scale) / 2 : 0;
-                        offsetY = lfb->getResolutionY() - LCD_HEIGHT * scale > 0 ? (lfb->getResolutionY() - LCD_HEIGHT * scale) / 2 : 0;
+                        offsetX = lfb->getResolutionX() - LCD_WIDTH * scale > 0 ?
+                            (lfb->getResolutionX() - LCD_WIDTH * scale) / 2 : 0;
+                        offsetY = lfb->getResolutionY() - LCD_HEIGHT * scale > 0 ?
+                            (lfb->getResolutionY() - LCD_HEIGHT * scale) / 2 : 0;
                         lfb->clear();
                     }
                     break;
-                case Util::Io::KeyEvent::F2:
+                case Util::Io::KeyEvent::F2: // Decrease screen scale
                     if (key.isPressed() && scale > 1) {
                         scale--;
-                        offsetX = lfb->getResolutionX() - LCD_WIDTH * scale > 0 ? (lfb->getResolutionX() - LCD_WIDTH * scale) / 2 : 0;
-                        offsetY = lfb->getResolutionY() - LCD_HEIGHT * scale > 0 ? (lfb->getResolutionY() - LCD_HEIGHT * scale) / 2 : 0;
+                        offsetX = lfb->getResolutionX() - LCD_WIDTH * scale > 0 ?
+                            (lfb->getResolutionX() - LCD_WIDTH * scale) / 2 : 0;
+                        offsetY = lfb->getResolutionY() - LCD_HEIGHT * scale > 0 ?
+                            (lfb->getResolutionY() - LCD_HEIGHT * scale) / 2 : 0;
                         lfb->clear();
                     }
                     break;
-                case Util::Io::KeyEvent::F3:
+                case Util::Io::KeyEvent::F3: // Cycle color palettes
                     if (key.isPressed()) {
                         manualPaletteIndex = manualPaletteIndex + 1 > 14 ? 0 : manualPaletteIndex + 1;
 
                         delete palette;
-                        palette = get_manual_palette(manualPaletteIndex);
+                        palette = getManualPalette(manualPaletteIndex, lfb->getColorDepth());
                     }
                     break;
-                case Util::Io::KeyEvent::F4:
+                case Util::Io::KeyEvent::F4: // Reset to original color palette
                     if (key.isPressed() && manualPaletteIndex != UINT8_MAX) {
                         manualPaletteIndex = UINT8_MAX;
 
                         delete palette;
-                        palette = gb_get_palette(&gb);
+                        palette = getPalette(&gb, lfb->getColorDepth());
                     }
                     break;
-                case Util::Io::KeyEvent::ESC:
-                    write_ram_to_file(&gb);
+                case Util::Io::KeyEvent::ESC: // Exit the emulator
+                    writeSaveFile(saveFilePath);
                     return 0;
                 default:
                     break;
@@ -838,6 +443,7 @@ int32_t main(int32_t argc, char *argv[]) {
             }
         }
 
+        // Emulate the next frame -> Automatically calls LCD draw function to update the screen
         gb_run_frame(&gb);
 
         // Get signed 16-bit stereo audio samples from the APU
@@ -857,13 +463,18 @@ int32_t main(int32_t argc, char *argv[]) {
         // Play the mixed audio samples
         audioChannel.write(mixedAudioBuffer, 0, AUDIO_SAMPLES);
 
-        lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+        // Update FPS display
+        lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0,
+            static_cast<const char*>(Util::String::format("FPS: %u", fps)),
+            Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
+        // Sleep to hit the target framerate
         auto renderTime = Util::Time::Timestamp::getSystemTime() - startTime;
-        if (renderTime < targetFrameTime) {
-            Util::Async::Thread::sleep(targetFrameTime - renderTime);
+        if (renderTime < TARGET_FRAME_TIME) {
+            Util::Async::Thread::sleep(TARGET_FRAME_TIME - renderTime);
         }
 
+        // Update FPS counter
         fpsCounter++;
         auto frameTime = Util::Time::Timestamp::getSystemTime() - startTime;
         fpsTimer += frameTime;

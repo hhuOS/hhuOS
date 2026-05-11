@@ -33,7 +33,7 @@
 #include <util/io/stream/PrintStream.h>
 #include <util/io/stream/InputStream.h>
 
-const char *HELP_TEXT =
+constexpr const char *HELP_TEXT =
 #include "generated/README.md"
 ;
 

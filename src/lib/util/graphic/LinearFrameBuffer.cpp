@@ -79,9 +79,7 @@ bool LinearFrameBuffer::setResolution(const Io::File &lfbFile, const String &res
     return setResolution(lfbFile, x, y, bpp);
 }
 
-void LinearFrameBuffer::drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,
-                                 const Color &color) const
-{
+void LinearFrameBuffer::drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const Color &color) const {
     // Calculate our deltas
     auto dx = x2 - x1;
     auto dy = y2 - y1;
@@ -136,7 +134,9 @@ void LinearFrameBuffer::drawSquare(const uint16_t x, const uint16_t y, const uin
     drawRectangle(x, y, size, size, color);
 }
 
-void LinearFrameBuffer::fillRectangle(const uint16_t x, const uint16_t y, const uint16_t width, const uint16_t height, const Color &color) const {
+void LinearFrameBuffer::fillRectangle(const uint16_t x, const uint16_t y, const uint16_t width, const uint16_t height,
+    const Color &color) const
+{
     const uint16_t endX = x + width - 1;
     const uint16_t endY = y + height -1;
 

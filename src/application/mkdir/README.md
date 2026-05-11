@@ -13,7 +13,7 @@ Supported options:
 * -h, --help: Show this help message and exit.
 
 Create the specified DIRECTORY(ies), if they do not already exist.
-The parent directories must already exist in order to create a new directory.
+The parent directories must already exist to create a new directory.
 
 Examples
 --------
