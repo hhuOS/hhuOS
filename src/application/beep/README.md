@@ -5,7 +5,7 @@ Play beep file via the PC speaker.
 Usage
 -----
 ```
-beep FILE
+beep [OPTION]... FILE
 ```
 
 Supported options:

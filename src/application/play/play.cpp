@@ -20,47 +20,57 @@
 
 #include <stdint.h>
 
-#include "lib/util/async/Thread.h"
-#include "lib/util/base/System.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/base/String.h"
-#include "lib/util/io/stream/InputStream.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/sound/WaveFile.h"
-#include "lib/util/sound/AudioChannel.h"
+#include <util/async/Thread.h>
+#include <util/base/System.h>
+#include <util/base/ArgumentParser.h>
+#include <util/collection/Array.h>
+#include <util/io/file/File.h>
+#include <util/graphic/Ansi.h>
+#include <util/base/String.h>
+#include <util/io/stream/InputStream.h>
+#include <util/io/stream/PrintStream.h>
+#include <util/sound/WaveFile.h>
+#include <util/sound/AudioChannel.h>
 
-static const constexpr uint32_t BUFFER_SIZE = 8192;
-static const constexpr uint8_t BAR_LENGTH = 25;
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
 
-void printStatusLine(const Util::Sound::WaveFile &waveFile, uint32_t remainingBytes) {
-    auto passedSeconds = (waveFile.getDataSize() - remainingBytes) / waveFile.getBytesPerSecond();
-    auto passedMinutes = passedSeconds / 60;
-    auto totalSeconds = waveFile.getSampleCount() / waveFile.getSamplesPerSecond();
-    auto totalMinutes = totalSeconds / 60;
+static constexpr size_t BUFFER_SIZE = 8192;
+static constexpr size_t BAR_LENGTH = 25;
 
-    auto timeString = Util::String::format("%u:%02um/%u:%02um", passedMinutes, passedSeconds - passedMinutes * 60, totalMinutes, totalSeconds - totalMinutes * 60);
-    auto percentage = static_cast<double>(passedSeconds) / totalSeconds;
-    auto filledBar = static_cast<uint32_t>((BAR_LENGTH - 2) * percentage);
+void printStatusLine(const Util::Sound::WaveFile &waveFile, const size_t remainingBytes) {
+    const auto passedTime = Util::Time::Timestamp::ofSeconds(
+        (waveFile.getDataSize() - remainingBytes) / waveFile.getBytesPerSecond());
+    const auto totalLength = Util::Time::Timestamp::ofSeconds(
+        waveFile.getSampleCount() / waveFile.getSamplesPerSecond());
+
+    const auto passedSeconds = passedTime.toSeconds();
+    const auto passedMinutes = passedTime.toMinutes();
+    const auto totalSeconds = totalLength.toSeconds();
+    const auto totalMinutes = totalLength.toMinutes();
+
+    const auto timeString = Util::String::format("%u:%02um/%u:%02um",
+        passedMinutes, passedSeconds - passedMinutes * 60,
+        totalMinutes, totalSeconds - totalMinutes * 60);
+
+    const auto percentage = totalLength.toMilliseconds() == 0 ? 0 :
+        passedTime.toMilliseconds() * 100 / totalLength.toMilliseconds();
+    const auto filledBar = BAR_LENGTH * percentage / 100;
 
     Util::System::out << "[";
-    for (uint32_t i = 0; i < filledBar; i++) {
+    for (size_t i = 0; i < filledBar; i++) {
         Util::System::out << "#";
     }
-    for (uint32_t i = 0; i < (BAR_LENGTH - 2) - filledBar; i++) {
+    for (size_t i = 0; i < BAR_LENGTH - filledBar; i++) {
         Util::System::out << "-";
     }
     Util::System::out << "] " << timeString << Util::Io::PrintStream::flush;
 }
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Play .wav-files via a sound blaster card.\n"
-                               "Usage: play [FILE]\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
@@ -73,44 +83,54 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto inputFile = Util::Io::File(arguments[0]);
+    const Util::Io::File inputFile(arguments[0]);
     if (!inputFile.exists() || inputFile.isDirectory()) {
         Util::System::error << "play: '" << arguments[0] << "' could not be opened!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto waveFile = Util::Sound::WaveFile(inputFile);
-    auto audioChannel = Util::Sound::AudioChannel();
+    Util::Sound::WaveFile waveFile(inputFile);
+    Util::Sound::AudioChannel audioChannel;
 
+    Util::Graphic::Ansi::enableKeyboardScancodes();
     Util::Graphic::Ansi::disableCursor();
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
-    Util::System::out << "Playing '" << inputFile.getName() << "'... Press <ENTER> to stop." << Util::Io::PrintStream::ln;
+    const Util::Io::DeLayout layout;
+    Util::Io::KeyDecoder keyDecoder(layout);
+
+    Util::System::out << "Playing '" << inputFile.getName() << "'... Press <ESC> to stop." << Util::Io::PrintStream::ln;
+
     audioChannel.play();
 
     auto *fileBuffer = new uint8_t[BUFFER_SIZE];
-    uint32_t remaining = waveFile.getDataSize();
+    size_t remaining = waveFile.getDataSize();
 
     while (remaining > 0) {
-        if (Util::System::in.read() > 0) {
-            break;
+        // Exit application if ESC is pressed
+        if (Util::System::in.isReadyToRead()) {
+            if (keyDecoder.parseScancode(Util::System::in.read())) {
+                if (keyDecoder.getKeyEvent().getScancode() == Util::Io::KeyEvent::ESC) {
+                    break;
+                }
+            }
         }
 
+        // Update the status line
         Util::Graphic::Ansi::saveCursorPosition();
         printStatusLine(waveFile, remaining);
         Util::Graphic::Ansi::restoreCursorPosition();
 
-        uint32_t toWrite = remaining >= BUFFER_SIZE ? BUFFER_SIZE : remaining;
+        // Read data from the wave file and write it to the audio channel
+        const auto toWrite = remaining >= BUFFER_SIZE ? BUFFER_SIZE : remaining;
         waveFile.read(fileBuffer, 0, toWrite);
         audioChannel.write(fileBuffer, 0, toWrite);
 
         remaining -= toWrite;
     }
 
-    audioChannel.stop();
-    while (audioChannel.getState() != Util::Sound::AudioChannel::STOPPED) {
-        Util::Async::Thread::yield();
-    }
+    // End of file reached (or ESC pressed) -> Stop audio playback
+    audioChannel.stop(true);
 
     Util::Graphic::Ansi::clearLine();
     Util::Graphic::Ansi::moveCursorToBeginningOfPreviousLine(0);

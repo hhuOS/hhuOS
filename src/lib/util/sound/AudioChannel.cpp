@@ -22,6 +22,8 @@
  */
 
 #include "AudioChannel.h"
+
+#include "util/async/Thread.h"
 #include "util/io/stream/FileInputStream.h"
 
 namespace Util {
@@ -40,10 +42,16 @@ uint8_t AudioChannel::createChannel() {
     return id;
 }
 
-bool AudioChannel::stop() {
+bool AudioChannel::stop(const bool waitFlush) {
     const auto success = audioChannelFile.controlFile(STOP, Util::Array<size_t>());
     if (success) {
         playing = false;
+    }
+
+    if (waitFlush) {
+        while (getState() != STOPPED) {
+            Async::Thread::yield();
+        }
     }
 
     return success;

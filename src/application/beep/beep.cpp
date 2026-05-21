@@ -54,7 +54,8 @@ void printStatusLine(const Util::Time::Timestamp &passedTime, const Util::Time::
         passedMinutes, passedSeconds - passedMinutes * 60,
         totalMinutes, totalSeconds - totalMinutes * 60);
 
-    const auto percentage = passedTime.toMilliseconds() * 100 / totalLength.toMilliseconds();
+    const auto percentage = totalLength.toMilliseconds() == 0 ? 0 :
+        passedTime.toMilliseconds() * 100 / totalLength.toMilliseconds();
     const auto filledBar = BAR_LENGTH * percentage / 100;
 
     Util::System::out << "[";
@@ -112,7 +113,7 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    const auto beepFile = Util::Io::File(arguments[0]);
+    const Util::Io::File beepFile(arguments[0]);
     if (!beepFile.exists() || beepFile.isDirectory()) {
         Util::System::error << "beep: Failed to open '" << arguments[0] << "'!" << Util::Io::PrintStream::lnFlush;
         return -1;
@@ -132,8 +133,7 @@ int32_t main(int32_t argc, char *argv[]) {
     const Util::Io::DeLayout layout;
     Util::Io::KeyDecoder keyDecoder(layout);
 
-    Util::System::out << "Playing '" << beepFile.getName() <<
-        "'. Press <ESC> to stop." << Util::Io::PrintStream::ln;
+    Util::System::out << "Playing '" << beepFile.getName() << "'. Press <ESC> to stop." << Util::Io::PrintStream::ln;
 
     auto line = stream.readLine();
     while (!line.endOfFile) {

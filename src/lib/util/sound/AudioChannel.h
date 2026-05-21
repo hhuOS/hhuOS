@@ -123,7 +123,9 @@ public:
     /// Stop playback by sending a request to the audio mixer.
     /// The mixer will then play any remaining data from the channel and stop playback afterward.
     /// When the channel is stopped, all write operations will block until `play()` is called again.
-    bool stop();
+    /// If `waitFlush` is set to true, this method will wait until the remaining data has been drained from the channel.
+    /// Otherwise, it will return directly and the channel may still play remaining data for a short amount of time.
+    bool stop(bool waitFlush = false);
 
     /// Get the current playback state of the audio channel.
     State getState() const;
