@@ -132,7 +132,7 @@ struct CpuInfo {
     ///     for (const auto &feature : cpuInfo.getFeaturesAsArray()) {
     ///         Util::System::out << Util::Hardware::CpuId::getFeatureAsString(feature) << " ";
     ///     }
-    ///     Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << Util::Io::PrintStream::lnFlush;
     /// }
     /// ```
     Array<CpuFeature> getFeaturesAsArray() const;
@@ -150,7 +150,7 @@ bool isAvailable();
 /// ```c++
 /// if (Util::Hardware::CpuId::isAvailable()) {
 ///     const auto vendor = Util::Hardware::CpuId::getVendorString();
-///     Util::System::out << "CPU Vendor: " << vendor << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+///     Util::System::out << "CPU Vendor: " << vendor << Util::Io::PrintStream::lnFlush;
 /// }
 /// ```
 String getVendorString();
@@ -161,10 +161,8 @@ String getVendorString();
 /// ```c++
 /// if (Util::Hardware::CpuId::isAvailable()) {
 ///     const auto cpuInfo = Util::Hardware::CpuId::getCpuInfo();
-///     Util::System::out << "CPU Family: " << cpuInfo.family
-///         << ", Model: " << cpuInfo.model
-///         << ", Stepping: " << cpuInfo.stepping
-///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+///     Util::System::out << "CPU Family: " << cpuInfo.family << ", Model: " << cpuInfo.model
+///                       << ", Stepping: " << cpuInfo.stepping << Util::Io::PrintStream::lnFlush;
 /// }
 /// ```
 CpuInfo getCpuInfo();

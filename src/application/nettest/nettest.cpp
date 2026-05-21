@@ -54,12 +54,12 @@ int32_t receiveTraffic(Util::Network::Socket &socket){
 
     auto firstReceivedDatagram = Util::Network::Udp::UdpDatagram();
     if (!socket.receive(firstReceivedDatagram)) {
-        Util::System::error << "nettest: Failed to receive echo request!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "nettest: Failed to receive echo request!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     Util::System::out   << "Start: " << Util::Time::Timestamp::getSystemTime().toSeconds() << "s" << Util::Io::PrintStream::ln
-                        << "----------------------------------------------" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                        << "----------------------------------------------" << Util::Io::PrintStream::lnFlush;
 
     /** Start time with first received packet */
     Util::Time::Timestamp secondsPassed = Util::Time::Timestamp::getSystemTime();
@@ -74,7 +74,7 @@ int32_t receiveTraffic(Util::Network::Socket &socket){
     while (true) {
         auto receivedDatagram = Util::Network::Udp::UdpDatagram();
         if (!socket.receive(receivedDatagram)) {
-            Util::System::error << "nettest: Failed to receive echo request!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+            Util::System::error << "nettest: Failed to receive echo request!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
         receivedMessage = Util::String(receivedDatagram.getData(), receivedDatagram.getLength());
@@ -99,7 +99,7 @@ int32_t receiveTraffic(Util::Network::Socket &socket){
 
         /** if a second passed write current bytes per second into output */
         if (secondsPassed < Util::Time::Timestamp::getSystemTime()) {
-            Util::System::out << intervalCounter << "-" << intervalCounter + 1 << ":    " << bytesReceivedInInterval / 1000 << " KB/s" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+            Util::System::out << intervalCounter << "-" << intervalCounter + 1 << ":    " << bytesReceivedInInterval / 1000 << " KB/s" << Util::Io::PrintStream::lnFlush;
             intervalCounter++;
             bytesReceived = bytesReceived + bytesReceivedInInterval;
             /** reset bytes received */
@@ -117,7 +117,7 @@ int32_t receiveTraffic(Util::Network::Socket &socket){
                         << "Average Bytes received : " << (bytesReceived / (intervalCounter + 1)) / 1000 << " KB/s" << Util::Io::PrintStream::ln
                         << "Packets out of order   : " << packetsOutOfOrder << "/" << packetsReceived << Util::Io::PrintStream::ln
                         << "Duplicated packets     : " << duplicatedPackets << Util::Io::PrintStream::ln
-                        << "----------------------------------------------" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                        << "----------------------------------------------" << Util::Io::PrintStream::lnFlush;
 
     return 0;
 }
@@ -149,7 +149,7 @@ int32_t sendTraffic(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4
     secondsPassed += Util::Time::Timestamp::ofSeconds(1);
 
     Util::System::out   << "Start: " << Util::Time::Timestamp::getSystemTime().toSeconds() << "s - End: " << testFinishTime.toSeconds() << "s" << Util::Io::PrintStream::ln
-                        << "----------------------------------------------" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                        << "----------------------------------------------" << Util::Io::PrintStream::lnFlush;
 
     /** Send Packets until finish time's reached */
     while (testFinishTime > Util::Time::Timestamp::getSystemTime()) {
@@ -165,7 +165,7 @@ int32_t sendTraffic(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4
 
         /** transmit packet to server */
         if (!socket.send(transmitDatagram)) {
-            Util::System::error << "nettest: Failed to send throughput test packet!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+            Util::System::error << "nettest: Failed to send throughput test packet!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
 
@@ -174,7 +174,7 @@ int32_t sendTraffic(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4
 
         /** if a second has passed write current Bytes per second into output */
         if (secondsPassed < Util::Time::Timestamp::getSystemTime()) {
-            Util::System::out << intervalCounter << "-" << intervalCounter + 1 << ":    " << bytesSendInInterval / 1000 << " KB/s" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+            Util::System::out << intervalCounter << "-" << intervalCounter + 1 << ":    " << bytesSendInInterval / 1000 << " KB/s" << Util::Io::PrintStream::lnFlush;
             intervalCounter++;
             /** reset Bytes send */
             bytesSendInInterval = 0;
@@ -188,7 +188,7 @@ int32_t sendTraffic(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4
     auto sendDatagram = Util::Network::Udp::UdpDatagram(static_cast<const uint8_t*>(exitString), exitString.length(), destinationAddress);
 
     if (!socket.send(sendDatagram)) {
-        Util::System::error << "nettest: Failed to send message to server!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "nettest: Failed to send message to server!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
@@ -197,7 +197,7 @@ int32_t sendTraffic(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4
                         << "Packets transmitted : " << packetNumber << Util::Io::PrintStream::ln
                         << "Bytes transmitted   : " << sendBytes / 1000 << " KB" << Util::Io::PrintStream::ln
                         << "Average             : " << (sendBytes / timingInterval) / 1000 << " KB/s" << Util::Io::PrintStream::ln
-                        << "----------------------------------------------"<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                        << "----------------------------------------------"<< Util::Io::PrintStream::lnFlush;
 
     return 0;
 }
@@ -208,31 +208,31 @@ int32_t server(Util::Network::Socket &socket) {
     auto localAddress = Util::Network::Ip4::Ip4PortAddress();
 
     if (!socket.getLocalAddress(localAddress)) {
-        Util::System::error << "nettest: Failed to query socket address!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "nettest: Failed to query socket address!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    Util::System::out << "nettest: sever listening on " << localAddress.toString() << "! Send 'exit' to leave." << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    Util::System::out << "nettest: sever listening on " << localAddress.toString() << "! Send 'exit' to leave." << Util::Io::PrintStream::lnFlush;
 
     /** Wait for client to initiate connection, return if exit code is != 0 */
     while (true) {
         auto receivedDatagram = Util::Network::Udp::UdpDatagram();
         if (!socket.receive(receivedDatagram)) {
-            Util::System::error << "nettest: Failed to receive echo request!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+            Util::System::error << "nettest: Failed to receive echo request!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
 
         /** If connection request is received: send reply to client */
         if (Util::String(receivedDatagram.getData(), receivedDatagram.getLength()).strip() == "Init") {
             if (!socket.send(receivedDatagram)) {
-                Util::System::error << "nettest: Failed to send echo reply!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                Util::System::error << "nettest: Failed to send echo reply!" << Util::Io::PrintStream::lnFlush;
                 return -1;
             }
 
             return receiveTraffic(socket);
         } else if (Util::String(receivedDatagram.getData(), receivedDatagram.getLength()).strip() == "InitR") { /** Reverse test: */
             if (!socket.send(receivedDatagram)) {
-                Util::System::error << "nettest: Failed to send echo reply!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                Util::System::error << "nettest: Failed to send echo reply!" << Util::Io::PrintStream::lnFlush;
                 return -1;
             }
 
@@ -243,7 +243,7 @@ int32_t server(Util::Network::Socket &socket) {
                 return -1;
             }
             if(receivedDatagram.getLength() != 4){
-                Util::System::error << "nettest: Failed to receive reverse test data! " << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                Util::System::error << "nettest: Failed to receive reverse test data! " << Util::Io::PrintStream::lnFlush;
                 return -1;
             }
 
@@ -268,30 +268,30 @@ int32_t client(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4PortA
     Util::String initMsg = "Init";
     if (reverseTest) {
         initMsg = "InitR";
-        Util::System::out << "Init reverse test connection" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::out << "Init reverse test connection" << Util::Io::PrintStream::lnFlush;
     } else {
-        Util::System::out << "Init test connection" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::out << "Init test connection" << Util::Io::PrintStream::lnFlush;
     }
 
     /** Send Init message to Server */
     auto sendDatagram = Util::Network::Udp::UdpDatagram(static_cast<const uint8_t*>(initMsg), initMsg.length(), destinationAddress);
     if (!socket.send(sendDatagram)) {
-        Util::System::error << "nettest: Failed to send message to server!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "nettest: Failed to send message to server!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     /** Wait for reply from server */
-    Util::System::out << "Waiting for Server reply" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    Util::System::out << "Waiting for Server reply" << Util::Io::PrintStream::lnFlush;
     auto receivedDatagram = Util::Network::Udp::UdpDatagram();
     if (!socket.receive(receivedDatagram)) {
-        Util::System::error << "nettest: Failed to receive server reply!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "nettest: Failed to receive server reply!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     /** Check if Server response is correct */
     auto message = Util::String(receivedDatagram.getData(), receivedDatagram.getLength());
     if (!(message == initMsg)) {
-        Util::System::error << "nettest: Server replied with wrong message!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "nettest: Server replied with wrong message!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
@@ -305,7 +305,7 @@ int32_t client(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4PortA
 
         auto reverseTestDatagram = Util::Network::Udp::UdpDatagram(static_cast<const uint8_t*>(buffer), 4, destinationAddress);
         if (!socket.send(reverseTestDatagram)) {
-            Util::System::error << "nettest: Failed to send message to server!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+            Util::System::error << "nettest: Failed to send message to server!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
 
@@ -347,12 +347,12 @@ int32_t main(int32_t argc, char *argv[]) {
     );
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     if(!argumentParser.checkSwitch("server") && !argumentParser.hasArgument("client")){
-        Util::System::error << "nettest: Please specify server/client mode" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "nettest: Please specify server/client mode" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
@@ -390,7 +390,7 @@ int32_t main(int32_t argc, char *argv[]) {
     socket.setTimeout(Util::Time::Timestamp::ofSeconds(5));
 
     if (!socket.bind(bindAddress)) {
-        Util::System::error << "nettest: Failed to bind socket!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "nettest: Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
@@ -419,7 +419,7 @@ int32_t main(int32_t argc, char *argv[]) {
         if(argumentParser.hasArgument("packetLength")){
             packetLength = Util::String::parseNumber<uint16_t>(argumentParser.getArgument("packetLength"));
             if (packetLength < 64 || packetLength > 1450) {
-                Util::System::error << "nettest: Unsupported packet length!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                Util::System::error << "nettest: Unsupported packet length!" << Util::Io::PrintStream::lnFlush;
                 return -1;
             }
         }

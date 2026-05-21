@@ -129,7 +129,7 @@ public:
     ///
     /// if (containsOne) {
     ///     Util::System::out << "Key 'One' exists with value: " << map.get("One")
-    ///     << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // Prints: Key 'One' exists with value: 1
+    ///         << Util::Io::PrintStream::lnFlush; // Prints: Key 'One' exists with value: 1
     /// }
     /// ```
     bool containsKey(const K &key) const override;
@@ -199,7 +199,7 @@ public:
     ///     Util::System::out << value << ", "; // Prints: 1, 2, 3
     /// }
     ///
-    /// Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    /// Util::System::out << Util::Io::PrintStream::lnFlush;
     /// ```
     Array<V> getValues() const override;
 

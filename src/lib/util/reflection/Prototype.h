@@ -87,15 +87,14 @@ namespace Reflection {
 ///
 ///         // Check if the input is a valid fruit type.
 ///         if (!Util::Reflection::InstanceFactory::isPrototypeRegistered(fruitName)) {
-///             Util::System::out << "Unknown fruit type: " << fruitName
-///                 << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+///             Util::System::out << "Unknown fruit type: " << fruitName << Util::Io::PrintStream::lnFlush;
 ///             continue;
 ///         }
 ///
 ///         // Create an instance of the fruit based on the input string.
 ///         const auto *fruit = Util::Reflection::InstanceFactory::createInstance<Fruit>(fruitName);
 ///         Util::System::out << "Price of " << fruitName << ": " << fruit->getPrice()
-///             << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+///                           << Util::Io::PrintStream::lnFlush;
 ///         delete fruit;
 ///
 ///         // Read the next line from standard input.

@@ -232,8 +232,7 @@ public:
     ///
     /// auto file = Util::Io::File("/user/test.txt"); // Assuming this file does not exist
     /// if (!file.create(Util::Io::File::REGULAR)) {
-    ///     Util::System::out << "Failed to create file!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to create file!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
@@ -338,15 +337,13 @@ public:
     /// ```c++
     /// auto directory = Util::Io::File("/user/testdir");
     /// if (!directory.create(Util::Io::File::DIRECTORY)) {
-    ///     Util::System::out << "Failed to create directory!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to create directory!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
     /// auto file = Util::Io::File("/user/testdir/test.txt");
     /// if (!file.create(Util::Io::File::REGULAR)) {
-    ///     Util::System::out << "Failed to create file!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to create file!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     /// ```
@@ -361,15 +358,13 @@ public:
     /// ```c++
     /// auto directory = Util::Io::File("/user/testdir");
     /// if (!directory.create(Util::Io::File::DIRECTORY)) {
-    ///     Util::System::out << "Failed to create directory!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to create directory!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
     /// auto file = Util::Io::File("/user/testdir/test.txt");
     /// if (!file.create(Util::Io::File::REGULAR)) {
-    ///     Util::System::out << "Failed to create file!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to create file!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
@@ -378,8 +373,7 @@ public:
     /// success = directory.remove(); // true, because the directory is now empty and was removed successfully
     ///
     /// if (!success) {
-    ///     Util::System::out << "Failed to remove file or directory!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to remove file or directory!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     /// ```
@@ -396,8 +390,7 @@ public:
     ///
     /// // Disable cursor in terminal
     /// if (!file.controlFile(Util::Graphic::Terminal::SET_CURSOR, Util::Array<size_t>({false}))) {
-    ///     Util::System::out << "Failed to disable cursor!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to disable cursor!" << Util::Io::PrintStream::lnFlush;
     /// }
     /// ```
     bool controlFile(size_t request, const Array<size_t> &parameters) const;
@@ -431,8 +424,7 @@ public:
     /// ### Example
     /// ```c++
     /// if (!Util::Io::File::changeDirectory("/user")) {
-    ///     Util::System::out << "Failed to change directory!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to change directory!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
@@ -448,8 +440,7 @@ public:
     /// ### Example
     /// ```c++
     /// if (!Util::Io::File::changeDirectory("/user")) {
-    ///     Util::System::out << "Failed to change directory!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to change directory!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
@@ -468,8 +459,7 @@ public:
     /// ```c++
     /// const auto fd = Util::Io::File::open("/device/random");
     /// if (fd < 0) {
-    ///     Util::System::out << "Failed to open file!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to open file!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     /// ```
@@ -485,8 +475,7 @@ public:
     ///     Util::Graphic::Terminal::SET_CURSOR, Util::Array<size_t>({false}));
     ///
     /// if (!success) {
-    ///     Util::System::out << "Failed to disable cursor!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to disable cursor!" << Util::Io::PrintStream::lnFlush;
     /// }
     /// ```
     static bool controlFile(int32_t fileDescriptor, size_t request, const Array<size_t> &parameters);
@@ -503,8 +492,7 @@ public:
     ///     Util::Io::File::SET_ACCESS_MODE, Util::Array<size_t>({Util::Io::File::NON_BLOCKING}));
     ///
     /// if (!success) {
-    ///     Util::System::out << "Failed to set access mode!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to set access mode!" << Util::Io::PrintStream::lnFlush;
     /// }
     /// ```
     static bool controlFileDescriptor(int32_t fileDescriptor, FileDescriptorRequest request, const Array<size_t> &parameters);
@@ -518,8 +506,7 @@ public:
     /// // Set standard input to non-blocking mode
     /// const auto success = Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     /// if (!success) {
-    ///     Util::System::out << "Failed to set access mode!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to set access mode!" << Util::Io::PrintStream::lnFlush;
     /// }
     /// ```
     static bool setAccessMode(int32_t fileDescriptor, AccessMode accessMode);
@@ -532,8 +519,7 @@ public:
     /// // Set standard input to non-blocking mode
     /// const auto success = Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     /// if (!success) {
-    ///     Util::System::out << "Failed to set access mode!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to set access mode!" << Util::Io::PrintStream::lnFlush;
     /// }
     ///
     /// char buffer[128];
@@ -547,7 +533,7 @@ public:
     /// buffer[bytesRead] = '\0'; // Null-terminate the string
     ///
     /// // Print the read data
-    /// Util::System::out << "Read: " << buffer << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    /// Util::System::out << "Read: " << buffer << Util::Io::PrintStream::lnFlush;
     /// ```
     static bool isReadyToRead(int32_t fileDescriptor);
 
@@ -564,8 +550,7 @@ public:
     /// // Open a file
     /// const auto fd = Util::Io::File::open("/device/random");
     /// if (fd < 0) {
-    ///     Util::System::out << "Failed to open file!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to open file!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///

@@ -55,11 +55,9 @@ namespace Async {
 ///     lock.acquire();
 ///
 ///     if (value % 2 == 0) {
-///         Util::System::out << "Value is even: " << value
-///             << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+///         Util::System::out << "Value is even: " << value << Util::Io::PrintStream::lnFlush;
 ///     } else {
-///         Util::System::out << "Value is odd: " << value
-///             << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+///         Util::System::out << "Value is odd: " << value << Util::Io::PrintStream::lnFlush;
 ///     }
 ///
 ///     lock.release();

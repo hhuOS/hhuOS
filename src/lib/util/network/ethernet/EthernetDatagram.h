@@ -47,7 +47,7 @@ namespace Ethernet {
 ///
 /// // Bind the socket to the read MAC address
 /// if (!socket.bind(macAddress)) {
-///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
 ///     return;
 /// }
 ///
@@ -57,7 +57,7 @@ namespace Ethernet {
 ///     13, destinationAddress, Util::Network::Ethernet::EthernetHeader::INVALID);
 ///
 /// if (!socket.send(datagram)) {
-///     Util::System::out << "Failed to send datagram!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+///     Util::System::out << "Failed to send datagram!" << Util::Io::PrintStream::lnFlush;
 ///     return;
 /// }
 /// ```

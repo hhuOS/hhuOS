@@ -34,13 +34,13 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "rmdir: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "rmdir: No arguments provided!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
@@ -63,7 +63,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
         auto success = file.remove();
         if (!success) {
-            Util::System::out << "rmdir: Failed to delete directory '" << path << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+            Util::System::out << "rmdir: Failed to delete directory '" << path << "'!" << Util::Io::PrintStream::lnFlush;
         }
     }
 

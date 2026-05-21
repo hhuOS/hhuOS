@@ -1072,7 +1072,7 @@ public:
 	///		<< 'A'; // prints "A"
 	///		<< ' '; // prints " "
 	///		<< 'a' // prints "a"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	PrintStream& operator<<(const char c) {
 		write(c);
@@ -1085,7 +1085,7 @@ public:
 	/// ```c++
 	/// Util::System::out
 	///		<< "Hello, World!" // prints "Hello, World!"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	PrintStream& operator<<(const char *string) {
 		print(string);
@@ -1100,7 +1100,7 @@ public:
 	///
 	/// Util::System::out
 	///		<< string // prints "Hello, World!"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	PrintStream& operator<<(const String &string) {
 		print(string);
@@ -1145,7 +1145,7 @@ public:
 	///
 	/// Util::System::out.setIntegerPrefix("0x");
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	PrintStream& operator<<(const int8_t number) {
 		print(number);
@@ -1172,7 +1172,7 @@ public:
 	///
 	/// Util::System::out.setIntegerPrefix("0x");
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	PrintStream& operator<<(const uint8_t number) {
 		print(number);
@@ -1201,7 +1201,7 @@ public:
 	///
 	/// Util::System::out.setIntegerPrefix("0x");
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	PrintStream& operator<<(const int16_t number) {
 		print(number);
@@ -1228,7 +1228,7 @@ public:
 	///
 	/// Util::System::out.setIntegerPrefix("0x");
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	PrintStream& operator<<(const uint16_t number) {
 		print(number);
@@ -1256,7 +1256,7 @@ public:
 	///
 	/// Util::System::out.setIntegerPrefix("0x");
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	PrintStream& operator<<(const int32_t number) {
 		print(number);
@@ -1283,7 +1283,7 @@ public:
 	///
 	/// Util::System::out.setIntegerPrefix("0x");
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	PrintStream& operator<<(const uint32_t number) {
 		print(number);
@@ -1312,7 +1312,7 @@ public:
 	///
 	/// Util::System::out.setIntegerPrefix("0x");
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	PrintStream& operator<<(const int64_t number) {
 		print(number);
@@ -1339,7 +1339,7 @@ public:
 	///
 	/// Util::System::out.setIntegerPrefix("0x");
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	PrintStream& operator<<(const uint64_t number) {
 		print(number);
@@ -1361,7 +1361,7 @@ public:
 	///	Util::System::out.setIntegerPrefix("0x");
 	/// Util::System::out.setIntegerPrecision(8);
 	/// Util::System::out << Util::Io::PrintStream::hex << &variable
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	PrintStream& operator<<(const void *pointer) {
 		print(pointer);
@@ -1384,7 +1384,7 @@ public:
 	///
 	/// Util::System::out.setDecimalPrecision(0);
 	///	Util::System::out << 3.141592653589793 // prints "3"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	PrintStream& operator<<(const double number) {
 		print(number);
@@ -1460,7 +1460,7 @@ public:
 	///		<< 255 // prints "255"
 	///		<< Util::Io::PrintStream::bin // switch to binary base
 	///		<< 255 // prints "11111111"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	static PrintStream& bin(PrintStream& stream) {
 		stream.setBase(2);
@@ -1475,7 +1475,7 @@ public:
 	///		<< 255 // prints "255"
 	///		<< Util::Io::PrintStream::oct // switch to binary base
 	///		<< 255 // prints "377"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	static PrintStream& oct(PrintStream& stream) {
 		stream.setBase(8);
@@ -1492,7 +1492,7 @@ public:
 	///		<< 255 // prints "11111111"
 	///		<< Util::Io::PrintStream::dec // switch back to decimal base
 	///		<< 255 // prints "255"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	static PrintStream& dec(PrintStream& stream) {
 		stream.setBase(10);
@@ -1507,7 +1507,7 @@ public:
 	///		<< 255 // prints "255"
 	///		<< Util::Io::PrintStream::hex // switch to binary base
 	///		<< 255 // prints "FF"
-	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
+	///		<< Util::Io::PrintStream::lnFlush; // prints a new line and flushes the stream
 	/// ```
 	static PrintStream& hex(PrintStream& stream) {
 		stream.setBase(16);

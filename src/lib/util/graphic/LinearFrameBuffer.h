@@ -75,8 +75,33 @@ public:
         delete reinterpret_cast<uint8_t*>(buffer.get());
     }
 
+    /// Set the display resolution via the framebuffer file (i.e., '/device/lfb').
+    ///
+    /// ### Example
+    /// ```c++
+    /// // Open lfb file
+    /// auto lfbFile = Util::Io::File("/device/lfb");
+    ///
+    /// // Set resolution to 1024x768 with 32-bit color depth
+    /// if (!Util::Graphic::LinearFrameBuffer::setResolution(lfbFile, 1024, 768, 32)) {
+    ///     Util::System::out << "Failed to set resolution!" << Util::Io::PrintStream::lnFlush;
+    /// }
+    /// ```
     static bool setResolution(const Io::File &lfbFile, uint16_t x, uint16_t y, uint8_t bpp);
 
+    /// Set the display resolution via the framebuffer file  (i.e., '/device/lfb') using a string.
+    /// The string has to be in the format 'WIDTHxHEIGHT\@DEPTH' (e.g., 1024x768@32).
+    ///
+    /// ### Example
+    /// ```c++
+    /// // Open lfb file
+    /// auto lfbFile = Util::Io::File("/device/lfb");
+    ///
+    /// // Set resolution to 1024x768 with 32-bit color depth
+    /// if (!Util::Graphic::LinearFrameBuffer::setResolution(lfbFile, "1024x768@32")) {
+    ///     Util::System::out << "Failed to set resolution!" << Util::Io::PrintStream::lnFlush;
+    /// }
+    /// ```
     static bool setResolution(const Io::File &lfbFile, const String &resolutionString);
 
     /// Get the horizontal resolution of the frame buffer in pixels.

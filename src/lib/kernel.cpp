@@ -380,7 +380,7 @@ void printKernelStackTrace(const bool log) {
         if (log) {
             LOG_ERROR("0x%08x %s", eip, symbolName);
         } else {
-            Util::System::out << Util::String::format("0x%08x", eip) << " " << symbolName << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+            Util::System::out << Util::String::format("0x%08x", eip) << " " << symbolName << Util::Io::PrintStream::lnFlush;
         }
 
         ebp = reinterpret_cast<uint32_t*>(ebp[0]);

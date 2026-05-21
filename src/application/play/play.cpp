@@ -63,19 +63,19 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "play: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "play: No arguments provided!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     auto inputFile = Util::Io::File(arguments[0]);
     if (!inputFile.exists() || inputFile.isDirectory()) {
-        Util::System::error << "play: '" << arguments[0] << "' could not be opened!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "play: '" << arguments[0] << "' could not be opened!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 

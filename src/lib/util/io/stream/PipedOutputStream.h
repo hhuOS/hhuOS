@@ -67,7 +67,7 @@ namespace Io {
 ///
 /// // Print the read message (should print "Hello, World!")
 /// Util::System::out << reinterpret_cast<const char*>(buffer)
-///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+///		<< Util::Io::PrintStream::lnFlush;
 /// ```
 class PipedOutputStream final : public OutputStream {
 

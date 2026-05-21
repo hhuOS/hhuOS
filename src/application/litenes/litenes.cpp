@@ -314,13 +314,13 @@ int32_t main(int32_t argc, char *argv[]) {
     argumentParser.addArgument("resolution", false, "r");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "litenes: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "litenes: No arguments provided!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
@@ -367,12 +367,12 @@ int32_t main(int32_t argc, char *argv[]) {
             flushBuf = nes_flush_buf16;
             break;
         default:
-            Util::System::error << "litenes: Unsupported color depth!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+            Util::System::error << "litenes: Unsupported color depth!" << Util::Io::PrintStream::lnFlush;
             return -1;
     }
 
     if (fce_load_rom(reinterpret_cast<char*>(rom)) != 0) {
-        Util::System::error << "litenes: Invalid or unsupported rom!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "litenes: Invalid or unsupported rom!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 

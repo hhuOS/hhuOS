@@ -858,14 +858,14 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         Util::System::out << Util::String::format(static_cast<const char*>(banner),
                           BuildConfig::getVersion(), BuildConfig::getCodename(), BuildConfig::getBuildDate(), BuildConfig::getBuildType(),
                           BuildConfig::getGitBranch(), BuildConfig::getGitRevision(), static_cast<const char*>(multiboot->getBootloaderName()))
-                          << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                          << Util::Io::PrintStream::lnFlush;
     } else {
         Util::System::out << "Welcome to hhuOS!" << Util::Io::PrintStream::ln
                           << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getCodename() << ")" << Util::Io::PrintStream::ln
                           << "Build Date: " << BuildConfig::getBuildDate() << " (" << BuildConfig::getBuildType() << ")" << Util::Io::PrintStream::ln
                           << "Git Branch: " << BuildConfig::getGitBranch() << Util::Io::PrintStream::ln
                           << "Git Commit: " << BuildConfig::getGitRevision() << Util::Io::PrintStream::ln
-                          << "Bootloader: " << multiboot->getBootloaderName() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                          << "Bootloader: " << multiboot->getBootloaderName() << Util::Io::PrintStream::lnFlush;
     }
 
     if (interruptService->usesApic() && Device::Bios::isAvailable() && !Device::FirmwareConfiguration::isAvailable()) {
@@ -873,7 +873,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
             << "Warning: Both APIC and BIOS calls are enabled!" << Util::Io::PrintStream::ln
             << "Changing display resolution on real hardware will probably cause the system to hang." << Util::Io::PrintStream::ln
             << "Pass 'apic=false' as a boot parameter, if you need VBE support." << Util::Io::PrintStream::ln
-            << Util::Graphic::Ansi::RESET << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+            << Util::Graphic::Ansi::RESET << Util::Io::PrintStream::lnFlush;
     }
 
     memoryService->enableSlabAllocator();

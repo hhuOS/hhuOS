@@ -77,8 +77,7 @@ public:
     ///     "/bin/echo", "/dev/terminal", "/dev/terminal", "/dev/terminal", "echo", {"Hello", "World"});
     ///
     /// echoProcess.join(); // Wait for the process to finish
-    /// Util::System::out << "Process 'echo' has finished!"
-    ///     << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    /// Util::System::out << "Process 'echo' has finished!" << Util::Io::PrintStream::lnFlush;
     /// ```
     void join() const;
 

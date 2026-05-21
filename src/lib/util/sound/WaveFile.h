@@ -44,8 +44,7 @@ namespace Sound {
 ///
 /// // Calculate and print the length of the audio data in seconds.
 /// const auto length = waveFile.getSampleCount() / waveFile.getSamplesPerSecond();
-/// Util::System::out << "Audio length: " << length << " seconds"
-///     << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+/// Util::System::out << "Audio length: " << length << " seconds" << Util::Io::PrintStream::lnFlush;
 /// ```
 class WaveFile final : public Io::FilterInputStream {
 

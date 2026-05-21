@@ -18,8 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include <time.h>
 
 uint8_t audio_read(uint16_t addr);
@@ -59,7 +60,7 @@ constexpr const char *HELP_TEXT =
 ;
 
 /// Frame rate that the emulator tries to run at.
-constexpr uint32_t TARGET_FRAME_RATE = 60;
+constexpr size_t TARGET_FRAME_RATE = 60;
 /// Time per frame if we want to hit the target frame rate.
 constexpr auto TARGET_FRAME_TIME = Util::Time::Timestamp::ofSecondsFloat(1.0f / TARGET_FRAME_RATE);
 
@@ -100,9 +101,9 @@ uint8_t mixedAudioBuffer[AUDIO_SAMPLES];
 /// Timestamp used to count the number of frames per second (is reset every second).
 Util::Time::Timestamp fpsTimer;
 /// The number of frames that have been drawn since the last `fpsTimer` reset.
-uint32_t fpsCounter = 0;
+size_t fpsCounter = 0;
 /// The number of frames counted during the last second. This is the number displayed on the screen.
-uint32_t fps = 0;
+size_t fps = 0;
 
 /// Write the current cartridge RAM buffer to the specified file.
 /// If the emulated game has no cartridge RAM, nothing is written.
@@ -261,7 +262,7 @@ void audio_write(const uint16_t addr, const uint8_t val) {
     minigb_apu_audio_write(&apu, addr, val);
 }
 
-int32_t main(int32_t argc, char *argv[]) {
+int32_t main(const int32_t argc, char *argv[]) {
     Util::ArgumentParser argumentParser;
     argumentParser.setHelpText(HELP_TEXT);
 
@@ -289,8 +290,8 @@ int32_t main(int32_t argc, char *argv[]) {
     // Initialize the linear frame buffer and scale/offset variables
     auto lfbFile = Util::Io::File("/device/lfb");
     if (argumentParser.hasArgument("resolution")) {
-        Util::Graphic::LinearFrameBuffer::setResolution(lfbFile,
-            argumentParser.getArgument("resolution"));
+        const auto resolutionString = argumentParser.getArgument("resolution");
+        Util::Graphic::LinearFrameBuffer::setResolution(lfbFile, resolutionString);
     }
 
     Util::Graphic::LinearFrameBuffer buffer(lfbFile);
@@ -450,7 +451,7 @@ int32_t main(int32_t argc, char *argv[]) {
         minigb_apu_audio_callback(&apu, minigbAudioBuffer);
 
         // Convert the samples to unsigned 8-bit mono samples
-        for (uint32_t i = 0; i < AUDIO_SAMPLES; i++) {
+        for (size_t i = 0; i < AUDIO_SAMPLES; i++) {
             // Convert the signed 16-bit samples to unsigned 8-bit
             auto sample1 = (minigbAudioBuffer[i * 2] >> 8) + INT8_MAX; // First channel
             auto sample2 = (minigbAudioBuffer[i * 2 + 1] >> 8) + INT8_MAX; // Second channel

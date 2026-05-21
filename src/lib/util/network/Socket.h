@@ -51,8 +51,7 @@ namespace Network {
 ///
 /// // Bind the socket to a specific address
 /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
-///     Util::System::out << "Failed to bind socket!"
-///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
 ///     return;
 /// }
 ///
@@ -62,8 +61,7 @@ namespace Network {
 /// // Try to receive a datagram
 /// auto receivedDatagram = Util::Network::Udp::UdpDatagram();
 /// if (!socket.receive(receivedDatagram)) {
-///     Util::System::out << "Failed to receive datagram!"
-///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+///     Util::System::out << "Failed to receive datagram!" << Util::Io::PrintStream::lnFlush;
 ///     return;
 /// }
 /// ```
@@ -163,8 +161,7 @@ public:
     ///
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
-    ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     /// ```
@@ -182,16 +179,14 @@ public:
     ///
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
-    ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
     /// // Get the local address of the socket
     /// auto localAddress = Util::Network::NetworkAddress();
     /// if (!socket.getLocalAddress(localAddress)) {
-    ///     Util::System::out << "Failed to get local address!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to get local address!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
@@ -210,8 +205,7 @@ public:
     ///
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
-    ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
@@ -222,8 +216,7 @@ public:
     ///
     /// // Send the datagram via the socket
     /// if (!socket.send(datagram)) {
-    ///     Util::System::out << "Failed to send datagram!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to send datagram!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     /// ```
@@ -244,8 +237,7 @@ public:
     ///
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
-    ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
@@ -255,8 +247,7 @@ public:
     /// // Try to receive a datagram
     /// auto receivedDatagram = Util::Network::Udp::UdpDatagram();
     /// if (!socket.receive(receivedDatagram)) {
-    ///     Util::System::out << "Failed to receive datagram!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to receive datagram!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     /// ```
@@ -278,8 +269,7 @@ public:
     ///
     /// // Bind the socket to the read MAC address
     /// if (!socket.bind(macAddress)) {
-    ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
@@ -309,16 +299,14 @@ public:
     ///
     /// // Bind the socket to the read MAC address
     /// if (!socket.bind(macAddress)) {
-    ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
     /// /// Remove an IPv4 address from the interface
     /// const auto addressToRemove = Util::Network::Ip4::Ip4SubnetAddress("10.0.2.15/24");
     /// if (!socket.removeIp4Address(addressToRemove)) {
-    ///     Util::System::out << "Failed to remove IPv4 address!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to remove IPv4 address!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     /// ```
@@ -340,16 +328,14 @@ public:
     ///
     /// // Bind the socket to the read MAC address
     /// if (!socket.bind(macAddress)) {
-    ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
     /// /// Add an IPv4 address to the interface
     /// const auto addressToAdd = Util::Network::Ip4::Ip4SubnetAddress("10.0.2.15/24");
     /// if (!socket.addIp4Address(addressToAdd)) {
-    ///     Util::System::out << "Failed to add IPv4 address!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to add IPv4 address!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     /// ```
@@ -367,8 +353,7 @@ public:
     ///
     /// // Bind the socket to a specific IPv4 address
     /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
-    ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
@@ -396,8 +381,7 @@ public:
     ///
     /// // Bind the socket to a specific IPv4 address
     /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
-    ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
@@ -407,8 +391,7 @@ public:
     ///         Util::Network::Ip4::Ip4SubnetAddress("10.0.2.15/24"), "eth0");
     ///
     /// if (!socket.removeRoute(routeToRemove)) {
-    ///     Util::System::out << "Failed to remove route!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to remove route!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     /// ```
@@ -425,8 +408,7 @@ public:
     ///
     /// // Bind the socket to a specific IPv4 address
     /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
-    ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     ///
@@ -436,8 +418,7 @@ public:
     ///         Util::Network::Ip4::Ip4SubnetAddress("10.0.2.15/24"), "eth0");
     ///
     /// if (!socket.addRoute(routeToAdd)) {
-    ///     Util::System::out << "Failed to add route!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Failed to add route!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     /// ```

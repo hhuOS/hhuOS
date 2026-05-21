@@ -83,7 +83,7 @@ void InterruptService::handleException(const InterruptFrame &frame, uint32_t err
         << Util::Io::PrintStream::ln << " EIP: 0x" << frame.instructionPointer
         << Util::Io::PrintStream::ln << " CS: 0x" << frame.codeSegment
         << Util::Io::PrintStream::ln << " EFLAGS: 0x" << frame.flags
-        << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        << Util::Io::PrintStream::lnFlush;
 
     Util::System::printStackTrace(Util::System::out, Util::USER_SPACE_MEMORY_START_ADDRESS);
     processService.exitCurrentProcess(-1);

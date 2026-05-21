@@ -140,7 +140,7 @@ public:
     /// ```c++
     /// // Read a line from the standard input and print it to the standard output.
     /// auto input = Util::System::in.readLine().content;
-    /// Util::System::out << "Input: " << input << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    /// Util::System::out << "Input: " << input << Util::Io::PrintStream::lnFlush;
     /// ```
     ///
     /// ### Example

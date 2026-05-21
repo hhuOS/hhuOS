@@ -43,7 +43,7 @@ namespace Util {
 ///     Util::System::out << element << " "; // Prints: 1 4 3
 /// }
 ///
-/// Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+/// Util::System::out << Util::Io::PrintStream::lnFlush;
 /// ```
 template <typename T>
 class ArrayList final : public List<T> {
@@ -66,7 +66,7 @@ public:
     ///     Util::System::out << element << " "; // Prints: 1 2 3 4 5
     /// }
     ///
-    /// Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    /// Util::System::out << Util::Io::PrintStream::lnFlush;
     /// ```
     explicit ArrayList(const Array<T> &elements);
 
@@ -80,7 +80,7 @@ public:
     ///     Util::System::out << element << " "; // Prints: 1 2 3 4 5
     /// }
     ///
-    /// Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    /// Util::System::out << Util::Io::PrintStream::lnFlush;
     /// ```
     ArrayList(const std::initializer_list<T> &list);
 

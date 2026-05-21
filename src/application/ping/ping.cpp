@@ -20,90 +20,109 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/network/Socket.h"
-#include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/network/NetworkAddress.h"
-#include "lib/util/network/icmp/EchoHeader.h"
-#include "lib/util/io/stream/ByteArrayOutputStream.h"
-#include "../../lib/util/io/stream/NumberUtil.h"
-#include "lib/util/time/Timestamp.h"
-#include "lib/util/network/icmp/IcmpDatagram.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/async/Thread.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/base/String.h"
-#include "lib/util/network/icmp/IcmpHeader.h"
-#include "lib/util/io/stream/ByteArrayInputStream.h"
+#include <util/base/System.h>
+#include <util/io/stream/PrintStream.h>
+#include <util/network/Socket.h>
+#include <util/network/ip4/Ip4Address.h>
+#include <util/network/NetworkAddress.h>
+#include <util/network/icmp/EchoHeader.h>
+#include <util/io/stream/ByteArrayOutputStream.h>
+#include <util/io/stream/NumberUtil.h>
+#include <util/time/Timestamp.h>
+#include <util/network/icmp/IcmpDatagram.h>
+#include <util/base/ArgumentParser.h>
+#include <util/async/Thread.h>
+#include <util/collection/Array.h>
+#include <util/base/String.h>
+#include <util/network/icmp/IcmpHeader.h>
+#include <util/io/stream/ByteArrayInputStream.h>
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
     argumentParser.addArgument("count", false, "c");
-    argumentParser.setHelpText("Send ICMP echo requests to a remote host and measure the time it takes to receive a response.\n"
-                               "Usage: ping [OPTION]... [DESTINATION]\n"
-                               "Options:\n"
-                               "  -c, --count: The amount of messages to send/receive (Default: 10)\n"
-                               "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "ping: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ping: No arguments provided!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    uint32_t count = argumentParser.hasArgument("count") ? Util::String::parseNumber<uint32_t>(argumentParser.getArgument("count")) : 10;
-    auto destinationAddress = Util::Network::Ip4::Ip4Address(arguments[0]);
+    // Parse destination IP address and repetition count
+    const Util::Network::Ip4::Ip4Address destinationAddress(arguments[0]);
+    const auto count = Util::String::parseNumber<int32_t>(
+        argumentParser.getArgument("count", "10"));
 
+    // Create ICMP socket with 5 seconds timeout to avoid getting stuck during receive
     const Util::Network::Socket socket(Util::Network::Socket::ICMP);
     socket.setTimeout(Util::Time::Timestamp::ofSeconds(5));
 
     if (!socket.bind(Util::Network::Ip4::Ip4Address::ANY)) {
-        Util::System::error << "ping: Failed to bind socket!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "ping: Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
     }
 
-    auto echoHeader = Util::Network::Icmp::EchoHeader();
+    // Header of echo packet to send
+    Util::Network::Icmp::EchoHeader echoHeader;
 
-    for (uint32_t i = 0; i < count; i++) {
+    for (int32_t i = 0; i < count; i++) {
         bool validReply = false;
-        auto packet = Util::Io::ByteArrayOutputStream();
+
+        // Prepare echo header with current sequence number
         echoHeader.setIdentifier(0);
         echoHeader.setSequenceNumber(i);
-        echoHeader.write(packet);
-        Util::Io::NumberUtil::writeUnsigned32BitValue(Util::Time::Timestamp::getSystemTime().toMilliseconds(), packet);
 
-        auto datagram = Util::Network::Icmp::IcmpDatagram(packet, destinationAddress, Util::Network::Icmp::IcmpHeader::ECHO_REQUEST, 0);
+        // Build network packet from echo header and write current timestamp as payload
+        Util::Io::ByteArrayOutputStream packet;
+        echoHeader.write(packet);
+        Util::Io::NumberUtil::writeUnsigned32BitValue(Util::Time::Timestamp::getSystemTime().toMilliseconds(),
+            packet);
+
+        // Create and send ICMP datagram with echo payload
+        Util::Network::Icmp::IcmpDatagram datagram(packet, destinationAddress,
+            Util::Network::Icmp::IcmpHeader::ECHO_REQUEST, 0);
         if (!socket.send(datagram)) {
-            Util::System::error << "ping: Failed to send echo request!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+            Util::System::error << "ping: Failed to send echo request!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
 
+        // Read ICMP datagrams until a valid echo reply is received.
         do {
-            auto receivedDatagram = Util::Network::Icmp::IcmpDatagram();
+            Util::Network::Icmp::IcmpDatagram receivedDatagram;
             if (!socket.receive(receivedDatagram)) {
-                Util::System::error << "ping: Failed to receive echo reply!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                Util::System::error << "ping: Failed to receive echo reply!" << Util::Io::PrintStream::lnFlush;
                 return -1;
             }
 
+            // The socket may receive any ICMP datagrams, so we need to filter for ECHO_REPLY
             if (receivedDatagram.getType() == Util::Network::Icmp::IcmpHeader::ECHO_REPLY) {
-                auto receivedPacket = Util::Io::ByteArrayInputStream(receivedDatagram.getData(), receivedDatagram.getLength());
+                Util::Io::ByteArrayInputStream receivedPacket(receivedDatagram.getData(),
+                    receivedDatagram.getLength());
+
+                // Read echo header from datagram and check sequence number
                 echoHeader.read(receivedPacket);
                 if (echoHeader.getSequenceNumber() == i) {
                     validReply = true;
-                    auto sourceTimestamp = Util::Io::NumberUtil::readUnsigned32BitValue(receivedPacket);
-                    auto currentTimestamp = Util::Time::Timestamp::getSystemTime().toMilliseconds();
-                    Util::System::out << receivedDatagram.getLength() << " bytes from " << static_cast<const char*>(receivedDatagram.getRemoteAddress().toString())
-                                      << " (Sequence number: " << echoHeader.getSequenceNumber() << ", Time: " << currentTimestamp - sourceTimestamp << " ms)"
-                                      << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+                    const auto sourceTimestamp = Util::Io::NumberUtil::readUnsigned32BitValue(receivedPacket);
+                    const auto currentTimestamp = Util::Time::Timestamp::getSystemTime().toMilliseconds();
+                    Util::System::out << receivedDatagram.getLength() << " bytes from "
+                                      << static_cast<const char*>(receivedDatagram.getRemoteAddress().toString())
+                                      << " (Sequence number: " << echoHeader.getSequenceNumber()
+                                      << ", Time: " << currentTimestamp - sourceTimestamp << " ms)"
+                                      << Util::Io::PrintStream::lnFlush;
                 }
             }
         } while (!validReply);
 
+        // Wait one second before sending the next echo datagram
         if (i < count - 1) {
             Util::Async::Thread::sleep(Util::Time::Timestamp(1, 0));
         }

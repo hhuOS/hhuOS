@@ -26,7 +26,7 @@
 #include "lib/util/base/System.h"
 
 void ansiColorDemo() {
-    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << "4-bit colors:" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << "4-bit colors:" << Util::Io::PrintStream::lnFlush;
 
     for (uint32_t i = 0; i < 16; i++) {
         Util::System::out << Util::Graphic::Ansi::background8BitColor(i) << " ";

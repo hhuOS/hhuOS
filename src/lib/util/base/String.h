@@ -45,7 +45,7 @@ namespace Util {
 /// ```
 /// // Create a string and print it.
 /// const auto string = Util::String("Hello, World!");
-/// Util::System::out << string << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+/// Util::System::out << string << Util::Io::PrintStream::lnFlush;
 /// ```
 class String {
 

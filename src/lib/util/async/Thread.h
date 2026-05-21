@@ -48,8 +48,7 @@ public:
     /// ### Example
     /// ```c++
     /// auto thread = Util::Async::Thread::getCurrentThread();
-    /// Util::System::out << "Current thread ID: " << thread.getId()
-    ///     << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    /// Util::System::out << "Current thread ID: " << thread.getId() << Util::Io::PrintStream::lnFlush;
     /// ```
     static Thread getCurrentThread();
 
@@ -75,15 +74,13 @@ public:
     /// ```c++
     /// // A basic runnable that prints a message.
     /// auto runnable = new Util::Async::BasicRunnable([]() {
-    ///     Util::System::out << "Hello from a new thread!"
-    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    ///     Util::System::out << "Hello from a new thread!" << Util::Io::PrintStream::lnFlush;
     /// });
     ///
     /// auto thread = Util::Async::Thread::createThread("Test", runnable);
     ///
     /// thread.join(); // Wait for the thread to finish
-    /// Util::System::out << "Thread 'Test' has finished!"
-    ///     << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    /// Util::System::out << "Thread 'Test' has finished!" << Util::Io::PrintStream::lnFlush;
     /// ```
     void join() const;
 

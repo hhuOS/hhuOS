@@ -269,13 +269,13 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     auto versionFile = Util::Io::File("/device/smbios/version");
     if (!versionFile.exists()) {
-        Util::System::error << "SMBIOS is not available on this system!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::error << "SMBIOS is not available on this system!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
@@ -291,7 +291,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto minorVersion = Util::String::parseNumber<uint8_t>(versionSplit[1]);
     version = majorVersion + (minorVersion / 10.0);
 
-    Util::System::out << "SMBIOS " << majorVersion << "." << minorVersion << " present." << Util::Io::PrintStream::ln << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+    Util::System::out << "SMBIOS " << majorVersion << "." << minorVersion << " present." << Util::Io::PrintStream::ln << Util::Io::PrintStream::lnFlush;
 
     auto tableDirectory = Util::Io::File("/device/smbios/tables");
     for (auto &tableFile : tableDirectory.getChildren()) {
@@ -329,7 +329,7 @@ int32_t main(int32_t argc, char *argv[]) {
                 dumpTable(*tableHeader);
         }
 
-        Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+        Util::System::out << Util::Io::PrintStream::lnFlush;
     }
 
     return 0;
