@@ -20,43 +20,48 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/base/String.h"
-#include "lib/util/io/stream/PrintStream.h"
+#include <util/base/System.h>
+#include <util/io/stream/FileInputStream.h>
+#include <util/base/ArgumentParser.h>
+#include <util/collection/Array.h>
+#include <util/io/file/File.h>
+#include <util/graphic/Ansi.h>
+#include <util/base/String.h>
+#include <util/io/stream/PrintStream.h>
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Print running processes.\n"
-                               "Usage: ps\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto processDirectory = Util::Io::File("/process");
+    const Util::Io::File processDirectory("/process");
     auto processRootPath = processDirectory.getCanonicalPath();
 
-    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW << "PID\tThreads\tName" << Util::Graphic::Ansi::FOREGROUND_DEFAULT << Util::Io::PrintStream::ln;
+    // Print table header
+    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW << "PID\tThreads\tName"
+        << Util::Graphic::Ansi::FOREGROUND_DEFAULT << Util::Io::PrintStream::ln;
+
+    // Iterate over all folder in '/process' (one folder for each active process)
     for (const auto &child : processDirectory.getChildren()) {
         auto processPath = child.getCanonicalPath();
 
-        auto nameFile = Util::Io::File(processPath + "/name");
-        auto nameStream = Util::Io::FileInputStream(nameFile);
+        const Util::Io::File nameFile(processPath + "/name");
+        Util::Io::FileInputStream nameStream(nameFile);
 
-        auto threadCountFile = Util::Io::File(processPath + "/thread_count");
-        auto threadCountStream = Util::Io::FileInputStream(threadCountFile);
+        const Util::Io::File threadCountFile(processPath + "/thread_count");
+        Util::Io::FileInputStream threadCountStream(threadCountFile);
 
         Util::System::out << child.getName() << "\t"
-                          << threadCountStream.readString(threadCountFile.getLength() - 1) << "\t"
-                          << nameStream.readString(nameFile.getLength() - 1) << Util::Io::PrintStream::ln;
+            << threadCountStream.readString(threadCountFile.getLength() - 1) << "\t"
+            << nameStream.readString(nameFile.getLength() - 1) << Util::Io::PrintStream::ln;
     }
 
     Util::System::out << Util::Io::PrintStream::flush;

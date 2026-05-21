@@ -48,7 +48,7 @@ make_readme_includable(${HHUOS_SRC_DIR}/application/peanut-gb)
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME}  lib.user.runtime lib.user.base lib.user.libc lib.user.sound lib.user.graphic)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.libc lib.user.sound lib.user.graphic)
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/application/peanut-gb/palettes.cpp
         ${HHUOS_SRC_DIR}/application/peanut-gb/peanut_gb.cpp

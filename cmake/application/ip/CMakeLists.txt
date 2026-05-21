@@ -27,7 +27,7 @@ make_readme_includable(${HHUOS_SRC_DIR}/application/ip)
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME}  lib.user.runtime lib.user.base lib.user.network)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.network)
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/application/ip/ip.cpp
         ${HHUOS_SRC_DIR}/application/ip/Address.cpp

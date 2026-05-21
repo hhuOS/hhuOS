@@ -27,6 +27,6 @@ make_readme_includable(${HHUOS_SRC_DIR}/application/mount)
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME}  lib.user.runtime lib.user.base)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base)
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/application/mount/mount.cpp)
