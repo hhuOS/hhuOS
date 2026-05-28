@@ -20,27 +20,30 @@
 
 #include <stdint.h>
 
-#include "lib/util/hardware/Machine.h"
-#include "lib/util/base/System.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/base/Panic.h"
-#include "lib/util/io/stream/PrintStream.h"
+#include <util/hardware/Machine.h>
+#include <util/base/System.h>
+#include <util/base/ArgumentParser.h>
+#include <util/base/Panic.h>
+#include <util/io/stream/PrintStream.h>
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
     argumentParser.addSwitch("reboot", "r");
-    argumentParser.setHelpText("Shut down the system.\n"
-                               "Usage: shutdown [OPTIONS]...\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    Util::Hardware::Machine::ShutdownType type = argumentParser.checkSwitch("reboot") ? Util::Hardware::Machine::REBOOT : Util::Hardware::Machine::SHUTDOWN;
-    auto success = Util::Hardware::Machine::shutdown(type);
+    const auto type = argumentParser.checkSwitch("reboot") ?
+        Util::Hardware::Machine::REBOOT : Util::Hardware::Machine::SHUTDOWN;
+
+    const auto success = Util::Hardware::Machine::shutdown(type);
     if (success) {
         Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Shutdown returned successfully!");
     }
