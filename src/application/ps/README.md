@@ -1,6 +1,6 @@
 ps
 =====
-Print information about active processes
+Print information about active processes.
 
 Usage
 -----

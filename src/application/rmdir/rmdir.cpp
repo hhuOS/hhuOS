@@ -20,53 +20,54 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/PrintStream.h"
+#include <util/base/System.h>
+#include <util/base/ArgumentParser.h>
+#include <util/collection/Array.h>
+#include <util/io/file/File.h>
+#include <util/io/stream/PrintStream.h>
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Delete directories.\n"
-                               "Usage: rm [DIRECTORY]...\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto arguments = argumentParser.getUnnamedArguments();
+    const auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
         Util::System::error << "rmdir: No arguments provided!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     for (const auto &path : arguments) {
-        auto file = Util::Io::File(path);
+        const Util::Io::File file(path);
         if (!file.exists()) {
-            Util::System::out << "rmdir: '" << path << "' not found!" << Util::Io::PrintStream::ln;
+            Util::System::out << "rmdir: '" << path << "' not found!" << Util::Io::PrintStream::lnFlush;
             continue;
         }
 
         if (!file.isDirectory()) {
-            Util::System::out << "rmdir: '" << path << "' is not a directory!" << Util::Io::PrintStream::ln;
+            Util::System::out << "rmdir: '" << path << "' is not a directory!" << Util::Io::PrintStream::lnFlush;
             continue;
         }
 
         if (file.getChildren().length() > 0) {
-            Util::System::out << "rmdir: '" << path << "' is not empty!" << Util::Io::PrintStream::ln;
+            Util::System::out << "rmdir: '" << path << "' is not empty!" << Util::Io::PrintStream::lnFlush;
             continue;
         }
 
-        auto success = file.remove();
+        const auto success = file.remove();
         if (!success) {
-            Util::System::out << "rmdir: Failed to delete directory '" << path << "'!" << Util::Io::PrintStream::lnFlush;
+            Util::System::out << "rmdir: Failed to delete directory '" << path << "'!"
+                << Util::Io::PrintStream::lnFlush;
         }
     }
 
-    Util::System::out << Util::Io::PrintStream::flush;
     return 0;
 }
