@@ -24,7 +24,6 @@
 #include "util/io/stream/NumberUtil.h"
 
 namespace Kepler {
-
 namespace Request {
 
 bool Connect::writeToStream(Util::Io::OutputStream &stream) const {
@@ -73,6 +72,7 @@ bool BasicWindowRequest::readFromStream(Util::Io::InputStream &stream) {
 }
 
 namespace Response {
+
 bool BasicResponse::writeToStream(Util::Io::OutputStream &stream) const {
     return Util::Io::NumberUtil::writeUnsigned8BitValue(success ? 1 : 0, stream);
 }
@@ -102,28 +102,43 @@ bool CreateWindow::readFromStream(Util::Io::InputStream &stream) {
 
 }
 
-bool Event::MouseHover::writeToStream(Util::Io::OutputStream &stream) const {
+namespace Event {
+
+bool BasicEvent::writeToStream(Util::Io::OutputStream &stream) const {
+    return Util::Io::NumberUtil::writeUnsigned32BitValue(windowId, stream);
+}
+
+bool BasicEvent::readFromStream(Util::Io::InputStream &stream) {
+    windowId = Util::Io::NumberUtil::readUnsigned32BitValue(stream);
+    return true;
+}
+
+bool MouseHover::writeToStream(Util::Io::OutputStream &stream) const {
     return Util::Io::NumberUtil::writeUnsigned8BitValue(MOUSE_HOVER, stream) &&
+        BasicEvent::writeToStream(stream) &&
         Util::Io::NumberUtil::writeUnsigned16BitValue(posX, stream) &&
         Util::Io::NumberUtil::writeUnsigned16BitValue(posY, stream);
 }
 
-bool Event::MouseHover::readFromStream(Util::Io::InputStream &stream) {
+bool MouseHover::readFromStream(Util::Io::InputStream &stream) {
+    BasicEvent::readFromStream(stream);
     posX = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
     posY = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
 
     return true;
 }
 
-bool Event::MouseClick::writeToStream(Util::Io::OutputStream &stream) const {
+bool MouseClick::writeToStream(Util::Io::OutputStream &stream) const {
     return Util::Io::NumberUtil::writeUnsigned8BitValue(MOUSE_CLICK, stream) &&
+        BasicEvent::writeToStream(stream) &&
         Util::Io::NumberUtil::writeUnsigned16BitValue(posX, stream) &&
         Util::Io::NumberUtil::writeUnsigned16BitValue(posY, stream) &&
         Util::Io::NumberUtil::writeUnsigned8BitValue(button, stream) &&
         Util::Io::NumberUtil::writeUnsigned8BitValue(action, stream);
 }
 
-bool Event::MouseClick::readFromStream(Util::Io::InputStream &stream) {
+bool MouseClick::readFromStream(Util::Io::InputStream &stream) {
+    BasicEvent::readFromStream(stream);
     posX = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
     posY = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
     button = static_cast<Button>(Util::Io::NumberUtil::readUnsigned8BitValue(stream));
@@ -132,17 +147,25 @@ bool Event::MouseClick::readFromStream(Util::Io::InputStream &stream) {
     return true;
 }
 
-bool Event::KeyEvent::writeToStream(Util::Io::OutputStream &stream) const {
+bool KeyEvent::writeToStream(Util::Io::OutputStream &stream) const {
     return Util::Io::NumberUtil::writeUnsigned8BitValue(KEY_EVENT, stream) &&
+        BasicEvent::writeToStream(stream) &&
         key.writeToStream(stream);
 }
 
-bool Event::KeyEvent::readFromStream(Util::Io::InputStream &stream) {
-    return key.readFromStream(stream);
+bool KeyEvent::readFromStream(Util::Io::InputStream &stream) {
+    return BasicEvent::readFromStream(stream) &&
+        key.readFromStream(stream);
 }
 
-bool Event::WindowClose::writeToStream(Util::Io::OutputStream &stream) const {
-    return Util::Io::NumberUtil::writeUnsigned8BitValue(WINDOW_CLOSE, stream);
+bool WindowCloseEvent::writeToStream(Util::Io::OutputStream &stream) const {
+    return Util::Io::NumberUtil::writeUnsigned8BitValue(WINDOW_CLOSE, stream) &&
+        BasicEvent::writeToStream(stream);
 }
 
+bool WindowCloseEvent::readFromStream(Util::Io::InputStream &stream) {
+    return BasicEvent::readFromStream(stream);
+}
+
+}
 }

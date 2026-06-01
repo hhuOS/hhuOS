@@ -32,8 +32,7 @@ public:
     explicit CloseButtonHandler(ClientWindow &clientWindow) : clientWindow(clientWindow) {}
 
     void onMousePressed() override {
-        const auto event = Kepler::Event::WindowClose();
-        clientWindow.sendWindowCloseEvent(event);
+        clientWindow.sendWindowCloseEvent();
     }
 
 private:

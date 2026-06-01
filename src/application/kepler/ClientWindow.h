@@ -77,13 +77,13 @@ public:
 
     bool overlapsWith(const ClientWindow &other) const;
 
-    void sendMouseHoverEvent(const Kepler::Event::MouseHover &event);
+    void sendMouseHoverEvent(uint16_t x, uint16_t y);
 
-    void sendMouseClickEvent(const Kepler::Event::MouseClick &event);
+    void sendMouseClickEvent(uint16_t x, uint16_t y, Kepler::Event::MouseClick::Button button, Kepler::Event::MouseClick::Action action);
 
-    void sendKeyEvent(const Kepler::Event::KeyEvent &event);
+    void sendKeyEvent(const Util::Io::KeyEvent &key);
 
-    void sendWindowCloseEvent(const Kepler::Event::WindowClose &event);
+    void sendWindowCloseEvent();
 
     bool drawDirtyAreas(const Util::Graphic::LinearFrameBuffer &lfb, bool focused = false, bool forceRedraw = false);
 

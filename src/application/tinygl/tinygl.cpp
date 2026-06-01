@@ -47,8 +47,8 @@
 #include <util/graphic/BufferedLinearFrameBuffer.h>
 #include <util/graphic/font/Terminal8x8.h>
 #include <pulsar/Statistics.h>
+#include <kepler/Client.h>
 #include <kepler/Window.h>
-#include <kepler/WindowManagerPipe.h>
 #include <tinygl/include/zbuffer.h>
 
 constexpr const char *HELP_TEXT =
@@ -61,7 +61,7 @@ constexpr size_t TARGET_FRAME_RATE = 60;
 constexpr auto TARGET_FRAME_TIME = Util::Time::Timestamp::ofSecondsFloat(1.0f / TARGET_FRAME_RATE);
 
 /// The main render loop runs as long as this is true.
-/// Set to false when the Escape key is pressed.
+/// Set to false when the Escape key is pressed or on a window close request
 bool isRunning = true;
 
 /// Statistics object, used to measure the full frame time, update time, draw time, and idle time.
@@ -91,6 +91,11 @@ public:
     /// Handle a key event by pushing it into the global `keyEvents` queue.
     void onKeyEvent(const Util::Io::KeyEvent &key) override {
         keyEvents.offer(key);
+    }
+
+    /// Exit the application by setting `isRunning` to false.
+    void onCloseButtonPressed() override {
+        isRunning = false;
     }
 };
 
@@ -156,9 +161,9 @@ int32_t main(const int32_t argc, char *argv[]) {
         return -1;
     }
 
-    Kepler::WindowManagerPipe pipe;
+    Kepler::Client client;
     const Kepler::Window window(320, 240, Util::String::format("TinyGL (%s)",
-        static_cast<const char*>(demoName)), pipe);
+        static_cast<const char*>(demoName)), client);
 
     EventListener eventListener;
     window.registerEventListener(eventListener);

@@ -21,24 +21,27 @@
 #ifndef HHUOS_LIB_KEPLER_WINDOWMANAGERPIPE_H
 #define HHUOS_LIB_KEPLER_WINDOWMANAGERPIPE_H
 
+#include "EventListener.h"
+#include "EventRunnable.h"
 #include "util/async/Streamable.h"
 #include "util/io/stream/FileInputStream.h"
 #include "util/io/stream/FileOutputStream.h"
 #include "kepler/Protocol.h"
+#include "util/collection/HashMap.h"
 
 namespace Kepler {
 
-class WindowManagerPipe {
+class Client {
 
 public:
 
-    WindowManagerPipe();
+    Client();
 
-    WindowManagerPipe(const WindowManagerPipe &other) = delete;
+    Client(const Client &other) = delete;
 
-    WindowManagerPipe& operator=(const WindowManagerPipe &other) = delete;
+    Client& operator=(const Client &other) = delete;
 
-    ~WindowManagerPipe();
+    ~Client();
 
     [[nodiscard]] bool sendRequest(const Util::Async::Streamable &streamable) const;
 
@@ -48,12 +51,18 @@ public:
 
     [[nodiscard]] size_t getWindowManagerProcessId() const;
 
+    void registerEventListener(const size_t windowId, EventListener &listener) const {
+        eventRunnable->registerListener(windowId, listener);
+    }
+
 private:
 
     size_t windowManagerProcessId = 0;
 
-    Util::Io::FileInputStream *inputStream = nullptr;
-    Util::Io::FileOutputStream *outputStream = nullptr;
+    Util::Io::FileOutputStream *requestOutputStream = nullptr;
+    Util::Io::FileInputStream *responseInputStream = nullptr;
+
+    EventRunnable *eventRunnable = nullptr;
 };
 
 }

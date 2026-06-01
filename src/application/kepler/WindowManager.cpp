@@ -84,7 +84,7 @@ void WindowManager::run() {
         while (keyboardInput >= 0) {
             if (keyDecoder.parseScancode(keyboardInput)) {
                 const auto key = keyDecoder.getKeyEvent();
-                windowStack.getFocusedWindow()->sendKeyEvent(Kepler::Event::KeyEvent(key));
+                windowStack.getFocusedWindow()->sendKeyEvent(key);
             }
 
             keyboardInput = Util::System::in.read();
@@ -327,32 +327,32 @@ void WindowManager::dispatchMouseEvents() {
             if (windowMouseEvent.area == CONTENT) {
                 // Send hover event if mouse position has changed
                 if (mouseInputHandler.hasMousePositionChanged()) {
-                    mouseHoveredWindow->sendMouseHoverEvent(Kepler::Event::MouseHover(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY));
+                    mouseHoveredWindow->sendMouseHoverEvent(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY);
                 }
 
                 // Check mouse button states
                 if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
-                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
-                        Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::PRESS));
+                    mouseHoveredWindow->sendMouseClickEvent(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
+                        Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::PRESS);
                 } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::LEFT_BUTTON)) {
-                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
-                        Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::RELEASE));
+                    mouseHoveredWindow->sendMouseClickEvent(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
+                        Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::RELEASE);
                 }
 
                 if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::RIGHT_BUTTON)) {
-                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
-                        Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::PRESS));
+                    mouseHoveredWindow->sendMouseClickEvent(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
+                        Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::PRESS);
                 } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::RIGHT_BUTTON)) {
-                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
-                        Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::RELEASE));
+                    mouseHoveredWindow->sendMouseClickEvent(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
+                        Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::RELEASE);
                 }
 
                 if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::MIDDLE_BUTTON)) {
-                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
-                        Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::PRESS));
+                    mouseHoveredWindow->sendMouseClickEvent(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
+                        Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::PRESS);
                 } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::MIDDLE_BUTTON)) {
-                    mouseHoveredWindow->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
-                        Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::RELEASE));
+                    mouseHoveredWindow->sendMouseClickEvent(windowMouseEvent.contentPosX, windowMouseEvent.contentPosY,
+                        Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::RELEASE);
                 }
             }
         }

@@ -267,13 +267,35 @@ enum Type : uint8_t {
     WINDOW_CLOSE
 };
 
-class MouseHover final : public Util::Async::Streamable {
+class BasicEvent : public Util::Async::Streamable {
+
+public:
+
+    BasicEvent() = default;
+
+    explicit BasicEvent(const size_t windowId) : windowId(windowId) {}
+
+    bool writeToStream(Util::Io::OutputStream &stream) const override;
+
+    bool readFromStream(Util::Io::InputStream &stream) override;
+
+    size_t getWindowId() const {
+        return windowId;
+    }
+
+private:
+
+    size_t windowId = 0;
+};
+
+class MouseHover final : public BasicEvent {
 
 public:
 
     MouseHover() = default;
 
-    MouseHover(const uint16_t posX, const uint16_t posY) : posX(posX), posY(posY) {}
+    MouseHover(const size_t windowId, const uint16_t posX, const uint16_t posY) :
+        BasicEvent(windowId), posX(posX), posY(posY) {}
 
     bool writeToStream(Util::Io::OutputStream &stream) const override;
 
@@ -293,7 +315,7 @@ private:
     uint16_t posY = 0;
 };
 
-class MouseClick final : public Util::Async::Streamable {
+class MouseClick final : public BasicEvent {
 
 public:
 
@@ -310,8 +332,8 @@ public:
 
     MouseClick() = default;
 
-    MouseClick(const uint16_t posX, const uint16_t posY, const Button button, const Action action) :
-        posX(posX), posY(posY), button(button), action(action) {}
+    MouseClick(const size_t windowId, const uint16_t posX, const uint16_t posY, const Button button, const Action action) :
+        BasicEvent(windowId), posX(posX), posY(posY), button(button), action(action) {}
 
     bool writeToStream(Util::Io::OutputStream &stream) const override;
 
@@ -341,13 +363,13 @@ private:
     Action action = PRESS;
 };
 
-class KeyEvent final : public Util::Async::Streamable {
+class KeyEvent final : public BasicEvent {
 
 public:
 
     KeyEvent() = default;
 
-    explicit KeyEvent(const Util::Io::KeyEvent &key) : key(key) {}
+    explicit KeyEvent(const size_t windowId, const Util::Io::KeyEvent &key) : BasicEvent(windowId), key(key) {}
 
     bool writeToStream(Util::Io::OutputStream &stream) const override;
 
@@ -362,17 +384,17 @@ private:
     Util::Io::KeyEvent key;
 };
 
-class WindowClose final : public Util::Async::Streamable {
+class WindowCloseEvent final : public BasicEvent {
 
 public:
 
-    WindowClose() = default;
+    WindowCloseEvent() = default;
+
+    explicit WindowCloseEvent(const size_t windowId) : BasicEvent(windowId) {}
 
     bool writeToStream(Util::Io::OutputStream &stream) const override;
 
-    bool readFromStream(Util::Io::InputStream&) override {
-        return true;
-    }
+    bool readFromStream(Util::Io::InputStream &stream) override;
 };
 
 }

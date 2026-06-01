@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "WindowManagerPipe.h"
+#include "Client.h"
 
 #include "lib/interface.h"
 #include "kepler/Protocol.h"
@@ -27,20 +27,20 @@
 
 namespace Kepler {
 
-WindowManagerPipe::WindowManagerPipe() {
-    const auto desktopFile = Util::Io::File("/system/kepler");
+Client::Client() {
+    const Util::Io::File desktopFile("/system/kepler");
     while (!desktopFile.exists()) {
         Util::Async::Thread::sleep(Util::Time::Timestamp::ofSeconds(1));
     }
 
-    auto desktopFileStream = Util::Io::FileInputStream(desktopFile);
+    Util::Io::FileInputStream desktopFileStream(desktopFile);
     const auto line = desktopFileStream.readLine();
     windowManagerProcessId = Util::String::parseNumber<size_t>(line.content);
     const auto processId = Util::Async::Process::getCurrentProcess().getId();
 
-    createPipe("window-manager");
-    const auto pipePath = Util::String::format("/process/%u/pipes/window-manager", processId);
-    inputStream = new Util::Io::FileInputStream(pipePath);
+    createPipe("kepler");
+    const auto pipePath = Util::String::format("/process/%u/pipes/kepler", processId);
+    responseInputStream = new Util::Io::FileInputStream(pipePath);
 
     const auto pipeDirectoryPath = Util::String::format("/process/%u/pipes", windowManagerProcessId);
     const auto pipeDirectory = Util::Io::File(pipeDirectoryPath);
@@ -59,33 +59,38 @@ WindowManagerPipe::WindowManagerPipe() {
             continue;
         }
 
-        outputStream = new Util::Io::FileOutputStream(outputFile);
+        requestOutputStream = new Util::Io::FileOutputStream(outputFile);
 
-        const auto request = Request::Connect(processId, "window-manager");
-        if (request.writeToStream(*outputStream)) {
+        const auto request = Request::Connect(processId, "kepler");
+        if (request.writeToStream(*requestOutputStream)) {
             break;
         }
     }
+
+    createPipe("kepler-event");
+    eventRunnable = new EventRunnable(Util::String::format("/process/%u/pipes/kepler-event", processId));
+    Util::Async::Thread::createThread("Kepler-Event", eventRunnable);
 }
 
-WindowManagerPipe::~WindowManagerPipe() {
-    delete inputStream;
-    delete outputStream;
+Client::~Client() {
+    destroyPipe("kepler-event");
+    delete responseInputStream;
+    delete requestOutputStream;
 }
 
-bool WindowManagerPipe::sendRequest(const Util::Async::Streamable &streamable) const {
-    return streamable.writeToStream(*outputStream);
+bool Client::sendRequest(const Util::Async::Streamable &streamable) const {
+    return streamable.writeToStream(*requestOutputStream);
 }
 
-bool WindowManagerPipe::receiveResponse(Util::Async::Streamable &streamable) const {
-    return streamable.readFromStream(*inputStream);
+bool Client::receiveResponse(Util::Async::Streamable &streamable) const {
+    return streamable.readFromStream(*responseInputStream);
 }
 
-bool WindowManagerPipe::sendSignal(const Signal signal) const {
-    return Util::Io::NumberUtil::writeUnsigned8BitValue(signal, *outputStream);
+bool Client::sendSignal(const Signal signal) const {
+    return Util::Io::NumberUtil::writeUnsigned8BitValue(signal, *requestOutputStream);
 }
 
-size_t WindowManagerPipe::getWindowManagerProcessId() const {
+size_t Client::getWindowManagerProcessId() const {
     return windowManagerProcessId;
 }
 
