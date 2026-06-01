@@ -245,7 +245,7 @@ enum BiosCharacteristicExtension1 : uint8_t {
 /// Second BIOS characteristics flags extension used in the `BiosInformation` table.
 enum BiosCharacteristicExtension2 : uint8_t {
     BIOS_BOOT_SPECIFICATION_SUPPORTED = 0x01,
-    FUNCTION_KEY_INITIATED_NETWORK_BOOT_SUPPORTED = 0x02,
+    FUNCTION_KEY_NETWORK_BOOT_SUPPORTED = 0x02,
     TARGETED_CONTENT_DISTRIBUTION_ENABLED = 0x04,
     UEFI_SUPPORTED = 0x08,
     VIRTUAL_MACHINE = 0x10,

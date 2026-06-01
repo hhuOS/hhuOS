@@ -20,18 +20,21 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/hardware/SmBios.h"
-#include "lib/util/base/String.h"
-#include "lib/util/collection/Array.h"
+#include <util/base/System.h>
+#include <util/io/stream/PrintStream.h>
+#include <util/base/ArgumentParser.h>
+#include <util/io/file/File.h>
+#include <util/io/stream/FileInputStream.h>
+#include <util/hardware/SmBios.h>
+#include <util/base/String.h>
+#include <util/collection/Array.h>
 
-double version = 0;
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
 
-static const constexpr char *tableNames[]{
+/// String representations of names of all standardized SMBIOS tables.
+constexpr const char *tableNames[] = {
     "BIOS Information",
     "System Information",
     "Baseboard (or Module) Information",
@@ -81,6 +84,7 @@ static const constexpr char *tableNames[]{
     "String Property",
 };
 
+/// Print raw table content to standard output.
 void dumpTable(const Util::Hardware::SmBios::TableHeader &table) {
     Util::System::out.setIntegerPrecision(2);
     Util::System::out << "\tHeader and Data:" << Util::Io::PrintStream::hex;
@@ -94,7 +98,7 @@ void dumpTable(const Util::Hardware::SmBios::TableHeader &table) {
     }
     Util::System::out << Util::Io::PrintStream::dec << Util::Io::PrintStream::ln;
 
-    auto stringCount = table.calculateStringCount();
+    const auto stringCount = table.calculateStringCount();
     if (stringCount == 0) {
         return;
     }
@@ -107,12 +111,15 @@ void dumpTable(const Util::Hardware::SmBios::TableHeader &table) {
     Util::System::out.setIntegerPrecision(0);
 }
 
+/// Decode a table of type `BIOS_INFORMATION` into human-readable form and print it to standard output.
 void decodeBiosInformation(const Util::Hardware::SmBios::BiosInformation &table) {
     Util::System::out << "\tVendor: " << table.getVendorName() << Util::Io::PrintStream::ln;
     Util::System::out << "\tVersion: " << table.getVersion() << Util::Io::PrintStream::ln;
     Util::System::out << "\tRelease Date: " << table.getReleaseDate() << Util::Io::PrintStream::ln;
-    Util::System::out << "\tAddress: 0x" << Util::Io::PrintStream::hex << (table.startAddressSegment << 4) << Util::Io::PrintStream::dec << Util::Io::PrintStream::ln;
-    Util::System::out << "\tRuntime Size: " << table.calculateRuntimeSize() / 1024 << " KiB" << Util::Io::PrintStream::ln;
+    Util::System::out << "\tAddress: 0x" << Util::Io::PrintStream::hex << (table.startAddressSegment << 4)
+        << Util::Io::PrintStream::dec << Util::Io::PrintStream::ln;
+    Util::System::out << "\tRuntime Size: " << table.calculateRuntimeSize() / 1024 << " KiB"
+        << Util::Io::PrintStream::ln;
     Util::System::out << "\tROM Size: " << table.calculateRomSize() / 1024 << " KiB" << Util::Io::PrintStream::ln;
     Util::System::out << "\tCharacteristics: " << Util::Io::PrintStream::ln;
 
@@ -166,10 +173,12 @@ void decodeBiosInformation(const Util::Hardware::SmBios::BiosInformation &table)
             Util::System::out << "\t\tEDD is supported" << Util::Io::PrintStream::ln;
         }
         if (table.characteristics & Util::Hardware::SmBios::INT13_NEC9800_FLOPPY_SUPPORTED) {
-            Util::System::out << "\t\tJapanese floppy for NEC 9800 1.2 MB is supported (int 13h)" << Util::Io::PrintStream::ln;
+            Util::System::out << "\t\tJapanese floppy for NEC 9800 1.2 MB is supported (int 13h)"
+                << Util::Io::PrintStream::ln;
         }
         if (table.characteristics & Util::Hardware::SmBios::INT13_TOSHIBA_FLOPPY_SUPPORTED) {
-            Util::System::out << "\t\tJapanese floppy for Toshiba 1.2 MB is supported (int 13h)" << Util::Io::PrintStream::ln;
+            Util::System::out << "\t\tJapanese floppy for Toshiba 1.2 MB is supported (int 13h)"
+                << Util::Io::PrintStream::ln;
         }
         if (table.characteristics & Util::Hardware::SmBios::INT13_360K_FLOPPY_SUPPORTED) {
             Util::System::out << "\t\t5.25/360 kB floppy services are supported (int 13h)" << Util::Io::PrintStream::ln;
@@ -233,8 +242,9 @@ void decodeBiosInformation(const Util::Hardware::SmBios::BiosInformation &table)
             if (table.characteristicsExtension2 & Util::Hardware::SmBios::BIOS_BOOT_SPECIFICATION_SUPPORTED) {
                 Util::System::out << "\t\tBIOS boot specification is supported" << Util::Io::PrintStream::ln;
             }
-            if (table.characteristicsExtension2 & Util::Hardware::SmBios::FUNCTION_KEY_INITIATED_NETWORK_BOOT_SUPPORTED) {
-                Util::System::out << "\t\tFunction key-initiated network boot is supported" << Util::Io::PrintStream::ln;
+            if (table.characteristicsExtension2 & Util::Hardware::SmBios::FUNCTION_KEY_NETWORK_BOOT_SUPPORTED) {
+                Util::System::out << "\t\tFunction key initiated network boot is supported"
+                    << Util::Io::PrintStream::ln;
             }
             if (table.characteristicsExtension2 & Util::Hardware::SmBios::TARGETED_CONTENT_DISTRIBUTION_ENABLED) {
                 Util::System::out << "\t\tTargeted content distribution is supported" << Util::Io::PrintStream::ln;
@@ -255,25 +265,22 @@ void decodeBiosInformation(const Util::Hardware::SmBios::BiosInformation &table)
     }
 
     if (table.header.length > 20) {
-        Util::System::out << "\tBIOS Revision: " << table.majorVersion << "." << table.minorVersion << Util::Io::PrintStream::ln;
+        Util::System::out << "\tBIOS Revision: " << table.majorVersion << "." << table.minorVersion
+            << Util::Io::PrintStream::ln;
     }
 }
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
     argumentParser.addArgument("type", false, "t");
-    argumentParser.setHelpText("Decode SMBIOS tables.\n"
-                               "Usage: smbios [OPTION]...\n"
-                               "Options:\n"
-                               "  -t, --type: Only display the entries of the given type\n"
-                               "  -h, --help: Show this help message");
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto versionFile = Util::Io::File("/device/smbios/version");
+    const Util::Io::File versionFile("/device/smbios/version");
     if (!versionFile.exists()) {
         Util::System::error << "SMBIOS is not available on this system!" << Util::Io::PrintStream::lnFlush;
         return -1;
@@ -281,36 +288,43 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto targetType = Util::Hardware::SmBios::END_OF_TABLE;
     if (argumentParser.hasArgument("type")) {
-        targetType = static_cast<Util::Hardware::SmBios::HeaderType>(Util::String::parseNumber<uint8_t>(argumentParser.getArgument("type")));
+        targetType = static_cast<Util::Hardware::SmBios::HeaderType>(
+            Util::String::parseNumber<uint8_t>(argumentParser.getArgument("type")));
     }
 
-    auto versionStream = Util::Io::FileInputStream(versionFile);
-    auto versionString = versionStream.readLine().content;
-    auto versionSplit = versionString.split(".");
-    auto majorVersion = Util::String::parseNumber<uint8_t>(versionSplit[0]);
-    auto minorVersion = Util::String::parseNumber<uint8_t>(versionSplit[1]);
-    version = majorVersion + (minorVersion / 10.0);
+    Util::Io::FileInputStream versionStream(versionFile);
+    const auto versionString = versionStream.readLine().content;
+    const auto versionSplit = versionString.split(".");
+    const auto majorVersion = Util::String::parseNumber<uint8_t>(versionSplit[0]);
+    const auto minorVersion = Util::String::parseNumber<uint8_t>(versionSplit[1]);
 
-    Util::System::out << "SMBIOS " << majorVersion << "." << minorVersion << " present." << Util::Io::PrintStream::ln << Util::Io::PrintStream::lnFlush;
+    Util::System::out << "SMBIOS " << majorVersion << "." << minorVersion << " present."
+        << Util::Io::PrintStream::lnFlush;
 
-    auto tableDirectory = Util::Io::File("/device/smbios/tables");
+    const auto tableDirectory = Util::Io::File("/device/smbios/tables");
     for (auto &tableFile : tableDirectory.getChildren()) {
-        auto tableType = Util::String::parseNumber<uint32_t>(tableFile.getName().split("-")[0]);
+        const auto tableType = Util::String::parseNumber<uint32_t>(
+            tableFile.getName().split("-")[0]);
+
         if (targetType != Util::Hardware::SmBios::END_OF_TABLE && targetType != tableType) {
             continue;
         }
 
-        auto tableStream = Util::Io::FileInputStream(tableFile);
+        Util::Io::FileInputStream tableStream(tableFile);
 
-        auto length = tableFile.getLength();
+        const auto length = tableFile.getLength();
         auto *tableBuffer = new uint8_t[length];
         tableStream.read(tableBuffer, 0, length);
 
-        auto *tableHeader = reinterpret_cast<Util::Hardware::SmBios::TableHeader*>(tableBuffer);
+        const auto *tableHeader = reinterpret_cast<Util::Hardware::SmBios::TableHeader*>(tableBuffer);
         Util::System::out.setIntegerPrecision(4);
-        Util::System::out << "Handle 0x" << Util::Io::PrintStream::hex << tableHeader->handle << Util::Io::PrintStream::dec;
+        Util::System::out << "Handle 0x" << Util::Io::PrintStream::hex << tableHeader->handle
+            << Util::Io::PrintStream::dec;
+
         Util::System::out.setIntegerPrecision(2);
-        Util::System::out << ", DMI type " << tableHeader->type << ", " << tableHeader->length << " bytes" << Util::Io::PrintStream::ln;
+        Util::System::out << ", DMI type " << tableHeader->type << ", " << tableHeader->length << " bytes"
+            << Util::Io::PrintStream::ln;
+
         Util::System::out.setIntegerPrecision(0);
 
         if (tableHeader->type <= Util::Hardware::SmBios::STRING_PROPERTY) {
@@ -326,6 +340,8 @@ int32_t main(int32_t argc, char *argv[]) {
                 decodeBiosInformation(*reinterpret_cast<const Util::Hardware::SmBios::BiosInformation*>(tableHeader));
                 break;
             default:
+                // Decoding functions for other table types are not implemented yet,
+                // so just print hexdumps of their contents.
                 dumpTable(*tableHeader);
         }
 
