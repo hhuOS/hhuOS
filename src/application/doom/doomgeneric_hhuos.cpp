@@ -38,7 +38,7 @@
 #include "doomgeneric/doomgeneric/i_sound.h"
 #include "util/io/stream/FileInputStream.h"
 #include "kepler/Window.h"
-#include "kepler/WindowManagerPipe.h"
+#include "kepler/Client.h"
 #include "lib/interface.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
@@ -147,7 +147,7 @@ int32_t main(int argc, char **argv) {
 
 	doomgeneric_Create(argc, argv);
 
-    auto windowManagerPipe = Kepler::WindowManagerPipe();
+    auto windowManagerPipe = Kepler::Client();
     const auto window = Kepler::Window(DOOMGENERIC_RESX, DOOMGENERIC_RESY, initialTitle, windowManagerPipe);
     lfb = &window.getFrameBuffer();
     win = &window;

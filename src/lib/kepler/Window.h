@@ -26,7 +26,7 @@
 #include "EventRunnable.h"
 #include "util/async/SharedMemory.h"
 #include "util/graphic/LinearFrameBuffer.h"
-#include "kepler/WindowManagerPipe.h"
+#include "kepler/Client.h"
 
 namespace Kepler {
 
@@ -34,7 +34,7 @@ class Window {
 
 public:
 
-    Window(uint16_t width, uint16_t height, const Util::String &title, WindowManagerPipe &pipe);
+    Window(uint16_t width, uint16_t height, const Util::String &title, Client &client);
 
     Window(const Window &other) = delete;
 
@@ -51,17 +51,16 @@ public:
     bool close() const;
 
     void registerEventListener(EventListener &listener) const {
-        eventRunnable->registerListener(listener);
+        client.registerEventListener(id, listener);
     }
 
-    static constexpr const char *EVENT_PIPE_PATH = "/process/%u/pipes/event-%u";
+    static constexpr const char *EVENT_PIPE_PATH = "/process/%u/pipes/kepler-event";
 
 private:
 
     size_t id = 0;
 
-    WindowManagerPipe &pipe;
-    EventRunnable *eventRunnable = nullptr;
+    Client &client;
 
     Util::Async::SharedMemory *sharedMemory = nullptr;
     Util::Graphic::LinearFrameBuffer *lfb = nullptr;
