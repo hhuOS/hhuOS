@@ -25,40 +25,47 @@
 
 void Kepler::EventRunnable::run() {
     while (isRunning) {
-        const auto eventType = static_cast<Event::Type>(Util::Io::NumberUtil::readUnsigned8BitValue(mouseInputStream));
+        const auto eventType = static_cast<Event::Type>(Util::Io::NumberUtil::readUnsigned8BitValue(eventInputStream));
+
         switch (eventType) {
             case Event::MOUSE_HOVER: {
                 auto event = Event::MouseHover();
-                event.readFromStream(mouseInputStream);
+                event.readFromStream(eventInputStream);
 
-                if (listener != nullptr) {
-                    listener->onMouseHover(event.getPosX(), event.getPosY());
+                if (listeners.containsKey(event.getWindowId())) {
+                    listeners.get(event.getWindowId())->onMouseHover(event.getPosX(), event.getPosY());
                 }
 
                 break;
             }
             case Event::MOUSE_CLICK: {
                 auto event = Event::MouseClick();
-                event.readFromStream(mouseInputStream);
+                event.readFromStream(eventInputStream);
 
-                if (listener != nullptr) {
-                    listener->onMouseClick(event.getPosX(), event.getPosY(), event.getButton(), event.getAction());
+                if (listeners.containsKey(event.getWindowId())) {
+                    listeners.get(event.getWindowId())->onMouseClick(event.getPosX(), event.getPosY(), event.getButton(), event.getAction());
                 }
 
                 break;
             }
             case Event::KEY_EVENT: {
                 auto event = Event::KeyEvent();
-                event.readFromStream(mouseInputStream);
+                event.readFromStream(eventInputStream);
 
-                if (listener != nullptr) {
-                    listener->onKeyEvent(event.getKey());
+                if (listeners.containsKey(event.getWindowId())) {
+                    listeners.get(event.getWindowId())->onKeyEvent(event.getKey());
                 }
 
                 break;
             }
             case Event::WINDOW_CLOSE: {
-                listener->onCloseButtonPressed();
+                auto event = Event::WindowCloseEvent();
+                event.readFromStream(eventInputStream);
+
+                if (listeners.containsKey(event.getWindowId())) {
+                    listeners.get(event.getWindowId())->onCloseButtonPressed();
+                }
+
                 break;
             }
             default:

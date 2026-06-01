@@ -24,6 +24,7 @@
 #include "EventListener.h"
 #include "util/async/Runnable.h"
 #include "util/base/String.h"
+#include "util/collection/HashMap.h"
 #include "util/io/stream/FileInputStream.h"
 
 namespace Kepler {
@@ -32,7 +33,7 @@ class EventRunnable final : public Util::Async::Runnable {
 
 public:
 
-    explicit EventRunnable(const Util::String &pipePath) : mouseInputStream(pipePath) {}
+    explicit EventRunnable(const Util::String &pipePath) : eventInputStream(pipePath) {}
 
     void run() override;
 
@@ -40,18 +41,19 @@ public:
         isRunning = false;
     }
 
-    void registerListener(EventListener &listener) {
-        if (EventRunnable::listener != nullptr) {
-            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "MouseRunnable: Listener already registered");
+    void registerListener(const size_t windowId, EventListener &listener) {
+        if (listeners.containsKey(windowId)) {
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "EventRunnable: Listener already registered");
         }
 
-        EventRunnable::listener = &listener;
+        listeners.put(windowId, &listener);
     }
 
 private:
 
-    Util::Io::FileInputStream mouseInputStream;
-    EventListener *listener = nullptr;
+    Util::Io::FileInputStream eventInputStream;
+
+    Util::HashMap<size_t, EventListener*> listeners;
     bool isRunning = true;
 };
 

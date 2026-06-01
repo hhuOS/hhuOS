@@ -24,7 +24,7 @@
 #include "util/graphic/Colors.h"
 #include "util/graphic/font/Terminal8x16.h"
 #include "util/time/Timestamp.h"
-#include "kepler/WindowManagerPipe.h"
+#include "kepler/Client.h"
 #include "kepler/Protocol.h"
 #include "kepler/Window.h"
 #include "lunar/BorderLayout.h"
@@ -100,11 +100,11 @@ private:
     Lunar::Button &packButton;
 };
 
-class GearsEventListener final : public Kepler::EventListener {
+class WindowEventListener final : public Kepler::EventListener {
 
 public:
 
-    explicit GearsEventListener(Lunar::Container &rootContainer) :
+    explicit WindowEventListener(Lunar::Container &rootContainer) :
         rootContainer(rootContainer) {}
 
     void onMouseHover(const uint16_t x, const uint16_t y) override {
@@ -168,15 +168,15 @@ private:
 };
 
 int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
-    auto pipe = Kepler::WindowManagerPipe();
-    const auto window = Kepler::Window(320, 240, argv[0], pipe);
+    auto keplerClient = Kepler::Client();
+    const auto window = Kepler::Window(320, 240, argv[0], keplerClient);
     auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(window.getFrameBuffer());
 
     auto rootContainer = Lunar::Container();
     rootContainer.setSize(320, 240);
     rootContainer.setLayout(new Lunar::BorderLayout());
 
-    auto eventListener = GearsEventListener(rootContainer);
+    auto eventListener = WindowEventListener(rootContainer);
     window.registerEventListener(eventListener);
 
     // Add a label to the top

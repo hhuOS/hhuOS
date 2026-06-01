@@ -27,7 +27,7 @@
 ClientWindow::ClientWindow(const size_t id, const size_t processId, const uint16_t posX, const uint16_t posY,
     const uint16_t width, const uint16_t height, const Util::String &title, Util::Async::SharedMemory *buffer) :
     id(id), posX(posX), posY(posY), width(width), height(height), titleBar(*this, title), buffer(buffer),
-    eventOutputStream(Util::String::format(Kepler::Window::EVENT_PIPE_PATH, processId, id)) {}
+    eventOutputStream(Util::String::format(Kepler::Window::EVENT_PIPE_PATH, processId)) {}
 
 ClientWindow::~ClientWindow() {
     delete buffer;
@@ -131,19 +131,23 @@ bool ClientWindow::overlapsWith(const ClientWindow &other) const {
     return posX < otherRight && thisRight > other.posX && posY < otherBottom && thisBottom > other.posY;
 }
 
-void ClientWindow::sendMouseHoverEvent(const Kepler::Event::MouseHover &event) {
+void ClientWindow::sendMouseHoverEvent(const uint16_t x, const uint16_t y) {
+    const auto event = Kepler::Event::MouseHover(id, x, y);
     event.writeToStream(eventOutputStream);
 }
 
-void ClientWindow::sendMouseClickEvent(const Kepler::Event::MouseClick &event) {
+void ClientWindow::sendMouseClickEvent(const uint16_t x, const uint16_t y, const Kepler::Event::MouseClick::Button button, const Kepler::Event::MouseClick::Action action) {
+    const auto event = Kepler::Event::MouseClick(id, x, y, button, action);
     event.writeToStream(eventOutputStream);
 }
 
-void ClientWindow::sendKeyEvent(const Kepler::Event::KeyEvent &event) {
+void ClientWindow::sendKeyEvent(const Util::Io::KeyEvent &key) {
+    const auto event = Kepler::Event::KeyEvent(id, key);
     event.writeToStream(eventOutputStream);
 }
 
-void ClientWindow::sendWindowCloseEvent(const Kepler::Event::WindowClose &event) {
+void ClientWindow::sendWindowCloseEvent() {
+    const auto event = Kepler::Event::WindowCloseEvent(id);
     event.writeToStream(eventOutputStream);
 }
 
