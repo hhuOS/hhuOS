@@ -34,12 +34,16 @@ constexpr const char *HELP_TEXT =
 #include "generated/README.md"
 ;
 
+/// Comparison function for `qsort()` using pointers of the type `Util::String`.
+/// This is used to sort file names alphabetically.
 int compareFileNames(const void *a, const void *b) {
-    const auto &fileA = *static_cast<const Util::Io::File*>(a);
-    const auto &fileB = *static_cast<const Util::Io::File*>(b);
-    return strcmp(static_cast<const char*>(fileA.getName()), static_cast<const char*>(fileB.getName()));
+    const auto &strA = *static_cast<const Util::String*>(a);
+    const auto &strB = *static_cast<const Util::String*>(b);
+    return strcmp(static_cast<const char*>(strA), static_cast<const char*>(strB));
 }
 
+/// Get the text color for a specific file type.
+/// This is used to visually distinct, for example, folders and files.
 const char* getTypeColor(const Util::Io::File &file) {
     switch (file.getType()) {
         case Util::Io::File::DIRECTORY:
@@ -55,11 +59,16 @@ const char* getTypeColor(const Util::Io::File &file) {
     }
 }
 
+/// Generate a string with the name of the given file and ANSI escape sequences
+/// to color text depending on the file type.
 Util::String formatFileName(const Util::Io::File &file) {
     return getTypeColor(file) + file.getName() +
         (file.isDirectory() ? "/" : "") + Util::Graphic::Ansi::FOREGROUND_DEFAULT;
 }
 
+/// List all files in the given path (print them to standard out).
+/// Files are printed in alphabetically sorted by their names.
+/// ANSI escape sequences are used to color file names depending on their file type.
 void lsDirectory(const Util::String &path) {
     const Util::Io::File file(path);
     if (!file.exists()) {

@@ -18,16 +18,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <stddef.h>
 #include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
 
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/base/System.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/base/String.h"
-#include "lib/util/io/stream/PrintStream.h"
+#include <util/graphic/Ansi.h>
+#include <util/base/System.h>
+#include <util/base/ArgumentParser.h>
+#include <util/collection/Array.h>
+#include <util/io/file/File.h>
+#include <util/base/String.h>
+#include <util/io/stream/PrintStream.h>
 
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+/// Comparison function for `qsort()` using pointers of the type `Util::Io::File`.
+/// This is used to sort files alphabetically by their names.
+int compareFileNames(const void *a, const void *b) {
+    const auto &fileA = *static_cast<const Util::Io::File*>(a);
+    const auto &fileB = *static_cast<const Util::Io::File*>(b);
+    return strcmp(static_cast<const char*>(fileA.getName()), static_cast<const char*>(fileB.getName()));
+}
+
+/// Get the text color for a specific file type.
+/// This is used to visually distinct, for example, folders and files.
 const char* getTypeColor(const Util::Io::File &file) {
     switch (file.getType()) {
         case Util::Io::File::DIRECTORY:
@@ -43,30 +60,39 @@ const char* getTypeColor(const Util::Io::File &file) {
     return Util::Graphic::Ansi::FOREGROUND_WHITE;
 }
 
-void treeDirectory(const Util::String &path, uint32_t level) {
-    auto file = Util::Io::File(path);
+/// Print the file at the given path with multiple '-' signs, depicting the current folder depth, to standard out.
+/// If the file is a directory, this function calls itself recursively for all files in the directory.
+/// Files are printed, sorted by their names.
+/// ANSI escape sequences are used to color file names depending on their file type.
+void treeDirectory(const Util::String &path, const size_t level) {
+    const Util::Io::File file(path);
     if (!file.exists()) {
         Util::System::error << "tree: '" << path << "' not found!" << Util::Io::PrintStream::lnFlush;
         return;
     }
 
     auto string = Util::String("|-");
-    for (uint32_t i = 0; i < level; i++) {
+    for (size_t i = 0; i < level; i++) {
         string += "-";
     }
 
-    string += getTypeColor(file) + file.getName() + (file.isDirectory() ? "/" : "") + Util::Graphic::Ansi::FOREGROUND_DEFAULT + " ";
+    string += getTypeColor(file) + file.getName() + (file.isDirectory() ? "/" : "") +
+        Util::Graphic::Ansi::FOREGROUND_DEFAULT + " ";
+
     Util::System::out << string << Util::Io::PrintStream::lnFlush;
 
     if (file.isDirectory()) {
-        for (const auto &child : file.getChildren()) {
+        const auto children = file.getChildren();
+        qsort(children.begin(), children.length(), sizeof(Util::Io::File), compareFileNames);
+
+        for (const auto &child : children) {
             treeDirectory(child.getCanonicalPath(), level + 1);
         }
     }
 }
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
     argumentParser.setHelpText("Print a directory tree.\n"
                                "Usage: tree [DIRECTORY]...\n"
                                "Options:\n"
@@ -81,14 +107,10 @@ int32_t main(int32_t argc, char *argv[]) {
     if (arguments.length() == 0) {
         treeDirectory(Util::Io::File::getCurrentWorkingDirectory().getCanonicalPath(), 0);
     } else {
-        for (uint32_t i = 0; i < arguments.length(); i++) {
+        for (size_t i = 0; i < arguments.length(); i++) {
             treeDirectory(arguments[i], 0);
-            if (i < static_cast<uint32_t>(arguments.length() - 1)) {
-                Util::System::out << Util::Io::PrintStream::lnFlush;
-            }
         }
     }
 
-    Util::System::out << Util::Io::PrintStream::flush;
     return 0;
 }

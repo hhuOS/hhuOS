@@ -15,6 +15,7 @@ Supported options:
 If no option is specified, all tables are displayed.
 Supported tables are decoded into a human-readable format.
 All other tables are displayed as raw bytes.
+
 This application currently supports the following table types:
 * BIOS
 
