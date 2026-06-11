@@ -20,39 +20,45 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/network/ip4/Ip4PortAddress.h"
-#include "lib/util/network/Socket.h"
-#include "lib/util/network/udp/UdpDatagram.h"
-#include "lib/util/base/String.h"
-#include "lib/util/io/stream/InputStream.h"
+#include <util/base/System.h>
+#include <util/io/stream/PrintStream.h>
+#include <util/base/ArgumentParser.h>
+#include <util/network/ip4/Ip4PortAddress.h>
+#include <util/network/Socket.h>
+#include <util/network/udp/UdpDatagram.h>
+#include <util/base/String.h>
+#include <util/io/stream/InputStream.h>
 
-static const constexpr uint32_t DEFAULT_PORT = 1797;
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
 
-int32_t server(Util::Network::Socket &socket) {
-    auto localAddress = Util::Network::Ip4::Ip4PortAddress();
+constexpr uint16_t DEFAULT_PORT = 1797;
+
+int32_t server(const Util::Network::Socket &socket) {
+    Util::Network::Ip4::Ip4PortAddress localAddress;
     if (!socket.getLocalAddress(localAddress)) {
         Util::System::error << "uecho: Failed to query socket address!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    Util::System::out << "UDP echo sever running on " << localAddress.toString() << "! Send 'exit' to leave." << Util::Io::PrintStream::lnFlush;
+    Util::System::out << "UDP echo sever running on " << localAddress.toString() << "! Send 'exit' to leave."
+        << Util::Io::PrintStream::lnFlush;
 
     while (true) {
-        auto receivedDatagram = Util::Network::Udp::UdpDatagram();
-        if (!socket.receive(receivedDatagram)) {
+        Util::Network::Udp::UdpDatagram receiveDatagram;
+        if (!socket.receive(receiveDatagram)) {
             Util::System::error << "uecho: Failed to receive echo request!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
 
-        if (!socket.send(receivedDatagram)) {
+        if (!socket.send(receiveDatagram)) {
             Util::System::error << "uecho: Failed to send echo reply!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
 
-        if (Util::String(receivedDatagram.getData(), receivedDatagram.getLength()).strip() == "exit") {
+        const auto datagramString = Util::String(receiveDatagram.getData(), receiveDatagram.getLength()).strip();
+        if (datagramString == "exit") {
             break;
         }
     }
@@ -60,44 +66,46 @@ int32_t server(Util::Network::Socket &socket) {
     return 0;
 }
 
-int32_t client(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4PortAddress &destinationAddress) {
+int32_t client(const Util::Network::Socket &socket, const Util::Network::Ip4::Ip4PortAddress &destinationAddress) {
     auto localAddress = Util::Network::Ip4::Ip4PortAddress();
     if (!socket.getLocalAddress(localAddress)) {
         Util::System::error << "uecho: Failed to query socket address!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    Util::System::out << "UDP echo client running on " << localAddress.toString() << " and sending to " << destinationAddress.toString()
-                      << "! Type 'exit' to leave." << Util::Io::PrintStream::lnFlush;
+    Util::System::out << "UDP echo client running on " << localAddress.toString() << " and sending to "
+        << destinationAddress.toString() << "! Type 'exit' to leave." << Util::Io::PrintStream::lnFlush;
 
     while (true) {
-        Util::String line;
-        char c = Util::System::in.read();
-        while (c != '\n') {
-            line += c;
-            c = Util::System::in.read();
-        }
-
-        if (line.isEmpty()) {
+        const auto line = Util::System::in.readLine();
+        const auto sendMessage = line.content.strip();
+        
+        if (sendMessage.isEmpty()) {
+            if (line.endOfFile) {
+                break;
+            }
+            
             continue;
         }
 
-        auto sendDatagram = Util::Network::Udp::UdpDatagram(static_cast<const uint8_t*>(line), line.length(), destinationAddress);
+        Util::Network::Udp::UdpDatagram sendDatagram(static_cast<const uint8_t*>(sendMessage),
+            sendMessage.length(), destinationAddress);
+        
         if (!socket.send(sendDatagram)) {
             Util::System::error << "uecho: Failed to send echo request!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
 
-        auto receivedDatagram = Util::Network::Udp::UdpDatagram();
-        if (!socket.receive(receivedDatagram)) {
+        Util::Network::Udp::UdpDatagram receiveDatagram;
+        if (!socket.receive(receiveDatagram)) {
             Util::System::error << "uecho: Failed to receive echo reply!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
 
-        auto message = Util::String(receivedDatagram.getData(), receivedDatagram.getLength()).strip();
-        Util::System::out << "Received: " << message << Util::Io::PrintStream::lnFlush;
+        auto receiveMessage = Util::String(receiveDatagram.getData(), receiveDatagram.getLength()).strip();
+        Util::System::out << "Received: " << sendMessage << Util::Io::PrintStream::lnFlush;
 
-        if (message == "exit") {
+        if (sendMessage == "exit") {
             break;
         }
     }
@@ -105,18 +113,12 @@ int32_t client(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4PortA
     return 0;
 }
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
     argumentParser.addSwitch("server", "s");
     argumentParser.addArgument("remote", false, "r");
     argumentParser.addArgument("address", false, "a");
-    argumentParser.setHelpText("Start an echo server/client.\n"
-                               "Usage: uecho [OPTION]...\n"
-                               "Options:\n"
-                               "  -s, --server: Start echo server\n"
-                               "  -r, --remote [ADDRESS]: Start echo client and connect to ADDRESS\n"
-                               "  -a, --address [ADDRESS]: Bind socket to ADDRESS (Default: 0.0.0.0:1797)\n"
-                               "  -h, --help: Show this help message");
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
@@ -128,28 +130,26 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto bindAddress = Util::Network::Ip4::Ip4PortAddress();
+    Util::Network::Ip4::Ip4PortAddress bindAddress;
     if (argumentParser.hasArgument("address")) {
         bindAddress = Util::Network::Ip4::Ip4PortAddress(argumentParser.getArgument("address"));
     } else if (argumentParser.checkSwitch("server")) {
         bindAddress = Util::Network::Ip4::Ip4PortAddress(DEFAULT_PORT);
     }
 
-    Util::Network::Socket socket(Util::Network::Socket::UDP);
-    socket.setTimeout(Util::Time::Timestamp::ofSeconds(5));
-
+    const Util::Network::Socket socket(Util::Network::Socket::UDP);
     if (!socket.bind(bindAddress)) {
         Util::System::error << "uecho: Failed to bind socket!" << Util::Io::PrintStream::lnFlush;
     }
 
     if (argumentParser.checkSwitch("server")) {
         return server(socket);
-    } else {
-        auto destinationAddress = Util::Network::Ip4::Ip4PortAddress(argumentParser.getArgument("remote"));
-        if (destinationAddress.getPort() == 0) {
-            destinationAddress.setPort(DEFAULT_PORT);
-        }
-
-        return client(socket, destinationAddress);
     }
+
+    const Util::Network::Ip4::Ip4PortAddress destinationAddress(argumentParser.getArgument("remote"));
+    if (destinationAddress.getPort() == 0) {
+        destinationAddress.setPort(DEFAULT_PORT);
+    }
+
+    return client(socket, destinationAddress);
 }

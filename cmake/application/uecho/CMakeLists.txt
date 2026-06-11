@@ -19,11 +19,14 @@
 project(uecho)
 message(STATUS "Project " ${PROJECT_NAME})
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
+add_compile_options(-Wpedantic)
+
+make_readme_includable(${HHUOS_SRC_DIR}/application/uecho)
+
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-
-set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/uecho/uecho.cpp)
-
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
 target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.network)
+target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/application/uecho/uecho.cpp)
