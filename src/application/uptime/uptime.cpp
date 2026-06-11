@@ -20,36 +20,38 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/time/Timestamp.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/base/String.h"
-#include "lib/util/io/stream/PrintStream.h"
+#include <util/base/System.h>
+#include <util/time/Timestamp.h>
+#include <util/base/ArgumentParser.h>
+#include <util/base/String.h>
+#include <util/io/stream/PrintStream.h>
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Print the system uptime.\n"
-                               "Usage: uptime\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto systemTime = Util::Time::Timestamp::getSystemTime();
-    if (systemTime.toSeconds() < 60) {
-        Util::System::out << Util::String::format("%d", systemTime.toSeconds());
-    } else if (systemTime.toSeconds() < 3600) {
-        Util::System::out << Util::String::format("%d:%02d", systemTime.toMinutes(), systemTime.toSeconds() % 60);
-    } else if (systemTime.toSeconds() < 86400 ) {
-        auto seconds = systemTime.toSeconds() - (systemTime.toMinutes() * 60);
-        Util::System::out << Util::String::format("%d:%02d:%02d", systemTime.toHours(), systemTime.toMinutes() % 60, seconds);
+    const auto time = Util::Time::Timestamp::getSystemTime();
+    if (time.toSeconds() < 60) {
+        Util::System::out << Util::String::format("%d", time.toSeconds());
+    } else if (time.toSeconds() < 3600) {
+        Util::System::out << Util::String::format("%d:%02d", time.toMinutes(), time.toSeconds() % 60);
+    } else if (time.toSeconds() < 86400 ) {
+        const auto seconds = time.toSeconds() - time.toMinutes() * 60;
+        Util::System::out << Util::String::format("%d:%02d:%02d", time.toHours(), time.toMinutes() % 60, seconds);
     } else {
-        auto minutes = systemTime.toMinutes() - (systemTime.toHours() * 60);
-        auto seconds = systemTime.toSeconds() - (systemTime.toMinutes() * 60);
-        Util::System::out << Util::String::format("%d %s, %d:%02d:%02d", systemTime.toDays() == 1 ? "day" : "days", systemTime.toDays(), systemTime.toHours() % 24, minutes, systemTime.toSeconds() % seconds);
+        const auto minutes = time.toMinutes() - time.toHours() * 60;
+        const auto seconds = time.toSeconds() - time.toMinutes() * 60;
+        Util::System::out << Util::String::format("%d %s, %d:%02d:%02d", time.toDays() == 1 ? "day" : "days",
+            time.toDays(), time.toHours() % 24, minutes, time.toSeconds() % seconds);
     }
 
     Util::System::out << Util::Io::PrintStream::lnFlush;

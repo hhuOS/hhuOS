@@ -111,15 +111,15 @@ bool Filesystem::unmount(const Util::String &path) {
 
     delete targetNode;
 
-    for(const Util::String &key : mountPoints.getKeys()) {
-        if(key.beginsWith(parsedPath)) {
-            if(key != parsedPath) {
+    for (const Util::String &key : mountPoints.getKeys()) {
+        if (key.beginsWith(parsedPath)) {
+            if (key != parsedPath) {
                 return lock.releaseAndReturn(false);
             }
         }
     }
 
-    if(mountPoints.containsKey(parsedPath)) {
+    if (mountPoints.containsKey(parsedPath)) {
         mountInformation.remove(parsedPath);
         delete mountPoints.remove(parsedPath);
         return lock.releaseAndReturn(true);

@@ -20,19 +20,20 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/base/String.h"
+#include <util/base/System.h>
+#include <util/base/ArgumentParser.h>
+#include <util/collection/Array.h>
+#include <util/io/file/File.h>
+#include <util/io/stream/PrintStream.h>
+#include <util/base/String.h>
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Unmount a device from a path.\n"
-                               "Usage: unmount [PATH]\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
@@ -45,7 +46,7 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto success = Util::Io::File::unmount(arguments[0]);
+    const auto success = Util::Io::File::unmount(arguments[0]);
     if (!success) {
         Util::System::error << "unmount: Failed to unmount '" << arguments[0] << "'!" << Util::Io::PrintStream::lnFlush;
     }
