@@ -24,81 +24,102 @@
 #include "BattleSpaceGame.h"
 
 #include "battlespace.h"
-#include "lib/pulsar/Game.h"
 #include "Astronomical.h"
 #include "Missile.h"
 #include "Enemy.h"
-#include "application/battlespace/Player.h"
-#include "lib/util/base/String.h"
-#include "lib/pulsar/Camera.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/io/key/KeyEvent.h"
-#include "pulsar/TextScreen.h"
+#include "Player.h"
+
+#include <pulsar/Game.h>
+#include <util/base/String.h>
+#include <pulsar/Camera.h>
+#include <util/graphic/Colors.h>
+#include <util/io/key/KeyEvent.h>
+#include <pulsar/TextScreen.h>
 
 void BattleSpaceGame::initialize() {
     setLightingEnabled(false);
     setGlRenderStyle(LINES);
     setGlShadeModel(FLAT);
 
-    addEntity(new Astronomical("planet1", Util::Math::Vector3<float>(13, -15, -1000), 150, Util::Math::Vector3<float>(1, 0, 0), Util::Graphic::Colors::BLUE));
-    addEntity(new Astronomical("planet1", Util::Math::Vector3<float>(37, -8, 3000), 400, Util::Math::Vector3<float>(0.25, 0, 0), Util::Graphic::Colors::YELLOW));
+    addEntity(new Astronomical("planet1", Util::Graphic::Colors::BLUE,
+        Util::Math::Vector3<float>(13, -15, -1000), 150,
+        Util::Math::Vector3<float>(1, 0, 0)));
+    addEntity(new Astronomical("planet1", Util::Graphic::Colors::YELLOW,
+        Util::Math::Vector3<float>(37, -8, 3000), 400,
+        Util::Math::Vector3<float>(0.25, 0, 0)));
 
-    auto modelId = static_cast<uint8_t>(random.getRandomNumber() * 2 + 1);
-    auto scale = 5 + random.getRandomNumber() * 10;
-    auto rotation = Util::Math::Vector3<float>(random.getRandomNumber() * 5, random.getRandomNumber() * 5, random.getRandomNumber() * 5);
-    addEntity(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3<float>(-25, 12, -42), scale, rotation, Util::Graphic::Colors::BROWN));
+    auto modelId = static_cast<uint8_t>(random.getRandomNumber<float>() * 2 + 1);
+    auto scale = 5 + random.getRandomNumber<float>() * 10;
+    auto rotation = Util::Math::Vector3<float>(random.getRandomNumber<float>() * 5,
+        random.getRandomNumber<float>() * 5, random.getRandomNumber<float>() * 5);
+    addEntity(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Graphic::Colors::BROWN,
+        Util::Math::Vector3<float>(-25, 12, -42), scale, rotation));
 
-    modelId = static_cast<uint8_t>(random.getRandomNumber() * 2 + 1);
-    scale = 5 + random.getRandomNumber() * 10;
-    rotation = Util::Math::Vector3<float>(random.getRandomNumber() * 5, random.getRandomNumber() * 5, random.getRandomNumber() * 5);
-    addEntity(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3<float>(40, 30, -55), scale, rotation, Util::Graphic::Colors::BROWN));
+    modelId = static_cast<uint8_t>(random.getRandomNumber<float>() * 2 + 1);
+    scale = 5 + random.getRandomNumber<float>() * 10;
+    rotation = Util::Math::Vector3<float>(random.getRandomNumber<float>() * 5,
+        random.getRandomNumber<float>() * 5, random.getRandomNumber<float>() * 5);
+    addEntity(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Graphic::Colors::BROWN,
+        Util::Math::Vector3<float>(40, 30, -55), scale, rotation));
 
-    modelId = static_cast<uint8_t>(random.getRandomNumber() * 2 + 1);
-    scale = 5 + random.getRandomNumber() * 10;
-    rotation = Util::Math::Vector3<float>(random.getRandomNumber() * 5, random.getRandomNumber() * 5, random.getRandomNumber() * 5);
-    addEntity(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3<float>(78, -24, 63), scale, rotation, Util::Graphic::Colors::BROWN));
+    modelId = static_cast<uint8_t>(random.getRandomNumber<float>() * 2 + 1);
+    scale = 5 + random.getRandomNumber<float>() * 10;
+    rotation = Util::Math::Vector3<float>(random.getRandomNumber<float>() * 5,
+        random.getRandomNumber<float>() * 5, random.getRandomNumber<float>() * 5);
+    addEntity(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Graphic::Colors::BROWN,
+        Util::Math::Vector3<float>(78, -24, 63), scale, rotation));
 
-    modelId = static_cast<uint8_t>(random.getRandomNumber() * 2 + 1);
-    scale = 5 + random.getRandomNumber() * 10;
-    rotation = Util::Math::Vector3<float>(random.getRandomNumber() * 5, random.getRandomNumber() * 5, random.getRandomNumber() * 5);
-    addEntity(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3<float>(-92, -74, 48), scale, rotation, Util::Graphic::Colors::BROWN));
+    modelId = static_cast<uint8_t>(random.getRandomNumber<float>() * 2 + 1);
+    scale = 5 + random.getRandomNumber<float>() * 10;
+    rotation = Util::Math::Vector3<float>(random.getRandomNumber<float>() * 5,
+        random.getRandomNumber<float>() * 5, random.getRandomNumber<float>() * 5);
+    addEntity(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Graphic::Colors::BROWN,
+        Util::Math::Vector3<float>(-92, -74, 48), scale, rotation));
 
-    modelId = static_cast<uint8_t>(random.getRandomNumber() * 2 + 1);
-    scale = 5 + random.getRandomNumber() * 10;
-    rotation = Util::Math::Vector3<float>(random.getRandomNumber() * 5, random.getRandomNumber() * 5, random.getRandomNumber() * 5);
-    addEntity(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3<float>(-48, 30, 37), scale, rotation, Util::Graphic::Colors::BROWN));
+    modelId = static_cast<uint8_t>(random.getRandomNumber<float>() * 2 + 1);
+    scale = 5 + random.getRandomNumber<float>() * 10;
+    rotation = Util::Math::Vector3<float>(random.getRandomNumber<float>() * 5,
+        random.getRandomNumber<float>() * 5, random.getRandomNumber<float>() * 5);
+    addEntity(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Graphic::Colors::BROWN,
+        Util::Math::Vector3<float>(-48, 30, 37), scale, rotation));
 
-    modelId = static_cast<uint8_t>(random.getRandomNumber() * 2 + 1);
-    scale = 5 + random.getRandomNumber() * 10;
-    rotation = Util::Math::Vector3<float>(random.getRandomNumber() * 5, random.getRandomNumber() * 5, random.getRandomNumber() * 5);
-    addEntity(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3<float>(10, 23, 78), scale, rotation, Util::Graphic::Colors::BROWN));
+    modelId = static_cast<uint8_t>(random.getRandomNumber<float>() * 2 + 1);
+    scale = 5 + random.getRandomNumber<float>() * 10;
+    rotation = Util::Math::Vector3<float>(random.getRandomNumber<float>() * 5,
+        random.getRandomNumber<float>() * 5, random.getRandomNumber<float>() * 5);
+    addEntity(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Graphic::Colors::BROWN,
+        Util::Math::Vector3<float>(10, 23, 78), scale, rotation));
 
     addEntity(player);
 }
 
-void BattleSpaceGame::update(float delta) {
+void BattleSpaceGame::update(const float delta) {
     if (player->getHealth() <= 0) {
-        Pulsar::Game::getInstance().pushScene(new Pulsar::TextScreen(Util::String::format(GAME_OVER_TEXT, player->getScore()), handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
-        Pulsar::Game::getInstance().switchToNextScene();
+        auto &game = Pulsar::Game::getInstance();
+        game.pushScene(new Pulsar::TextScreen(Util::String::format(GAME_OVER_TEXT, player->getScore()),
+            handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
+        game.switchToNextScene();
     } else {
+        // Set player velocity
         player->setSpeed(inputSpeed);
 
-        auto newRotation = player->getRotation() + inputRotation * delta * 50;
+        // Set player rotation (capped to 82°)
+        const auto newRotation = player->getRotation() + inputRotation * delta * 50;
         auto newPitch = newRotation.getY();
-        auto playerMaxPitch = 82;
 
-        if (newPitch > playerMaxPitch && newPitch < 360 - playerMaxPitch) {
+        if (newPitch > PLAYER_MAX_PITCH && newPitch < 360 - PLAYER_MAX_PITCH) {
             if (newPitch <= 180) {
-                newPitch = playerMaxPitch;
+                newPitch = PLAYER_MAX_PITCH;
             } else {
-                newPitch = 360 - playerMaxPitch;
+                newPitch = 360 - PLAYER_MAX_PITCH;
             }
         }
 
         auto &camera = getCamera();
         camera.setRotation(Util::Math::Vector3<float>(newRotation.getX(), newPitch, newRotation.getZ()));
 
-        auto translation = inputTranslation + camera.getFrontVector() * player->getSpeed();
+        // Calculate new camera/player position according to player position and speed
+        const auto translation = inputTranslation + camera.getFrontVector() * player->getSpeed();
         camera.translate(translation * delta);
 
         player->setPosition(camera.getPosition());
@@ -107,16 +128,19 @@ void BattleSpaceGame::update(float delta) {
         // Spawn enemies
         if (enemies.isEmpty()) {
             difficulty++;
-            float minEnemies = (difficulty / 3.0);
-            float enemyCount =  minEnemies + random.getRandomNumber() * (difficulty - minEnemies);
+            const auto minEnemies = difficulty / 3;
+            const auto enemyCount = random.getRandomNumber(minEnemies, difficulty - minEnemies);
 
             for (uint32_t i = 0; i < enemyCount; i++) {
-                auto x = (random.getRandomNumber() * (ENEMY_SPAWN_RANGE * 2)) - ENEMY_SPAWN_RANGE / 2.0;
-                auto y = (random.getRandomNumber() * (ENEMY_SPAWN_RANGE * 2)) - ENEMY_SPAWN_RANGE / 2.0;
-                auto z = (random.getRandomNumber() * (ENEMY_SPAWN_RANGE * 2)) - ENEMY_SPAWN_RANGE / 2.0;
-                auto type = random.getRandomNumber() * 5;
+                const auto x = random.getRandomNumber<float>() * (ENEMY_SPAWN_RANGE * 2) - ENEMY_SPAWN_RANGE / 2;
+                const auto y = random.getRandomNumber<float>() * (ENEMY_SPAWN_RANGE * 2) - ENEMY_SPAWN_RANGE / 2;
+                const auto z = random.getRandomNumber<float>() * (ENEMY_SPAWN_RANGE * 2) - ENEMY_SPAWN_RANGE / 2;
+                const auto strategy = static_cast<Enemy::Strategy>(random.getRandomNumber(0, 4));
 
-                auto *enemy = new Enemy(*player, enemies, Util::Math::Vector3<float>(x, y / 2, z), Util::Math::Vector3<float>(0, 0, 0), 1, static_cast<Enemy::Type>(type));
+                auto *enemy = new Enemy(*player, enemies, strategy,
+                    Util::Math::Vector3<float>(x, y / 2, z),
+                    Util::Math::Vector3<float>(0, 0, 0), 1);
+
                 enemies.add(enemy);
                 addEntity(enemy);
             }
@@ -155,25 +179,23 @@ void BattleSpaceGame::keyPressed(const Util::Io::KeyEvent &key) {
         break;
         case Util::Io::KeyEvent::Q:
             inputSpeed -= 0.1;
-            if (inputSpeed < -1) inputSpeed = -1;
+            if (inputSpeed < -1) {
+                inputSpeed = -1;
+            }
             break;
         case Util::Io::KeyEvent::E:
             inputSpeed += 0.1;
-            if (inputSpeed > 1) inputSpeed = 1;
+            if (inputSpeed > 1) {
+                inputSpeed = 1;
+            }
             break;
         case Util::Io::KeyEvent::SPACE:
             if (player->mayFireMissile()) {
                 const auto &camera = getCamera();
-                addEntity(new Missile(player->getPosition() + camera.getFrontVector() * 2, camera.getFrontVector()));
+                addEntity(new Missile(player->getPosition() + camera.getFrontVector() * 2,
+                    camera.getFrontVector()));
             }
             break;
-
-        case Util::Io::KeyEvent::ENTER: {
-            const auto &camera = getCamera();
-            auto *enemy = new Enemy(*player, enemies, camera.getPosition() + camera.getFrontVector() * 10, Util::Math::Vector3<float>(0, 0, 0), 1, Enemy::Type::STATIONARY);
-            enemies.add(enemy);
-            addEntity(enemy);
-        }
         default:
             break;
     }

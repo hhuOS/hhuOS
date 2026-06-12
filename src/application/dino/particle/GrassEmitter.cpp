@@ -43,7 +43,7 @@ void GrassEmitter::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEv
 void GrassEmitter::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}
 
 void GrassEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
-    auto angle = random.getRandomNumber() * (Util::Math::PI_FLOAT / 4) + (Util::Math::PI_FLOAT / 8);
+    auto angle = random.getRandomNumber<float>() * (Util::Math::PI_FLOAT / 4) + (Util::Math::PI_FLOAT / 8);
     auto velocityX = (Util::Math::cosine(angle) / 8) * (parent.getVelocity().getX() > 0 ? -1 : 1);
     auto velocityY = Util::Math::sine(angle);
 

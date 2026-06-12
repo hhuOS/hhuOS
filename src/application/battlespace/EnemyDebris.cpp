@@ -24,51 +24,51 @@
 #include "EnemyDebris.h"
 
 #include "Enemy.h"
-#include "lib/util/base/String.h"
-#include "lib/pulsar/Scene.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/math/Random.h"
 
-EnemyDebris::EnemyDebris(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation, float scale, uint8_t modelId) : Pulsar::D3::Model(Enemy::TAG, Util::String::format("/user/battlespace/debris%u.obj", modelId), position, rotation, Util::Math::Vector3<float>(scale, scale, scale), Util::Graphic::Colors::RED), modelId(modelId) {}
+#include <util/base/String.h>
+#include <util/graphic/Colors.h>
+#include <util/math/Random.h>
+
+EnemyDebris::EnemyDebris(const uint8_t modelId, const Util::Math::Vector3<float> &position,
+    const Util::Math::Vector3<float> &rotation, const float scale) : Model(Enemy::TAG,
+        Util::String::format("/user/battlespace/debris%u.obj", modelId), position, rotation,
+        Util::Math::Vector3<float>(scale, scale, scale), Util::Graphic::Colors::RED),
+    modelId(modelId) {}
 
 void EnemyDebris::initialize() {
     Model::initialize();
 
+    const auto xz = Util::Math::Random().getRandomNumber<float>();
+    const auto y = (xz - 0.5f) * 2.0f;
+
     switch (modelId) {
         case 1: {
-            auto r = Util::Math::Random().getRandomNumber();
-            auto r2 = (r - 0.5) * 2.0;
-            translateDirection = Util::Math::Vector3<float>(-0.05 - 0.1 * r, 0.05 * r2, 0.05 + 0.05 * r);
+            translateDirection = Util::Math::Vector3<float>(-0.05f - 0.1f * xz, 0.05f * y, 0.05f + 0.05f * xz);
             break;
         }
         case 2: {
-            auto r = Util::Math::Random().getRandomNumber();
-            auto r2 = (r - 0.5) * 2.0;
-            translateDirection = Util::Math::Vector3<float>(0.05 + 0.1 * r, 0.05 * r2, 0.05 + 0.05 * r);
+            translateDirection = Util::Math::Vector3<float>(0.05f + 0.1f * xz, 0.05f * y, 0.05f + 0.05f * xz);
             break;
         }
         case 3: {
-            auto r = Util::Math::Random().getRandomNumber();
-            auto r2 = (r - 0.5) * 2.0;
-            translateDirection = Util::Math::Vector3<float>(-0.05 - 0.1 * r, 0.05 * r2, 0.05 + 0.05 * r);
+            translateDirection = Util::Math::Vector3<float>(-0.05f - 0.1f * xz, 0.05f * y, 0.05f + 0.05f * xz);
             break;
         }
         default:
             break;
     }
 
-    auto r = Util::Math::Random().getRandomNumber() * 35;;
-    rotationDirection = Util::Math::Vector3<float>(r, r, r);
+    const auto rotation = Util::Math::Random().getRandomNumber<float>() * 35;
+    rotationDirection = Util::Math::Vector3<float>(rotation, rotation, rotation);
 }
 
-void EnemyDebris::onUpdate(float delta) {
-    lifetime += delta;
-    if (lifetime > 2) {
+void EnemyDebris::onUpdate(const float delta) {
+    lifetime -= delta;
+    if (lifetime <= 0) {
         removeFromScene();
+        return;
     }
 
     translate(translateDirection);
     rotate(rotationDirection);
 }
-
-void EnemyDebris::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {}

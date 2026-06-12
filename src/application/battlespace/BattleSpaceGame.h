@@ -21,48 +21,41 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#ifndef HHUOS_BATTLESPACEGAME_H
-#define HHUOS_BATTLESPACEGAME_H
+#ifndef HHUOS_APPLICATION_BATTLESPACE_BATTLESPACEGAME_H
+#define HHUOS_APPLICATION_BATTLESPACE_BATTLESPACEGAME_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/pulsar/3d/Scene.h"
-#include "lib/util/math/Random.h"
 #include "Player.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/util/math/Vector3.h"
+
+#include <pulsar/3d/Scene.h>
+#include <util/math/Random.h>
+#include <util/collection/ArrayList.h>
+#include <util/math/Vector3.h>
 
 class Enemy;
 
+/// The main scene of battle space.
+/// It processes user input and controls the player object accordingly.
+/// On initialization, it creates all game objects (player, enemies, astronomicals).
 class BattleSpaceGame : public Pulsar::D3::Scene {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new battle space game instance.
+    /// No entities are created yet. This is done by `initialize()`
     BattleSpaceGame() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    BattleSpaceGame(const BattleSpaceGame &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    BattleSpaceGame &operator=(const BattleSpaceGame &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~BattleSpaceGame() override = default;
-
+    /// Create the player and astronomical objects and add them to the scene.
     void initialize() override;
 
+    /// Update the player position and speed according to the given time delta and the last user input.
+    /// If there are currently no enemies in the scene, new enemy ships are spawned.
     void update(float delta) override;
 
+    /// Handle key presses (e.g., by manipulating the player's direction when arrow keys are pressed).
     void keyPressed(const Util::Io::KeyEvent &key) override;
 
+    /// Handle key releases.
     void keyReleased(const Util::Io::KeyEvent &key) override;
 
 private:
@@ -75,9 +68,10 @@ private:
     Util::Math::Vector3<float> inputRotation = Util::Math::Vector3<float>(0, 0, 0);
     Util::Math::Vector3<float> inputTranslation = Util::Math::Vector3<float>(0, 0, 0);
     float inputSpeed = 1.0;
-    uint16_t difficulty = 0;
+    size_t difficulty = 0;
 
-    static const constexpr float ENEMY_SPAWN_RANGE = 10.0;
+    static constexpr float ENEMY_SPAWN_RANGE = 10.0;
+    static constexpr size_t PLAYER_MAX_PITCH = 82;
 };
 
 #endif

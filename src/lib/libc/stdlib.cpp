@@ -103,7 +103,7 @@ char* getenv(const char*) {
 Util::Math::Random rng;
 
 int rand() {
-	return static_cast<int>(rng.getRandomNumber() * RAND_MAX);
+	return static_cast<int>(rng.getRandomNumber<double>() * RAND_MAX);
 }
 
 void srand(const unsigned int seed) {

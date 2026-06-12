@@ -23,16 +23,14 @@
 
 #include "Astronomical.h"
 
-namespace Util {
-namespace Graphic {
-class Color;
-}  // namespace Graphic
-}  // namespace Util
+Astronomical::Astronomical(const Util::String &modelName, const Util::Graphic::Color &color,
+    const Util::Math::Vector3<float> &position, const float scale,
+    const Util::Math::Vector3<float> &rotationVector) : Model(TAG,
+        Util::String::format("/user/battlespace/%s.obj", static_cast<const char*>(modelName)),
+        position, Util::Math::Vector3<float>(0, 0, 0),
+        Util::Math::Vector3<float>(scale, scale, scale), color),
+    rotationVector(rotationVector) {}
 
-Astronomical::Astronomical(const Util::String &modelName, const Util::Math::Vector3<float> &position, float scale, const Util::Math::Vector3<float> &rotationVector, const Util::Graphic::Color &color) : Pulsar::D3::Model(TAG, Util::String::format("/user/battlespace/%s.obj", static_cast<const char*>(modelName)), position, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(scale, scale, scale), color), rotationVector(rotationVector) {}
-
-void Astronomical::onUpdate(float delta) {
+void Astronomical::onUpdate(const float delta) {
     rotate(rotationVector * delta);
 }
-
-void Astronomical::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {}

@@ -39,7 +39,7 @@ class Player;
 class Enemy : public Pulsar::D3::Entity {
 
 public:
-    enum Type {
+    enum Strategy {
         CHASING = 0,
         ONLY_SHOOTING = 1,
         BOSS = 2
@@ -69,7 +69,7 @@ public:
 
     void draw(Pulsar::Graphics &graphics) const override;
 
-    void setType(Type type);
+    void setType(Strategy type);
 
     void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
@@ -98,7 +98,7 @@ public:
 
 private:
 
-    Type type = CHASING;
+    Strategy strategy = CHASING;
     bool active = false;
     float damage = 1;
 

@@ -21,62 +21,47 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#ifndef HHUOS_MISSILE_H
-#define HHUOS_MISSILE_H
+#ifndef HHUOS_APPLICATION_BATTLESPACE_MISSILE_H
+#define HHUOS_APPLICATION_BATTLESPACE_MISSILE_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/pulsar/3d/Model.h"
+#include <pulsar/3d/Model.h>
 
 class Player;
-namespace Util {
-namespace Math {
-template <typename T> class Vector3;
-}  // namespace Math
-}  // namespace Util
 
+/// A missile that can either be shot by the player, or by an enemy ship.
+/// It causes damage on collision with either of the two.
+/// If it collides with another missile, both missiles are destroyed.
+/// If the player manages to destroy an enemy missile with one of its own, they gain points.
 class Missile : public Pulsar::D3::Model {
 
 public:
-    /**
-     * Constructor.
-     */
-    Missile(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &direction, Player &player);
+    /// Create a new enemy missile facing the given direction.
+    /// The player reference is needed to grant points if the missile is destroyed.
+    Missile(Player &player, const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &direction);
 
-    /**
-     * Constructor.
-     */
+    /// Create a new player missile facing the given direction.
     Missile(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &direction);
 
-    /**
-     * Copy Constructor.
-     */
-    Missile(const Missile &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Missile &operator=(const Missile &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Missile() override = default;
-
+    /// Update the missile's position according to its direction and the given delta time.
     void onUpdate(float delta) override;
 
+    /// Destroy the missile on collision with another object.
+    /// If it was shot by an enemy ship the player gains points.
     void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
-    static const constexpr uint32_t TAG = 2;
-
-    static const constexpr float START_SPEED = 0.04;
-    static const constexpr float FULL_SPEED = 0.2;
-    static const constexpr float START_SPEED_TIME = 0.5;
+    /// Unique tag to distinguish missiles from other object types in collisions.
+    static constexpr size_t TAG = 2;
 
 private:
 
     Player *player = nullptr;
     float lifetime = 0;
+
+    static constexpr float START_SPEED = 0.04;
+    static constexpr float FULL_SPEED = 0.2;
+    static constexpr float START_SPEED_TIME = 0.5;
 };
 
 #endif

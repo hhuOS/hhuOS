@@ -72,7 +72,7 @@ bool BugDefender::initializeBackground(Pulsar::Graphics &graphics) {
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
         for (int32_t y = -tilesPerColumn; y < tilesPerColumn; y++) {
-            backgroundSprites[static_cast<uint32_t>(random.getRandomNumber() * BACKGROUND_TILE_COUNT)].draw(graphics, Util::Math::Vector2<float>(x * BACKGROUND_TILE_WIDTH, y * BACKGROUND_TILE_HEIGHT));
+            backgroundSprites[static_cast<uint32_t>(random.getRandomNumber<float>() * BACKGROUND_TILE_COUNT)].draw(graphics, Util::Math::Vector2<float>(x * BACKGROUND_TILE_WIDTH, y * BACKGROUND_TILE_HEIGHT));
         }
     }
 
@@ -84,7 +84,7 @@ bool BugDefender::initializeBackground(Pulsar::Graphics &graphics) {
     }
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
-        planetSprites[static_cast<uint32_t>(random.getRandomNumber() * PLANET_TILE_COUNT)].draw(graphics, Util::Math::Vector2<float>(x * PLANET_TILE_WIDTH, -1));
+        planetSprites[static_cast<uint32_t>(random.getRandomNumber<float>() * PLANET_TILE_COUNT)].draw(graphics, Util::Math::Vector2<float>(x * PLANET_TILE_WIDTH, -1));
     }
 
     return true;

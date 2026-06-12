@@ -31,7 +31,7 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/base/String.h"
 
-Missile::Missile(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &direction, Player &player) :
+Missile::Missile(Player &player, const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &direction) :
     Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(0.2, 0.2, 0.2), Util::Graphic::Colors::RED), player(&player) {
     setFrontVector(direction);
 }

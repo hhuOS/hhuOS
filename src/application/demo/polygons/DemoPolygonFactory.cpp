@@ -19,10 +19,10 @@ const Util::Array<const Util::Array<Util::Math::Vector2<float>>*> DemoPolygonFac
 
 DemoPolygon* DemoPolygonFactory::createPolygon() {
     const auto shape = random.getRandomNumber(0, shapes.length() - 1);
-    const auto initialScaleFactor = random.getRandomNumber() + 0.1;
+    const auto initialScaleFactor = random.getRandomNumber<float>() + 0.1;
     const auto rotationSpeed = static_cast<int32_t>(random.getRandomNumber(0, 360)) - 180;
-    const auto scaleSpeed = random.getRandomNumber();
-    const auto position = Util::Math::Vector2<float>(random.getRandomNumber() * 2 - 1.0, random.getRandomNumber() * 2 - 1.0);
+    const auto scaleSpeed = random.getRandomNumber<float>();
+    const auto position = Util::Math::Vector2<float>(random.getRandomNumber<float>() * 2 - 1.0, random.getRandomNumber<float>() * 2 - 1.0);
     const auto color = Util::Graphic::Color(random.getRandomNumber(0, 255), random.getRandomNumber(0, 255), random.getRandomNumber(0, 255));
 
     auto *polygon = new DemoPolygon(*shapes[shape], position, color, initialScaleFactor, scaleSpeed, rotationSpeed);

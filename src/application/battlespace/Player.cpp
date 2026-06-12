@@ -23,28 +23,35 @@
 
 #include "Player.h"
 
-#include "lib/pulsar/3d/Scene.h"
-#include "lib/pulsar/3d/event/CollisionEvent.h"
-#include "lib/util/math/Math.h"
-#include "Missile.h"
 #include "Astronomical.h"
-#include "application/battlespace/Enemy.h"
-#include "lib/util/base/String.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/pulsar/3d/collider/SphereCollider.h"
-#include "lib/pulsar/Graphics.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/math/Vector2.h"
-#include "lib/pulsar/Scene.h"
-#include "lib/pulsar/Camera.h"
+#include "Enemy.h"
+#include "Missile.h"
 
-Player::Player(const Util::ArrayList<Enemy *> &enemies) : Pulsar::D3::Entity(TAG, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(0, 0, 0), Pulsar::D3::SphereCollider(Util::Math::Vector3<float>(0, 0, 0), 0.8)), enemies(enemies) {}
+#include <pulsar/3d/Scene.h>
+#include <pulsar/3d/event/CollisionEvent.h>
+#include <util/math/Math.h>
+#include <util/base/String.h>
+#include <util/collection/ArrayList.h>
+#include <pulsar/3d/collider/SphereCollider.h>
+#include <pulsar/Graphics.h>
+#include <util/graphic/Colors.h>
+#include <util/math/Vector2.h>
+#include <pulsar/Scene.h>
+#include <pulsar/Camera.h>
 
-void Player::initialize() {}
+Player::Player(const Util::ArrayList<Enemy*> &enemies) : Entity(TAG, Util::Math::Vector3<float>(0, 0, 0),
+    Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(0, 0, 0),
+        Pulsar::D3::SphereCollider(Util::Math::Vector3<float>(0, 0, 0), 0.8)),
+    enemies(enemies) {}
 
-void Player::onUpdate(float delta) {
-    if (invulnerabilityTimer > 0) invulnerabilityTimer -= delta;
-    if (missileTimer > 0) missileTimer -= delta;
+void Player::onUpdate(const float delta) {
+    if (invulnerabilityTimer > 0) {
+        invulnerabilityTimer -= delta;
+    }
+    
+    if (missileTimer > 0) {
+        missileTimer -= delta;
+    }
 }
 
 void Player::draw(Pulsar::Graphics &graphics) const {
@@ -53,8 +60,9 @@ void Player::draw(Pulsar::Graphics &graphics) const {
     graphics.setColor(Util::Graphic::Colors::GREEN);
 
     // Draw reticle
-    auto raytraceDirection = getScene().getCamera().getFrontVector();
-    auto *aimTarget = scene.findEntityUsingRaytrace(getPosition() + raytraceDirection, raytraceDirection, 20, 0.1);
+    const auto raytraceDirection = getScene().getCamera().getFrontVector();
+    const auto *aimTarget = scene.findEntityUsingRaytrace(
+        getPosition() + raytraceDirection, raytraceDirection, 20, 0.1);
 
     if (aimTarget != nullptr) {
         graphics.setColor(Util::Graphic::Colors::RED);
@@ -68,50 +76,78 @@ void Player::draw(Pulsar::Graphics &graphics) const {
     graphics.setColor(invulnerabilityTimer > 0 ? Util::Graphic::Colors::RED : Util::Graphic::Colors::GREEN);
 
     // Draw player stats
-    graphics.drawStringDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05, 0.95), Util::String("Health  : "));
-    graphics.drawStringDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05, 0.9), Util::String::format("Score   : %d", score));
-    graphics.drawStringDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05, 0.85), Util::String::format("Enemies : %d", enemies.size()));
+    graphics.drawStringDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05f, 0.95f),
+        Util::String("Health  : "));
+    graphics.drawStringDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05f, 0.9f),
+        Util::String::format("Score   : %d", score));
+    graphics.drawStringDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05f, 0.85f),
+        Util::String::format("Enemies : %d", enemies.size()));
 
-    const auto relativeCharWidth = static_cast<float>(Pulsar::Graphics::FONT_SIZE) / graphics.getTransformation();
-    const auto healthBarStart = -dimensions.getX() + 0.05 + 10 * relativeCharWidth;
-    graphics.drawRectangleDirect(Util::Math::Vector2<float>(healthBarStart, 0.95), Util::Math::Vector2<float>(0.3, -0.025));
-    graphics.fillRectangleDirect(Util::Math::Vector2<float>(healthBarStart, 0.95), Util::Math::Vector2<float>(0.3 * (getHealth() / 100.0), -0.025));
+    const auto relativeCharWidth = Pulsar::Graphics::FONT_SIZE / static_cast<float>(graphics.getTransformation());
+    const auto healthBarStart = -dimensions.getX() + 0.05f + 10 * relativeCharWidth;
+    graphics.drawRectangleDirect(Util::Math::Vector2<float>(healthBarStart, 0.95),
+        Util::Math::Vector2<float>(0.3, -0.025));
+    graphics.fillRectangleDirect(Util::Math::Vector2<float>(healthBarStart, 0.95),
+        Util::Math::Vector2<float>(0.3f * (static_cast<float>(getHealth()) / 100.0f), -0.025f));
 
     // Draw speedometer
-    graphics.fillRectangleDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.0625, 0), Util::Math::Vector2<float>(0.025, speed * 0.95));
+    graphics.fillRectangleDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.0625f, 0),
+        Util::Math::Vector2<float>(0.025f, speed * 0.95f));
 
-    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075, 0.95), Util::Math::Vector2<float>(dimensions.getX() - 0.025, 0.95));
-    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075, 0.5), Util::Math::Vector2<float>(dimensions.getX() - 0.025, 0.5));
-    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075, 0), Util::Math::Vector2<float>(dimensions.getX() - 0.025, 0));
-    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075, -0.5), Util::Math::Vector2<float>(dimensions.getX() - 0.025, -0.5));
-    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075, -0.95), Util::Math::Vector2<float>(dimensions.getX() - 0.025, -0.95));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075f, 0.95f),
+        Util::Math::Vector2<float>(dimensions.getX() - 0.025f, 0.95f));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075f, 0.5f),
+        Util::Math::Vector2<float>(dimensions.getX() - 0.025f, 0.5f));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075f, 0.0f),
+        Util::Math::Vector2<float>(dimensions.getX() - 0.025f, 0.0f));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075f, -0.5f),
+        Util::Math::Vector2<float>(dimensions.getX() - 0.025f, -0.5f));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075f, -0.95f),
+        Util::Math::Vector2<float>(dimensions.getX() - 0.025f, -0.95f));
 
     // Draw radar
-    auto headerSting = Util::String::format("P: %d  Y: %d", static_cast<int32_t>(getRotation().getY()), static_cast<int32_t>(getRotation().getZ()));
-    graphics.drawStringDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05, -0.96), headerSting);
+    const auto headerSting = Util::String::format("P: %d  Y: %d",
+        static_cast<int32_t>(getRotation().getY()), static_cast<int32_t>(getRotation().getZ()));
+    graphics.drawStringDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05f, -0.96f), headerSting);
 
-    graphics.drawSquareDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05, -0.95), 0.3);
+    graphics.drawSquareDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05f, -0.95f), 0.3f);
 
-    graphics.fillSquareDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2, -0.8), 0.003);
+    graphics.fillSquareDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2f, -0.8f), 0.003f);
     graphics.setColor(Util::Graphic::Colors::RED);
 
-    for (uint32_t i = 0; i < enemies.size(); i++) {
-        auto enemyTargetVector = enemies.get(i)->getPosition() - getPosition();
-        auto relativeOnPlane = Util::Math::Vector3<float>(enemyTargetVector.getX(), 0, -enemyTargetVector.getZ()).rotate(Util::Math::Vector3<float>(0, -getRotation().getZ(), 0));
-        auto drawX = relativeOnPlane.getX() / 20 * 0.15;
-        auto drawY = relativeOnPlane.getZ() / 20 * 0.15;
+    for (const auto *enemy : enemies) {
+        const auto enemyTargetVector = enemy->getPosition() - getPosition();
+        const auto relativeOnPlane =
+            Util::Math::Vector3<float>(enemyTargetVector.getX(), 0, -enemyTargetVector.getZ())
+            .rotate(Util::Math::Vector3<float>(0, -getRotation().getZ(), 0));
+        const auto drawX = relativeOnPlane.getX() / 20 * 0.15f;
+        const auto drawY = relativeOnPlane.getZ() / 20 * 0.15f;
 
         if (Util::Math::absolute(drawX) < 0.13 && Util::Math::absolute(drawY) < 0.13) {
-            auto cutoffWhenOnSameHeight = 3;
+            constexpr auto cutoffWhenOnSameHeight = 3.0f;
             if (enemyTargetVector.getY() > cutoffWhenOnSameHeight) {
-                graphics.drawLineDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX, -0.8 + drawY));
-                graphics.drawLineDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX, -0.8 + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2<float>(
+                    -dimensions.getX() + 0.2f + drawX + 0.02f, -0.8f + drawY - 0.02f),
+                    Util::Math::Vector2<float>(-dimensions.getX() + 0.2f + drawX, -0.8f + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2<float>(
+                    -dimensions.getX() + 0.2f + drawX - 0.02f, -0.8f + drawY - 0.02f),
+                    Util::Math::Vector2<float>(-dimensions.getX() + 0.2f + drawX, -0.8f + drawY));
             } else if (enemyTargetVector.getY() < -cutoffWhenOnSameHeight) {
-                graphics.drawLineDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX, -0.8 + drawY));
-                graphics.drawLineDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX, -0.8 + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2<float>(
+                    -dimensions.getX() + 0.2f + drawX - 0.02f, -0.8f + drawY - 0.02f),
+                    Util::Math::Vector2<float>(-dimensions.getX() + 0.2f + drawX, -0.8f + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2<float>(
+                    -dimensions.getX() + 0.2f + drawX + 0.02f, -0.8f + drawY - 0.02f),
+                    Util::Math::Vector2<float>(-dimensions.getX() + 0.2f + drawX, -0.8f + drawY));
             } else {
-                graphics.drawLineDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX + 0.02, -0.8 + drawY + 0.02));
-                graphics.drawLineDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX - 0.02, -0.8 + drawY + 0.02));
+                graphics.drawLineDirect(Util::Math::Vector2<float>(
+                    -dimensions.getX() + 0.2f + drawX - 0.02f, -0.8f + drawY - 0.02f),
+                    Util::Math::Vector2<float>(-dimensions.getX() + 0.2f + drawX + 0.02f,
+                        -0.8f + drawY + 0.02f));
+                graphics.drawLineDirect(Util::Math::Vector2<float>(
+                    -dimensions.getX() + 0.2f + drawX + 0.02f, -0.8f + drawY - 0.02f),
+                    Util::Math::Vector2<float>(-dimensions.getX() + 0.2f + drawX - 0.02f,
+                        -0.8f + drawY + 0.02f));
             }
         }
     }
@@ -133,44 +169,21 @@ void Player::onCollisionEvent(const Pulsar::D3::CollisionEvent &event) {
 
 bool Player::mayFireMissile() {
     if (missileTimer <= 0) {
-        missileTimer = 1;
+        missileTimer = MISSILE_COOLDOWN_TIME;
         return true;
     }
 
     return false;
 }
 
-int16_t Player::getHealth() const {
-    return health;
-}
-
-void Player::takeDamage(uint8_t damage) {
+void Player::takeDamage(const uint8_t damage) {
     if (invulnerabilityTimer <= 0) {
-        invulnerabilityTimer = 0.5;
-        health -= damage;
+        invulnerabilityTimer = INVULNERABILITY_TIME;
+        
+        if (damage > health) {
+            health = 0;
+        } else {
+            health -= damage;
+        }
     }
-}
-
-void Player::addScore(uint32_t points) {
-    score += points;
-}
-
-uint32_t Player::getScore() const {
-    return score;
-}
-
-Util::Math::Vector3<float> Player::getCurrentMovementDirection() {
-    return currentMovementDirection;
-}
-
-void Player::setMovementDirection(Util::Math::Vector3<float> direction) {
-    currentMovementDirection = direction;
-}
-
-void Player::setSpeed(float speed) {
-    Player::speed = speed;
-}
-
-float Player::getSpeed() const {
-    return speed;
 }

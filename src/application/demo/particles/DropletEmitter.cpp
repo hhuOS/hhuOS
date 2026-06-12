@@ -46,7 +46,7 @@ void DropletEmitter::onTranslationEvent([[maybe_unused]] Pulsar::D2::Translation
 void DropletEmitter::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}
 
 void DropletEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
-    auto angle = random.getRandomNumber() * Util::Math::PI_FLOAT;
+    auto angle = random.getRandomNumber<float>() * Util::Math::PI_FLOAT;
 
     particle.setSprite(Pulsar::D2::Sprite(Util::Graphic::Color(44, 197, 246), 0.005, 0.005));
     particle.setPosition(getPosition());

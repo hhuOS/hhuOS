@@ -23,42 +23,57 @@
 
 #include "Enemy.h"
 
+#include "EnemyDebris.h"
 #include "Missile.h"
 #include "Player.h"
-#include "lib/pulsar/3d/event/CollisionEvent.h"
-#include "lib/pulsar/Scene.h"
-#include "lib/util/math/Math.h"
-#include "EnemyDebris.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/pulsar/3d/Entity.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/math/Vector3.h"
-#include "lib/util/base/String.h"
+
+#include <util/math/Math.h>
+#include <util/graphic/Colors.h>
+#include <util/math/Vector3.h>
+#include <util/base/String.h>
+#include <util/collection/ArrayList.h>
+#include <pulsar/Scene.h>
+#include <pulsar/3d/Entity.h>
+#include <pulsar/3d/event/CollisionEvent.h>
 
 const Util::Math::Vector3<float> Enemy::MAX_ROTATION_DELTA = Util::Math::Vector3<float>(1, 1, 0);
 
-Enemy::Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation, float scale, Enemy::Type type) : Pulsar::D3::Model(2, "/user/battlespace/enemy.obj", position, rotation, Util::Math::Vector3<float>(scale, scale, scale), Util::Graphic::Colors::RED), player(player), enemies(enemies), goalScale(scale), type(type) {}
+Enemy::Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, Strategy strategy,
+    const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation, const float scale) :
+    Model(TAG, "/user/battlespace/enemy.obj", position, rotation,
+        Util::Math::Vector3<float>(scale, scale, scale), Util::Graphic::Colors::RED),
+    player(player), enemies(enemies), targetScale(scale), strategy(strategy) {}
 
 void Enemy::initialize() {
     Model::initialize();
 
-    setScale(Util::Math::Vector3<float>(goalScale * 0.1, goalScale * 0.1, goalScale * 0.1));
+    // After spawning, a short animation is played
+    // which lets the enemy ship grow from 10% of its size to its final size.
+    setScale(Util::Math::Vector3<float>(targetScale * 0.1f, targetScale * 0.1f, targetScale * 0.1f));
 }
 
-void Enemy::onUpdate(float delta) {
-    if (getScale().length() < goalScale) {
+void Enemy::onUpdate(const float delta) {
+    if (getScale().length() < targetScale) {
+        // The enemy ship has just spawned and the scaling animation is still in progress.
+        // Increase the scale until its final scale is reached.
         setScale(getScale() * (1 + (delta * 5)));
     }
 
+    // After being hit, the enemy is invulnerable for a short amount of time.
+    // In this case, this time span is decrease until it reaches zero and the enemy ship becomes vulnerable again.
     if (invulnerabilityTimer > 0) {
         invulnerabilityTimer -= delta;
     }
 
+    // After the enemy has shot a missile, a cooldown time starts in which it cannot shoot further missiles.
     if (missileTimer > 0) {
         missileTimer -= delta;
     }
 
-    auto distance = getPosition().distance(player.getPosition());
+    const auto distance = getPosition().distance(player.getPosition());
+    const auto goalRotation = findLookAt(getPosition(), player.getPosition()) % 360;
+    const auto relativeRotation = goalRotation - getRotation();
+
     /*auto goalTranslation = player.getPosition();
 
     if (distance > 2) {
@@ -73,9 +88,6 @@ void Enemy::onUpdate(float delta) {
 
         goalTranslation = player.getPosition() + player.getCurrentMovementDirection() * (time / delta);
     }*/
-
-    auto goalRotation = findLookAt(getPosition(), player.getPosition()) % 360;
-    auto relativeRotation = goalRotation - getRotation();
 
     if (relativeRotation.length() > 0.1) {
         // Make sure to rotate in the right direction (whichever one is closer)
@@ -106,7 +118,7 @@ void Enemy::onUpdate(float delta) {
         rotate(Util::Math::Vector3<float>(relativeX, relativeY, 0));
     }
 
-    switch (type) {
+    switch (strategy) {
         case ORBIT_PLAYER_CLOCKWISE:
             translateLocal(Util::Math::Vector3<float>(0.03, 0, 0));
             break;
@@ -117,79 +129,93 @@ void Enemy::onUpdate(float delta) {
             translateLocal(Util::Math::Vector3<float>(0, 0, 0.015));
             break;
         case KEEP_DISTANCE:
-            translateLocal(distance > 3 ? Util::Math::Vector3<float>(0, 0, -0.015) : Util::Math::Vector3<float>(0, 0, 0.015));
+            translateLocal(distance > 3 ? Util::Math::Vector3<float>(0, 0, -0.015) :
+                Util::Math::Vector3<float>(0, 0, 0.015));
             break;
         case STATIONARY:
         default:
             break;
     }
 
+    // Shoot a missile if the cooldown timer is zero and the enemy ship looks roughly in the player's direction.
     if (missileTimer <= 0 && relativeRotation.length() < 2) {
-        missileTimer = 2 + random.getRandomNumber() * 2.5;
-        auto offset = Util::Math::Vector3<float>(0, 0, 1.5).rotate(getRotation());
-        getScene().addEntity(new Missile(getPosition() + offset, (player.getPosition() - getPosition()).normalize(), player));
+        // Offset in front of the enemy ship, where the missile should span
+        const auto offset = Util::Math::Vector3<float>(0, 0, 1.5).rotate(getRotation());
+        // Spawn the missile
+        getScene().addEntity(new Missile(player, getPosition() + offset,
+            (player.getPosition() - getPosition()).normalize()));
+
+        // Set the missile cooldown timer
+        missileTimer = MIN_MISSILE_COOLDOWN_TIME + random.getRandomNumber<float>() * 2.5f;
     }
 }
 
 void Enemy::onCollisionEvent(const Pulsar::D3::CollisionEvent &event) {
     switch (event.getCollidedWidth().getTag()) {
+        case TAG:
         case Missile::TAG:
         case Player::TAG:
-            takeDamage(50);
+            // Loose all health on collision
+            takeDamage(health);
             break;
         default:
             break;
     }
 }
 
-int16_t Enemy::getHealth() const {
-    return health;
-}
-
-void Enemy::takeDamage(uint8_t damage) {
+void Enemy::takeDamage(const uint8_t damage) {
+    // Only take damage if the enemy ship is currently vulnerable
     if (invulnerabilityTimer <= 0) {
-        invulnerabilityTimer = 0.5;
-        health -= damage;
+        invulnerabilityTimer = INVULNERABILITY_TIME;
 
-        if (health <= 0) {
-            player.addScore(1000);
+        if (damage < health) {
+            health -= damage;
+        } else {
+            // The enemy ship is destroyed.
+            // This gains the player some points and remove the enemy from the game.
+            player.addScore(POINTS);
             enemies.remove(this);
 
-            auto offset1 = Util::Math::Vector3<float>(-0.3, 0.03, 0.03).rotate(getRotation());
-            auto offset2 = Util::Math::Vector3<float>(0.3, -0.02, 0.04).rotate(getRotation());
-            auto offset3 = Util::Math::Vector3<float>(-0.01, 0.17, -0.4).rotate(getRotation());
+            // Spawn debris objects that fly away from the enemy ship's last position.
+            // This simulates an explosion.
+            const auto offset1 = Util::Math::Vector3<float>(-0.3, 0.03, 0.03).rotate(getRotation());
+            const auto offset2 = Util::Math::Vector3<float>(0.3, -0.02, 0.04).rotate(getRotation());
+            const auto offset3 = Util::Math::Vector3<float>(-0.01, 0.17, -0.4).rotate(getRotation());
 
             auto &scene = getScene();
-            scene.addEntity(new EnemyDebris(getPosition() + offset1, getRotation(), 0.3, 1));
-            scene.addEntity(new EnemyDebris(getPosition() + offset2, getRotation(), 0.3, 2));
-            scene.addEntity(new EnemyDebris(getPosition() + offset3, getRotation(), 0.3, 3));
+            scene.addEntity(new EnemyDebris(1, getPosition() + offset1, getRotation(), 0.3));
+            scene.addEntity(new EnemyDebris(2, getPosition() + offset2, getRotation(), 0.3));
+            scene.addEntity(new EnemyDebris(3, getPosition() + offset3, getRotation(), 0.3));
+
             removeFromScene();
         }
     }
 }
 
-Util::Math::Vector3<float> Enemy::findLookAt(const Util::Math::Vector3<float> &from, const Util::Math::Vector3<float> &to) {
-    Util::Math::Vector3<float> v = to - from;
-    Util::Math::Vector3<float> norm = v.normalize();
+Util::Math::Vector3<float> Enemy::findLookAt(const Util::Math::Vector3<float> &from,
+    const Util::Math::Vector3<float> &to)
+{
+    const Util::Math::Vector3<float> v = to - from;
+    const Util::Math::Vector3<float> norm = v.normalize();
 
-    auto x = norm.getX();
-    auto y = norm.getY();
-    auto z = norm.getZ();
+    const auto x = norm.getX();
+    const auto y = norm.getY();
+    const auto z = norm.getZ();
 
     auto pitch = Util::Math::arcsine(y);
     auto a = x / Util::Math::cosine(pitch);
 
-    // fix rounding errors (|a| shouldn't actually ever exceed 1)
+    // Fix rounding errors (|a| shouldn't actually ever exceed 1)
     if (a > 1) a = 1;
     if (a < -1) a = -1;
 
     auto yaw = Util::Math::arcsine(a);
-    auto c = 180 / Util::Math::PI_FLOAT;
+    constexpr auto c = 180 / Util::Math::PI_FLOAT;
 
     yaw *= c;
     pitch *= c;
 
-    // fix mirroring issue when getting vectors behind you
+    // Fix mirroring issue when getting vectors behind you
     if (z < 0) yaw = -180 - yaw;
 
     return { -pitch, yaw, 0 };

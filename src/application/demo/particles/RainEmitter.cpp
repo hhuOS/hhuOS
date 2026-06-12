@@ -67,7 +67,7 @@ void RainEmitter::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionE
 
 void RainEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
     particle.setSprite(Pulsar::D2::Sprite(Util::Graphic::Color(44, 197, 246), 0.005, 0.03));
-    particle.setPosition(getPosition() + Util::Math::Vector2<float>(random.getRandomNumber() * 0.5, 0));
+    particle.setPosition(getPosition() + Util::Math::Vector2<float>(random.getRandomNumber<float>() * 0.5, 0));
     particle.setVelocity(Util::Math::Vector2<float>(0, -0.8));
     particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), 0.005, 0.03, Pulsar::D2::RectangleCollider::STATIC));
 

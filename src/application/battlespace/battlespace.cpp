@@ -24,56 +24,51 @@
 #include <stdint.h>
 
 #include "battlespace.h"
+
 #include "BattleSpaceGame.h"
-#include "lib/util/base/System.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/pulsar/Engine.h"
-#include "lib/pulsar/Game.h"
-#include "lib/util/base/String.h"
-#include "lib/util/collection/Array.h"
-#include "pulsar/TextScreen.h"
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Battlespace.\nFly around and shoot enemies.\nTurn using ARROW KEYS or the MOUSE. Fire using SPACEBAR.\nStrafe using WASD. Change speed using Q and E.\n\n"
-                               "Usage: battlespace\n"
-                               "Options:\n"
-                               "  -r, --resolution: Set display resolution\n"
-                               "  -s, --scale: Set display scale factor (Must be <= 1; The application will be rendered at a lower internal resolution and scaled up/centered to fill the screen)\n"
-                               "  -h, --help: Show this help message");
+#include <util/base/System.h>
+#include <util/base/String.h>
+#include <util/base/ArgumentParser.h>
+#include <util/io/stream/PrintStream.h>
+#include <util/io/file/File.h>
+#include <util/graphic/LinearFrameBuffer.h>
+#include <pulsar/TextScreen.h>
+#include <pulsar/Engine.h>
+#include <pulsar/Game.h>
 
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
     argumentParser.addArgument("resolution", false, "r");
     argumentParser.addArgument("scale", false, "s");
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-
-    auto lfbFile = Util::Io::File("/device/lfb");
+    const Util::Io::File lfbFile("/device/lfb");
 
     if (argumentParser.hasArgument("resolution")) {
-        auto split1 = argumentParser.getArgument("resolution").split("x");
-        auto split2 = split1[1].split("@");
-
-        auto resolutionX = Util::String::parseNumber<uint16_t>(split1[0]);
-        auto resolutionY = Util::String::parseNumber<uint16_t>(split2[0]);
-        uint8_t colorDepth = split2.length() > 1 ? Util::String::parseNumber<uint8_t>(split2[1]) : 32;
-
-        lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
+        const auto resolutionString = argumentParser.getArgument("resolution");
+        Util::Graphic::LinearFrameBuffer::setResolution(lfbFile, resolutionString);
     }
 
+    const auto scaleFactor = Util::String::parseFloat<float>(
+        argumentParser.getArgument("scale", "1.0f"));
 
-    auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<double>(argumentParser.getArgument("scale")) : 1.0;
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto engine = Pulsar::Engine(lfb, 60, scaleFactor);
-    Pulsar::Game::getInstance().pushScene(new Pulsar::TextScreen(INTRO_TEXT, handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
+    const Util::Graphic::LinearFrameBuffer lfb(lfbFile);
+    Pulsar::Engine engine(lfb, 60, scaleFactor);
+    
+    Pulsar::Game::getInstance().pushScene(
+        new Pulsar::TextScreen(INTRO_TEXT, handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
+    
     engine.run();
-
     return 0;
 }
 

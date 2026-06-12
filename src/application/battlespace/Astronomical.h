@@ -21,49 +21,35 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#ifndef HHUOS_ASTRONOMICAL_H
-#define HHUOS_ASTRONOMICAL_H
+#ifndef HHUOS_APPLICATION_BATTLESPACE_ASTRONOMICAL_H
+#define HHUOS_APPLICATION_BATTLESPACE_ASTRONOMICAL_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/pulsar/3d/Model.h"
-#include "lib/util/base/String.h"
-#include "lib/util/math/Vector3.h"
+#include <util/base/String.h>
+#include <util/math/Vector3.h>
+#include <pulsar/3d/Model.h>
 
-namespace Util {
-namespace Graphic {
-class Color;
-}  // namespace Graphic
-}  // namespace Util
-
+/// Represents a rotating non-interactive planetoid object.
+/// These objects are always stationary, but rotate around their own axis.
+/// On instantiation, a rotation vector must be given, that determines the rotation direction and speed.
+/// The `onUpdate()` implemenation handles the rotation automatically.
+/// Usually, they are large and placed far away from the player, serving as decorative background space objects.
 class Astronomical : public Pulsar::D3::Model {
 
 public:
-    /**
-     * Constructor.
-     */
-    Astronomical(const Util::String &modelName, const Util::Math::Vector3<float> &position, float scale, const Util::Math::Vector3<float> &rotationVector, const Util::Graphic::Color &color);
+    /// Create a new astronomical object from a 3D model and color.
+    /// The model is loaded from "/user/battlespace/<modelName>.obj"
+    /// Each astronomical has a position, scale and rotation vector that determines its rotation direction and speed.
+    Astronomical(const Util::String &modelName, const Util::Graphic::Color &color,
+        const Util::Math::Vector3<float> &position, float scale, const Util::Math::Vector3<float> &rotationVector);
 
-    /**
-     * Copy Constructor.
-     */
-    Astronomical(const Astronomical &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Astronomical &operator=(const Astronomical &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Astronomical() override = default;
-
+    /// Update the astronomical object.
+    /// This just rotates the object according to the `rotationVector` and given delta time.
     void onUpdate(float delta) override;
 
-    void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
-
-    static const constexpr uint32_t TAG = 1;
+    /// Unique tag to distinguish astronomicals from other object types in collisions.
+    static constexpr size_t TAG = 1;
 
 private:
 

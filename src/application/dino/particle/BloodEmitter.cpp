@@ -44,7 +44,7 @@ void BloodEmitter::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEv
 void BloodEmitter::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}
 
 void BloodEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
-    auto angle = random.getRandomNumber() * Util::Math::PI_FLOAT;
+    auto angle = random.getRandomNumber<float>() * Util::Math::PI_FLOAT;
 
     switch (type) {
         case WATER:

@@ -21,47 +21,39 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#ifndef HHUOS_ENEMYDEBRIS_H
-#define HHUOS_ENEMYDEBRIS_H
+#ifndef HHUOS_APPLICATION_BATTLESPACE_ENEMY_DEBRIS_H
+#define HHUOS_APPLICATION_BATTLESPACE_ENEMY_DEBRIS_H
 
 #include <stdint.h>
 
-#include "lib/pulsar/3d/Model.h"
-#include "lib/util/math/Vector3.h"
+#include <pulsar/3d/Model.h>
+#include <util/math/Vector3.h>
 
+/// A piece of debris that is spawned when an enemy ships is destroyed.
+/// On enemy destruction three of such debris are spawned and fly away in distinct directions, simulating an explosion.
+/// It uses the same tag as enemy ships, so that collisions with them also cause damage to the player and other enemies.
 class EnemyDebris : public Pulsar::D3::Model {
 
 public:
-    /**
-     * Constructor.
-     */
-    EnemyDebris(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation, float scale, uint8_t modelId);
+    /// Create a new debris object with a position, rotation and scale.
+    /// The model id must be a number between 1 and 3 and specifies which 3D model is loaded to render the debris.
+    /// The model is loaded from "/user/battlespace/debris<modelId>.obj"
+    /// The model is also determines the direction in which the object moves.
+    /// Each debris object rotates around itself.
+    /// The rotation vector is made up of random numbers during initialization.
+    EnemyDebris(uint8_t modelId, const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation,
+        float scale);
 
-    /**
-     * Copy Constructor.
-     */
-    EnemyDebris(const EnemyDebris &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    EnemyDebris &operator=(const EnemyDebris &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~EnemyDebris() override = default;
-
+    /// Initialize the debris object, loading the 3D model.
     void initialize() override;
 
+    /// Update the debris object's position and rotation according to delta time.
     void onUpdate(float delta) override;
-
-    void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
 private:
 
-    uint8_t modelId;
-    float lifetime = 0;
+    const uint8_t modelId;
+    float lifetime = 2.0f;
 
     Util::Math::Vector3<float> translateDirection;
     Util::Math::Vector3<float> rotationDirection;

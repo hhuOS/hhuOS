@@ -16,13 +16,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * Battle Space has been implemented during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#ifndef HHUOS_BATTLESPACE_H
-#define HHUOS_BATTLESPACE_H
+#ifndef HHUOS_APPLICATION_BATTLESPACE_H
+#define HHUOS_APPLICATION_BATTLESPACE_H
 
-#include "util/io/key/KeyEvent.h"
+#include <util/io/key/KeyEvent.h>
 
+/// Text to draw on the intro screen
 static constexpr const char *INTRO_TEXT =
     "___  ____ ___ ___ _    ____ ____ ___  ____ ____ ____ \n"
     "|__] |__|  |   |  |    |___ [__  |__] |__| |    |___ \n"
@@ -35,6 +39,7 @@ static constexpr const char *INTRO_TEXT =
     " \n"
     "Press SPACE to start or ESC to exit!\n";
 
+/// Text to draw on the game over screen
 static constexpr const char *GAME_OVER_TEXT =
     "____ ____ _  _ ____    ____ _  _ ____ ____ \n"
     "| __ |__| |\\/| |___    |  | |  | |___ |__/ \n"

@@ -21,81 +21,100 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#ifndef HHUOS_PLAYER_H
-#define HHUOS_PLAYER_H
+#ifndef HHUOS_APPLICATION_BATTLESPACE_PLAYER_H
+#define HHUOS_APPLICATION_BATTLESPACE_PLAYER_H
 
+#include <stddef.h>
 #include <stdint.h>
 
-#include "lib/pulsar/3d/Entity.h"
-#include "lib/util/math/Vector3.h"
+#include <pulsar/3d/Entity.h>
+#include <util/math/Vector3.h>
 
 class Enemy;
 
-namespace Util {
-template <typename T> class ArrayList;
-}  // namespace Util
-
+/// Represents the player.
+/// The camera follows the player's position.
+/// Its speed and direction can be adjusted via key presses.
+/// The player can shoot missiles and gains points if they destroy enemy ships or missiles.
+/// The player's position is updated by the scene, not this class.
 class Player : public Pulsar::D3::Entity {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// Create a new player instance.
+    /// The list of enemies is required to draw the HUD map.
     explicit Player(const Util::ArrayList<Enemy*> &enemies);
 
-    /**
-     * Copy Constructor.
-     */
-    Player(const Player &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Player &operator=(const Player &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Player() override = default;
-
-    void initialize() override;
-
+    /// Update the invulnerability timer and missile cooldown timer with the given delta time.
     void onUpdate(float delta) override;
 
+    /// Draw the HUD.
     void draw(Pulsar::Graphics &graphics) const override;
 
+    /// Handle collisions with other objects.
+    /// The player take damage depending on the object type.
     void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
+    /// Check if the player is currently allowed to shoot a missile.
+    /// After shooting a missile, a cooldown time starts, during which the player may not fire further missiles.
     bool mayFireMissile();
 
-    int16_t getHealth() const;
+    /// Get the current health of the player.
+    uint8_t getHealth() const {
+        return health;
+    }
 
+    /// Decrease the player's health by the given amount of `damage`.
+    /// If the health sinks below zero, the game is lost.
     void takeDamage(uint8_t damage);
 
-    void addScore(uint32_t points);
+    /// Add points to the current score.
+    void addScore(const size_t points) {
+        score += points;
+    }
 
-    uint32_t getScore() const;
+    /// Get the current score that the player has earned.
+    size_t getScore() const {
+        return score;
+    }
 
-    Util::Math::Vector3<float> getCurrentMovementDirection();
+    /// Set the movement direction of the player.
+    void setMovementDirection(const Util::Math::Vector3<float> &direction) {
+        currentMovementDirection = direction;
+    }
 
-    void setMovementDirection(Util::Math::Vector3<float> direction);
+    /// Get the direction in which player is currently moving as a 3D vector.
+    const Util::Math::Vector3<float>& getCurrentMovementDirection() const {
+        return currentMovementDirection;
+    }
 
-    void setSpeed(float speed);
+    /// Set the movement speed of the player.
+    void setSpeed(float speed) {
+        Player::speed = speed;
+    }
 
-    float getSpeed() const;
+    /// Get the current movement speed of the player.
+    float getSpeed() const {
+        return speed;
+    }
 
-    static const constexpr uint32_t TAG = 0;
+    /// Unique tag to distinguish the player from other object types in collisions.
+    static constexpr size_t TAG = 0;
 
 private:
 
     const Util::ArrayList<Enemy*> &enemies;
 
-    int16_t health = 100;
-    uint32_t score = 0;
+    uint8_t health = 100;
+    size_t score = 0;
+
     float speed = 0.0;
+    Util::Math::Vector3<float> currentMovementDirection;
+
     float invulnerabilityTimer = 0;
     float missileTimer = 0;
-    Util::Math::Vector3<float> currentMovementDirection;
+
+    static constexpr float MISSILE_COOLDOWN_TIME = 1.0f;
+    static constexpr float INVULNERABILITY_TIME = 0.5f;
 };
 
 #endif

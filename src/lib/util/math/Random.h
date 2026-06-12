@@ -91,16 +91,17 @@ public:
     /// auto random = Util::Math::Random();
     ///
     /// // Get a random floating point number in the range [0.0, 1.0)
-    /// const auto randomDouble = random.getRandomNumber();
+    /// const auto randomDouble = random.getRandomNumber<double>();
     ///
     /// // Get a random floating point number in the range [0.0, 0.5)
-    /// const auto randomHalf = random.getRandomNumber() * 0.5;
+    /// const auto randomHalf = random.getRandomNumber<double>() * 0.5;
     ///
     /// // Get a random floating point number in the range [2.0, 10.0)
-    /// const auto randomRange = 2.0 + random.getRandomNumber() * (10.0 - 2.0);
+    /// const auto randomRange = 2.0 + random.getRandomNumber<double>() * (10.0 - 2.0);
     /// ```
-    double getRandomNumber() {
-        return nextRandomNumber() / static_cast<double>(modulus);
+    template<typename T>
+    T getRandomNumber() {
+        return nextRandomNumber() / static_cast<T>(modulus);
     }
 
 private:

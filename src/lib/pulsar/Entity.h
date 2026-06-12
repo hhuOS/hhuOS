@@ -65,13 +65,13 @@ public:
     /// All required resources should be loaded here, even if they are not immediately needed,
     /// to avoid loading delays during gameplay. For example, if an entity has multiple animations,
     /// all animation frames should be loaded in this method.
-    virtual void initialize() = 0;
+    virtual void initialize() {}
 
     /// Update the entity. This method is called once per frame with the time delta since the last update.
     /// The entity should update its state based on the elapsed time (e.g. position, animation, behavior, etc.).
     /// Ignoring the delta time can lead to inconsistent behavior with varying frame rates.
     /// The elapsed time is given in seconds.
-    virtual void onUpdate(float delta) = 0;
+    virtual void onUpdate(const float) {}
 
     /// Draw the entity using the given graphics context.
     /// This method is called once per frame after all entities have been updated.

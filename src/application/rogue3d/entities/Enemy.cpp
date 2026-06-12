@@ -60,7 +60,7 @@ void Enemy::draw(Pulsar::Graphics &graphics) const {
         return;
     }
 
-    if (type == BOSS) {
+    if (strategy == BOSS) {
         graphics.setColor(Util::Graphic::Color(153, 0, 0));
         graphics.drawList3D(getPosition() + Util::Math::Vector3<float>(0, 1.5, 0), getScale(), getRotation(), BOSS_LIST_ID);
 
@@ -76,8 +76,8 @@ void Enemy::draw(Pulsar::Graphics &graphics) const {
     }
 }
 
-void Enemy::setType(Type type) {
-    Enemy::type = type;
+void Enemy::setType(Strategy type) {
+    Enemy::strategy = type;
 
     if (type == BOSS) {
         initHealth = BOSS_INIT_HEALTH + 10 * (player.getLevel() - 1);
@@ -102,7 +102,7 @@ void Enemy::onUpdate(float delta) {
 
     setFrontVector(player.getPosition() - getPosition());
 
-    switch (type) {
+    switch (strategy) {
     case CHASING:
         translate(getFrontVector() * delta * 5);
         break;
