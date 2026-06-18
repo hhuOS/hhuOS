@@ -49,7 +49,7 @@ namespace D2 {
 /// Loaded images are cached in the `Pulsar::Resources` class to avoid loading the same image multiple times.
 /// Transformations like scaling and rotation are applied during rendering and do not modify
 /// the original image data. They are very compute expensive and should be used sparingly on small
-/// sprites only (e.g. particles).
+/// sprites only (e.g., particles).
 class Sprite {
 
 public:

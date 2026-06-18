@@ -20,25 +20,24 @@
 
 #include "Explosive.h"
 
-#include "pulsar/Game.h"
-#include "pulsar/audio/AudioHandle.h"
-#include "lib/util/collection/Array.h"
-#include "lib/pulsar/2d/Sprite.h"
-#include "lib/pulsar/2d/collider/RectangleCollider.h"
-#include "lib/util/base/String.h"
+#include <util/collection/Array.h>
+#include <util/base/String.h>
+#include <pulsar/audio/AudioHandle.h>
+#include <pulsar/2d/Sprite.h>
+#include <pulsar/2d/collider/RectangleCollider.h>
 
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
-
-Explosive::Explosive(uint32_t tag, const Util::Math::Vector2<float> &position, const Pulsar::D2::RectangleCollider &collider, const Util::String &waveFilePath, float animationTime) : Entity(tag, position, collider), waveFilePath(waveFilePath), animationTime(animationTime) {}
+Explosive::Explosive(const size_t tag, const Util::Math::Vector2<float> &position,
+    const Pulsar::D2::RectangleCollider &collider, const Util::String &waveFilePath, const float animationTime) :
+    Entity(tag, position, collider), waveFilePath(waveFilePath), animationTime(animationTime) {}
 
 void Explosive::initialize() {
     soundEffect = Pulsar::AudioTrack(waveFilePath);
 
-    auto size = getCollider().getHeight() > getCollider().getWidth() ? getCollider().getHeight() : getCollider().getWidth();
+    const auto &collider = getCollider();
+    const auto width = collider.getWidth();
+    const auto height = collider.getHeight();
+    const auto size = height > width ? height : width;
+
     animation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
         Pulsar::D2::Sprite("/user/bug/explosion1.bmp", size, size),
         Pulsar::D2::Sprite("/user/bug/explosion2.bmp", size, size),
@@ -47,15 +46,18 @@ void Explosive::initialize() {
         Pulsar::D2::Sprite("/user/bug/explosion5.bmp", size, size),
         Pulsar::D2::Sprite("/user/bug/explosion6.bmp", size, size),
         Pulsar::D2::Sprite("/user/bug/explosion7.bmp", size, size),
-        Pulsar::D2::Sprite("/user/bug/explosion8.bmp", size, size)}), animationTime);
+        Pulsar::D2::Sprite("/user/bug/explosion8.bmp", size, size)
+    }), animationTime);
 }
 
-void Explosive::onUpdate(float delta) {
+void Explosive::onUpdate(const float delta) {
     if (shouldExplode) {
+        // Explosion has just started -> Play the sound effect and set `exploding` to true.
         exploding = true;
         shouldExplode = false;
         soundEffectHandle = soundEffect.play(false);
     } else if (exploding) {
+        // Explosion is in progress -> Update the animation
         explosionTimer += delta;
         if (explosionTimer <= animation.getAnimationTime()) {
             animation.update(delta);
@@ -65,18 +67,4 @@ void Explosive::onUpdate(float delta) {
 
 void Explosive::draw(Pulsar::Graphics &graphics) const {
     animation.draw(graphics, getPosition());
-}
-
-void Explosive::explode() {
-    if (!exploding) {
-        shouldExplode = true;
-    }
-}
-
-bool Explosive::isExploding() const {
-    return exploding;
-}
-
-bool Explosive::hasExploded() const {
-    return explosionTimer >= animation.getAnimationTime() && !soundEffectHandle.isPlaying();
 }

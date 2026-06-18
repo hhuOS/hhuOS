@@ -18,11 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BUG_H
-#define HHUOS_BUG_H
+#ifndef HHUOS_APPLICATION_BUG_H
+#define HHUOS_APPLICATION_BUG_H
 
-#include "util/io/key/KeyEvent.h"
+#include <util/io/key/KeyEvent.h>
 
+/// Text to draw on the intro screen
 static constexpr const char *INTRO_TEXT =
     "___  _  _ ____    ___  ____ ____ ____ _  _ ___  ____ ____ \n"
     "|__] |  | | __    |  \\ |___ |___ |___ |\\ | |  \\ |___ |__/ \n"
@@ -34,6 +35,7 @@ static constexpr const char *INTRO_TEXT =
     " \n"
     "Press SPACE to start or ESC to exit!";
 
+/// Text to draw on the game over screen when the player has lost the game.
 static constexpr const char *LOOSE_TEXT =
     "____ ____ _  _ ____    ____ _  _ ____ ____ \n"
     "| __ |__| |\\/| |___    |  | |  | |___ |__/ \n"
@@ -45,6 +47,7 @@ static constexpr const char *LOOSE_TEXT =
     " \n"
     "Press SPACE to fight the next invasion, or ESC to run like a coward...";
 
+/// Text to draw on the game over screen when the player has won the game.
 static constexpr const char *WIN_TEXT =
     "____ ____ _  _ ____ ____ ____ ___ _  _ _    ____ ___ _ ____ _  _ ____ \n"
     "|    |  | |\\ | | __ |__/ |__|  |  |  | |    |__|  |  | |  | |\\ | [__  \n"
@@ -56,6 +59,7 @@ static constexpr const char *WIN_TEXT =
     " \n"
     "Press SPACE to fight the next invasion, or ESC to run like a coward...";
 
+/// Key handler function used in intro and game over screens.
 void handleKeyPressOnTextScreen(const Util::Io::KeyEvent &key);
 
 #endif

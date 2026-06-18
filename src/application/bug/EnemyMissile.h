@@ -18,62 +18,56 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ENEMYMISSILE_H
-#define HHUOS_ENEMYMISSILE_H
+#ifndef HHUOS_APPLICATION_BUG_ENEMYMISSILE_H
+#define HHUOS_APPLICATION_BUG_ENEMYMISSILE_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/pulsar/2d/Sprite.h"
 #include "Explosive.h"
+#include "EnemyBug.h"
 
-class EnemyBug;
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
+#include <pulsar/2d/Sprite.h>
 
+/// A missile that was fired by an enemy bug.
+/// It moves downwards from the position it was shot.
+/// It can collide with the player and player missiles.
+/// It shows an explosion animation when it is destroyed.
 class EnemyMissile : public Explosive {
 
 public:
-    /**
-     * Constructor.
-     */
-    explicit EnemyMissile(const Util::Math::Vector2<float> &position, EnemyBug &bug);
+    /// Create a new enemy missile object at the given position.
+    explicit EnemyMissile(const Util::Math::Vector2<float> &position);
 
-    /**
-     * Copy Constructor.
-     */
-    EnemyMissile(const EnemyMissile &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    EnemyMissile &operator=(const EnemyMissile &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~EnemyMissile() override = default;
-
+    /// Initialize the enemy missile instance, loading its sprite and explosion animation.
     void initialize() override;
 
+    /// Update the explosion animation if the missile is currently exploding.
+    /// Remove the missile if the explosion animation has finished.
     void onUpdate(float delta) override;
 
+    /// Handle translation events.
+    /// Check if the new y-coordinate is less than -1.0 (i.e., the missile leaves the screen).
+    /// If so, remove the missile.
     void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
+    /// Handle a collision with another entity.
+    /// Enemy missiles can collide with the player and player missiles.
+    /// In both cases, the enemy missile is destroyed and starts playing its explosion animation.
     void onCollisionEvent(const Pulsar::D2::CollisionEvent &event) override;
 
+    /// Draw the missile using its sprite, or the current explosion animation sprite.
     void draw(Pulsar::Graphics &graphics) const override;
 
-    static const constexpr uint32_t TAG = 2;
-    static const constexpr float SIZE_X = 0.02;
-    static const constexpr float SIZE_Y = 0.065;
+    /// Unique tag to distinguish enemy missiles from other object types in collisions.
+    static constexpr size_t TAG = 2;
+    /// Width of an enemy missile in game coordinates.
+    static constexpr float WIDTH = 0.02;
+    /// Height of an enemy missile in game coordinates.
+    static constexpr float HEIGHT = 0.065;
 
 private:
 
     Pulsar::D2::Sprite sprite;
-    EnemyBug &bug;
 };
 
 #endif

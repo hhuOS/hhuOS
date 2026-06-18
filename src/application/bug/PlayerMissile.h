@@ -18,57 +18,53 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PLAYERMISSILE_H
-#define HHUOS_PLAYERMISSILE_H
+#ifndef HHUOS_APPLICATION_BUG_PLAYERMISSILE_H
+#define HHUOS_APPLICATION_BUG_PLAYERMISSILE_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/pulsar/2d/Entity.h"
-#include "lib/pulsar/2d/Sprite.h"
+#include "Ship.h"
 
-class Ship;
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
+#include <pulsar/2d/Entity.h>
+#include <pulsar/2d/Sprite.h>
 
+/// A missile that was fired by the player.
+/// It moves upwards from the position it was shot.
+/// It can collide with enemy bugs and missiles and destroy them.
+/// There can only exist one player missile at a time.
+/// The player can fire the next missile once the current missile collides or leaves the screen.
+/// In contrast to the `EnemyMissile` player missiles do not show an explosion animation.
+/// This would look bad, since enemy missile and enemy bugs already play such an animation,
+/// once they are hit by a player missile.
 class PlayerMissile : public Pulsar::D2::Entity {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// Create a new player missile object at the given position.
+    /// The `Ship` reference is needed to allow the player to fire the next missile once this one is removed.
     PlayerMissile(const Util::Math::Vector2<float> &position, Ship &ship);
 
-    /**
-     * Copy Constructor.
-     */
-    PlayerMissile(const PlayerMissile &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    PlayerMissile &operator=(const PlayerMissile &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~PlayerMissile() override = default;
-
+    /// Initialize the player missile instance, loading its sprite.
     void initialize() override;
 
-    void onUpdate(float delta) override;
-
+    /// Handle translation events.
+    /// Check if the new y-coordinate is larger than 1.0 (i.e., the missile leaves the screen).
+    /// If so, remove the missile and allow the player to fire the next one.
     void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
+    /// Handle a collision with another entity.
+    /// Player missiles can collide with enemy bugs and enemy missiles.
+    /// In both cases, the player missile is removed and the player can fire the next one.
     void onCollisionEvent(const Pulsar::D2::CollisionEvent &event) override;
 
+    /// Draw the missile using its sprite.
     void draw(Pulsar::Graphics &graphics) const override;
 
-    static const constexpr uint32_t TAG = 1;
-    static const constexpr float SIZE_X = 0.03;
-    static const constexpr float SIZE_Y = 0.065;
+    /// Unique tag to distinguish player missiles from other object types in collisions.
+    static constexpr size_t TAG = 1;
+    /// Width of a player missile in game coordinates.
+    static constexpr float WIDTH = 0.03;
+    /// Height of a player missile in game coordinates.
+    static constexpr float HEIGHT = 0.065;
 
 private:
 

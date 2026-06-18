@@ -20,28 +20,27 @@
 
 #include "PlayerMissile.h"
 
-#include "lib/pulsar/Game.h"
-#include "lib/pulsar/2d/component/LinearMovementComponent.h"
-#include "lib/pulsar/2d/event/TranslationEvent.h"
-#include "lib/pulsar/2d/event/CollisionEvent.h"
-#include "application/bug/Ship.h"
-#include "lib/pulsar/Scene.h"
-#include "lib/pulsar/Collider.h"
-#include "lib/pulsar/2d/collider/RectangleCollider.h"
-#include "lib/util/math/Vector2.h"
 #include "EnemyMissile.h"
 #include "EnemyBug.h"
-#include "lib/util/base/String.h"
+#include "Ship.h"
 
-PlayerMissile::PlayerMissile(const Util::Math::Vector2<float> &position, Ship &ship) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::D2::RectangleCollider::STATIC)), ship(ship) {
+#include <util/base/String.h>
+#include <util/math/Vector2.h>
+#include <pulsar/2d/component/LinearMovementComponent.h>
+#include <pulsar/2d/event/TranslationEvent.h>
+#include <pulsar/2d/event/CollisionEvent.h>
+#include <pulsar/2d/collider/RectangleCollider.h>
+
+PlayerMissile::PlayerMissile(const Util::Math::Vector2<float> &position, Ship &ship) : Entity(TAG, position,
+    Pulsar::D2::RectangleCollider(position, WIDTH, HEIGHT, Pulsar::D2::RectangleCollider::STATIC)), ship(ship)
+{
     addComponent(new Pulsar::D2::LinearMovementComponent());
+    setVelocityY(2);
 }
 
 void PlayerMissile::initialize() {
-    sprite = Pulsar::D2::Sprite("/user/bug/player_missile.bmp", SIZE_X, SIZE_Y);
+    sprite = Pulsar::D2::Sprite("/user/bug/player_missile.bmp", WIDTH, HEIGHT);
 }
-
-void PlayerMissile::onUpdate([[maybe_unused]] float delta) {}
 
 void PlayerMissile::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
     if (event.getTargetPosition().getY() > 1.0) {

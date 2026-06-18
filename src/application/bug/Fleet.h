@@ -18,60 +18,75 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_FLEET_H
-#define HHUOS_FLEET_H
+#ifndef HHUOS_APPLICATION_BUG_FLEET_H
+#define HHUOS_APPLICATION_BUG_FLEET_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/util/math/Random.h"
+#include <util/math/Random.h>
 
+/// Organizes all enemy bugs into a fleet.
+/// The fleet does not hold references to the bugs, but it contains information on movement speed and direction.
 class Fleet {
 
 public:
-    /**
-     * Constructor.
-     */
-    explicit Fleet(uint32_t size, float initialSpeed);
+    /// Create a new fleet instance for the given number of enemy bugs and initial movement speed.
+    explicit Fleet(const size_t size, const float initialSpeed) : size(size), velocity(initialSpeed) {}
 
-    /**
-     * Copy Constructor.
-     */
-    Fleet(const Fleet &other) = delete;
+    /// Change movement direction (left/right) by negating the velocity.
+    void changeDirection() {
+        nextVelocity = -velocity;
+    }
 
-    /**
-     * Assignment operator.
-     */
-    Fleet &operator=(const Fleet &other) = delete;
+    /// Increase the velocity (movement speed).
+    void increaseVelocity() {
+        nextVelocity *= 1.25;
+    }
 
-    /**
-     * Destructor.
-     */
-    ~Fleet() = default;
+    /// Set the move down status variable, which signals all bugs that they should move downward once.
+    void moveDown() {
+        // Set counter to 2. On the next frame, the engine will first update the scene,
+        // which calls `Fleet::applyChanges()`, which decreases the counter.
+        // The entities are updated afterward, so that the count is 1 when the enemy bugs call `Fleet::isMovingDown()`.
+        moveDownCounter = 2;
+    }
 
-    void changeDirection();
+    /// Decrease the number of active enemy bugs.
+    void decreaseSize() {
+        if (size > 0) {
+            size--;
+        }
+    }
 
-    void increaseVelocity();
+    /// Get the current velocity (movement speed) for all enemy bugs.
+    float getVelocity() const {
+        return nextVelocity;
+    }
 
-    void moveDown();
+    /// Check whether enemy bugs should move down.
+    bool isMovingDown() const {
+        return moveDownCounter == 1;
+    }
 
-    void decreaseSize();
+    /// Get a random number in [0,1).
+    /// This way, all enemy bugs use the same random number generator.
+    float getRandomNumber() {
+        return random.getRandomNumber<float>();
+    }
 
+    /// This function is called once per frame by the bug defender scene and updates the move down status and velocity.
+    /// If the fleet size has decreased to zero, switch to the game over screen.
     void applyChanges();
-
-    float getVelocity() const;
-
-    bool isMovingDown() const;
-
-    float getRandomNumber();
 
 private:
 
-    uint32_t size;
-    float velocity = 1.0;
-    float moveDownCounter = 0;
-    Util::Math::Random random;
+    size_t size;
 
+    size_t moveDownCounter = 0;
+    float velocity = 1.0;
     float nextVelocity = velocity;
+
+    Util::Math::Random random;
 };
 
 #endif

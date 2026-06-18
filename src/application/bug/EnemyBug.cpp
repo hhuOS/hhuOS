@@ -20,25 +20,27 @@
 
 #include "EnemyBug.h"
 
-#include "lib/pulsar/2d/component/LinearMovementComponent.h"
-#include "lib/pulsar/2d/event/CollisionEvent.h"
-#include "lib/pulsar/2d/event/TranslationEvent.h"
-#include "lib/pulsar/Game.h"
+#include "Fleet.h"
+#include "Explosive.h"
 #include "EnemyMissile.h"
 #include "PlayerMissile.h"
-#include "application/bug/Fleet.h"
-#include "application/bug/Ship.h"
-#include "lib/util/collection/Array.h"
-#include "lib/pulsar/Scene.h"
-#include "lib/pulsar/2d/Sprite.h"
-#include "lib/pulsar/Collider.h"
-#include "lib/pulsar/2d/collider/RectangleCollider.h"
-#include "lib/util/math/Vector2.h"
-#include "application/bug/Explosive.h"
-#include "lib/pulsar/2d/Entity.h"
-#include "lib/util/base/String.h"
 
-EnemyBug::EnemyBug(const Util::Math::Vector2<float> &position, Fleet &fleet) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::D2::RectangleCollider::STATIC), "/user/bug/bug_explosion.wav"), fleet(fleet) {
+#include <util/base/String.h>
+#include <util/collection/Array.h>
+#include <util/math/Vector2.h>
+#include <pulsar/Game.h>
+#include <pulsar/Scene.h>
+#include <pulsar/2d/Entity.h>
+#include <pulsar/2d/Sprite.h>
+#include <pulsar/2d/component/LinearMovementComponent.h>
+#include <pulsar/2d/collider/RectangleCollider.h>
+#include <pulsar/2d/event/CollisionEvent.h>
+#include <pulsar/2d/event/TranslationEvent.h>
+
+EnemyBug::EnemyBug(const Util::Math::Vector2<float> &position, Fleet &fleet) : Explosive(TAG, position,
+    Pulsar::D2::RectangleCollider(position, WIDTH, HEIGHT, Pulsar::D2::RectangleCollider::STATIC),
+    "/user/bug/bug_explosion.wav"), fleet(fleet)
+{
     addComponent(new Pulsar::D2::LinearMovementComponent());
 }
 
@@ -46,14 +48,17 @@ void EnemyBug::initialize() {
     Explosive::initialize();
 
     animation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
-        Pulsar::D2::Sprite("/user/bug/bug1.bmp", SIZE_X, SIZE_Y),
-        Pulsar::D2::Sprite("/user/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
+        Pulsar::D2::Sprite("/user/bug/bug1.bmp", WIDTH, HEIGHT),
+        Pulsar::D2::Sprite("/user/bug/bug2.bmp", WIDTH, HEIGHT)
+    }), 0.5);
 }
 
-void EnemyBug::onUpdate(float delta) {
+void EnemyBug::onUpdate(const float delta) {
     Explosive::onUpdate(delta);
 
     if (hasExploded()) {
+        // The bug is dead, and its explosion animation has finished playing.
+        // We can now remove it from the scene.
         fleet.decreaseSize();
         removeFromScene();
         return;
@@ -83,7 +88,7 @@ void EnemyBug::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
         return;
     }
 
-    // Workaround for weird bug, where enemy suddenly gets an x-position outside the screen range
+    // Workaround for weird bug, where enemies suddenly get an x-position outside the screen range
     const auto dimX = Pulsar::Game::getInstance().getScreenDimensions().getX();
     if (event.getTargetPosition().getX() < -dimX || event.getTargetPosition().getX() > dimX) {
         event.cancel();
@@ -91,9 +96,10 @@ void EnemyBug::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
     }
 
     const auto targetX = event.getTargetPosition().getX();
-    const auto maxX = dimX - SIZE_X;
+    const auto maxX = dimX - WIDTH;
 
-    if ((fleet.getVelocity() > 0 && targetX > maxX - SIZE_X) || (fleet.getVelocity() < 0 && targetX < -maxX)) {
+    // Check if the bug hits the left or right boundary
+    if ((fleet.getVelocity() > 0 && targetX > maxX - WIDTH) || (fleet.getVelocity() < 0 && targetX < -maxX)) {
         fleet.moveDown();
         fleet.increaseVelocity();
         fleet.changeDirection();
@@ -114,8 +120,8 @@ void EnemyBug::draw(Pulsar::Graphics &graphics) const {
     }
 }
 
-void EnemyBug::fireMissile() {
-    auto *missile = new EnemyMissile(getPosition() + Util::Math::Vector2<float>((SIZE_X / 2) - (EnemyMissile::SIZE_X / 2), -SIZE_Y), *this);
+void EnemyBug::fireMissile() const {
+    const auto offset = Util::Math::Vector2<float>(WIDTH / 2 - EnemyMissile::WIDTH / 2, -HEIGHT);
+    auto *missile = new EnemyMissile(getPosition() + offset);
     getScene().addEntity(missile);
-    missile->setVelocityY(-1);
 }

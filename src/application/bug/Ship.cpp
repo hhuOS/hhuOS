@@ -22,33 +22,35 @@
 
 #include "bug.h"
 #include "EnemyBug.h"
-#include "lib/pulsar/Game.h"
 #include "PlayerMissile.h"
+#include "EnemyMissile.h"
+
+#include "lib/util/base/String.h"
+#include "lib/util/math/Vector2.h"
+#include "lib/pulsar/Game.h"
+#include "lib/pulsar/Scene.h"
+#include "lib/pulsar/TextScreen.h"
+#include "lib/pulsar/2d/Entity.h"
 #include "lib/pulsar/2d/component/LinearMovementComponent.h"
+#include "lib/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/pulsar/2d/event/TranslationEvent.h"
 #include "lib/pulsar/2d/event/CollisionEvent.h"
-#include "EnemyMissile.h"
-#include "lib/pulsar/Scene.h"
-#include "lib/pulsar/Collider.h"
-#include "lib/pulsar/2d/collider/RectangleCollider.h"
-#include "lib/util/math/Vector2.h"
-#include "application/bug/Explosive.h"
-#include "lib/pulsar/2d/Entity.h"
-#include "lib/util/base/String.h"
-#include "lib/pulsar/TextScreen.h"
 
-Ship::Ship(const Util::Math::Vector2<float> &position) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::D2::RectangleCollider::STATIC), "/user/bug/ship_explosion.wav", 2.0) {
+Ship::Ship(const Util::Math::Vector2<float> &position) : Explosive(TAG, position,
+    Pulsar::D2::RectangleCollider(position, WIDTH, HEIGHT, Pulsar::D2::RectangleCollider::STATIC),
+    "/user/bug/ship_explosion.wav", 2.0)
+{
     addComponent(new Pulsar::D2::LinearMovementComponent());
 }
 
 void Ship::initialize() {
     Explosive::initialize();
 
-    sprite = Pulsar::D2::Sprite("/user/bug/ship.bmp", SIZE_X, SIZE_Y);
+    sprite = Pulsar::D2::Sprite("/user/bug/ship.bmp", WIDTH, HEIGHT);
     heart = Pulsar::D2::Sprite("/user/bug/heart.bmp", 0.05, 0.05);
 }
 
-void Ship::onUpdate(float delta) {
+void Ship::onUpdate(const float delta) {
     Explosive::onUpdate(delta);
 
     if (lives == 0) {
@@ -57,7 +59,8 @@ void Ship::onUpdate(float delta) {
 
     if (hasExploded()) {
         auto &game = Pulsar::Game::getInstance();
-        game.pushScene(new Pulsar::TextScreen(LOOSE_TEXT, handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
+        game.pushScene(new Pulsar::TextScreen(LOOSE_TEXT, handleKeyPressOnTextScreen,
+            Util::Graphic::Colors::GREEN));
         game.switchToNextScene();
     }
 }
@@ -71,7 +74,8 @@ void Ship::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
     const auto targetX = event.getTargetPosition().getX();
     const auto maxX = Pulsar::Game::getInstance().getScreenDimensions().getX();
 
-    if (targetX > maxX - SIZE_X || targetX < -maxX) {
+    // Stay within screen bounds
+    if (targetX > maxX - WIDTH || targetX < -maxX) {
         event.cancel();
     }
 }
@@ -110,8 +114,9 @@ void Ship::draw(Pulsar::Graphics &graphics) const {
 
     sprite.draw(graphics, getPosition());
 
-    for (uint32_t i = 0; i < lives; i++) {
-        heart.draw(graphics, Util::Math::Vector2<float>(-0.9 + i * 1.5 * heart.getSize().getX(), -0.9));
+    for (size_t i = 0; i < lives; i++) {
+        heart.draw(graphics, Util::Math::Vector2<float>(
+            -0.9f + static_cast<float>(i) * 1.5f * heart.getSize().getX(), -0.9));
     }
 }
 
@@ -121,9 +126,9 @@ void Ship::fireMissile() {
     }
 
     mayFireMissile = false;
-    auto *missile = new PlayerMissile(getPosition() + Util::Math::Vector2<float>((SIZE_X / 2) - (PlayerMissile::SIZE_X / 2), SIZE_Y), *this);
+    auto *missile = new PlayerMissile(getPosition() +
+        Util::Math::Vector2<float>(WIDTH / 2 - PlayerMissile::WIDTH / 2, HEIGHT), *this);
     getScene().addEntity(missile);
-    missile->setVelocityY(2);
 }
 
 void Ship::allowFireMissile() {

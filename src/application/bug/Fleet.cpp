@@ -18,35 +18,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "bug.h"
 #include "Fleet.h"
-#include "lib/pulsar/Game.h"
-#include "pulsar/TextScreen.h"
 
-Fleet::Fleet(uint32_t size, float initialSpeed) : size(size), velocity(initialSpeed) {}
+#include "bug.h"
 
-void Fleet::changeDirection() {
-    nextVelocity = -velocity;
-}
-
-void Fleet::increaseVelocity() {
-    nextVelocity *= 1.25;
-}
-
-void Fleet::moveDown() {
-    moveDownCounter = 2;
-}
-
-void Fleet::decreaseSize() {
-    if (size > 0) {
-        size--;
-    }
-}
+#include <pulsar/Game.h>
+#include <pulsar/TextScreen.h>
 
 void Fleet::applyChanges() {
     if (size == 0) {
         auto &game = Pulsar::Game::getInstance();
-        game.pushScene(new Pulsar::TextScreen(WIN_TEXT, handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
+        game.pushScene(
+            new Pulsar::TextScreen(WIN_TEXT, handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
         game.switchToNextScene();
     }
 
@@ -55,16 +38,4 @@ void Fleet::applyChanges() {
     }
 
     velocity = nextVelocity;
-}
-
-float Fleet::getVelocity() const {
-    return velocity;
-}
-
-bool Fleet::isMovingDown() const {
-    return moveDownCounter == 1;
-}
-
-float Fleet::getRandomNumber() {
-    return random.getRandomNumber<float>();
 }

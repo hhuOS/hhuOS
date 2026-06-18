@@ -20,32 +20,33 @@
 
 #include "EnemyMissile.h"
 
-#include "lib/pulsar/Game.h"
-#include "lib/pulsar/2d/component/LinearMovementComponent.h"
-#include "lib/pulsar/2d/event/TranslationEvent.h"
-#include "lib/pulsar/2d/event/CollisionEvent.h"
 #include "PlayerMissile.h"
-#include "application/bug/Ship.h"
-#include "lib/pulsar/Scene.h"
-#include "lib/pulsar/Collider.h"
-#include "lib/pulsar/2d/collider/RectangleCollider.h"
-#include "lib/util/math/Vector2.h"
-#include "application/bug/Explosive.h"
-#include "lib/pulsar/2d/Entity.h"
-#include "lib/util/base/String.h"
+#include "Ship.h"
+
+#include <util/base/String.h>
+#include <util/math/Vector2.h>
+#include <pulsar/2d/Entity.h>
+#include <pulsar/2d/component/LinearMovementComponent.h>
+#include <pulsar/2d/collider/RectangleCollider.h>
+#include <pulsar/2d/event/TranslationEvent.h>
+#include <pulsar/2d/event/CollisionEvent.h>
 
 class EnemyBug;
 
-EnemyMissile::EnemyMissile(const Util::Math::Vector2<float> &position, EnemyBug &bug) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::D2::RectangleCollider::STATIC), "/user/bug/ship_hit.wav"), bug(bug) {
+EnemyMissile::EnemyMissile(const Util::Math::Vector2<float> &position) : Explosive(TAG, position,
+    Pulsar::D2::RectangleCollider(position, WIDTH, HEIGHT, Pulsar::D2::RectangleCollider::STATIC),
+    "/user/bug/ship_hit.wav")
+{
     addComponent(new Pulsar::D2::LinearMovementComponent());
+    setVelocityY(-1);
 }
 
 void EnemyMissile::initialize() {
     Explosive::initialize();
-    sprite = Pulsar::D2::Sprite("/user/bug/enemy_missile.bmp", SIZE_X, SIZE_Y);
+    sprite = Pulsar::D2::Sprite("/user/bug/enemy_missile.bmp", WIDTH, HEIGHT);
 }
 
-void EnemyMissile::onUpdate(float delta) {
+void EnemyMissile::onUpdate(const float delta) {
     Explosive::onUpdate(delta);
 
     if (hasExploded()) {
@@ -68,7 +69,7 @@ void EnemyMissile::onCollisionEvent(const Pulsar::D2::CollisionEvent &event) {
         return;
     }
 
-    auto tag = event.getCollidedWidth().getTag();
+    const auto tag = event.getCollidedWidth().getTag();
     if (tag == PlayerMissile::TAG || tag == Ship::TAG) {
         explode();
     }

@@ -42,7 +42,7 @@ class BattleSpaceGame : public Pulsar::D3::Scene {
 
 public:
     /// Create a new battle space game instance.
-    /// No entities are created yet. This is done by `initialize()`
+    /// No entities are created yet. This is done by `initialize()`.
     BattleSpaceGame() = default;
 
     /// Create the player and astronomical objects and add them to the scene.

@@ -18,67 +18,65 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SHIP_H
-#define HHUOS_SHIP_H
+#ifndef HHUOS_APPLICAITON_BUG_SHIP_H
+#define HHUOS_APPLICAITON_BUG_SHIP_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/pulsar/2d/Sprite.h"
 #include "Explosive.h"
 
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
+#include <pulsar/2d/Sprite.h>
 
+/// The ship that is controlled by the player.
+/// It can move left and right and fire missiles upwards at the enemy bugs.
+/// It has three lives and loses one every time it is hit.
+/// Once it all lives are gone, it explodes and the game is lost.
 class Ship : public Explosive {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// Create a new player ship instance at the given position.
     explicit Ship(const Util::Math::Vector2<float> &position);
 
-    /**
-     * Copy Constructor.
-     */
-    Ship(const Ship &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Ship &operator=(const Ship &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Ship() override = default;
-
+    /// Initialize the ship instance, loading its sprite and explosion animation sprites.
     void initialize() override;
 
+    /// Check if the player still has lives left. If not, explode.
+    /// If the explosion animation has finished, show the game over screen.
     void onUpdate(float delta) override;
 
+    /// Handle translation events.
+    /// If the ship leaves the screen on the left or right boundary, cancel the event.
     void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
+    /// Handle a collision with another entity.
+    /// The player ship can collide with an enemy missile, in which case the player loses a life,
+    /// or with an enemy bug, in which case the game is instantly lost.
     void onCollisionEvent(const Pulsar::D2::CollisionEvent &event) override;
 
+    /// Draw the ship using its sprite, or the current explosion animation sprite.
     void draw(Pulsar::Graphics &graphics) const override;
 
+    /// Fire an upward-facing player missile.
+    /// As long as this missile is on screen, the player may not fire any further missiles.
     void fireMissile();
 
+    /// Allow the player to fire a missile.
+    /// This method is called by a player missile, once it is destroyed or leaves the screen.
     void allowFireMissile();
 
-    static const constexpr uint32_t TAG = 0;
-    static const constexpr float SIZE_X = 0.2828;
-    static const constexpr float SIZE_Y = 0.2;
+    /// Unique tag to distinguish the player ship from other object types in collisions.
+    static constexpr size_t TAG = 0;
+    /// Width of the player ship in game coordinates.
+    static constexpr float WIDTH = 0.2828;
+    /// Height of the player ship in game coordinates.
+    static constexpr float HEIGHT = 0.2;
 
 private:
 
     Pulsar::D2::Sprite sprite;
     Pulsar::D2::Sprite heart;
 
-    uint32_t lives = 3;
+    size_t lives = 3;
     bool mayFireMissile = true;
 };
 

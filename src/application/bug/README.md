@@ -1,11 +1,11 @@
-Battle Space
+Bug Defender
 =====
-A 3D space shooter game.
+A Space Invaders clone.
 
 Usage
 -----
 ```
-battlespace [OPTION]...
+bug [OPTION]...
 ```
 
 Supported options:
@@ -16,14 +16,14 @@ Supported options:
    This option can help with performance on low-end devices.
  * -h, --help: Show this help message and exit.
 
-You control a spaceship in first-person view.
-Your goal is to survive as long as possible, destroying enemy ships with your missiles.
-Use the radar on the lower left to locate enemies.
+You control the spaceship at the bottom of the screen.
+Your goal is to destroy all enemy bugs before they reach the planet.
+Your remaining lives are displayed in the bottom-left corner of the screen.
+You are not allowed to fire more than one missile at a time.
+Once you have fired a missile, the next one can only be fired after the previous one is destroyed or leaves the screen.
 
 Controls:
- * Arrow Keys: Control the direction of your ship.
- * WASD: Strafe the ship.
- * Q/E: Accelerate/decelerate the ship.
+ * Left/Right Arrow Keys: Move your ship.
  * Space: Fire a missile.
 
 Examples

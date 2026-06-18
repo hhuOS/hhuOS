@@ -18,54 +18,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BUGDEFENDER_H
-#define HHUOS_BUGDEFENDER_H
+#ifndef HHUOS_BUG_BUGDEFENDER_H
+#define HHUOS_BUG_BUGDEFENDER_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/pulsar/2d/Scene.h"
 #include "Ship.h"
 #include "Fleet.h"
-#include "lib/pulsar/audio/AudioTrack.h"
-#include "lib/pulsar/audio/AudioHandle.h"
-#include "lib/util/math/Random.h"
-#include "lib/util/math/Vector2.h"
 
+#include <util/math/Random.h>
+#include <util/math/Vector2.h>
+#include <pulsar/2d/Scene.h>
+#include <pulsar/audio/AudioTrack.h>
+#include <pulsar/audio/AudioHandle.h>
+
+/// The main scene of buf defender.
+/// It processes user input and controls the player ship accordingly.
+/// On initialization, it creates the player ship and enemy bugs.
+/// It is also responsible for initializing the background graphics.
+/// The background is static but looks a bit different from game to game.
+/// It is built from square tiles, with each tile using a random sprite.
 class BugDefender : public Pulsar::D2::Scene {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new bug defender game instance.
+    /// No entities are created yet. This is done by `initialize()`.
     BugDefender() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    BugDefender(const BugDefender &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    BugDefender &operator=(const BugDefender &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~BugDefender() override = default;
-
+    /// Create the player ship enemy bugs and add them to the scene.
+    /// Furthermore, the game music is loaded.
     void initialize() override;
 
+    /// Apply updates to the enemy fleet (`EnemyFleet::applyChanges()`).
     void update(float delta) override;
 
+    /// Draw the background graphics.
+    /// The sky is made up of square tiles, each one using one of seven random sprites.
+    /// The planet surface is made up of rectangular tiles, each one using one of two random sprites.
+    /// This way, the background looks different on each playthrough.
     bool initializeBackground(Pulsar::Graphics &graphics) override;
 
+    /// Handle key presses (e.g., by setting the player's velocity when arrow keys are pressed).
     void keyPressed(const Util::Io::KeyEvent &key) override;
 
+    /// Handle key releases (e.g., by stopping the player's movement when arrow keys are released).
     void keyReleased(const Util::Io::KeyEvent &key) override;
-
-    static const constexpr uint32_t BUGS_PER_ROW = 8;
-    static const constexpr uint32_t BUGS_PER_COLUMN = 6;
 
 private:
 
@@ -77,13 +74,19 @@ private:
 
     Util::Math::Random random;
 
-    static const constexpr float BACKGROUND_TILE_WIDTH = 0.1;
-    static const constexpr float BACKGROUND_TILE_HEIGHT = 0.1;
-    static const constexpr uint32_t BACKGROUND_TILE_COUNT = 7;
+    static constexpr size_t BUGS_PER_ROW = 8;
+    static constexpr size_t BUGS_PER_COLUMN = 6;
 
-    static const constexpr float PLANET_TILE_WIDTH = 0.8;
-    static const constexpr float PLANET_TILE_HEIGHT = 0.2;
-    static const constexpr uint32_t PLANET_TILE_COUNT = 2;
+    static constexpr float BACKGROUND_TILE_WIDTH = 0.1;
+    static constexpr float BACKGROUND_TILE_HEIGHT = 0.1;
+    static constexpr size_t BACKGROUND_TILE_COUNT = 7;
+    static constexpr float BACKGROUND_TILES_PER_ROW = 1 / BACKGROUND_TILE_WIDTH + 1;
+    static constexpr float BACKGROUND_TILES_PER_COLUMN = 1 / BACKGROUND_TILE_HEIGHT + 1;
+
+    static constexpr float PLANET_TILE_WIDTH = 0.8;
+    static constexpr float PLANET_TILE_HEIGHT = 0.2;
+    static constexpr size_t PLANET_TILE_COUNT = 2;
+    static constexpr float PLANET_TILES_PER_ROW = 1 / PLANET_TILE_WIDTH + 1;
 };
 
 #endif

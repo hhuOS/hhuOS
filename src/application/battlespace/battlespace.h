@@ -49,6 +49,7 @@ static constexpr const char *GAME_OVER_TEXT =
     " \n"
     "Press SPACE to play again or ESC to exit!\n";
 
+/// Key handler function used in intro and game over screens.
 void handleKeyPressOnTextScreen(const Util::Io::KeyEvent &key);
 
 #endif

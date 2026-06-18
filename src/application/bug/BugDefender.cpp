@@ -18,32 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <stdint.h>
+
 #include "BugDefender.h"
 
-#include "lib/pulsar/2d/Sprite.h"
-#include "lib/util/math/Random.h"
-#include "lib/pulsar/Game.h"
+#include "Ship.h"
 #include "EnemyBug.h"
-#include "application/bug/Fleet.h"
-#include "application/bug/Ship.h"
-#include "lib/util/base/String.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/key/KeyEvent.h"
-#include "lib/pulsar/Graphics.h"
+#include "Fleet.h"
+
+#include <util/base/String.h>
+#include <util/collection/Array.h>
+#include <util/io/key/KeyEvent.h>
+#include <util/math/Random.h>
+#include <pulsar/2d/Sprite.h>
+#include <pulsar/Game.h>
+#include <pulsar/Graphics.h>
 
 void BugDefender::initialize() {
     backgroundMusic = Pulsar::AudioTrack("/user/bug/music.wav");
 
     addEntity(ship);
 
-    for (uint32_t i = 0; i < BUGS_PER_COLUMN; i++) {
-        for (uint32_t j = 0; j < BUGS_PER_ROW; j++) {
-            addEntity(new EnemyBug(Util::Math::Vector2<float>(-1.0 + j * (EnemyBug::SIZE_X + 0.05), 0.8 - i * (EnemyBug::SIZE_Y + 0.05)), enemyFleet));
+    for (size_t i = 0; i < BUGS_PER_COLUMN; i++) {
+        for (size_t j = 0; j < BUGS_PER_ROW; j++) {
+            const auto x = -1.0f + static_cast<float>(j) * (EnemyBug::WIDTH + 0.05f);
+            const auto y = 0.8f - static_cast<float>(i) * (EnemyBug::HEIGHT + 0.05f);
+            addEntity(new EnemyBug(Util::Math::Vector2<float>(x, y), enemyFleet));
         }
     }
 }
 
-void BugDefender::update([[maybe_unused]] float delta) {
+void BugDefender::update(float) {
     if (!backgroundMusicHandle.isPlaying()) {
         backgroundMusicHandle = backgroundMusic.play(true);
     }
@@ -52,39 +57,57 @@ void BugDefender::update([[maybe_unused]] float delta) {
 }
 
 bool BugDefender::initializeBackground(Pulsar::Graphics &graphics) {
+    // Load background sky sprites
     auto backgroundSprites = Util::Array<Pulsar::D2::Sprite>(BACKGROUND_TILE_COUNT);
-    for (uint32_t i = 0; i < BACKGROUND_TILE_COUNT; i++) {
-        backgroundSprites[i] = Pulsar::D2::Sprite(Util::String::format("/user/bug/background%u.bmp", i + 1), BACKGROUND_TILE_WIDTH, BACKGROUND_TILE_HEIGHT);
+    for (size_t i = 0; i < BACKGROUND_TILE_COUNT; i++) {
+        const auto path = Util::String::format("/user/bug/background%u.bmp", i + 1);
+        backgroundSprites[i] = Pulsar::D2::Sprite(path, BACKGROUND_TILE_WIDTH, BACKGROUND_TILE_HEIGHT);
     }
 
+    // Load background planet ground sprites
     auto planetSprites = Util::Array<Pulsar::D2::Sprite>(PLANET_TILE_COUNT);
-    for (uint32_t i = 0; i < PLANET_TILE_COUNT; i++) {
-        planetSprites[i] = Pulsar::D2::Sprite(Util::String::format("/user/bug/planet%u.bmp", i + 1), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
+    for (size_t i = 0; i < PLANET_TILE_COUNT; i++) {
+        const auto path = Util::String::format("/user/bug/planet%u.bmp", i + 1);
+        planetSprites[i] = Pulsar::D2::Sprite(path, PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
     }
 
-    auto surfaceSprite = Pulsar::D2::Sprite(Util::String::format("/user/bug/surface.bmp"), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
+    // Load the surface sprite (drawn above planet ground)
+    const Pulsar::D2::Sprite surfaceSprite("/user/bug/surface.bmp", PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
 
-    auto dimensions = graphics.getDimensions();
-    auto defaultTilesPerRow = (1 / BACKGROUND_TILE_WIDTH) + 1;
-    auto defaultTilePerColumn = (1 / BACKGROUND_TILE_HEIGHT) + 1;
-    auto tilesPerRow = static_cast<int32_t>(dimensions.getX() > dimensions.getY() ? dimensions.getX() * defaultTilesPerRow : defaultTilesPerRow);
-    auto tilesPerColumn = static_cast<int32_t>(dimensions.getY() > dimensions.getX() ? dimensions.getY() * defaultTilePerColumn : defaultTilePerColumn);
+    // Draw the background sky
+    const auto dimensions = graphics.getDimensions();
+    const auto backgroundTilePerRow = static_cast<int32_t>(dimensions.getX() > dimensions.getY() ?
+        dimensions.getX() * BACKGROUND_TILES_PER_ROW : BACKGROUND_TILES_PER_ROW);
+    const auto backgroundTilesPerColumn = static_cast<int32_t>(dimensions.getY() > dimensions.getX() ?
+        dimensions.getY() * BACKGROUND_TILES_PER_COLUMN : BACKGROUND_TILES_PER_COLUMN);
 
-    for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
-        for (int32_t y = -tilesPerColumn; y < tilesPerColumn; y++) {
-            backgroundSprites[static_cast<uint32_t>(random.getRandomNumber<float>() * BACKGROUND_TILE_COUNT)].draw(graphics, Util::Math::Vector2<float>(x * BACKGROUND_TILE_WIDTH, y * BACKGROUND_TILE_HEIGHT));
+    for (int32_t x = -backgroundTilePerRow; x < backgroundTilePerRow; x++) {
+        for (int32_t y = -backgroundTilesPerColumn; y < backgroundTilesPerColumn; y++) {
+            const auto index = static_cast<size_t>(random.getRandomNumber<float>() * BACKGROUND_TILE_COUNT);
+            const auto pos = Util::Math::Vector2<float>(static_cast<float>(x) * BACKGROUND_TILE_WIDTH,
+                static_cast<float>(y) * BACKGROUND_TILE_HEIGHT);
+
+            backgroundSprites[index].draw(graphics, pos);
         }
     }
 
-    defaultTilesPerRow = (1 / PLANET_TILE_WIDTH) + 1;
-    tilesPerRow = static_cast<int32_t>(dimensions.getX() > dimensions.getY() ? dimensions.getX() * defaultTilesPerRow : defaultTilesPerRow);
+    // Draw the planet ground
+    const auto planetTilesPerRow = static_cast<int32_t>(dimensions.getX() > dimensions.getY() ?
+        dimensions.getX() * PLANET_TILES_PER_ROW : PLANET_TILES_PER_ROW);
 
-    for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
-        surfaceSprite.draw(graphics, Util::Math::Vector2<float>(x * PLANET_TILE_WIDTH, -1 + PLANET_TILE_HEIGHT));
+    for (int32_t x = -planetTilesPerRow; x < planetTilesPerRow; x++) {
+        const auto index = static_cast<size_t>(random.getRandomNumber<float>() * PLANET_TILE_COUNT);
+        const auto pos = Util::Math::Vector2<float>(static_cast<float>(x) * PLANET_TILE_WIDTH, -1);
+
+        planetSprites[index].draw(graphics, pos);
     }
 
-    for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
-        planetSprites[static_cast<uint32_t>(random.getRandomNumber<float>() * PLANET_TILE_COUNT)].draw(graphics, Util::Math::Vector2<float>(x * PLANET_TILE_WIDTH, -1));
+    // Draw the planet surface
+    for (int32_t x = -planetTilesPerRow; x < planetTilesPerRow; x++) {
+        const auto pos = Util::Math::Vector2<float>(static_cast<float>(x) * PLANET_TILE_WIDTH,
+            -1 + PLANET_TILE_HEIGHT);
+
+        surfaceSprite.draw(graphics, pos);
     }
 
     return true;
