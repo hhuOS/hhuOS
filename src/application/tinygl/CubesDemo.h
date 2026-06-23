@@ -93,8 +93,6 @@ private:
         };
     };
 
-    static GLuint loadTexture(const Util::Graphic::Image &image);
-
     static Util::Math::Random random;
 
     GLuint cubeTexture = 0;

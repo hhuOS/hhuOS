@@ -29,6 +29,7 @@
 #include "Lesson2.h"
 #include "Lesson3.h"
 #include "Lesson4.h"
+#include "Lesson5.h"
 
 #include <util/base/Address.h>
 #include <util/base/String.h>
@@ -40,6 +41,7 @@
 #include <util/io/stream/PrintStream.h>
 #include <util/graphic/LinearFrameBuffer.h>
 #include <util/graphic/Ansi.h>
+#include <util/graphic/BitmapFile.h>
 #include <util/graphic/BufferedLinearFrameBuffer.h>
 #include <util/graphic/font/Terminal8x8.h>
 #include <pulsar/Statistics.h>
@@ -118,6 +120,8 @@ int32_t main(const int32_t argc, char *argv[]) {
         demo = new Lesson3();
     } else if (demoName == "lesson4") {
         demo = new Lesson4();
+    } else if (demoName == "lesson5") {
+        demo = new Lesson5();
     } else {
         Util::System::error << "tinygl: Invalid demo '" << demoName << "'!" << Util::Io::PrintStream::lnFlush;
         return -1;
@@ -228,4 +232,40 @@ void glPerspective(const GLdouble fovY, const GLdouble aspect, const GLdouble zN
     const auto fH = Util::Math::tangent(fovY / 360 * Util::Math::PI_DOUBLE) * zNear;
     const auto fW = fH * aspect;
     glFrustum(-fW, fW, -fH, fH, zNear, zFar);
+}
+
+GLuint glLoadTexture(const char *path) {
+    const auto *image = Util::Graphic::BitmapFile::open(path);
+    const auto *imagePixels = image->getPixelBuffer();
+
+    // The Image class stores pixels as an array of the struct `Color`.
+    // We need to convert this to an array of bytes in the RGB format (24-bit).
+    auto *textureData = new uint8_t[image->getWidth() * image->getHeight() * 3];
+    for (uint32_t i = 0; i < image->getWidth() * image->getHeight(); i++) {
+        auto color = imagePixels[i];
+        textureData[i * 3] = color.getRed();
+        textureData[i * 3 + 1] = color.getGreen();
+        textureData[i * 3 + 2] = color.getBlue();
+    }
+
+    // Generate the OpenGL texture
+    GLuint textureId;
+    glGenTextures(1, &textureId); // Generate a texture ID
+    glBindTexture(GL_TEXTURE_2D, static_cast<GLint>(textureId)); // Tell OpenGL which texture to edit
+    glTexImage2D(GL_TEXTURE_2D, // Type of texture
+        0,                      // Mipmap level, 0 for base
+        3,                      // Number of color components in texture
+        image->getWidth(),      // Width of the texture
+        image->getHeight(),     // Height of the texture
+        0,                      // Border width in pixels
+        GL_RGB,                 // Format of pixel data
+        GL_UNSIGNED_BYTE,       // Type of pixel data
+        textureData);           // Pointer to the image data
+
+    // OpenGL now stores the texture data, we can delete our copy
+    delete image;
+    delete[] textureData;
+
+    // This ID can be used to refer to the texture
+    return textureId;
 }

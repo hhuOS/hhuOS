@@ -157,9 +157,7 @@ void CubesDemo::initialize(const uint16_t resX, const uint16_t resY) {
     glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
     
     // Load texture
-    const auto *bitmap = Util::Graphic::BitmapFile::open("/user/dino/block/box.bmp");
-    cubeTexture = loadTexture(*bitmap);
-    delete bitmap;
+    cubeTexture = glLoadTexture("/user/dino/block/box.bmp");
 
     // Create cubes
     for (size_t i = 0; i < 5; i++) {
@@ -208,25 +206,4 @@ void CubesDemo::handleKeyEvent(const Util::Io::KeyEvent &keyEvent) {
         default:
             break;
     }
-}
-
-GLuint CubesDemo::loadTexture(const Util::Graphic::Image &image) {
-    const auto *pixelBuffer = image.getPixelBuffer();
-    auto *rawImageData = new uint8_t[image.getWidth() * image.getHeight() * 3];
-    
-    for (uint16_t i = 0; i < image.getWidth() * image.getHeight(); i++) {
-        auto color = pixelBuffer[i];
-        rawImageData[i * 3] = color.getRed();
-        rawImageData[i * 3 + 1] = color.getGreen();
-        rawImageData[i * 3 + 2] = color.getBlue();
-    }
-
-    GLuint textureId;
-    glGenTextures(1, &textureId);
-    glBindTexture(GL_TEXTURE_2D, static_cast<GLint>(textureId));
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, image.getWidth(), image.getHeight(), 0, GL_RGB,
-        GL_UNSIGNED_BYTE, rawImageData);
-
-    delete[] rawImageData;
-    return textureId;
 }

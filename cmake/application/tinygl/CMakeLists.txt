@@ -45,4 +45,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/application/tinygl/Lesson1.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/Lesson2.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/Lesson3.cpp
-        ${HHUOS_SRC_DIR}/application/tinygl/Lesson4.cpp)
+        ${HHUOS_SRC_DIR}/application/tinygl/Lesson4.cpp
+        ${HHUOS_SRC_DIR}/application/tinygl/Lesson5.cpp)

@@ -58,4 +58,7 @@ public:
 /// Taken from https://stackoverflow.com/questions/12943164/replacement-for-gluperspective-with-glfrustrum
 void glPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
+///Load a texture from a bitmap file and returns the texture ID.
+GLuint glLoadTexture(const char *path);
+
 #endif
