@@ -26,6 +26,7 @@ Supported demos:
 * lesson1: Render static 2D shapes (Lesson 1 of the OpenGL tutorial on [videotutorialsrock.com](https://videotutorialsrock.com/)).
 * lesson2: Render rotating 2D shapes (Lesson 2 of the OpenGL tutorial on [videotutorialsrock.com](https://videotutorialsrock.com/)).
 * lesson3: Render rotating colored 2D shapes (Lesson 3 of the OpenGL tutorial on [videotutorialsrock.com](https://videotutorialsrock.com/)).
+* lesson4: Render a rotating 3D box with lighting enabled (Lesson 4 of the OpenGL tutorial on [videotutorialsrock.com](https://videotutorialsrock.com/)).
 
 Examples
 --------
