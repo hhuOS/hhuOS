@@ -26,6 +26,7 @@
 #include "GearsDemo.h"
 #include "CubesDemo.h"
 #include "Lesson1.h"
+#include "Lesson2.h"
 
 #include <util/base/Address.h>
 #include <util/base/String.h>
@@ -109,6 +110,8 @@ int32_t main(const int32_t argc, char *argv[]) {
         demo = new CubesDemo();
     } else if (demoName == "lesson1") {
         demo = new Lesson1();
+    } else if (demoName == "lesson2") {
+        demo = new Lesson2();
     } else {
         Util::System::error << "tinygl: Invalid demo '" << demoName << "'!" << Util::Io::PrintStream::lnFlush;
         return -1;
