@@ -18,14 +18,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/System.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/tinygl/include/GL/gl.h"
+#include "TriangleDemo.h"
 
-void info() {
-    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Vendor: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_VENDOR)) << Util::Io::PrintStream::ln
-                      << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Renderer: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_RENDERER)) << Util::Io::PrintStream::ln
-                      << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Version: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_VERSION)) << Util::Io::PrintStream::ln
-                      << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Extensions: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)) << Util::Io::PrintStream::lnFlush;
+#include <tinygl/include/GL/gl.h>
+
+void TriangleDemo::update(const float delta) {
+    rotationAngle += delta * 40;
+}
+
+void TriangleDemo::renderFrame() const {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW);
+
+    glLoadIdentity();
+    glRotatef(rotationAngle, 0, 1, 0);
+
+    glBegin(GL_TRIANGLES);
+    glColor3f(0.2, 0.2, 1.0); // Blue
+    glVertex3f(0.8, -0.8, 0);
+
+    glColor3f(0.2, 1.0, 0.2); // Green
+    glVertex3f(-0.8, -0.8, 0);
+
+    glColor3f(1.0, 0.2, 0.2); // Red
+    glVertex3f(0, 0.8, 0);
+    glEnd();
 }

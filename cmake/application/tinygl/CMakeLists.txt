@@ -19,22 +19,26 @@
 project(tinygl)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
+add_compile_options(-Wpedantic)
+
+make_readme_includable(${HHUOS_SRC_DIR}/application/tinygl)
 
 add_compile_options(
         -Wno-unused-function
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-overflow>
 )
 
-set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/tinygl/tinygl.cpp
-        ${HHUOS_SRC_DIR}/application/tinygl/cubes.cpp
-        ${HHUOS_SRC_DIR}/application/tinygl/gears.cpp
-        ${HHUOS_SRC_DIR}/application/tinygl/info.cpp
-        ${HHUOS_SRC_DIR}/application/tinygl/triangle.cpp)
-
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
 target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic lib.user.tinygl)
+target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/application/tinygl/tinygl.cpp
+        ${HHUOS_SRC_DIR}/application/tinygl/CubesDemo.cpp
+        ${HHUOS_SRC_DIR}/application/tinygl/GearsDemo.cpp
+        ${HHUOS_SRC_DIR}/application/tinygl/TriangleDemo.cpp)

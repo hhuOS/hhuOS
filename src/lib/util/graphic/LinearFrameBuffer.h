@@ -155,7 +155,8 @@ public:
             Panic::fire(Panic::OUT_OF_BOUNDS, "LinearFrameBuffer: Trying to read a pixel out of bounds!");
         }
 
-        const auto *address = reinterpret_cast<const uint32_t*>(buffer.add(x * ((colorDepth + 7) / 8) + y * pitch).get());
+        const auto *address = reinterpret_cast<const uint32_t*>(
+            buffer.add(x * ((colorDepth + 7) / 8) + y * pitch).get());
         return Color::fromRGB(*address, colorDepth);
     }
 
