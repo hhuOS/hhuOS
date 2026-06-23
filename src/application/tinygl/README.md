@@ -23,6 +23,7 @@ Supported demos:
 * triangle: Render a rotating triangle with color blending.
 * gears: Render spinning gear wheels, similar to the famous `glxgears` application.
 * cubes: Render rotating textured cubes. Use the `+` and `-` keys to increase/decrease the number of cubes.
+* lesson1: Render static 2D shapes (Lesson 1 of the OpenGL tutorial on [videotutorialsrock.com](https://videotutorialsrock.com/)).
 
 Examples
 --------

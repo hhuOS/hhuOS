@@ -22,6 +22,7 @@
 #define HHUOS_APPLICATION_TINYGL_TINYGLDEMO_H
 
 #include <util/io/key/KeyEvent.h>
+#include <tinygl/include/GL/gl.h>
 
 /// Base class for TinyGL demos.
 /// The main render loop is driven by the application's `main()` function, which calls `TinyGlDemo::initialize()`
@@ -53,5 +54,8 @@ public:
     /// All key events except the Escape key are forwarded to the demo.
     virtual void handleKeyEvent(const Util::Io::KeyEvent&) {}
 };
+
+/// Taken from https://stackoverflow.com/questions/12943164/replacement-for-gluperspective-with-glfrustrum
+void glPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
 #endif

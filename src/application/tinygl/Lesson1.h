@@ -17,57 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- * Based on the TinyGL gears demo (https://github.com/C-Chads/tinygl/blob/main/Raw_Demos/gears.c)
+ * Based on https://videotutorialsrock.com/opengl_tutorial/basic_shapes/home.php
  */
 
-#ifndef HHUOS_APPLICATION_TINYGL_GEARSDEMO_H
-#define HHUOS_APPLICATION_TINYGL_GEARSDEMO_H
+#ifndef HHUOS_APPLICATION_TINYGL_LESSON1_H
+#define HHUOS_APPLICATION_TINYGL_LESSON1_H
 
 #include "TinyGlDemo.h"
 
-#include <tinygl/include/GL/gl.h>
-
-/// TinyGL demo that renders three rotating gear wheels, similar to the famous `glxgears` application.
-class GearsDemo : public TinyGlDemo {
+/// TinyGL demo that renders static 2D shapes.
+/// It was created by following lesson 1 of the OpenGL Tutorial on https://videotutorialsrock.com.
+class Lesson1 : public TinyGlDemo {
 
 public:
-    /// Create a new gears demo instance.
-    GearsDemo() = default;
+    /// Create a new demo instance.
+    Lesson1() = default;
 
     /// Destroy the demo. The default destructor is sufficient.
-    ~GearsDemo() override = default;
+    ~Lesson1() override = default;
 
     /// Initialize the OpenGL viewport according to the given screen resolution.
-    /// Set up light and create display lists for the three gears.
     void initialize(uint16_t resX, uint16_t resY) override;
 
-    /// Update the gears' rotation angle.
-    void update(float delta) override;
+    /// Do nothing, as the shapes are static and do not move.
+    void update(float) override {}
 
-    /// Render the three gears.
+    /// Render the shapes.
     void renderFrame() const override;
-
-private:
-
-    static void gear(GLfloat innerRadius, GLfloat outerRadius, GLfloat width, GLint teeth, GLfloat toothDepth);
-
-    GLfloat rotationAngle = 0.0f;
-
-    // Display lists for the three gears
-    GLuint gears = 0;
-
-    // Position of the global light
-    GLfloat lightPos[4] = {5, 5, 10, 0.0};
-
-    // Material parameters for the gears
-    GLfloat red[4] = {1.0, 0.0, 0.0, 0.0};
-    GLfloat green[4] = {0.0, 1.0, 0.0, 0.0};
-    GLfloat blue[4] = {0.0, 0.0, 1.0, 0.0};
-    GLfloat white[4] = {1.0, 1.0, 1.0, 0.0};
-    GLfloat shininess = 5;
-
-    static constexpr GLfloat VIEW_ROTATION_X = 20.0;
-    static constexpr GLfloat VIEW_ROTATION_Y = 30.0;
 };
 
 #endif

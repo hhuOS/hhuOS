@@ -25,12 +25,14 @@
 #include "TriangleDemo.h"
 #include "GearsDemo.h"
 #include "CubesDemo.h"
+#include "Lesson1.h"
 
 #include <util/base/Address.h>
 #include <util/base/String.h>
 #include <util/base/System.h>
 #include <util/base/ArgumentParser.h>
 #include <util/collection/Array.h>
+#include <util/math/Math.h>
 #include <util/io/file/File.h>
 #include <util/io/stream/PrintStream.h>
 #include <util/graphic/LinearFrameBuffer.h>
@@ -105,6 +107,8 @@ int32_t main(const int32_t argc, char *argv[]) {
         demo = new GearsDemo();
     } else if (demoName == "cubes") {
         demo = new CubesDemo();
+    } else if (demoName == "lesson1") {
+        demo = new Lesson1();
     } else {
         Util::System::error << "tinygl: Invalid demo '" << demoName << "'!" << Util::Io::PrintStream::lnFlush;
         return -1;
@@ -208,4 +212,11 @@ int32_t main(const int32_t argc, char *argv[]) {
 
     Util::Graphic::Ansi::cleanupGraphicalApplication();
     return 0;
+}
+
+/// Taken from https://stackoverflow.com/questions/12943164/replacement-for-gluperspective-with-glfrustrum
+void glPerspective(const GLdouble fovY, const GLdouble aspect, const GLdouble zNear, const GLdouble zFar) {
+    const auto fH = Util::Math::tangent(fovY / 360 * Util::Math::PI_DOUBLE) * zNear;
+    const auto fW = fH * aspect;
+    glFrustum(-fW, fW, -fH, fH, zNear, zFar);
 }
