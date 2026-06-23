@@ -29,6 +29,7 @@ Supported demos:
 * lesson4: Render a rotating 3D box with lighting enabled (Lesson 4 of the OpenGL tutorial on [videotutorialsrock.com](https://videotutorialsrock.com/)).
 * lesson4: Render a rotating 3D cube with lighting enabled (Lesson 4 of the OpenGL tutorial on [videotutorialsrock.com](https://videotutorialsrock.com/)).
 * lesson5: Render textured shapes (Lesson 5 of the OpenGL tutorial on [videotutorialsrock.com](https://videotutorialsrock.com/)).
+* lesson6: Render a rotating textured 3D cube (Lesson 6 of the OpenGL tutorial on [videotutorialsrock.com](https://videotutorialsrock.com/)).
 
 Examples
 --------

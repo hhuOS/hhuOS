@@ -30,6 +30,7 @@
 #include "Lesson3.h"
 #include "Lesson4.h"
 #include "Lesson5.h"
+#include "Lesson6.h"
 
 #include <util/base/Address.h>
 #include <util/base/String.h>
@@ -122,6 +123,8 @@ int32_t main(const int32_t argc, char *argv[]) {
         demo = new Lesson4();
     } else if (demoName == "lesson5") {
         demo = new Lesson5();
+    } else if (demoName == "lesson6") {
+        demo = new Lesson6();
     } else {
         Util::System::error << "tinygl: Invalid demo '" << demoName << "'!" << Util::Io::PrintStream::lnFlush;
         return -1;
