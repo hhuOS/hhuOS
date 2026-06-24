@@ -19,7 +19,11 @@
 project(portablegl)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
+add_compile_options(-Wpedantic)
+
+make_readme_includable(${HHUOS_SRC_DIR}/application/portablegl)
 
 add_compile_options(
         -Wno-maybe-uninitialized
@@ -27,14 +31,14 @@ add_compile_options(
         -Wno-unused-parameter
         -Wno-missing-field-initializers
         -Wno-sign-compare
+        -DPGL_ARGB32
 )
 
-set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/portablegl/portablegl.cpp
-        ${HHUOS_SRC_DIR}/application/portablegl/info.cpp
-        ${HHUOS_SRC_DIR}/application/portablegl/gears.cpp
-        ${HHUOS_SRC_DIR}/application/portablegl/triangle.cpp)
-
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
 target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic)
+target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/application/portablegl/portablegl.cpp
+        ${HHUOS_SRC_DIR}/application/portablegl/PortableGlMath.cpp
+        ${HHUOS_SRC_DIR}/application/portablegl/TriangleDemo.cpp
+        ${HHUOS_SRC_DIR}/application/portablegl/GearsDemo.cpp)

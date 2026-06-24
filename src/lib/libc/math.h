@@ -91,9 +91,11 @@ float roundf(float arg);
 float truncf(float arg);
 float nearbyintf(float arg);
 
+double modf(double arg, double * iptr);
+float modff(float arg, float *iptr);
+
 double frexp(double arg, int * exp);
 double ldexp(double arg, int exp);
-double modf(double arg, double * iptr);
 
 int isinf(double arg);
 int isnan(double arg);

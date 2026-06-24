@@ -16,40 +16,70 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- */
-
-#include <assert.h>
+*/
 
 #define PORTABLEGL_IMPLEMENTATION
-#define PGL_ASSERT(x) assert(x)
-#include "lib/portablegl/portablegl.h"
 
-#include "lib/util/base/System.h"
-#include "lib/util/base/Address.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
+#include <stddef.h>
+#include <stdint.h>
 
-extern void info();
-extern void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
-extern void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
+#include "PortableGlDemo.h"
+#include "TriangleDemo.h"
+#include "GearsDemo.h"
 
+#include <util/base/System.h>
+#include <util/base/Address.h>
+#include <util/graphic/Ansi.h>
+#include <util/base/ArgumentParser.h>
+#include <util/io/file/File.h>
+#include <util/graphic/LinearFrameBuffer.h>
+#include <util/graphic/BufferedLinearFrameBuffer.h>
+#include <util/graphic/font/Terminal8x8.h>
+#include <pulsar/Statistics.h>
+#include <portablegl/portablegl.h>
+
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+/// Frame rate that the application tries to run at.
+constexpr size_t TARGET_FRAME_RATE = 60;
+/// Time per frame if we want to hit the target frame rate.
+constexpr auto TARGET_FRAME_TIME = Util::Time::Timestamp::ofSecondsFloat(1.0f / TARGET_FRAME_RATE);
+
+/// The main render loop runs as long as this is true.
+/// Set to false when the Escape key is pressed.
+bool isRunning = true;
+
+/// Statistics object, used to measure the full frame time, update time, draw time, and idle time.
+Pulsar::Statistics statistics;
+/// Contains the last FPS and average times, calculated from `statistics`.
+Pulsar::Statistics::Gather gatheredStatistics;
+/// Timestamp used to count up to 1 second. Each time 1 second is reached, the `gatheredStatistics` object is updated.
+Util::Time::Timestamp statisticsGatherTimer;
+
+/// The font used to draw the statistics strings.
+const auto &fpsFont = Util::Graphic::Fonts::TERMINAL_8x8;
+
+/// Context for PortableGL.
 static glContext context{};
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("PortableGL demo application.\n\n"
-                               "Usage: portablegl <demo>\n"
-                               "Demos: info, triangle\n"
-                               "Options:\n"
-                               "  -r, --resolution: Set display resolution\n"
-                               "  -s, --scale: Set display scale factor (Must be <= 1; The application will be rendered at a lower internal resolution and scaled up/centered to fill the screen)\n"
-                               "  -h, --help: Show this help message");
+void info() {
+    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Vendor: " << Util::Graphic::Ansi::RESET
+        << reinterpret_cast<const char*>(glGetString(GL_VENDOR)) << Util::Io::PrintStream::ln
+        << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Renderer: " << Util::Graphic::Ansi::RESET
+        << reinterpret_cast<const char*>(glGetString(GL_RENDERER)) << Util::Io::PrintStream::ln
+        << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Version: " << Util::Graphic::Ansi::RESET
+        << reinterpret_cast<const char*>(glGetString(GL_VERSION)) << Util::Io::PrintStream::ln
+        << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GLSL Version: " << Util::Graphic::Ansi::RESET
+        << reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)) << Util::Io::PrintStream::lnFlush;
+}
 
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
     argumentParser.addArgument("resolution", false, "r");
     argumentParser.addArgument("scale", false, "s");
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
@@ -58,37 +88,51 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "opengl: No arguments provided! Please specify a demo (info, triangle)." << Util::Io::PrintStream::lnFlush;
+        Util::System::error << "portablegl: No arguments provided! Please specify a demo (info, triangle, gears, cubes)."
+            << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    const auto &demo = arguments[0];
-    if (demo == "info") {
+    const auto &demoName = arguments[0];
+    if (demoName == "info") {
         info();
         return 0;
     }
 
-    Util::Graphic::Ansi::prepareGraphicalApplication(true);
-    auto lfbFile = Util::Io::File("/device/lfb");
+    PortableGlDemo *demo = nullptr;
+    if (demoName == "triangle") {
+        demo = new TriangleDemo();
+    } else if (demoName == "gears") {
+        demo = new GearsDemo();
+    } else {
+        Util::System::error << "portablegl: Invalid demo '" << demoName << "'!" << Util::Io::PrintStream::lnFlush;
+        return -1;
+    }
+    const Util::Io::File lfbFile("/device/lfb");
 
     if (argumentParser.hasArgument("resolution")) {
-        auto split1 = argumentParser.getArgument("resolution").split("x");
-        auto split2 = split1[1].split("@");
-
-        auto resolutionX = Util::String::parseNumber<uint16_t>(split1[0]);
-        auto resolutionY = Util::String::parseNumber<uint16_t>(split2[0]);
-        uint8_t colorDepth = split2.length() > 1 ? Util::String::parseNumber<uint8_t>(split2[1]) : 32;
-
-        lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
+        const auto resolutionString = argumentParser.getArgument("resolution");
+        Util::Graphic::LinearFrameBuffer::setResolution(lfbFile, resolutionString);
     }
 
-    auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<double>(argumentParser.getArgument("scale")) : 1.0;
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb, scaleFactor);
+    const auto scaleFactor = Util::String::parseFloat<float>(
+        argumentParser.getArgument("scale", "1.0"));
+
+    const Util::Graphic::LinearFrameBuffer lfb(lfbFile);
+    if (lfb.getColorDepth() != PGL_BITDEPTH) {
+        Util::System::error << "portablegl: Color depth not supported (Required: " << PGL_BITDEPTH
+            << ", Got: " << lfb.getColorDepth() << ")!" << Util::Io::PrintStream::lnFlush;
+        return -1;
+    }
+
+    Util::Graphic::Ansi::prepareGraphicalApplication(true);
+
+    Util::Graphic::BufferedLinearFrameBuffer bufferedLfb(lfb, scaleFactor);
 
     // Initialize PortableGL context
     auto *screenBuffer = reinterpret_cast<uint32_t*>(bufferedLfb.getBuffer().get());
-    auto success = init_glContext(&context, &screenBuffer, bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
+    const auto success = init_glContext(&context, &screenBuffer,
+        bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
     if (!success) {
         Util::System::error << "portablegl: Failed to initialize GL context!" << Util::Io::PrintStream::lnFlush;
         exit(-1);
@@ -96,16 +140,74 @@ int32_t main(int32_t argc, char *argv[]) {
 
     lfb.clear();
 
-    if (demo == "triangle") {
-        triangle(bufferedLfb);
-    } else if (demo == "gears") {
-        gears(bufferedLfb);
-    } else {
-        Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::lnFlush;
-        return -1;
+    demo->initialize(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
+
+    // Initialize keyboard input
+    Util::Io::DeLayout layout;
+    Util::Io::KeyDecoder keyDecoder(layout);
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
+
+    while (isRunning) {
+        statistics.startFrameTime();
+
+        // Read and process key events
+        statistics.startUpdateTime();
+        auto scancode = Util::System::in.read();
+        while (scancode != -1 && keyDecoder.parseScancode(scancode)) {
+            auto key = keyDecoder.getKeyEvent();
+            if (key.isPressed() && key.getScancode() == Util::Io::KeyEvent::ESC) {
+                isRunning = false;
+            }
+
+            demo->handleKeyEvent(key);
+            scancode = Util::System::in.read();
+        }
+
+        // Update the demo state.
+        demo->update(statistics.getLastFrameTime().toSecondsFloat<float>());
+        statistics.stopUpdateTimeTime();
+
+        statisticsGatherTimer += statistics.getLastFrameTime();
+        if (statisticsGatherTimer > Util::Time::Timestamp::ofSeconds(1)) {
+            gatheredStatistics = statistics.gather();
+            statisticsGatherTimer = Util::Time::Timestamp();
+        }
+
+        // Render the demo scene.
+        statistics.startDrawTime();
+        demo->renderFrame();
+
+        // Update FPS display
+        const auto fpsString = Util::String::format("FPS: %u | Frame time: %.1fms",
+            gatheredStatistics.framesPerSecond, gatheredStatistics.frameTime.toSecondsFloat<float>() * 1000);
+        const auto timesString = Util::String::format("Draw: %.1fms | Update: %.1fms | Idle: %.1fms",
+            gatheredStatistics.drawTime.toSecondsFloat<float>() * 1000,
+            gatheredStatistics.updateTime.toSecondsFloat<float>() * 1000,
+            gatheredStatistics.idleTime.toSecondsFloat<float>() * 1000);
+
+        bufferedLfb.drawString(fpsFont, 0, 0, fpsString,
+            Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
+
+        bufferedLfb.drawString(fpsFont, 0, fpsFont.getCharHeight(), timesString,
+            Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
+
+        // Flush frame to display
+        bufferedLfb.flush();
+        statistics.stopDrawTime();
+
+        // Sleep to hit the target framerate
+        statistics.startIdleTime();
+        const auto renderTime = statistics.getLastDrawTime() + statistics.getLastUpdateTime();
+        if (renderTime < TARGET_FRAME_TIME) {
+            Util::Async::Thread::sleep(TARGET_FRAME_TIME - renderTime);
+        }
+        statistics.stopIdleTime();
+
+        statistics.stopFrameTime();
     }
 
     free_glContext(&context);
+
     Util::Graphic::Ansi::cleanupGraphicalApplication();
     return 0;
 }

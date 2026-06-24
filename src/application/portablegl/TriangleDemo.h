@@ -18,18 +18,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <assert.h>
+#ifndef HHUOS_APPLICATION_PORTABLEGL_TRIANGLEDEMO_H
+#define HHUOS_APPLICATION_PORTABLEGL_TRIANGLEDEMO_H
 
-#define PGL_ASSERT(x) assert(x)
-#include "lib/portablegl/portablegl.h"
+#include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/io/stream/PrintStream.h"
+#include "PortableGlDemo.h"
 
-void info() {
-    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Vendor: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_VENDOR)) << Util::Io::PrintStream::ln
-                      << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Renderer: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_RENDERER)) << Util::Io::PrintStream::ln
-                      << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Version: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_VERSION)) << Util::Io::PrintStream::ln
-                      << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GLSL Version: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)) << Util::Io::PrintStream::lnFlush;
-}
+#include <portablegl/portablegl.h>
+
+/// TinyGL demo that renders a rotating triangle with color blending.
+class TriangleDemo : public PortableGlDemo {
+
+public:
+    /// Create a new triangle demo instance.
+    TriangleDemo() = default;
+
+    /// Destroy the demo. The default destructor is sufficient.
+    ~TriangleDemo() override = default;
+
+    /// Set up shaders and VBOs for the triangle.
+    void initialize(uint16_t, uint16_t) override;
+
+    /// Update the triangle's rotation angle.
+    void update(float delta) override;
+
+    /// Render the triangle.
+    void renderFrame() override;
+
+private:
+
+    static void vertexShader(float *output, vec4 *vertexAttr, Shader_Builtins *builtins, void *uniforms);
+
+    static void fragmentShader(float *input, Shader_Builtins *builtins, void *uniforms);
+
+    mat4 uniformMatrix = IDENTITY_M4();
+
+    GLuint triangleVbo = 0;
+    GLuint colorVbo = 0;
+
+    GLfloat rotationAngle = 0.0f;
+};
+
+#endif

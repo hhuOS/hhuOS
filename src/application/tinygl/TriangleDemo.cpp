@@ -24,6 +24,9 @@
 
 void TriangleDemo::update(const float delta) {
     rotationAngle += delta * 40;
+    if (rotationAngle > 360.0f) {
+        rotationAngle -= 360.0f;
+    }
 }
 
 void TriangleDemo::renderFrame() const {

@@ -19,7 +19,6 @@
 project(tinygl)
 message(STATUS "Project " ${PROJECT_NAME})
 
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 99)
 add_compile_options(-Wpedantic)
@@ -39,9 +38,9 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic lib.user.tinygl)
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/application/tinygl/tinygl.cpp
-        ${HHUOS_SRC_DIR}/application/tinygl/CubesDemo.cpp
-        ${HHUOS_SRC_DIR}/application/tinygl/GearsDemo.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/TriangleDemo.cpp
+        ${HHUOS_SRC_DIR}/application/tinygl/GearsDemo.cpp
+        ${HHUOS_SRC_DIR}/application/tinygl/CubesDemo.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/Lesson1.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/Lesson2.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/Lesson3.cpp

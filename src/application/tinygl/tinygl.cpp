@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <ctime>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "TinyGlDemo.h"
@@ -69,6 +69,7 @@ Pulsar::Statistics::Gather gatheredStatistics;
 /// Timestamp used to count up to 1 second. Each time 1 second is reached, the `gatheredStatistics` object is updated.
 Util::Time::Timestamp statisticsGatherTimer;
 
+/// The font used to draw the statistics strings.
 const auto &fpsFont = Util::Graphic::Fonts::TERMINAL_8x8;
 
 /// Print OpenGL information to standard out.
@@ -141,7 +142,7 @@ int32_t main(const int32_t argc, char *argv[]) {
     }
 
     const auto scaleFactor = Util::String::parseFloat<float>(
-        argumentParser.getArgument("scale", "1.0f"));
+        argumentParser.getArgument("scale", "1.0"));
 
     const Util::Graphic::LinearFrameBuffer lfb(lfbFile);
     if (lfb.getColorDepth() != TGL_FEATURE_RENDER_BITS) {
@@ -160,7 +161,7 @@ int32_t main(const int32_t argc, char *argv[]) {
 
     lfb.clear();
 
-    demo->initialize(lfb.getResolutionX(), lfb.getResolutionY());
+    demo->initialize(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
 
     // Initialize keyboard input
     Util::Io::DeLayout layout;

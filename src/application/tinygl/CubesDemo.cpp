@@ -125,6 +125,9 @@ CubesDemo::Cube::Cube(const GLuint texture) : texture(texture) {
 
 void CubesDemo::Cube::update(const float delta) {
     rotationAngle += delta * rotationSpeed;
+    if (rotationAngle > 360.0f) {
+        rotationAngle -= 360.0f;
+    }
 }
 
 void CubesDemo::Cube::render() const {

@@ -22,19 +22,19 @@
 #define HHUOS_APPLICATION_TINYGL_TINYGLDEMO_H
 
 #include <util/io/key/KeyEvent.h>
-#include <tinygl/include/GL/gl.h>
+#include <portablegl/portablegl.h>
 
-/// Base class for TinyGL demos.
-/// The main render loop is driven by the application's `main()` function, which calls `TinyGlDemo::initialize()`
-/// at the beginning, and `TinyGlDemo::update()` and `TinyGlDemo::renderFrame()` during each iteration.
-class TinyGlDemo {
+/// Base class for PortableGL demos.
+/// The main render loop is driven by the application's `main()` function, which calls `PortableGlDemo::initialize()`
+/// at the beginning, and `PortableGlDemo::update()` and `PortableGlDemo::renderFrame()` during each iteration.
+class PortableGlDemo {
 
 public:
     /// Create a new TinyGL demo instance.
-    TinyGlDemo() = default;
+    PortableGlDemo() = default;
 
     /// Since the base class has no state, the default destructor is sufficient.
-    virtual ~TinyGlDemo() = default;
+    virtual ~PortableGlDemo() = default;
 
     /// Initialize the demo.
     /// This should perform all OpenGL initialization required to run the demo
@@ -48,17 +48,11 @@ public:
     virtual void update(float delta) = 0;
 
     /// Render the demo scene.
-    virtual void renderFrame() const = 0;
+    virtual void renderFrame() = 0;
 
     /// Handle a key event.
     /// All key events except the Escape key are forwarded to the demo.
     virtual void handleKeyEvent(const Util::Io::KeyEvent&) {}
 };
-
-/// Taken from https://stackoverflow.com/questions/12943164/replacement-for-gluperspective-with-glfrustrum
-void glPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
-
-///Load a texture from a bitmap file and returns the texture ID.
-GLuint glLoadTexture(const char *path);
 
 #endif

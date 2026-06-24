@@ -9,7 +9,7 @@ bug [OPTION]...
 ```
 
 Supported options:
- * -r, --resolution WIDTHxHEIGHT@BPP: Set the display resolution before starting the game (may not have any effect depending on the display driver).
+ * -r, --resolution WIDTHxHEIGHT\@BPP: Set the display resolution before starting the game (may not have any effect depending on the display driver).
  * -s, --scale SCALE: A floating point number in (0,1] used to scale the game.
    The game is rendered internally at the lower-scaled resolution and then scaled up to the actual resolution
    (e.g., a scale of 0.5 will cause the game to be rendered at half the actual resolution).
@@ -28,4 +28,4 @@ Controls:
 
 Examples
 --------
-![Screenshot](screenshot1.png)
+![Screenshot](bug1.png)

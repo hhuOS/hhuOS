@@ -308,6 +308,11 @@ double ldexp(const double arg, int exp) {
 	return ret;
 }
 
+float modff(const float arg, float *iptr) {
+    *iptr = static_cast<long>(arg);
+    return arg - *iptr;
+}
+
 double modf(const double arg, double *iptr) {
 	*iptr = static_cast<long long>(arg);
 	return arg - *iptr;
