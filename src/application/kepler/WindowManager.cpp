@@ -84,7 +84,10 @@ void WindowManager::run() {
         while (keyboardInput >= 0) {
             if (keyDecoder.parseScancode(keyboardInput)) {
                 const auto key = keyDecoder.getKeyEvent();
-                windowStack.getFocusedWindow()->sendKeyEvent(key);
+                auto *focusedWindow = windowStack.getFocusedWindow();
+                if (focusedWindow != nullptr) {
+                    focusedWindow->sendKeyEvent(key);
+                }
             }
 
             keyboardInput = Util::System::in.read();
@@ -142,7 +145,11 @@ void WindowManager::run() {
 
                 // Draw border of dragged window (if any)
                 if (isDragging) {
-                    windowStack.getFocusedWindow()->drawBorderAt(dragX, dragY, doubleLfb, Util::Graphic::Colors::HHU_BLUE);
+                    if (focusedWindow == nullptr) {
+                        isDragging = false;
+                    } else {
+                        focusedWindow->drawBorderAt(dragX, dragY, doubleLfb, Util::Graphic::Colors::HHU_BLUE);
+                    }
                 }
 
                 // Flush double buffer to screen
