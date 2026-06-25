@@ -18,90 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Protocol.h"
+#include "Event.h"
 
-#include "util/async/Process.h"
-#include "util/io/stream/NumberUtil.h"
+#include <util/io/stream/NumberUtil.h>
 
 namespace Kepler {
-namespace Request {
-
-bool Connect::writeToStream(Util::Io::OutputStream &stream) const {
-    return Util::Io::NumberUtil::writeUnsigned8BitValue(CONNECT, stream) &&
-        Util::Io::NumberUtil::writeUnsigned32BitValue(processId, stream) &&
-        pipeName.writeToStream(stream);
-}
-
-bool Connect::readFromStream(Util::Io::InputStream &stream) {
-    processId = Util::Io::NumberUtil::readUnsigned32BitValue(stream);
-    return pipeName.readFromStream(stream);
-}
-
-bool CreateWindow::writeToStream(Util::Io::OutputStream &stream) const {
-    return Util::Io::NumberUtil::writeUnsigned8BitValue(CREATE_WINDOW, stream) &&
-        Util::Io::NumberUtil::writeUnsigned16BitValue(width, stream) &&
-        Util::Io::NumberUtil::writeUnsigned16BitValue(height, stream) &&
-        title.writeToStream(stream);
-}
-
-bool CreateWindow::readFromStream(Util::Io::InputStream &stream) {
-    width = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
-    height = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
-    return title.readFromStream(stream);
-}
-
-bool SetWindowTitle::writeToStream(Util::Io::OutputStream &stream) const {
-    return Util::Io::NumberUtil::writeUnsigned8BitValue(SET_WINDOW_TITLE, stream) &&
-        title.writeToStream(stream);
-}
-
-bool SetWindowTitle::readFromStream(Util::Io::InputStream &stream) {
-    return title.readFromStream(stream);
-}
-
-bool BasicWindowRequest::writeToStream(Util::Io::OutputStream &stream) const {
-    return Util::Io::NumberUtil::writeUnsigned8BitValue(command, stream) &&
-        Util::Io::NumberUtil::writeUnsigned32BitValue(windowId, stream);
-}
-
-bool BasicWindowRequest::readFromStream(Util::Io::InputStream &stream) {
-    windowId = Util::Io::NumberUtil::readUnsigned32BitValue(stream);
-    return true;
-}
-
-}
-
-namespace Response {
-
-bool BasicResponse::writeToStream(Util::Io::OutputStream &stream) const {
-    return Util::Io::NumberUtil::writeUnsigned8BitValue(success ? 1 : 0, stream);
-}
-
-bool BasicResponse::readFromStream(Util::Io::InputStream &stream) {
-    success = Util::Io::NumberUtil::readUnsigned8BitValue(stream) != 0;
-    return true;
-}
-
-bool CreateWindow::writeToStream(Util::Io::OutputStream &stream) const {
-    return BasicResponse::writeToStream(stream) &&
-        Util::Io::NumberUtil::writeUnsigned32BitValue(id, stream) &&
-        Util::Io::NumberUtil::writeUnsigned16BitValue(width, stream) &&
-        Util::Io::NumberUtil::writeUnsigned16BitValue(height, stream) &&
-        Util::Io::NumberUtil::writeUnsigned8BitValue(colorDepth, stream);
-}
-
-bool CreateWindow::readFromStream(Util::Io::InputStream &stream) {
-    BasicResponse::readFromStream(stream);
-    id = Util::Io::NumberUtil::readUnsigned32BitValue(stream);
-    width = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
-    height = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
-    colorDepth = Util::Io::NumberUtil::readUnsigned8BitValue(stream);
-
-    return true;
-}
-
-}
-
 namespace Event {
 
 bool BasicEvent::writeToStream(Util::Io::OutputStream &stream) const {

@@ -24,7 +24,9 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/kepler/Client.cpp
         ${HHUOS_SRC_DIR}/lib/kepler/EventRunnable.cpp
-        ${HHUOS_SRC_DIR}/lib/kepler/Protocol.cpp
-        ${HHUOS_SRC_DIR}/lib/kepler/Window.cpp)
+        ${HHUOS_SRC_DIR}/lib/kepler/Window.cpp
+        ${HHUOS_SRC_DIR}/lib/kepler/protocol/Event.cpp
+        ${HHUOS_SRC_DIR}/lib/kepler/protocol/Request.cpp
+        ${HHUOS_SRC_DIR}/lib/kepler/protocol/Response.cpp)
 
 target_link_libraries(${PROJECT_NAME} lib.graphic)
