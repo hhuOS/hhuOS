@@ -20,8 +20,9 @@
 
 #include "EventRunnable.h"
 
-#include "Protocol.h"
-#include "util/io/stream/NumberUtil.h"
+#include "protocol/Event.h"
+
+#include <util/io/stream/NumberUtil.h>
 
 void Kepler::EventRunnable::run() {
     while (isRunning) {

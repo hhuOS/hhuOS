@@ -23,10 +23,11 @@
 
 #include <stdint.h>
 
+#include "Client.h"
 #include "EventRunnable.h"
-#include "util/async/SharedMemory.h"
-#include "util/graphic/LinearFrameBuffer.h"
-#include "kepler/Client.h"
+
+#include <util/async/SharedMemory.h>
+#include <util/graphic/LinearFrameBuffer.h>
 
 namespace Kepler {
 

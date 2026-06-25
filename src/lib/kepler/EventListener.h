@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "kepler/Protocol.h"
+#include "protocol/Event.h"
 
 namespace Kepler {
 

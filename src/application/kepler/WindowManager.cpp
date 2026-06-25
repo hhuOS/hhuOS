@@ -20,14 +20,16 @@
 
 #include "WindowManager.h"
 
+#include "interface.h"
 #include "util/io/stream/NumberUtil.h"
 #include "util/base/Constants.h"
 #include "util/graphic/Colors.h"
-#include "kepler/Protocol.h"
 #include "util/io/key/MouseDecoder.h"
-#include "lib/interface.h"
 #include "util/base/System.h"
 #include "util/graphic/BitmapFile.h"
+#include "kepler/protocol/Event.h"
+#include "kepler/protocol/Request.h"
+#include "kepler/protocol/Response.h"
 
 const Util::Time::Timestamp WindowManager::TARGET_FRAMETIME =
     Util::Time::Timestamp::ofNanoseconds(1000000000 / TARGET_FPS);
@@ -171,9 +173,9 @@ void WindowManager::run() {
 bool WindowManager::checkNextPipe() {
     if (nextPipe->isReadyToRead()) {
         nextPipe->setAccessMode(Util::Io::File::BLOCKING);
-        const auto command = static_cast<Kepler::Command>(Util::Io::NumberUtil::readUnsigned8BitValue(*nextPipe));
+        const auto command = static_cast<Kepler::Request::Command>(Util::Io::NumberUtil::readUnsigned8BitValue(*nextPipe));
 
-        if (command == Kepler::CONNECT) {
+        if (command == Kepler::Request::CONNECT) {
             auto request = Kepler::Request::Connect();
             request.readFromStream(*nextPipe);
             nextPipe->setAccessMode(Util::Io::File::NON_BLOCKING);
@@ -197,23 +199,23 @@ bool WindowManager::checkClients() {
     for (const auto *client : clients) {
         auto &inputStream = client->getInputStream();
         if (inputStream.isReadyToRead()) {
-            const auto command = static_cast<Kepler::Command>(
+            const auto command = static_cast<Kepler::Request::Command>(
                 Util::Io::NumberUtil::readUnsigned8BitValue(inputStream));
 
             switch (command) {
-                case Kepler::CREATE_WINDOW:
+                case Kepler::Request::CREATE_WINDOW:
                     createWindow(*client);
                     needRedraw = true;
                     break;
-                case Kepler::SET_WINDOW_TITLE:
+                case Kepler::Request::SET_WINDOW_TITLE:
                     setWindowTitle(*client);
                     needRedraw = true;
                     break;
-                case Kepler::FLUSH:
+                case Kepler::Request::FLUSH:
                     flushWindow(*client);
                     needRedraw = true;
                     break;
-                case Kepler::CLOSE_WINDOW:
+                case Kepler::Request::CLOSE_WINDOW:
                     closeWindow(*client);
                     fullRedraw = true;
                 default:
@@ -387,6 +389,9 @@ void WindowManager::createWindow(const Client &client) {
     const auto bufferPages = bufferSize % Util::PAGESIZE == 0 ?
         bufferSize / Util::PAGESIZE : bufferSize / Util::PAGESIZE + 1;
     auto *sharedBuffer = new Util::Async::SharedMemory(Util::String::format("%u", windowId), bufferPages);
+
+    sharedBuffer->getAddress().setRange(0, bufferSize);
+
     sharedBuffer->publish();
 
     constexpr auto width = 320;
@@ -397,13 +402,8 @@ void WindowManager::createWindow(const Client &client) {
     const auto response = Kepler::Response::CreateWindow(windowId, width, height, lfb.getColorDepth());
     response.writeToStream(outputStream);
 
-    const auto signal = static_cast<Kepler::Signal>(inputStream.read());
-    inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
-
-    if (signal == Kepler::CLIENT_WINDOW_INITIALIZED) {
-        auto *window = new ClientWindow(windowId, client.getProcessId(), posX, posY, width, height, request.getTitle(), sharedBuffer);
-        windowStack.push(window);
-    }
+    auto *window = new ClientWindow(windowId, client.getProcessId(), posX, posY, width, height, request.getTitle(), sharedBuffer);
+    windowStack.push(window);
 }
 
 void WindowManager::closeWindow(const Client &client) {
