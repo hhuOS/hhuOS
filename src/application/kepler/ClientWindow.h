@@ -27,7 +27,7 @@
 #include "util/graphic/LinearFrameBuffer.h"
 #include "util/io/stream/FileOutputStream.h"
 #include "util/async/SharedMemory.h"
-#include "kepler/Protocol.h"
+#include "kepler/protocol/Event.h"
 
 class ClientWindow {
 

@@ -18,14 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-
 #include "graphic/BufferedLinearFrameBuffer.h"
 #include "util/async/Thread.h"
-#include "util/graphic/Colors.h"
 #include "util/graphic/font/Terminal8x16.h"
-#include "util/time/Timestamp.h"
 #include "kepler/Client.h"
-#include "kepler/Protocol.h"
 #include "kepler/Window.h"
 #include "lunar/BorderLayout.h"
 #include "lunar/Button.h"

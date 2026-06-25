@@ -22,10 +22,11 @@
 #define HHUOS_MOUSERUNNABLE_H
 
 #include "EventListener.h"
-#include "util/async/Runnable.h"
-#include "util/base/String.h"
-#include "util/collection/HashMap.h"
-#include "util/io/stream/FileInputStream.h"
+
+#include <util/async/Runnable.h>
+#include <util/base/String.h>
+#include <util/collection/HashMap.h>
+#include <util/io/stream/FileInputStream.h>
 
 namespace Kepler {
 

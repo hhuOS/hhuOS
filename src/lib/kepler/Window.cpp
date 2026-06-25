@@ -20,9 +20,11 @@
 
 #include "Window.h"
 
-#include "interface.h"
-#include "kepler/Protocol.h"
-#include "util/base/Constants.h"
+#include "protocol/Request.h"
+#include "protocol/Response.h"
+
+#include <interface.h>
+#include <util/base/Constants.h>
 
 namespace Kepler {
 
@@ -53,10 +55,6 @@ Window::Window(const uint16_t width, const uint16_t height, const Util::String &
     auto *windowBuffer = reinterpret_cast<void*>(sharedMemory->getAddress().get());
     lfb = new Util::Graphic::LinearFrameBuffer(windowBuffer, response.getWidth(), response.getHeight(),
         response.getColorDepth(), response.getWidth() * bytesPerPixel, false);
-
-    if (!client.sendSignal(CLIENT_WINDOW_INITIALIZED)) {
-        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
-    }
 }
 
 Window::~Window() {

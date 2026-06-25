@@ -20,10 +20,11 @@
 
 #include "Client.h"
 
-#include "lib/interface.h"
-#include "kepler/Protocol.h"
-#include "util/async/Process.h"
-#include "util/io/stream/NumberUtil.h"
+#include "protocol/Request.h"
+
+#include <interface.h>
+#include <util/async/Process.h>
+#include <util/io/stream/NumberUtil.h>
 
 namespace Kepler {
 
@@ -84,10 +85,6 @@ bool Client::sendRequest(const Util::Async::Streamable &streamable) const {
 
 bool Client::receiveResponse(Util::Async::Streamable &streamable) const {
     return streamable.readFromStream(*responseInputStream);
-}
-
-bool Client::sendSignal(const Signal signal) const {
-    return Util::Io::NumberUtil::writeUnsigned8BitValue(signal, *requestOutputStream);
 }
 
 size_t Client::getWindowManagerProcessId() const {

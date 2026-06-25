@@ -21,7 +21,6 @@
 #ifndef HHUOS_CLIENT_H
 #define HHUOS_CLIENT_H
 
-#include "util/collection/ArrayList.h"
 #include "util/io/stream/FileInputStream.h"
 #include "util/io/stream/FileOutputStream.h"
 
