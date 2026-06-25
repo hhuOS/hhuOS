@@ -26,7 +26,7 @@
 namespace Util {
 
 /// An element of an iterator, containing a pointer to the data and the index in the iterable.
-/// The iterator design assumes, that the next element can be accessed from the current element,
+/// The iterator design assumes that the next element can be accessed from the current element,
 /// either by incrementing the index or by using a pointer to the next element.
 template <typename T>
 struct IteratorElement {

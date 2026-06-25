@@ -24,9 +24,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "util/base/String.h"
-#include "util/io/file/File.h"
-#include "util/io/stream/InputStream.h"
+#include "InputStream.h"
+#include "../file/File.h"
+
+#include <util/base/String.h>
 
 namespace Util {
 namespace Io {
@@ -83,7 +84,7 @@ public:
 	/// Read a single byte from the file.
 	/// On success, the byte is returned as an integer in the range 0 to 255.
 	/// If an error occurs or the end of the file is reached, -1 is returned.
-	/// If no byte is currently available, but the end of the file has not been reached (e.g. for pipes or sockets),
+	/// If no byte is currently available, but the end of the file has not been reached (e.g., for pipes or sockets),
 	/// the behavior depends on the current access mode:
 	/// In blocking mode, the call will block until data is available.
 	/// In non-blocking mode, -1 is returned immediately. In this case, the stream is not at the end of the file,
@@ -92,7 +93,7 @@ public:
 
 	/// Peek at the next byte in the file without removing it from the stream.
 	/// If an error occurs or the end of the file is reached, -1 is returned.
-	/// If no byte is currently available, but the end of the file has not been reached (e.g. for pipes or sockets),
+	/// If no byte is currently available, but the end of the file has not been reached (e.g., for pipes or sockets),
 	/// the behavior depends on the current access mode:
 	/// In blocking mode, the call will block until data is available.
 	/// In non-blocking mode, -1 is returned immediately. In this case, the stream is not at the end of the file,
@@ -104,7 +105,7 @@ public:
 	/// If an error occurs or the end of the file is reached before reading any bytes, -1 is returned.
 	/// It is the caller's responsibility to ensure that the target buffer has enough space for offset + length bytes.
 	/// If the buffer is too small, data is written out of bounds, leading to undefined behavior.
-	/// If no bytes are currently available, but the end of the file has not been reached (e.g. for pipes or sockets),
+	/// If no bytes are currently available, but the end of the file has not been reached (e.g., for pipes or sockets),
 	/// the behavior depends on the current access mode:
 	/// In blocking mode, the call will block until data is available.
 	/// In non-blocking mode, 0 is returned immediately. In this case, the stream is not at the end of the file,

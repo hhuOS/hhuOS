@@ -21,10 +21,9 @@
 #ifndef HHUOS_LIB_UTIL_POOL_H
 #define HHUOS_LIB_UTIL_POOL_H
 
-#include "util/async/AtomicBitmap.h"
-#include "util/collection/Array.h"
+#include "Array.h"
 
-#include "Pair.h"
+#include <util/async/AtomicBitmap.h>
 
 namespace Util {
 
@@ -98,7 +97,7 @@ public:
     /// ```
     T* pop();
 
-    /// Get the capacity of the pool, i.e. the number of elements it can hold.
+    /// Get the capacity of the pool, i.e, the number of elements it can hold.
     ///
     /// ### Example
     /// ```c++
@@ -128,7 +127,7 @@ public:
     /// ```
     size_t getObjectCount() const;
 
-    /// Check if the pool is full, i.e. if it contains as many objects as its capacity.
+    /// Check if the pool is full, i.e, if it contains as many objects as its capacity.
     ///
     /// ### Example
     /// ```c++

@@ -23,9 +23,9 @@
 
 #include <stdint.h>
 
-#include "util/io/file/File.h"
-#include "util/io/stream/FilterInputStream.h"
-#include "util/io/stream/FileInputStream.h"
+#include <util/io/file/File.h>
+#include <util/io/stream/FilterInputStream.h>
+#include <util/io/stream/FileInputStream.h>
 
 namespace Util {
 namespace Sound {
@@ -101,17 +101,17 @@ public:
     /// and fire a panic if the file is not a valid WAVE file or does not contain a 'data' chunk.
     explicit WaveFile(const Io::File &file);
 
-    /// Return the audio format of the WAVE file (e.g. `PCM`).
+    /// Return the audio format of the WAVE file (e.g., `PCM`).
     AudioFormat getAudioFormat() const {
         return formatChunk.audioFormat;
     }
 
-    /// Return the number of channels in the audio data (e.g. 1 for mono, 2 for stereo).
+    /// Return the number of channels in the audio data (e.g., 1 for mono, 2 for stereo).
     uint16_t getNumChannels() const {
         return formatChunk.numChannels;
     }
 
-    /// Return the sample rate in samples per second (e.g. 22050, 44100).
+    /// Return the sample rate in samples per second (e.g., 22050, 44100).
     uint32_t getSamplesPerSecond() const {
         return formatChunk.samplesPerSecond;
     }
@@ -121,7 +121,7 @@ public:
         return formatChunk.bytesPerSecond;
     }
 
-    /// Return the number of bits per sample (e.g. 8, 16).
+    /// Return the number of bits per sample (e.g., 8, 16).
     uint16_t getBitsPerSample() const {
         return formatChunk.bitsPerSample;
     }

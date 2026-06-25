@@ -35,16 +35,17 @@
 
 #include <stddef.h>
 
-#include "util/math/Vector3.h"
-#include "pulsar/Entity.h"
-#include "pulsar/3d/Orientation.h"
-#include "pulsar/3d/collider/SphereCollider.h"
+#include "../Entity.h"
+#include "Orientation.h"
+#include "collider/SphereCollider.h"
+
+#include <util/math/Vector3.h>
 
 namespace Pulsar {
 namespace D3 {
 class CollisionEvent;
-}  // namespace D3
-}  // namespace Pulsar
+}
+}
 
 namespace Pulsar {
 namespace D3 {
@@ -53,7 +54,7 @@ namespace D3 {
 /// It enhances the `Pulsar::Entity` class with 3D-specific properties like position, rotation, scale and a collider.
 /// To handle collisions, 3D entities can have a `SphereCollider`. If an entity has a collider and collides
 /// with another entity that also has a collider, a `CollisionEvent` is triggered,
-/// allowing the entity to respond allowing to respond to the collision (e.g. by taking damage).
+/// allowing the entity to respond allowing to respond to the collision (e.g., by taking damage).
 class Entity : public Pulsar::Entity {
 
 public:

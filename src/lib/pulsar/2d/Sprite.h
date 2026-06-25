@@ -33,10 +33,11 @@
 #ifndef HHUOS_LIB_PULSAR_2D_SPRITE_H
 #define HHUOS_LIB_PULSAR_2D_SPRITE_H
 
-#include "util/graphic/Image.h"
-#include "util/base/String.h"
-#include "util/math/Vector2.h"
-#include "pulsar/Graphics.h"
+#include "../Graphics.h"
+
+#include <util/graphic/Image.h>
+#include <util/base/String.h>
+#include <util/math/Vector2.h>
 
 namespace Pulsar {
 namespace D2 {
@@ -126,7 +127,7 @@ public:
         xFlipped = !xFlipped;
     }
 
-    /// Set whether the sprite is flipped horizontally (i.e. mirrored along the vertical axis).
+    /// Set whether the sprite is flipped horizontally (i.e., mirrored along the vertical axis).
     void setXFlipped(bool flipped) {
         xFlipped = flipped;
     }

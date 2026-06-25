@@ -21,9 +21,9 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "lib/util/network/udp/UdpHeader.h"
+#include "UdpHeader.h"
 
-#include "../../io/stream/NumberUtil.h"
+#include <util/io/stream/NumberUtil.h>
 
 namespace Util {
 namespace Network {

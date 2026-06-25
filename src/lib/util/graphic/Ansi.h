@@ -24,15 +24,16 @@
 #include <stddef.h>
 
 #include "Terminal.h"
-#include "util/base/String.h"
-#include "util/base/System.h"
-#include "util/graphic/Color.h"
-#include "util/graphic/Colors.h"
+#include "Color.h"
+#include "Colors.h"
+
+#include <util/base/String.h>
+#include <util/base/System.h>
 
 /// Contains functions and definitions for ANSI terminal graphics control.
-/// Most function use ANSI escape sequences to control text formatting, colors and cursor movement.
-/// Some special function use a control system call on the standard input/output file descriptors
-/// to change terminal settings (e.g. enabling/disabling echoing of input characters).
+/// Most functions use ANSI escape sequences to control text formatting, colors and cursor movement.
+/// Some special functions use a control system call on the standard input/output file descriptors
+/// to change terminal settings (e.g., enabling/disabling echoing of input characters).
 ///
 /// All functions are implemented directly in this header, so linking agains "lib.util.graphic" is not necessary.
 namespace Util {
@@ -199,7 +200,7 @@ inline void disableAnsiParsing() {
 /// Prepare the standard input terminal for graphical application usage.
 /// This disables the cursor, line aggregation and ANSI parsing, so that each input character can be read immediately.
 /// If `enableScancodes` is true, raw PS/2 keyboard scancodes will be provided instead of ASCII characters.
-/// This is useful for applications that need to handle special keys or key combinations (e.g. games).
+/// This is useful for applications that need to handle special keys or key combinations (e.g., games).
 inline void prepareGraphicalApplication(bool enableScancodes) {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_RAW_MODE,
         Util::Array<size_t>(0));

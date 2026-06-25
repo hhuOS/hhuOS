@@ -26,8 +26,8 @@
 
 #include <stdint.h>
 
-#include "util/io/stream/InputStream.h"
-#include "util/io/stream/OutputStream.h"
+#include <util/io/stream/InputStream.h>
+#include <util/io/stream/OutputStream.h>
 
 namespace Util {
 namespace Network {
@@ -49,12 +49,12 @@ public:
     UdpHeader() = default;
 
     /// Read the header values from the given input stream.
-    /// The input stream must deliver the 8 bytes of data, that make up the header.
+    /// The input stream must deliver the 8 bytes of data that make up the header.
     /// The source port, destination port, datagram length, and checksum are read in this exact order.
     void read(Io::InputStream &stream);
 
     /// Write the header values to the given output stream.
-    /// The output stream will receive the 8 bytes of data, that make up the header.
+    /// The output stream will receive the 8 bytes of data that make up the header.
     /// The source port, destination port, datagram length, and checksum are written in this exact order.
     void write(Io::OutputStream &stream) const;
 

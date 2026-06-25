@@ -23,19 +23,19 @@
 
 #include <stdint.h>
 
-#include "util/graphic/LinearFrameBuffer.h"
+#include "LinearFrameBuffer.h"
 
 namespace Util {
 namespace Graphic {
 
-/// A double buffered linear frame buffer implementation.
+/// A double-buffered linear frame buffer implementation.
 /// All drawing operations are performed on a software buffer which can be flushed to the target frame buffer on demand.
 /// It can be initialized with a lower resolution than the target frame buffer and will scale the content accordingly
-/// on flush. However, it uses integer scaling factors only and if the scaled resolution is smaller than the target
+/// on a flush. However, it uses integer scaling factors only, and if the scaled resolution is smaller than the target
 /// resolution, the content will be centered.
 /// For example, a 400x300 buffered frame buffer on a 800x600 target frame buffer will use a scaling factor of 2
-/// and fit perfectly, while a 300x200 buffered frame buffer on the same target will use a scaling factor of 2 as well,
-/// resulting in a 600x400 output that is centered within the 800x600 target.
+/// and fit perfectly. A 300x200 buffered frame buffer on the same target will use a scaling factor of 2 as well,
+/// resulting in a 600x400 output centered within the 800x600 target.
 class BufferedLinearFrameBuffer final : public LinearFrameBuffer {
 
 public:

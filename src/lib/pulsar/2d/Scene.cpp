@@ -32,13 +32,14 @@
 
 #include "Scene.h"
 
-#include "lib/util/collection/Pair.h"
-#include "lib/pulsar/2d/event/CollisionEvent.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/pulsar/2d/Entity.h"
-#include "lib/pulsar/2d/collider/RectangleCollider.h"
-#include "lib/pulsar/Entity.h"
-#include "lib/pulsar/Graphics.h"
+#include "Entity.h"
+#include "../Entity.h"
+#include "../Graphics.h"
+#include "event/CollisionEvent.h"
+#include "collider/RectangleCollider.h"
+
+#include <util/collection/Pair.h>
+#include <util/collection/ArrayList.h>
 
 namespace Pulsar {
 namespace D2 {

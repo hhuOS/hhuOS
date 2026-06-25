@@ -23,7 +23,7 @@
 
 #include <stddef.h>
 
-#include "util/collection/Collection.h"
+#include "Collection.h"
 
 namespace Util {
 

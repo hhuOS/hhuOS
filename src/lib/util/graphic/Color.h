@@ -23,14 +23,14 @@
 
 #include <stdint.h>
 
-#include "util/base/Address.h"
-#include "util/base/Panic.h"
+#include <util/base/Address.h>
+#include <util/base/Panic.h>
 
 namespace Util {
 namespace Graphic {
 
 /// Represents a 32-bit color with red, green, blue, and alpha components (8 bits each).
-/// Colors can be brightened, dimmed and blended with other colors.
+/// Colors can be brightened, dimmed, and blended with other colors.
 /// Furthermore, they can be converted into their 1-, 2-, 4-, 8-, 15-, 16-, 24-, and 32-bit binary forms:
 ///
 ///     32-bit:

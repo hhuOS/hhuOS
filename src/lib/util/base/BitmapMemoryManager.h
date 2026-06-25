@@ -23,18 +23,19 @@
 
 #include <stdint.h>
 
-#include "util/async/AtomicBitmap.h"
-#include "util/base/BlockMemoryManager.h"
+#include "BlockMemoryManager.h"
+
+#include <util/async/AtomicBitmap.h>
 
 namespace Util {
 
 /// A block memory manager based on an `AtomicBitmap` that manages memory in fixed-size blocks.
-/// It is thread-safe and lock free, allowing for fast concurrent allocations and deallocations.
+/// It is thread-safe and lock-free, allowing for fast concurrent allocations and deallocations.
 class BitmapMemoryManager : public BlockMemoryManager {
 
 public:
     /// Create a new BitmapMemoryManager instance with a given range of memory and block size.
-    /// The start address in inclusive and the end address is exclusive.
+    /// The start address is inclusive and the end address is exclusive.
     /// An end address of 0 actually points to the highest possible address.
     /// The boolean flag `zeroMemory` indicates whether the allocated memory blocks should be zeroed out.
     BitmapMemoryManager(uint8_t *startAddress, uint8_t *endAddress, const size_t blockSize,

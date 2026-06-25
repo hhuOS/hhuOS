@@ -35,9 +35,10 @@
 
 #include <stddef.h>
 
-#include "pulsar/audio/AudioTrack.h"
-#include "util/sound/AudioChannel.h"
-#include "util/sound/WaveFile.h"
+#include "AudioTrack.h"
+
+#include <util/sound/AudioChannel.h>
+#include <util/sound/WaveFile.h>
 
 namespace Pulsar {
 
@@ -68,7 +69,7 @@ public:
 
     /// Write as many bytes as possible without blocking from the assigned audio buffer to the underlying channel.
     /// This method is called periodically by the game engine to keep the audio channel fed with data.
-    /// Returns true if any data was written, false if no data could be written (i.e. channel is full).
+    /// Returns true if any data was written, false if no data could be written (i.e., channel is full).
     bool update();
 
     /// Get the ID of the currently playing audio track, or 0 if no track is assigned.

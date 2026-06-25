@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "util/network/MacAddress.h"
+#include "../MacAddress.h"
 
 namespace Util {
 namespace Network {
@@ -42,7 +42,7 @@ namespace Ethernet {
 class EthernetHeader {
 
 public:
-    /// Relevant EtherTypes (full list is available in RFC7042 Appendix B (pages 25,26))
+    /// Relevant EtherTypes (a full list is available in RFC7042 Appendix B (pages 25,26))
     enum EtherType : uint16_t {
         /// Used to indicate that the ether type field is invalid.
         INVALID = 0x0000,
@@ -60,12 +60,12 @@ public:
     EthernetHeader() = default;
 
     /// Read the header values from the given input stream.
-    /// The input stream must deliver the 14 bytes of data, that make up the Ethernet header.
+    /// The input stream must deliver the 14 bytes of data that make up the Ethernet header.
     /// Destination and source MAC addresses and the EtherType field are read in this exact order.
     void read(Io::InputStream &stream);
 
     /// Write the header values to the given output stream.
-    /// The output stream will receive the 14 bytes of data, that make up the Ethernet header.
+    /// The output stream will receive the 14 bytes of data that make up the Ethernet header.
     /// Destination and source MAC addresses and the EtherType field are written in this exact order.
     void write(Io::OutputStream &stream) const;
 

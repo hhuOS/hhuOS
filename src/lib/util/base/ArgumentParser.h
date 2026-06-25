@@ -23,10 +23,11 @@
 
 #include <stdint.h>
 
-#include "util/base/String.h"
-#include "util/collection/ArrayList.h"
-#include "util/collection/HashMap.h"
-#include "util/collection/Array.h"
+#include "String.h"
+
+#include <util/collection/ArrayList.h>
+#include <util/collection/HashMap.h>
+#include <util/collection/Array.h>
 
 namespace Util {
 
@@ -118,7 +119,7 @@ public:
     }
 
     /// Parse the command line arguments.
-    /// If an error occurs (e.g. unknown argument), false is returned and an error message
+    /// If an error occurs (e.g., unknown argument), false is returned and an error message
     /// is stored in a private variable (can be retrieved with `getErrorString()`).
     /// The argument --help or -h causes this function to set the error message to the help text and return false.
     bool parse(uint32_t argc, char *argv[]);

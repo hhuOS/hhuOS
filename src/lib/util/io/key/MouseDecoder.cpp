@@ -44,7 +44,7 @@ Update decode(const uint8_t bytes[4]) {
     }
 
     // TODO: Check 0x40 for horizontal scrolling is not documented, but seems to work in QEMU.
-    //       This needs to be validated on real hardware
+    //       This needs to be validated on real hardware.
     switch (bytes[3] & 0x0f) {
         case UP:
             update.scroll = (bytes[3] & 0x40) ? RIGHT : UP;

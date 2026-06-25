@@ -23,13 +23,13 @@
 
 #include <stddef.h>
 
-#include "util/base/MemoryManager.h"
+#include "MemoryManager.h"
 
 namespace Util {
 
 /// Base class for memory managers that manage memory in fixed-size blocks.
 /// A block memory manager must support allocation and freeing of single blocks of memory.
-/// They are for example used to manage page frames or stack memory.
+/// They are, for example, used to manage page frames or stack memory.
 class BlockMemoryManager : public MemoryManager {
 
 public:

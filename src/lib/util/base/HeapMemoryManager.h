@@ -23,13 +23,12 @@
 
 #include <stddef.h>
 
-#include "util/base/MemoryManager.h"
-#include "util/reflection/Prototype.h"
+#include "MemoryManager.h"
 
 namespace Util {
 
 /// Base class for heap memory managers.
-/// A heap memory manager must support allocation, reallocation and freeing of memory.
+/// A heap memory manager must support allocation, reallocation, and freeing of memory.
 class HeapMemoryManager : public MemoryManager {
 
 public:

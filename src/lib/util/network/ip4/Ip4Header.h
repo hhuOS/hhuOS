@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "util/network/ip4/Ip4Address.h"
+#include "Ip4Address.h"
 
 namespace Util {
 namespace Network {
@@ -65,13 +65,13 @@ public:
     Ip4Header() = default;
 
     /// Read the header values from the given input stream.
-    /// The input stream must deliver at least 20 bytes of data, that make up the IPv4 header.
+    /// The input stream must deliver at least 20 bytes of data that make up the IPv4 header.
     /// The version, header length, DSCP, ECN, total length, identification, flags, offset,
     /// time to live, protocol, checksum, source address, and destination address are read in this exact order.
     void read(Io::InputStream &stream);
 
     /// Write the header values to the given output stream.
-    /// The output stream will receive the 20 bytes of data, that make up the IPv4 header.
+    /// The output stream will receive the 20 bytes of data that make up the IPv4 header.
     /// The version, header length, DSCP, ECN, total length, identification, flags, offset,
     /// time to live, protocol, checksum, source address, and destination address are written in this exact order.
     void write(Io::OutputStream &stream) const;

@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 
-#include "util/base/Panic.h"
-
 namespace Util {
 namespace Async {
 

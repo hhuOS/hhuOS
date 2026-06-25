@@ -24,7 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "util/io/stream/FilterOutputStream.h"
+#include "FilterOutputStream.h"
 
 namespace Util {
 namespace Io {
@@ -40,7 +40,7 @@ namespace Io {
 /// // with significant overhead for each write() call.
 /// // By using a buffered output stream, the number of system calls can be reduced significantly,
 /// // as the internal buffer is filled before being flushed to the underlying stream.
-/// // This can lead to a substantial performance improvement, especially when writing many small pieces of data.
+/// // This can lead to a significant performance improvement, especially when writing many small pieces of data.
 /// Util::Io::FileOutputStream fileStream("/path/to/file.txt");
 /// Util::Io::BufferedOutputStream bufferedStream(fileStream);
 ///
@@ -76,7 +76,7 @@ public:
     /// This method adds the byte to the internal buffer.
     /// If the internal buffer is full, it is flushed to the underlying stream first.
     /// On success, true is returned.
-    /// If an error occurs (i.e. flushing the buffer fails), false is returned.
+    /// If an error occurs (i.e, flushing the buffer fails), false is returned.
     bool write(uint8_t byte) override;
 
     /// Write up to length bytes from the sourceBuffer, starting at the given offset, to the stream.

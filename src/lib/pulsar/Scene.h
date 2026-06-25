@@ -84,22 +84,22 @@ public:
 
     /// Initialize the scene. This method is called by the engine once when the scene is first loaded.
     /// It initializes the graphics context and entities and calls the user-defined `initialize()` method.
-    /// It is intended to be overridden by engine internal scene implementations (e.g. `D2::Scene` and `D3::Scene`),
+    /// It is intended to be overridden by engine internal scene implementations (e.g., `D2::Scene` and `D3::Scene`),
     /// and should not be called directly by game developers.
     virtual void initializeScene(Graphics &graphics) = 0;
 
     /// Update all entities in the scene. This method is called by the engine once per frame.
-    /// It is intended to be overridden by engine internal scene implementations (e.g. `D2::Scene` and `D3::Scene`),
+    /// It is intended to be overridden by engine internal scene implementations (e.g., `D2::Scene` and `D3::Scene`),
     /// and should not be called directly by game developers.
     virtual void updateEntities(float delta) = 0;
 
     /// Check for collisions between entities in the scene. This method is called by the engine once per frame.
-    /// It is intended to be overridden by engine internal scene implementations (e.g. `D2::Scene` and `D3::Scene`),
+    /// It is intended to be overridden by engine internal scene implementations (e.g., `D2::Scene` and `D3::Scene`),
     /// and should not be called directly by game developers.
     virtual void checkCollisions() = 0;
 
     /// Initialize the scene. This method is called once when the scene is first loaded.
-    /// Any scene-wide setup should be done here (e.g. loading resources, setting up the environment, etc.).
+    /// Any scene-wide setup should be done here (e.g., loading resources, setting up the environment, etc.).
     /// All required resources should be loaded here, even if they are not immediately needed,
     /// to avoid loading delays during gameplay.
     virtual void initialize() = 0;

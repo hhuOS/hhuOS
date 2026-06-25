@@ -33,8 +33,9 @@
 #ifndef HHUOS_LIB_PULSAR_3D_SPHERECOLLIDER_H
 #define HHUOS_LIB_PULSAR_3D_SPHERECOLLIDER_H
 
-#include "pulsar/Collider.h"
-#include "util/math/Vector3.h"
+#include "../../Collider.h"
+
+#include <util/math/Vector3.h>
 
 namespace Pulsar {
 namespace D3 {

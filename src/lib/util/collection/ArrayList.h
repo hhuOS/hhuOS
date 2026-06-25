@@ -23,8 +23,8 @@
 
 #include <stddef.h>
 
-#include "util/collection/List.h"
-#include "util/collection/Iterator.h"
+#include "List.h"
+#include "Iterator.h"
 
 namespace Util {
 

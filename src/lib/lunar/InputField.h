@@ -26,15 +26,16 @@
 
 #include <stddef.h>
 
-#include "util/base/String.h"
-#include "util/graphic/font/Terminal8x8.h"
-#include "lunar/Widget.h"
+#include "Widget.h"
+
+#include <util/base/String.h>
+#include <util/graphic/font/Terminal8x8.h>
 
 namespace Lunar {
 
 /// A single-line text input field widget.
 /// The user can type text into the input field. The text may be longer than the visible area, in which case it
-/// will scroll horizontally. The input field supports backspace for deleting characters,
+/// will scroll horizontally. The input field supports backspace for deleting characters
 /// but does not support advanced editing features like cursor movement or text selection.
 /// To handle text input, register an `ActionListener` on the input field and listen for key events.
 class InputField final : public Widget {

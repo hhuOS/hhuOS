@@ -33,7 +33,7 @@
 #ifndef HHUOS_LIB_PULSAR_2D_SCENE_H
 #define HHUOS_LIB_PULSAR_2D_SCENE_H
 
-#include "pulsar/Scene.h"
+#include "../Scene.h"
 
 namespace Pulsar {
 namespace D2 {
@@ -64,7 +64,7 @@ public:
     /// is stored in a separate background buffer. This buffer is rendered once at the beginning of each frame,
     /// before any entities are drawn on top of it. The background also scrolls along endlessly with the camera.
     /// If anything has been drawn in this method, it should return `true`.
-    /// If no background is needed (i.e. the background is left black), it should return `false`.
+    /// If no background is needed (i.e., the background is left black), it should return `false`.
     virtual bool initializeBackground(Graphics&) {
         return false;
     }

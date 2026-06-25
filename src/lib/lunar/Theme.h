@@ -24,8 +24,9 @@
 #ifndef HHUOS_LIB_LUNAR_THEME_H
 #define HHUOS_LIB_LUNAR_THEME_H
 
-#include "util/graphic/Colors.h"
-#include "lunar/Widget.h"
+#include "Widget.h"
+
+#include <util/graphic/Colors.h>
 
 namespace Lunar {
 

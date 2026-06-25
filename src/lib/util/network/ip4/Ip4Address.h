@@ -26,8 +26,9 @@
 
 #include <stdint.h>
 
-#include "util/base/String.h"
-#include "util/network/NetworkAddress.h"
+#include "../NetworkAddress.h"
+
+#include <util/base/String.h>
 
 namespace Util {
 namespace Network {

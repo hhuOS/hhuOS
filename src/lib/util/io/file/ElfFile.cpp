@@ -20,9 +20,10 @@
 
 #include "ElfFile.h"
 
-#include "util/io/stream/FileInputStream.h"
-#include "util/base/Address.h"
-#include "util/base/Panic.h"
+#include "../stream/FileInputStream.h"
+
+#include <util/base/Address.h>
+#include <util/base/Panic.h>
 
 namespace Util {
 namespace Io {

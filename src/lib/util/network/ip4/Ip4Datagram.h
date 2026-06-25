@@ -76,7 +76,7 @@ public:
     Ip4Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress,
         const Ip4Header::Protocol protocol) : Datagram(stream, remoteAddress), protocol(protocol) {}
 
-    /// Get the protocol that this datagram is carrying (e.g. ICMP, TCP, UDP).
+    /// Get the protocol that this datagram is carrying (e.g., ICMP, TCP, UDP).
     Ip4Header::Protocol getProtocol() const {
         return protocol;
     }

@@ -33,8 +33,9 @@
 #ifndef HHUOS_LIB_PULSAR_2D_TRANSLATIONEVENT_H
 #define HHUOS_LIB_PULSAR_2D_TRANSLATIONEVENT_H
 
-#include "util/math/Vector2.h"
-#include "pulsar/CancelableEvent.h"
+#include "../../CancelableEvent.h"
+
+#include <util/math/Vector2.h>
 
 namespace Pulsar {
 namespace D2 {
@@ -44,7 +45,7 @@ namespace D2 {
 /// or via the `Entity::translate()` method.
 /// If an entity is moved directly via `Entity::setPosition()`, no translation event is created.
 /// The event contains the target position the entity is being moved to.
-/// Translation events are cancelable and if translation event is canceled,
+/// Translation events are cancelable, and if a translation event is canceled,
 /// the entity will not be moved to the target position.
 class TranslationEvent final : public CancelableEvent {
 

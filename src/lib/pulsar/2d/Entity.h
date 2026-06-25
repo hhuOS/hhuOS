@@ -35,18 +35,19 @@
 
 #include <stddef.h>
 
+#include "../Entity.h"
+#include "collider/RectangleCollider.h"
 #include "component/Component.h"
-#include "util/collection/ArrayList.h"
-#include "util/math/Vector2.h"
-#include "pulsar/Entity.h"
-#include "pulsar/2d/collider/RectangleCollider.h"
+
+#include <util/collection/ArrayList.h>
+#include <util/math/Vector2.h>
 
 namespace Pulsar {
 namespace D2 {
 class CollisionEvent;
 class TranslationEvent;
-}  // namespace D2
-}  // namespace Pulsar
+}
+}
 
 namespace Pulsar {
 namespace D2 {
@@ -54,13 +55,13 @@ namespace D2 {
 /// Base class for 2D entities for use in 2D scenes.
 /// It enhances the `Pulsar::Entity` class with 2D-specific properties like position, velocity and a collider.
 /// Furthermore, it introduces a component system, allowing to attach reusable components to entities
-/// that can modify their behavior (e.g. movement). For example, a `GravityComponent` can be added to an entity
+/// that can modify their behavior (e.g., movement). For example, a `GravityComponent` can be added to an entity
 /// to simulate an acceleration due to gravity. If a `LinearMovementComponent` is added, the entity will move
 /// linearly based on its velocity. Without this component, the entity will remain stationary unless its position
 /// is modified directly, regardless of its velocity.
 /// To handle collisions, 2D entities can have a `RectangleCollider`. If an entity has a collider and collides
 /// with another entity that also has a collider, a `CollisionEvent` is triggered,
-/// allowing to respond to the collision (e.g. by bouncing off or taking damage).
+/// allowing to respond to the collision (e.g., by bouncing off or taking damage).
 class Entity : public Pulsar::Entity {
 
 public:
@@ -84,7 +85,7 @@ public:
         }
     }
 
-    /// This method is called whenever the entity is moved by a component (e.g. `LinearMovementComponent`),
+    /// This method is called whenever the entity is moved by a component (e.g., `LinearMovementComponent`),
     /// or via the `translate()` method. It is not called when the position is set directly via `setPosition()`.
     /// The entity may cancel the translation by calling `event.cancel()`, preventing the movement.
     /// The default implementation does nothing.
@@ -137,19 +138,19 @@ public:
     }
 
     /// Set the velocity of the entity.
-    /// The velocity only affects the entity if a movement component (e.g. `LinearMovementComponent`) is attached to it.
+    /// The velocity only affects the entity if a movement component (e.g., `LinearMovementComponent`) is attached to it.
     void setVelocity(const Util::Math::Vector2<float> &velocity) {
         Entity::velocity = velocity;
     }
 
     /// Set the x-component of the entity's velocity.
-    /// The velocity only affects the entity if a movement component (e.g. `LinearMovementComponent`) is attached to it.
+    /// The velocity only affects the entity if a movement component (e.g., `LinearMovementComponent`) is attached to it.
     void setVelocityX(const float x) {
         velocity = Util::Math::Vector2<float>(x, velocity.getY());
     }
 
     /// Set the y-component of the entity's velocity.
-    /// The velocity only affects the entity if a movement component (e.g. `LinearMovementComponent`) is attached to it.
+    /// The velocity only affects the entity if a movement component (e.g., `LinearMovementComponent`) is attached to it.
     void setVelocityY(const float y) {
         velocity = Util::Math::Vector2<float>(velocity.getX(), y);
     }

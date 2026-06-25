@@ -32,8 +32,7 @@
 
 #include "Entity.h"
 
-#include "pulsar/Entity.h"
-#include "pulsar/3d/Orientation.h"
+#include "../Entity.h"
 
 namespace Pulsar {
 namespace D3 {

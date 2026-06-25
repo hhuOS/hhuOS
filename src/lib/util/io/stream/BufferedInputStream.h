@@ -24,7 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "util/io/stream/FilterInputStream.h"
+#include "FilterInputStream.h"
 
 namespace Util {
 namespace Io {
@@ -116,7 +116,7 @@ public:
     /// This method can be used to discard any buffered data and ensure that subsequent read operations
     /// reflect the current position of the underlying stream.
     /// It is useful if the position of the underlying stream has been changed directly
-    /// (e.g. by calling FileInputStream::setPosition()), as the internal buffer may become inconsistent in such cases.
+    /// (e.g., by calling FileInputStream::setPosition()), as the internal buffer may become inconsistent in such cases.
     void clearBuffer() {
         position = 0;
         valid = 0;

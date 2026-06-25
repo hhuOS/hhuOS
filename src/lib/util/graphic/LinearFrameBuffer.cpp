@@ -20,17 +20,18 @@
 
 #include "LinearFrameBuffer.h"
 
-#include "util/base/Address.h"
-#include "util/base/Constants.h"
-#include "util/base/Panic.h"
-#include "util/base/String.h"
-#include "util/collection/Array.h"
-#include "util/graphic/Color.h"
-#include "util/graphic/Font.h"
-#include "util/io/stream/FileInputStream.h"
-#include "util/io/file/File.h"
-#include "util/math/Math.h"
-#include "interface.h"
+#include "Color.h"
+#include "Font.h"
+
+#include <interface.h>
+#include <util/base/Address.h>
+#include <util/base/Constants.h>
+#include <util/base/Panic.h>
+#include <util/base/String.h>
+#include <util/collection/Array.h>
+#include <util/io/stream/FileInputStream.h>
+#include <util/io/file/File.h>
+#include <util/math/Math.h>
 
 namespace Util {
 namespace Graphic {

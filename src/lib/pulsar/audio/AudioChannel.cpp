@@ -32,7 +32,7 @@
 
 #include "AudioChannel.h"
 
-#include "util/sound/WaveFile.h"
+#include <util/sound/WaveFile.h>
 
 namespace Pulsar {
 

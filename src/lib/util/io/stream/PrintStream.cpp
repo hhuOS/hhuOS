@@ -20,10 +20,11 @@
 
 #include "PrintStream.h"
 
+#include "OutputStream.h"
 #include "ByteArrayOutputStream.h"
-#include "lib/util/io/stream/OutputStream.h"
-#include "lib/util/base/Address.h"
-#include "lib/util/math/Math.h"
+
+#include <util/base/Address.h>
+#include <util/math/Math.h>
 
 namespace Util {
 namespace Io {

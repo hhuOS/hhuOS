@@ -26,10 +26,11 @@
 
 #include <stddef.h>
 
-#include "util/collection/ArrayList.h"
-#include "util/graphic/LinearFrameBuffer.h"
-#include "lunar/Layout.h"
-#include "lunar/Widget.h"
+#include "Layout.h"
+#include "Widget.h"
+
+#include <util/collection/ArrayList.h>
+#include <util/graphic/LinearFrameBuffer.h>
 
 namespace Lunar {
 

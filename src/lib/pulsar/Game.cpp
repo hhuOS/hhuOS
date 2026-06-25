@@ -26,9 +26,9 @@
 
 #include "Game.h"
 
+#include "Scene.h"
+#include "Graphics.h"
 #include "audio/AudioHandle.h"
-#include "lib/pulsar/Scene.h"
-#include "lib/pulsar/Graphics.h"
 
 namespace Pulsar {
 

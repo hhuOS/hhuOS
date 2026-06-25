@@ -33,14 +33,14 @@
 #ifndef HHUOS_LIB_PULSAR_COLLIDER_H
 #define HHUOS_LIB_PULSAR_COLLIDER_H
 
-#include "util/math/Vector2.h"
-#include "util/math/Vector3.h"
+#include <util/math/Vector2.h>
+#include <util/math/Vector3.h>
 
 namespace Pulsar {
 
 /// Base class for colliders used in the game engine.
 /// Colliders define the physical boundaries of entities for collision detection and response.
-/// This class works for both 2D and 3D colliders by utilizing a 3D position vector.
+/// This class works for both 2D and 3D colliders by using a 3D position vector.
 /// Depending on the type of game (2D or 3D), colliders can have different behaviors,
 /// defined in the derived classes in the `D2` and `D3` namespaces. Games should always use these derived classes
 /// instead of this base class directly.

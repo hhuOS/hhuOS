@@ -24,10 +24,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "util/base/String.h"
-#include "util/collection/Array.h"
-#include "util/collection/ArrayList.h"
-#include "util/collection/Iterator.h"
+#include <util/base/String.h>
+#include <util/collection/Array.h>
+#include <util/collection/ArrayList.h>
+#include <util/collection/Iterator.h>
 
 namespace Util {
 namespace Hardware {
@@ -63,7 +63,7 @@ struct Rsdp {
 /// It contains metadata about the table, such as its signature, length, revision, and checksum.
 struct SdtHeader {
     /// Each ACPI table has a unique signature, which is a 4-character ASCII string
-    /// (e.g. "RSDT" for the Root System Description Table or "FACP" for the Fixed ACPI Description Table).
+    /// (e.g., "RSDT" for the Root System Description Table or "FACP" for the Fixed ACPI Description Table).
     char signature[4];
     /// The length of the table in bytes, including the header.
     uint32_t length;
@@ -281,7 +281,7 @@ enum AccessSize : uint8_t {
 /// For example, a device such as the HPET (High Precision Event Timer) uses this structure
 /// to describe its memory-mapped I/O region.
 struct GenericAddressStructure {
-    /// The type of address space, where the structure/register exists (e.g. system memory (MMIO), I/O space, etc.).
+    /// The type of address space, where the structure/register exists (e.g., system memory (MMIO), I/O space, etc.).
     AddressSpace addressSpace;
     /// When addressing a register, this field indicates the width of the register in bits.
     /// When addressing a structure, this field must be set to 0.
@@ -423,7 +423,7 @@ struct ApicStructureHeader {
 
 /// Information about a local APIC (Advanced Programmable Interrupt Controller).
 /// Typically, there is one local APIC per CPU core. Local APICs can issue inter-processor interrupts (IPIs)
-/// and handle local interrupts (e.g. from the APIC timer). External interrupts (e.g. from I/O devices)
+/// and handle local interrupts (e.g., from the APIC timer). External interrupts (e.g., from I/O devices)
 /// are handled by the I/O APIC, which routes them to the appropriate local APICs.
 struct ProcessorLocalApic {
     /// The header that prepends every APIC structure.
@@ -461,7 +461,7 @@ struct InterruptSourceOverride {
     ApicStructureHeader header;
     /// The bus on which the interrupt source is located (always 0 for ISA bus).
     InterruptBus bus;
-    /// The interrupt source relative to the bus, i.e. the ISA IRQ number (0-15).
+    /// The interrupt source relative to the bus, i.e, the ISA IRQ number (0-15).
     uint8_t source;
     /// The global system interrupt (GSI) to which the interrupt source is mapped.
     uint32_t globalSystemInterrupt;

@@ -26,8 +26,8 @@
 
 #include <stdint.h>
 
-#include "util/network/Datagram.h"
-#include "util/network/ethernet/EthernetHeader.h"
+#include "EthernetHeader.h"
+#include "../Datagram.h"
 
 namespace Util {
 namespace Network {
@@ -80,7 +80,7 @@ public:
         const EthernetHeader::EtherType type) : Datagram(stream, remoteAddress), type(type) {}
 
     /// Get the EtherType of the Ethernet datagram.
-    /// The EtherType indicates the protocol encapsulated in the Ethernet frame (e.g. IPv4, ARP, etc.).
+    /// The EtherType indicates the protocol encapsulated in the Ethernet frame (e.g., IPv4, ARP, etc.).
     EthernetHeader::EtherType getEtherType() const {
         return type;
     }

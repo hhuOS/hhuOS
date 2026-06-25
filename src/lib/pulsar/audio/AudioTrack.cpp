@@ -32,9 +32,9 @@
 
 #include "AudioTrack.h"
 
-#include "pulsar/Game.h"
-#include "pulsar/Resources.h"
-#include "pulsar/audio/AudioHandle.h"
+#include "AudioHandle.h"
+#include "../Game.h"
+#include "../Resources.h"
 
 namespace Pulsar {
 

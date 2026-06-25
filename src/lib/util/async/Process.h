@@ -23,9 +23,9 @@
 
 #include <stddef.h>
 
-#include "util/base/String.h"
-#include "util/collection/Array.h"
-#include "util/io/file/File.h"
+#include <util/base/String.h>
+#include <util/collection/Array.h>
+#include <util/io/file/File.h>
 
 namespace Util {
 namespace Async {
@@ -42,7 +42,7 @@ public:
     /// Load a program from an executable file and run it as a new process.
     ///
     /// @param binaryFile The executable file to load.
-    /// @param inputFile The standard input file for the process (e.g. "/device/terminal").
+    /// @param inputFile The standard input file for the process (e.g., "/device/terminal").
     /// @param outputFile The standard output file for the process (e.g "/device/terminal").
     /// @param errorFile The standard error file for the process (e.g "/device/terminal").
     /// @param command The path/name that the program was called with.

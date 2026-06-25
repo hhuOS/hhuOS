@@ -32,10 +32,11 @@
 
 #include "LinearMovementComponent.h"
 
-#include "util/math/Vector2.h"
-#include "pulsar/2d/Entity.h"
-#include "pulsar/2d/component/Component.h"
-#include "pulsar/2d/event/TranslationEvent.h"
+#include "Component.h"
+#include "../Entity.h"
+#include "../event/TranslationEvent.h"
+
+#include <util/math/Vector2.h>
 
 namespace Pulsar {
 namespace D2 {

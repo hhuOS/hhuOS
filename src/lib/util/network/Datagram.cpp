@@ -23,13 +23,9 @@
 
 #include "Datagram.h"
 
-#include "util/base/Panic.h"
-#include "util/base/Address.h"
-#include "util/io/stream/ByteArrayOutputStream.h"
-#include "util/network/NetworkAddress.h"
-#include "util/network/MacAddress.h"
-#include "util/network/ip4/Ip4Address.h"
-#include "util/network/ip4/Ip4PortAddress.h"
+#include "NetworkAddress.h"
+
+#include <util/io/stream/ByteArrayOutputStream.h>
 
 namespace Util {
 namespace Network {

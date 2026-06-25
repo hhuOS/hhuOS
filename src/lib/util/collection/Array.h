@@ -24,8 +24,7 @@
 #include <stddef.h>
 #include <initializer_list>
 
-#include "util/base/Address.h"
-#include "util/base/Panic.h"
+#include <util/base/Panic.h>
 
 namespace Util {
 

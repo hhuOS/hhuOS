@@ -34,9 +34,10 @@
 
 #include "Texture.h"
 
-#include "util/graphic/BitmapFile.h"
-#include "util/graphic/Color.h"
-#include "pulsar/Resources.h"
+#include "../Resources.h"
+
+#include <util/graphic/BitmapFile.h>
+#include <util/graphic/Color.h>
 
 namespace Pulsar {
 namespace D3 {

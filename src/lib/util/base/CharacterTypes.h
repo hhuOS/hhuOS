@@ -26,7 +26,7 @@
 
 namespace Util {
 
-/// Provides functions to check the type of a character, equivalent to the C standard library functions in <ctype.h>.
+/// Provides functions to check the type of character, equivalent to the C standard library functions in <ctype.h>.
 namespace CharacterTypes {
 
 /// Check if the given character is alphanumeric (a-z, A-Z, 0-9).

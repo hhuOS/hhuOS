@@ -33,9 +33,9 @@
 #ifndef HHUOS_LIB_PULSAR_2D_COLLISIONEVENT_H
 #define HHUOS_LIB_PULSAR_2D_COLLISIONEVENT_H
 
-#include "pulsar/Event.h"
-#include "pulsar/2d/Entity.h"
-#include "pulsar/2d/collider/RectangleCollider.h"
+#include "../../Event.h"
+#include "../Entity.h"
+#include "../collider/RectangleCollider.h"
 
 namespace Pulsar {
 namespace D2 {

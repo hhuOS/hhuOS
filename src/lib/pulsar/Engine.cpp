@@ -26,9 +26,10 @@
 
 #include "Engine.h"
 
-#include "pulsar/audio/AudioRunnable.h"
-#include "pulsar/3d/Scene.h"
-#include "util/graphic/Ansi.h"
+#include "audio/AudioRunnable.h"
+#include "3d/Scene.h"
+
+#include <util/graphic/Ansi.h>
 
 namespace Pulsar {
 

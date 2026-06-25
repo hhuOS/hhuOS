@@ -35,9 +35,10 @@
 
 #include <stddef.h>
 
-#include "util/collection/Array.h"
-#include "util/math/Vector2.h"
-#include "pulsar/2d/Sprite.h"
+#include "Sprite.h"
+
+#include <util/collection/Array.h>
+#include <util/math/Vector2.h>
 
 namespace Pulsar {
 namespace D2 {
@@ -142,7 +143,7 @@ public:
         xFlipped = !xFlipped;
     }
 
-    /// Set whether the animation is flipped horizontally (i.e. mirrored along the vertical axis).
+    /// Set whether the animation is flipped horizontally (i.e., mirrored along the vertical axis).
     void setXFlipped(const bool flipped) {
         xFlipped = flipped;
     }

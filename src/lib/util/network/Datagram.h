@@ -26,11 +26,12 @@
 
 #include <stdint.h>
 
-#include "util/io/stream/ByteArrayOutputStream.h"
-#include "util/network/NetworkAddress.h"
-#include "util/network/MacAddress.h"
-#include "util/network/ip4/Ip4Address.h"
-#include "util/network/ip4/Ip4PortAddress.h"
+#include "NetworkAddress.h"
+#include "MacAddress.h"
+#include "ip4/Ip4Address.h"
+#include "ip4/Ip4PortAddress.h"
+
+#include <util/io/stream/ByteArrayOutputStream.h>
 
 namespace Util {
 namespace Network {

@@ -33,7 +33,7 @@
 #ifndef HHUOS_LIB_PULSAR_2D_LINEARMOVEMENTCOMPONENT_H
 #define HHUOS_LIB_PULSAR_2D_LINEARMOVEMENTCOMPONENT_H
 
-#include "pulsar/2d/component/Component.h"
+#include "Component.h"
 
 namespace Pulsar {
 namespace D2 {

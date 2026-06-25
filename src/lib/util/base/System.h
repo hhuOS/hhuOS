@@ -22,21 +22,15 @@
 #define HHUOS_LIB_UTIL_SYSTEMCALL_H
 
 #include <stddef.h>
-#include <stdarg.h>
 
-#include "util/base/BitmapMemoryManager.h"
-#include "util/base/FreeListMemoryManager.h"
-#include "util/io/file/ElfFile.h"
-#include "lib/util/io/stream/InputStream.h" // IWYU pragma: keep
-#include "lib/util/io/stream/PrintStream.h" // IWYU pragma: keep
+#include "BitmapMemoryManager.h"
+#include "FreeListMemoryManager.h"
+
+#include <util/io/file/ElfFile.h>
+#include <util/io/stream/InputStream.h>
+#include <util/io/stream/PrintStream.h>
 
 namespace Util {
-namespace Io {
-class BufferedInputStream;
-class BufferedOutputStream;
-class FileInputStream;
-class FileOutputStream;
-}  // namespace Stream
 
 /// Provides system calls for user space applications and gives access to the standard input and output streams.
 class System {

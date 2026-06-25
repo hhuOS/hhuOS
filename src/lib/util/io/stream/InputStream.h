@@ -24,7 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "lib/util/base/String.h"
+#include <util/base/String.h>
 
 namespace Util {
 namespace Io {

@@ -24,8 +24,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "util/base/String.h"
-#include "util/collection/Array.h"
+#include <util/base/String.h>
+#include <util/collection/Array.h>
 
 namespace Util {
 namespace Io {
@@ -62,7 +62,7 @@ public:
         /// Character device files can be read from and written to, but do not have a valid length.
         /// They provide an endless stream of data and their length is always zero.
         CHARACTER,
-        /// System files (e.g. shared memory files) cannot be read from or written to and their length is always zero.
+        /// System files (e.g., shared memory files) cannot be read from or written to and their length is always zero.
         /// They are only meant to be accessed via `controlFile()` requests.
         SYSTEM
     };

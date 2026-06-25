@@ -36,8 +36,8 @@
 namespace Pulsar {
 namespace D2 {
 class Entity;
-}  // namespace D2
-}  // namespace Pulsar
+}
+}
 
 namespace Pulsar {
 namespace D2 {

@@ -20,12 +20,13 @@
 
 #include "LinearFrameBufferTerminal.h"
 
-#include "util/async/Thread.h"
-#include "util/base/Address.h"
-#include "util/base/Panic.h"
-#include "util/graphic/Font.h"
-#include "util/graphic/LinearFrameBuffer.h"
-#include "util/time/Timestamp.h"
+#include "Font.h"
+#include "LinearFrameBuffer.h"
+
+#include <util/async/Thread.h>
+#include <util/base/Address.h>
+#include <util/base/Panic.h>
+#include <util/time/Timestamp.h>
 
 namespace Util {
 namespace Graphic {

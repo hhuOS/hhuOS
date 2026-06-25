@@ -35,10 +35,11 @@
 
 #include <stddef.h>
 
-#include "util/time/Timestamp.h"
-#include "pulsar/2d/particle/Emitter.h"
-#include "pulsar/2d/Entity.h"
-#include "pulsar/2d/Sprite.h"
+#include "Emitter.h"
+#include "../Entity.h"
+#include "../Sprite.h"
+
+#include <util/time/Timestamp.h>
 
 namespace Pulsar {
 namespace D2 {
@@ -128,7 +129,7 @@ public:
     /// This sets the particle's scale, rotation, and alpha to the one defined by the sprite,
     /// since they are properties of the sprite itself.
     /// The `Sprite` class has a constructor that allows creating a square sprite from a color and size.
-    /// This allows easily creating simple particle sprites (i.e. colored square).
+    /// This allows easily creating simple particle sprites (i.e., colored square).
     void setSprite(const Sprite &sprite) {
         Particle::sprite = sprite;
     }

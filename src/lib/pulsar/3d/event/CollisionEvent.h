@@ -33,8 +33,8 @@
 #ifndef HHUOS_LIB_PULSAR_3D_COLLISIONEVENT_H
 #define HHUOS_LIB_PULSAR_3D_COLLISIONEVENT_H
 
-#include "pulsar/Event.h"
-#include "pulsar/3d/Entity.h"
+#include "../../Event.h"
+#include "../Entity.h"
 
 namespace Pulsar {
 namespace D3 {

@@ -36,14 +36,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "util/async/Runnable.h"
-#include "pulsar/Game.h"
-#include "pulsar/Graphics.h"
-#include "pulsar/Statistics.h"
-#include "util/graphic/LinearFrameBuffer.h"
-#include "util/io/key/KeyDecoder.h"
-#include "util/io/key/MouseDecoder.h"
-#include "util/io/key/layout/DeLayout.h"
+#include "Game.h"
+#include "Graphics.h"
+#include "Statistics.h"
+
+#include <util/async/Runnable.h>
+#include <util/graphic/LinearFrameBuffer.h>
+#include <util/io/key/KeyDecoder.h>
+#include <util/io/key/MouseDecoder.h>
+#include <util/io/key/layout/DeLayout.h>
 
 namespace Pulsar {
 

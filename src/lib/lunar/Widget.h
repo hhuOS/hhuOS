@@ -26,9 +26,10 @@
 
 #include <stddef.h>
 
-#include "lunar/ActionListener.h"
-#include "util/collection/ArrayList.h"
-#include "util/graphic/LinearFrameBuffer.h"
+#include "ActionListener.h"
+
+#include <util/collection/ArrayList.h>
+#include <util/graphic/LinearFrameBuffer.h>
 
 namespace Lunar {
 class Container;
@@ -37,7 +38,7 @@ class Container;
 namespace Lunar {
 
 /// Base class for all widgets.
-/// A widget is UI element that can be drawn on the screen and can interact with user input.
+/// A widget is a UI element that can be drawn on the screen and can interact with user input.
 /// Examples for widgets are buttons, labels, text fields, etc.
 /// Each widget can have action listeners that are notified when certain events occur,
 /// such as mouse clicks or key presses.
@@ -51,10 +52,10 @@ public:
     /// The parameter `redrawOnMouseStatusChange` specifies whether the widget should be redrawn
     /// when the mouse enters or exits the widget, or when a mouse button is pressed or released
     /// while the mouse is over the widget. Some widgets may want to change their appearance
-    /// in these cases (e.g. buttons) and thus need to be redrawn.
+    /// in these cases (e.g., buttons) and thus need to be redrawn.
     /// The parameter `redrawOnFocusChange` specifies whether the widget should be redrawn
     /// when the widget gains or loses keyboard focus. Some widgets may want to change their appearance
-    /// in these cases (e.g. text fields) and thus need to be redrawn.
+    /// in these cases (e.g., text fields) and thus need to be redrawn.
     explicit Widget(bool redrawOnMouseStatusChange = true, bool redrawOnFocusChange = true);
 
     /// The widget class is not copyable, as it manages action listeners on the heap.
@@ -118,7 +119,7 @@ public:
     void setFocused(bool focused);
 
     /// Add an action listener to the widget.
-    /// The listener will be notified when certain events occur on the widget (e.g. mouse clicks, key presses).
+    /// The listener will be notified when certain events occur on the widget (e.g., mouse clicks, key presses).
     void addActionListener(ActionListener *listener) {
         actionListeners.add(listener);
     }
@@ -162,10 +163,10 @@ public:
         return needsRedraw;
     }
 
-    /// Get the preferred width of the widget in pixels (i.e. the width that the widget would like to have).
+    /// Get the preferred width of the widget in pixels (i.e., the width that the widget would like to have).
     virtual size_t getPreferredWidth() const = 0;
 
-    /// Get the preferred height of the widget in pixels (i.e. the height that the widget would like to have).
+    /// Get the preferred height of the widget in pixels (i.e., the height that the widget would like to have).
     virtual size_t getPreferredHeight() const = 0;
 
     /// Get the child widget at the given point (posX, posY) in absolute pixel coordinates.
@@ -196,7 +197,7 @@ protected:
     }
 
     /// Notify the parent container that the preferred size of the widget has changed.
-    /// This can for example happen when the content of the widget changes (e.g. text in a label).
+    /// This can for example happen when the content of the widget changes (e.g., text in a label).
     void reportPreferredSizeChange() const;
 
 private:

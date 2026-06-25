@@ -32,10 +32,11 @@
 
 #include "RectangleCollider.h"
 
-#include "util/math/Math.h"
-#include "util/math/Vector2.h"
-#include "util/math/Vector3.h"
-#include "pulsar/Collider.h"
+#include "../../Collider.h"
+
+#include <util/math/Math.h>
+#include <util/math/Vector2.h>
+#include <util/math/Vector3.h>
 
 namespace Pulsar {
 namespace D2 {

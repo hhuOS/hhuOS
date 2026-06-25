@@ -33,15 +33,16 @@
 #ifndef HHUOS_LIB_PULSAR_2D_RECTANGLECOLLIDER_H
 #define HHUOS_LIB_PULSAR_2D_RECTANGLECOLLIDER_H
 
-#include "util/math/Vector2.h"
-#include "pulsar/Collider.h"
+#include "../../Collider.h"
+
+#include <util/math/Vector2.h>
 
 namespace Pulsar {
 namespace D2 {
 
 /// A rectangular collider for 2D collision detection.
 /// Each collider has four sides: `LEFT`, `RIGHT`, `TOP` and `BOTTOM`.
-/// Collisions with other rectangle collider can be detected by calling `isColliding()`.
+/// Collisions with another rectangle collider can be detected by calling `isColliding()`.
 /// If a collision is detected, the side of this collider that is colliding with the other collider is returned.
 /// This way, games can use this collider as an axis-aligned bounding box (AABB) for simple collision detection.
 class RectangleCollider : public Collider {

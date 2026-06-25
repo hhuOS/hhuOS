@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 
-#include "util/io/stream/FilterInputStream.h"
+#include "FilterInputStream.h"
 
 namespace Util {
 namespace Io {
@@ -63,7 +63,7 @@ public:
 	}
 
 	/// Read a signed 8-bit integer from the stream, interpreting the input according to the specified base.
-	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
+	/// The default base is 0, which means the base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal).
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
 	/// If an illegal character is encountered before any digits are read,
@@ -89,7 +89,7 @@ public:
 	}
 
 	/// Read an unsigned 8-bit integer from the stream, interpreting the input according to the specified base.
-	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
+	/// The default base is 0, which means the base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal).
 	/// If the read value is negative it is clamped to 0.
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
@@ -116,7 +116,7 @@ public:
 	}
 
 	/// Read a signed 16-bit integer from the stream, interpreting the input according to the specified base.
-	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
+	/// The default base is 0, which means the base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal).
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
 	/// If an illegal character is encountered before any digits are read,
@@ -142,7 +142,7 @@ public:
 	}
 
 	/// Read an unsigned 16-bit integer from the stream, interpreting the input according to the specified base.
-	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
+	/// The default base is 0, which means the base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal).
 	/// If the read value is negative it is clamped to 0.
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
@@ -169,7 +169,7 @@ public:
 	}
 
 	/// Read a signed 32-bit integer from the stream, interpreting the input according to the specified base.
-	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
+	/// The default base is 0, which means the base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal).
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
 	/// If an illegal character is encountered before any digits are read,
@@ -195,7 +195,7 @@ public:
 	}
 
 	/// Read an unsigned 32-bit integer from the stream, interpreting the input according to the specified base.
-	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
+	/// The default base is 0, which means the base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal).
 	/// If the read value is negative it is clamped to 0.
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
@@ -222,7 +222,7 @@ public:
 	}
 
 	/// Read a signed 64-bit integer from the stream, interpreting the input according to the specified base.
-	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
+	/// The default base is 0, which means the base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal).
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
 	/// If an illegal character is encountered before any digits are read,
@@ -245,7 +245,7 @@ public:
 	int64_t readSigned64(uint8_t base = 0);
 
 	/// Read an unsigned 64-bit integer from the stream, interpreting the input according to the specified base.
-	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
+	/// The default base is 0, which means the base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal).
 	/// If the read value is negative it is clamped to 0.
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
@@ -272,7 +272,7 @@ public:
 	}
 
 	/// Read a floating point number from the stream.
-	/// The number can be in standard decimal notation (e.g. "3.14") or scientific notation (e.g. "1.5e10").
+	/// The number can be in standard decimal notation (e.g., "3.14") or scientific notation (e.g., "1.5e10").
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported.
 	/// If an illegal character is encountered before any digits are read,
@@ -351,7 +351,7 @@ public:
 
 	/// Read a signed 8-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
-	/// The base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
+	/// The base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
 	/// If an illegal character is encountered before any digits are read,
@@ -377,7 +377,7 @@ public:
 
 	/// Read an unsigned 8-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
-	/// The base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
+	/// The base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
 	/// If the read value is negative it is clamped to 0.
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
@@ -404,7 +404,7 @@ public:
 
 	/// Read a signed 16-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
-	/// The base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
+	/// The base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
 	/// If an illegal character is encountered before any digits are read,
@@ -430,7 +430,7 @@ public:
 
 	/// Read an unsigned 16-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
-	/// The base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
+	/// The base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
 	/// If the read value is negative it is clamped to 0.
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
@@ -457,7 +457,7 @@ public:
 
 	/// Read a signed 32-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
-	/// The base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
+	/// The base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
 	/// If an illegal character is encountered before any digits are read,
@@ -483,7 +483,7 @@ public:
 
 	/// Read an unsigned 32-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
-	/// The base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
+	/// The base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
 	/// If the read value is negative it is clamped to 0.
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
@@ -510,7 +510,7 @@ public:
 
 	/// Read a signed 64-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
-	/// The base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
+	/// The base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
 	/// If an illegal character is encountered before any digits are read,
@@ -536,7 +536,7 @@ public:
 
 	/// Read an unsigned 64-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
-	/// The base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
+	/// The base is auto-detected (e.g., "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
 	/// If the read value is negative it is clamped to 0.
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported for signed numbers.
@@ -563,7 +563,7 @@ public:
 
 	/// Read a floating point number from the stream via the stream extraction operator.
 	/// This operator is overloaded to support `float`, `double`, and `long double` types.
-	/// The number can be in standard decimal notation (e.g. "3.14") or scientific notation (e.g. "1.5e10").
+	/// The number can be in standard decimal notation (e.g., "3.14") or scientific notation (e.g., "1.5e10").
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported.
 	/// If an illegal character is encountered before any digits are read,
@@ -588,7 +588,7 @@ public:
 
 	/// Read a floating point number from the stream via the stream extraction operator.
 	/// This operator is overloaded to support `float`, `double`, and `long double` types.
-	/// The number can be in standard decimal notation (e.g. "3.14") or scientific notation (e.g. "1.5e10").
+	/// The number can be in standard decimal notation (e.g., "3.14") or scientific notation (e.g., "1.5e10").
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported.
 	/// If an illegal character is encountered before any digits are read,
@@ -613,7 +613,7 @@ public:
 
 	/// Read a floating point number from the stream via the stream extraction operator.
 	/// This operator is overloaded to support `float`, `double`, and `long double` types.
-	/// The number can be in standard decimal notation (e.g. "3.14") or scientific notation (e.g. "1.5e10").
+	/// The number can be in standard decimal notation (e.g., "3.14") or scientific notation (e.g., "1.5e10").
 	/// Whitespaces are skipped before reading the number.
 	/// An optional '+' or '-' sign is supported.
 	/// If an illegal character is encountered before any digits are read,
@@ -662,7 +662,7 @@ private:
 	/// The default limit is -1, which means no limit.
 	///
 	/// This method is used by `scan()` method to enforce the limit on the number of bytes read,
-	/// if the format string contains a maximum field width specifier (e.g. `%10s`).
+	/// if the format string contains a maximum field width specifier (e.g., `%10s`).
 	void setReadLimit(const int64_t limit) {
 		readLimit = limit;
 	}

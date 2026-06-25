@@ -26,9 +26,10 @@
 
 #include <stdint.h>
 
-#include "util/base/String.h"
-#include "util/network/NetworkAddress.h"
-#include "util/network/ip4/Ip4Address.h"
+#include "Ip4Address.h"
+#include "../NetworkAddress.h"
+
+#include <util/base/String.h>
 
 namespace Util {
 namespace Network {

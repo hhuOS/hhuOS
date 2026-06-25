@@ -26,19 +26,20 @@
 
 #include <stdint.h>
 
-#include "util/io/file/File.h"
-#include "util/network/Datagram.h"
-#include "util/network/NetworkAddress.h"
-#include "util/network/ip4/Ip4SubnetAddress.h"
-#include "util/network/ip4/Ip4Route.h"
-#include "util/time/Timestamp.h"
+#include "Datagram.h"
+#include "NetworkAddress.h"
+#include "ip4/Ip4SubnetAddress.h"
+#include "ip4/Ip4Route.h"
+
+#include <util/io/file/File.h>
+#include <util/time/Timestamp.h>
 
 namespace Util {
 namespace Network {
 
 /// Represents a network socket, which is used to send and receive data over a network.
 /// A socket can be bound to a specific network address and can send and receive
-/// datagrams of the type given at its construction (e.g. UDP or ICMP).
+/// datagrams of the type given at its construction (e.g., UDP or ICMP).
 /// The socket itself lives in the kernel and is represented by a file descriptor.
 /// This class wraps the file descriptor and provides methods to interact with the socket.
 /// It also provides methods to manage the IPv4 addresses and routes of a network interface,
@@ -151,7 +152,7 @@ public:
     /// Bind the socket to a specific network address.
     /// This will be the source address for all datagrams sent from this socket
     /// and all datagrams sento to this address will be received by this socket.
-    /// The address must fit the type that the socket was created with (e.g. `Ip4::Ip4PortAddress` for a UDP socket).
+    /// The address must fit the type that the socket was created with (e.g., `Ip4::Ip4PortAddress` for a UDP socket).
     /// The return value indicates whether the binding was successful or not.
     ///
     /// ### Example

@@ -23,9 +23,10 @@
 
 #include <stddef.h>
 
-#include "util/async/Runnable.h"
-#include "util/base/String.h"
-#include "util/time/Timestamp.h"
+#include "Runnable.h"
+
+#include <util/base/String.h>
+#include <util/time/Timestamp.h>
 
 namespace Util {
 namespace Async {

@@ -23,10 +23,11 @@
 
 #include <stdint.h>
 
-#include "util/base/Address.h"
-#include "util/io/file/File.h"
-#include "util/graphic/Color.h"
-#include "util/graphic/Font.h"
+#include "Color.h"
+#include "Font.h"
+
+#include <util/base/Address.h>
+#include <util/io/file/File.h>
 
 namespace Util {
 namespace Graphic {
@@ -45,7 +46,7 @@ public:
 
     /// Create a new linear frame buffer instance from a virtual address.
     /// This constructor should be used if the frame buffer is already mapped into the virtual address space,
-    /// or if the frame buffer is not mapped to a hardware device (e.g. software frame buffer for double buffering).
+    /// or if the frame buffer is not mapped to a hardware device (e.g., software frame buffer for double buffering).
     LinearFrameBuffer(void *virtualAddress, const uint16_t resolutionX, const uint16_t resolutionY,
         const uint8_t colorDepth, const uint16_t pitch) : buffer(virtualAddress), resolutionX(resolutionX),
         resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
@@ -53,7 +54,7 @@ public:
     /// Create a new linear frame buffer instance from a physical address.
     /// This constructor maps the frame buffer from the given physical address into the virtual address space.
     /// This constructor should be used for hardware frame buffers. In user space, the physical address is typically
-    /// obtained from the frame buffer device file (e.g. "/device/lfb"). However, it is more convenient to use the
+    /// obtained from the frame buffer device file (e.g., "/device/lfb"). However, it is more convenient to use the
     /// constructor that takes a file as argument instead.
     LinearFrameBuffer(const size_t physicalAddress, const uint16_t resolutionX, const uint16_t resolutionY,
         const uint8_t colorDepth, const uint16_t pitch) : LinearFrameBuffer(
@@ -119,7 +120,7 @@ public:
         return colorDepth;
     }
 
-    /// Get the pitch of the frame buffer (i.e. the number of bytes per row).
+    /// Get the pitch of the frame buffer (i.e, the number of bytes per row).
     /// This must not necessarily be equal to (resolutionX * colorDepth / 8),
     /// since there may be padding bytes at the end of each row.
     uint16_t getPitch() const {

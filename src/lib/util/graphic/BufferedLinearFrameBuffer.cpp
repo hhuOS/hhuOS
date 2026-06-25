@@ -20,9 +20,10 @@
 
 #include "BufferedLinearFrameBuffer.h"
 
-#include "util/base/Address.h"
-#include "util/base/Panic.h"
-#include "util/graphic/LinearFrameBuffer.h"
+#include "LinearFrameBuffer.h"
+
+#include <util/base/Address.h>
+#include <util/base/Panic.h>
 
 namespace Util {
 namespace Graphic {

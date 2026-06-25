@@ -23,18 +23,17 @@
 
 #include "String.h"
 
-#include <cstdio>
+#include "CharacterTypes.h"
+#include "WideChar.h"
+#include "Address.h"
+#include "Panic.h"
 
-#include "interface.h"
-#include "util/base/CharacterTypes.h"
-#include "util/base/WideChar.h"
-#include "util/base/Address.h"
-#include "util/base/Panic.h"
-#include "util/collection/Array.h"
-#include "util/collection/ArrayList.h"
-#include "util/io/stream/ByteArrayOutputStream.h"
-#include "util/io/stream/PrintStream.h"
-#include "util/math/Math.h"
+#include <interface.h>
+#include <util/collection/Array.h>
+#include <util/collection/ArrayList.h>
+#include <util/io/stream/ByteArrayOutputStream.h>
+#include <util/io/stream/PrintStream.h>
+#include <util/math/Math.h>
 
 namespace Util {
 

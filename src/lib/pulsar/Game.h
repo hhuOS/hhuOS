@@ -27,9 +27,10 @@
 #ifndef HHUOS_LIB_PULSAR_GAME_H
 #define HHUOS_LIB_PULSAR_GAME_H
 
+#include "Scene.h"
 #include "audio/AudioChannel.h"
-#include "util/collection/ArrayListQueue.h"
-#include "pulsar/Scene.h"
+
+#include <util/collection/ArrayListQueue.h>
 
 namespace Pulsar {
 

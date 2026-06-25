@@ -21,12 +21,12 @@
 #ifndef HHUOS_LIB_UTIL_MATH_VECTOR2_H
 #define HHUOS_LIB_UTIL_MATH_VECTOR2_H
 
-#include "util/math/Math.h"
+#include "Math.h"
 
 namespace Util {
 namespace Math {
 
-/// A 2D vector class that supports basic vector operations such as addition, subtraction or normalization.
+/// A 2D vector class that supports basic vector operations such as addition, subtraction, or normalization.
 /// It is templated to support float and double types.
 /// This class is immutable, meaning that once a Vector is created, its values cannot be changed.
 ///

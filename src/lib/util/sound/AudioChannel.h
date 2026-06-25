@@ -26,8 +26,8 @@
 
 #include <stddef.h>
 
-#include "util/io/file/File.h"
-#include "util/io/stream/FileOutputStream.h"
+#include <util/io/file/File.h>
+#include <util/io/stream/FileOutputStream.h>
 
 namespace Util {
 namespace Sound {
@@ -37,7 +37,7 @@ namespace Sound {
 /// Currently, only 8-bit mono PCM audio samples at a sample rate of 22050 Hz are supported.
 ///
 /// On instantiation, a new audio channel is created in the audio mixer.
-/// Each channel has a unique ID and is can be accessed through a file in the `/device` directory.
+/// Each channel has a unique ID, and is can be accessed through a file in the `/device` directory.
 /// This class handles the creation and deletion of audio channels, as well as playback control,
 /// abstracting the underlying I/O operations and providing a simple interface for audio playback.
 ///
@@ -83,7 +83,7 @@ public:
         PLAY,
         /// Stop playback of the audio channel.
         STOP,
-        /// Get the current playback state of the audio channel (e.g. playing or stopped).
+        /// Get the current playback state of the audio channel (e.g., playing or stopped).
         GET_PLAYBACK_STATE,
         /// Get the amount of audio data currently in the channel.
         GET_REMAINING_BYTES,
@@ -91,15 +91,15 @@ public:
         GET_WRITABLE_BYTES
     };
 
-    /// Possible states of the audio channel (e.g. playing or stopped).
+    /// Possible states of the audio channel (e.g., playing or stopped).
     enum State {
-        /// The audio channel is currently playing and audio data is being read from it by the audio mixer.
+        /// The audio channel is currently playing, and audio data is being read from it by the audio mixer.
         /// Any data written to the channel will be played back as soon as possible.
         PLAYING,
-        /// The audio channel has been stopped and the audio mixer is currently reading any remaining data.
+        /// The audio channel has been stopped, and the audio mixer is currently reading any remaining data.
         /// Writing to the channel will block until `play()` is called again.
         FLUSHING,
-        /// The audio channel is stopped and the audio mixer is not reading any data from it.
+        /// The audio channel is stopped, and the audio mixer is not reading any data from it.
         /// Writing to the channel will block until `play()` is called again.
         STOPPED,
     };
@@ -116,15 +116,15 @@ public:
     /// The channel file in the `/device` directory will also be removed.
     ~AudioChannel() override;
 
-    /// Start playback of the audio channel, by sending a request to the audio mixer.
+    /// Start playback of the audio channel by sending a request to the audio mixer.
     /// Before calling this, the mixer will not read any data from this channel.
     bool play();
 
     /// Stop playback by sending a request to the audio mixer.
     /// The mixer will then play any remaining data from the channel and stop playback afterward.
-    /// When the channel is stopped, all write operations will block until `play()` is called again.
+    /// When the channel is stopped, all write operations will be blocked until `play()` is called again.
     /// If `waitFlush` is set to true, this method will wait until the remaining data has been drained from the channel.
-    /// Otherwise, it will return directly and the channel may still play remaining data for a short amount of time.
+    /// Otherwise, it will return directly, and the channel may still play remaining data for a short amount of time.
     bool stop(bool waitFlush = false);
 
     /// Get the current playback state of the audio channel.
@@ -133,7 +133,7 @@ public:
     /// Get the amount of audio data currently in the channel, waiting to be played.
     size_t getRemainingBytes() const;
 
-    /// Get the amount of bytes that can be written to the channel without blocking.
+    /// Get the number of bytes that can be written to the channel without blocking.
     /// It is always possible to write more bytes, but the write operation will block until the mixer reads some data.
     size_t getWritableBytes() const;
 
@@ -151,7 +151,7 @@ public:
 
 private:
 
-    uint8_t createChannel();
+    uint8_t createChannel() const;
 
     bool playing = false;
     Io::File audioMixerFile;

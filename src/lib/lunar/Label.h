@@ -26,10 +26,11 @@
 
 #include <stddef.h>
 
-#include "util/base/String.h"
-#include "util/graphic/font/Terminal8x8.h"
-#include "util/graphic/LinearFrameBuffer.h"
-#include "lunar/Widget.h"
+#include "Widget.h"
+
+#include <util/base/String.h>
+#include <util/graphic/font/Terminal8x8.h>
+#include <util/graphic/LinearFrameBuffer.h>
 
 namespace Lunar {
 

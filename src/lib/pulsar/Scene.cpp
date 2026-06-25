@@ -32,7 +32,7 @@
 
 #include "Scene.h"
 
-#include "pulsar/Entity.h"
+#include "Entity.h"
 
 namespace Pulsar {
 

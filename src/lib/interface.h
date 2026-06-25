@@ -49,7 +49,7 @@ void* allocateMemory(size_t size, size_t alignment = 0);
 
 /// Reallocate a previously allocated block of memory to a new size and alignment.
 /// Depending on the implementation, the current block may be extended in place.
-/// Otherwise, a new block is allocated and the content of the old block is copied into the new one.
+/// Otherwise, a new block is allocated, and the content of the old block is copied into the new one.
 /// The old block is then freed.
 /// If no sufficient block of memory is available, a panic is fired.
 void* reallocateMemory(void *pointer, size_t size, size_t alignment = 0);

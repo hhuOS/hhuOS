@@ -20,8 +20,8 @@
 
 #include "BorderLayout.h"
 
-#include "lunar/Container.h"
-#include "lunar/Widget.h"
+#include "Container.h"
+#include "Widget.h"
 
 namespace Lunar {
 

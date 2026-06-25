@@ -20,16 +20,17 @@
 
 #include "Terminal.h"
 
-#include "util/base/Panic.h"
-#include "util/async/Thread.h"
-#include "util/async/BasicRunnable.h"
-#include "util/graphic/Ansi.h"
-#include "util/io/key/KeyEvent.h"
-#include "util/io/key/KeyDecoder.h"
-#include "util/io/stream/FileInputStream.h"
-#include "util/io/stream/FileOutputStream.h"
-#include "util/io/stream/PrintStream.h"
-#include "util/time/Timestamp.h"
+#include "Ansi.h"
+
+#include <util/base/Panic.h>
+#include <util/async/Thread.h>
+#include <util/async/BasicRunnable.h>
+#include <util/io/key/KeyEvent.h>
+#include <util/io/key/KeyDecoder.h>
+#include <util/io/stream/FileInputStream.h>
+#include <util/io/stream/FileOutputStream.h>
+#include <util/io/stream/PrintStream.h>
+#include <util/time/Timestamp.h>
 
 namespace Util {
 namespace Graphic {

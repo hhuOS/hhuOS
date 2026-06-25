@@ -24,8 +24,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "util/io/file/File.h"
-#include "util/io/stream/FileInputStream.h"
+#include "File.h"
+#include "../stream/FileInputStream.h"
 
 namespace Util {
 namespace Io {
@@ -40,7 +40,7 @@ public:
     enum class SectionType : uint32_t {
         /// Section table entry is unused.
         NONE = 0x00,
-        /// Section contains program data (e.g. code, initialized data).
+        /// Section contains program data (e.g., code, initialized data).
         PROGBITS = 0x01,
         /// Section contains a symbol table.
         SYMTAB = 0x02,
@@ -92,15 +92,15 @@ public:
         uint32_t info;
         /// Alignment constraint for this section.
         uint32_t alignment;
-        /// If the section contains a table (e.g. symbol table), size of each entry in bytes.
+        /// If the section contains a table (e.g., symbol table), size of each entry in bytes.
         uint32_t entrySize;
     } __attribute__((packed));
 
     /// Different types of symbols in the symbol table.
     enum class SymbolType : uint8_t {
-        /// No type specified (e.g. undefined symbol).
+        /// No type specified (e.g., undefined symbol).
         NO_TYPE = 0x00,
-        /// Symbol is a data object (e.g. variable, array).
+        /// Symbol is a data object (e.g., variable, array).
         OBJECT = 0x01,
         /// Symbol is a function or executable code.
         FUNC = 0x02,
@@ -132,15 +132,15 @@ public:
     struct SymbolEntry {
         /// Offset into the string table where the name of this symbol is stored as a null-terminated string.
         uint32_t nameOffset;
-        /// Value of the symbol (e.g. address).
+        /// Value of the symbol (e.g., address).
         uint32_t value;
-        /// Size of the symbol (e.g. size of variable or function in bytes).
+        /// Size of the symbol (e.g., size of variable or function in bytes).
         uint32_t size;
         /// Symbol type and binding attributes (Use `getSymbolType()` and `getSymbolBinding()` to extract).
         uint8_t info;
-        /// Symbol visibility (e.g. hidden, protected).
+        /// Symbol visibility (e.g., hidden, protected).
         uint8_t other;
-        /// Section index this symbol is defined in (e.g. text, data) or special values.
+        /// Section index this symbol is defined in (e.g., text, data) or special values.
         uint16_t section;
 
         /// Extract the symbol binding from the `info` field.
@@ -190,7 +190,7 @@ public:
     /// Calculate the highest virtual address used by any loadable program section.
     uintptr_t getEndAddress() const;
 
-    /// Get the entry point of the ELF file, i.e. the virtual address where execution should start.
+    /// Get the entry point of the ELF file, i.e, the virtual address where execution should start.
     /// This is typically the address of the `_start` function.
     int (*getEntryPoint() const)(int, char**) {
         return reinterpret_cast<int(*)(int, char**)>(fileHeader.entry);

@@ -26,8 +26,8 @@
 
 #include <stdint.h>
 
-#include "util/network/Datagram.h"
-#include "util/network/ip4/Ip4PortAddress.h"
+#include "../Datagram.h"
+#include "../ip4/Ip4PortAddress.h"
 
 namespace Util {
 namespace Network {

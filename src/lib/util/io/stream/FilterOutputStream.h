@@ -24,7 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "util/io/stream/OutputStream.h"
+#include "OutputStream.h"
 
 namespace Util {
 namespace Io {

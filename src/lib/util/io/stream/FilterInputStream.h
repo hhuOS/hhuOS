@@ -24,8 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "PipedInputStream.h"
-#include "util/io/stream/InputStream.h"
+#include "InputStream.h"
 
 namespace Util {
 namespace Io {

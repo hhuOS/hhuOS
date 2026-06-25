@@ -20,8 +20,9 @@
 
 #include "KeyboardLayout.h"
 
+#include "KeyDecoder.h"
+
 #include "util/base/Address.h"
-#include "util/io/key/KeyDecoder.h"
 
 namespace Util {
 namespace Io {

@@ -20,7 +20,7 @@
 
 #include "Date.h"
 
-#include "interface.h"
+#include <interface.h>
 
 namespace Util {
 namespace Time {

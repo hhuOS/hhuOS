@@ -24,9 +24,10 @@
 #ifndef HHUOS_LIB_UTIL_NETWORK_IP4ROUTE_H
 #define HHUOS_LIB_UTIL_NETWORK_IP4ROUTE_H
 
-#include "util/base/String.h"
-#include "util/network/ip4/Ip4Address.h"
-#include "util/network/ip4/Ip4SubnetAddress.h"
+#include "Ip4Address.h"
+#include "Ip4SubnetAddress.h"
+
+#include <util/base/String.h>
 
 namespace Util {
 namespace Network {
@@ -38,7 +39,7 @@ namespace Ip4 {
 ///  - A source address, which is the IP address of the interface that is sending the packet.
 ///  - A target address, which is the destination subnet for the packet.
 ///  - An optional next hop address, which is the IP address of the next router to forward the packet to.
-///    In this case, the packet cannot be sent directly to the target address, but rather needs to be sent to another
+///    In this case, the packet cannot be sent directly to the target address but rather needs to be sent to another
 ///    host that will forward it to the target address.
 ///  - A device identifier, which is the identifier of the network interface that should be used to send the packet.
 ///
@@ -101,7 +102,7 @@ public:
     Ip4Route(const Ip4Address &sourceAddress, const Ip4SubnetAddress &targetAddress, const String &deviceIdentifier) :
         sourceAddress(sourceAddress), targetAddress(targetAddress), deviceIdentifier(deviceIdentifier) {}
 
-    /// Create a new IPv4 route with the given target address, next hop address and device identifier.
+    /// Create a new IPv4 route with the given target address, next hop address, and device identifier.
     /// The source address is extracted from the target address.
     /// Every packet that matches the target address will be sent to the next hop address
     /// via the specified device identifier.
@@ -140,7 +141,7 @@ public:
         nextHop(nextHop), deviceIdentifier(deviceIdentifier), nextHopValid(true) {}
 
     /// Compare this route with another route for equality.
-    /// Two routes are considered equal if they have the same target address, device identifier and next hop address.
+    /// Two routes are considered equal if they have the same target address, device identifier, and next hop address.
     ///
     /// ### Example
     /// ```c++
@@ -159,7 +160,7 @@ public:
 
     /// Compare this route with another route for inequality.
     /// Two routes are considered unequal if they have different target addresses,
-    /// device identifiers or next hop addresses.
+    /// device identifiers, or next hop addresses.
     ///
     /// ### Example
     /// ```c++

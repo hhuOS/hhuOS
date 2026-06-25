@@ -21,8 +21,6 @@
 #ifndef HHUOS_LIB_UTIL_PAIR_H
 #define HHUOS_LIB_UTIL_PAIR_H
 
-#include <stddef.h>
-
 namespace Util {
 
 /// A simple pair class that holds two values of potentially different types.

@@ -21,7 +21,7 @@
 #ifndef HHUOS_LIB_UTIL_QUEUE_H
 #define HHUOS_LIB_UTIL_QUEUE_H
 
-#include "util/collection/Collection.h"
+#include "Collection.h"
 
 namespace Util {
 
@@ -39,7 +39,7 @@ public:
     ~Queue() override = default;
 
     /// Offer an element to the queue.
-    /// If the there is space in the queue, the element is added by copying it and `true` is returned.
+    /// If there is space in the queue, the element is added by copying it and `true` is returned.
     /// If the queue is full and cannot accept more elements, `false` is returned.
     virtual bool offer(const T &element) = 0;
 

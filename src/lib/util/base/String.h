@@ -27,11 +27,12 @@
 #include <stddef.h>
 #include <stdarg.h>
 
-#include "util/base/Address.h"
-#include "util/base/CharacterTypes.h"
-#include "util/collection/Array.h"
-#include "util/io/stream/OutputStream.h"
-#include "util/time/Date.h"
+#include "Address.h"
+#include "CharacterTypes.h"
+
+#include <util/collection/Array.h>
+#include <util/io/stream/OutputStream.h>
+#include <util/time/Date.h>
 
 extern void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment);
 

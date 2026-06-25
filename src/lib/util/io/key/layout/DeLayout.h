@@ -21,7 +21,7 @@
 #ifndef HHUOS_LIB_UTIL_IO_DELAYOUT_H
 #define HHUOS_LIB_UTIL_IO_DELAYOUT_H
 
-#include "util/io/key/KeyboardLayout.h"
+#include "../KeyboardLayout.h"
 
 namespace Util {
 namespace Io {

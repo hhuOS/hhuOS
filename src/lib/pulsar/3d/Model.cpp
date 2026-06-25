@@ -32,14 +32,10 @@
 
 #include "Model.h"
 
-#include "util/math/Math.h"
-#include "util/math/Vector3.h"
-#include "pulsar/Graphics.h"
-#include "pulsar/Resources.h"
-#include "pulsar/3d/Entity.h"
-#include "pulsar/3d/ObjectFile.h"
-#include "pulsar/3d/collider/SphereCollider.h"
-#include "pulsar/3d/Texture.h"
+#include "Texture.h"
+#include "ObjectFile.h"
+#include "../Graphics.h"
+#include "../Resources.h"
 
 namespace Pulsar {
 namespace D3 {

@@ -20,9 +20,8 @@
 
 #include "BitmapMemoryManager.h"
 
-#include "interface.h"
-#include "lib/util/base/Address.h"
-#include "lib/util/base/Panic.h"
+#include "Address.h"
+#include "Panic.h"
 
 namespace Util {
 

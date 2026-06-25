@@ -20,9 +20,10 @@
 
 #include "FileOutputStream.h"
 
-#include "interface.h"
-#include "util/base/Panic.h"
-#include "util/io/file/File.h"
+#include "../file/File.h"
+
+#include <interface.h>
+#include <util/base/Panic.h>
 
 namespace Util {
 namespace Io {

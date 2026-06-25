@@ -30,11 +30,10 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#include "util/base/Panic.h"
-#include "pulsar/2d/Entity.h"
-#include "pulsar/2d/component/Component.h"
-#include "pulsar/2d/event/CollisionEvent.h"
-#include "pulsar/2d/event/TranslationEvent.h"
+#include "Entity.h"
+#include "component/Component.h"
+#include "event/CollisionEvent.h"
+#include "event/TranslationEvent.h"
 
 namespace Pulsar {
 namespace D2 {

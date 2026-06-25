@@ -35,13 +35,14 @@
 
 #include <stddef.h>
 
-#include "util/base/String.h"
-#include "util/graphic/Color.h"
-#include "util/graphic/Colors.h"
-#include "util/math/Vector3.h"
-#include "pulsar/3d/Entity.h"
-#include "pulsar/3d/Texture.h"
-#include "pulsar/3d/ObjectFile.h"
+#include "Entity.h"
+#include "Texture.h"
+#include "ObjectFile.h"
+
+#include <util/base/String.h>
+#include <util/graphic/Color.h>
+#include <util/graphic/Colors.h>
+#include <util/math/Vector3.h>
 
 namespace Pulsar {
 namespace D3 {

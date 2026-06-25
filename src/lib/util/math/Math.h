@@ -23,9 +23,9 @@
 
 #include <stdint.h>
 
-#include "util/base/Address.h"
-#include "util/base/Panic.h"
-#include "util/collection/Pair.h"
+#include <util/base/Address.h>
+#include <util/base/Panic.h>
+#include <util/collection/Pair.h>
 
 /// Contains several mathematical functions and constants.
 /// Most floating point functions are implemented using x87 FPU instructions with inline assembly.
@@ -33,7 +33,7 @@ namespace Util {
 namespace Math {
 
 /// Disassemble a single precision float into its internal representation (mantissa and exponent).
-/// The return value is a pair containing the mantissa as first element and the exponent as second element.
+/// The return value is a pair containing the mantissa as the first element and the exponent as the second element.
 /// The original value can be reconstructed using the formula `value = mantissa * 2^exponent`.
 ///
 /// ### Example
@@ -46,7 +46,7 @@ namespace Math {
 inline Pair<float, int8_t> getInternals(float value);
 
 /// Disassemble a double precision float into its internal representation (mantissa and exponent).
-/// The return value is a pair containing the mantissa as first element and the exponent as second element.
+/// The return value is a pair containing the mantissa as the first element and the exponent as the second element.
 /// The original value can be reconstructed using the formula `value = mantissa * 2^exponent`.
 ///
 /// ### Example

@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-#include "util/io/key/KeyEvent.h"
+#include "KeyEvent.h"
 
 namespace Util {
 namespace Io {

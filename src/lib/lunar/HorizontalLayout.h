@@ -21,7 +21,7 @@
 #ifndef HHUOS_LIB_LUNAR_HORIZONTALLAYOUT_H
 #define HHUOS_LIB_LUNAR_HORIZONTALLAYOUT_H
 
-#include "lunar/Layout.h"
+#include "Layout.h"
 
 namespace Lunar {
 

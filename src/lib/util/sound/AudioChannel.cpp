@@ -23,8 +23,8 @@
 
 #include "AudioChannel.h"
 
-#include "util/async/Thread.h"
-#include "util/io/stream/FileInputStream.h"
+#include <util/async/Thread.h>
+#include <util/io/stream/FileInputStream.h>
 
 namespace Util {
 namespace Sound {
@@ -33,7 +33,7 @@ AudioChannel::~AudioChannel() {
     audioMixerFile.controlFile(DELETE, Util::Array<size_t>({id}));
 }
 
-uint8_t AudioChannel::createChannel() {
+uint8_t AudioChannel::createChannel() const {
     uint8_t id = 0;
     if (!audioMixerFile.controlFile(CREATE, Util::Array<size_t>({reinterpret_cast<size_t>(&id)}))) {
         Panic::fire(Panic::ILLEGAL_STATE, "No audio channel available!");

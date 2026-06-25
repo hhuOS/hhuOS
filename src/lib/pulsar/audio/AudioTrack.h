@@ -35,18 +35,19 @@
 
 #include <stddef.h>
 
-#include "util/async/IdGenerator.h"
-#include "pulsar/audio/AudioBuffer.h"
+#include "AudioBuffer.h"
+
+#include <util/async/IdGenerator.h>
 
 namespace Pulsar {
 
 class AudioHandle;
 
 /// An audio track represents a sound that can be played in the game.
-/// It encapsulates an audio buffer (i.e. loaded from a WAV file) and provides
+/// It encapsulates an audio buffer (i.e., loaded from a WAV file) and provides
 /// methods to play the sound, optionally in a loop.
 /// Playback of an audio track returns an `AudioHandle` that can be used to control
-/// the playback (e.g. stop it).
+/// the playback (e.g., stop it).
 ///
 /// ## Example
 /// ```c++
@@ -115,7 +116,7 @@ public:
 
     /// Start playback of the audio track.
     /// If `loop` is true, the audio track will loop continuously until stopped.
-    /// The returned `AudioHandle` can be used to control playback (e.g. stop).
+    /// The returned `AudioHandle` can be used to control playback (e.g., stop).
     AudioHandle play(bool loop) const;
 
     /// Get the audio buffer associated with this track.

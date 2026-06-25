@@ -31,7 +31,8 @@
  */
 
 #include "Orientation.h"
-#include "lib/util/math/Math.h"
+
+#include <util/math/Math.h>
 
 namespace Pulsar {
 namespace D3 {

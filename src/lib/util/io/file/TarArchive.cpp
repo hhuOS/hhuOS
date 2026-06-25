@@ -20,9 +20,10 @@
 
 #include "TarArchive.h"
 
-#include "util/base/Address.h"
-#include "util/collection/ArrayList.h"
-#include "util/io/stream/FileInputStream.h"
+#include "../stream/FileInputStream.h"
+
+#include <util/base/Address.h>
+#include <util/collection/ArrayList.h>
 
 namespace Util {
 namespace Io {

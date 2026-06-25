@@ -26,9 +26,9 @@
 
 #include <stdint.h>
 
-#include "util/network/Datagram.h"
-#include "util/network/icmp/IcmpHeader.h"
-#include "util/network/ip4/Ip4Address.h"
+#include "../Datagram.h"
+#include "../icmp/IcmpHeader.h"
+#include "../ip4/Ip4Address.h"
 
 namespace Util {
 namespace Network {

@@ -33,20 +33,15 @@
 #include "Scene.h"
 
 #include "Entity.h"
-#include "lib/util/collection/Pair.h"
-#include "lib/pulsar/3d/event/CollisionEvent.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/pulsar/3d/collider/SphereCollider.h"
-#include "lib/pulsar/Entity.h"
-#include "lib/pulsar/Graphics.h"
-#include "lib/util/base/Panic.h"
-#include "lib/pulsar/3d/Light.h"
+#include "Light.h"
+#include "../Entity.h"
+#include "../Graphics.h"
+#include "event/CollisionEvent.h"
+#include "collider/SphereCollider.h"
 
-namespace Util {
-namespace Math {
-template <typename T> class Vector3;
-}  // namespace Math
-}  // namespace Util
+#include <util/base/Panic.h>
+#include <util/collection/Pair.h>
+#include <util/collection/ArrayList.h>
 
 namespace Pulsar {
 namespace D3 {

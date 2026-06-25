@@ -24,8 +24,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "util/base/String.h"
-#include "util/io/stream/OutputStream.h"
+#include "OutputStream.h"
+
+#include <util/base/String.h>
 
 namespace Util {
 namespace Io {

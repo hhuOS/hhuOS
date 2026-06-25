@@ -23,7 +23,7 @@
 
 #include "WideChar.h"
 
-#include "util/base/Panic.h"
+#include "Panic.h"
 
 namespace Util {
 namespace WideChar {

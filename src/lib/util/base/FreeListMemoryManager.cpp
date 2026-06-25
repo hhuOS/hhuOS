@@ -20,10 +20,11 @@
 
 #include "FreeListMemoryManager.h"
 
-#include "interface.h"
-#include "util/base/Address.h"
-#include "util/base/Constants.h"
-#include "util/base/Panic.h"
+#include "Address.h"
+#include "Constants.h"
+#include "Panic.h"
+
+#include <interface.h>
 
 namespace Util {
 

@@ -35,18 +35,19 @@
 
 #include <stdint.h>
 
-#include "util/base/String.h"
-#include "util/collection/Array.h"
-#include "util/graphic/BufferedLinearFrameBuffer.h"
-#include "util/graphic/Color.h"
-#include "util/graphic/Colors.h"
-#include "util/graphic/Image.h"
-#include "util/math/Vector3.h"
-#include "util/math/Vector2.h"
-#include "pulsar/Camera.h"
-#include "pulsar/3d/Texture.h"
-#include "tinygl/include/GL/gl.h"
-#include "tinygl/include/zbuffer.h"
+#include "Camera.h"
+#include "3d/Texture.h"
+
+#include <util/base/String.h>
+#include <util/collection/Array.h>
+#include <util/graphic/BufferedLinearFrameBuffer.h>
+#include <util/graphic/Color.h>
+#include <util/graphic/Colors.h>
+#include <util/graphic/Image.h>
+#include <util/math/Vector3.h>
+#include <util/math/Vector2.h>
+#include <tinygl/include/GL/gl.h>
+#include <tinygl/include/zbuffer.h>
 
 namespace Pulsar {
 namespace D3 {

@@ -20,15 +20,15 @@
 
 #include "System.h"
 
-#include "util/base/Address.h"
-#include "util/base/Constants.h"
-#include "util/base/String.h"
-#include "util/io/file/File.h"
-#include "util/io/file/ElfFile.h"
-#include "util/io/stream/BufferedInputStream.h"
-#include "util/io/stream/BufferedOutputStream.h"
-#include "util/io/stream/FileInputStream.h"
-#include "util/io/stream/FileOutputStream.h"
+#include "Address.h"
+#include "Constants.h"
+#include "String.h"
+
+#include <util/io/file/File.h>
+#include <util/io/file/ElfFile.h>
+#include <util/io/stream/BufferedOutputStream.h>
+#include <util/io/stream/FileInputStream.h>
+#include <util/io/stream/FileOutputStream.h>
 
 namespace Util {
 

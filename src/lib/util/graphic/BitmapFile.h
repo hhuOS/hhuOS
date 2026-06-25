@@ -23,8 +23,9 @@
 
 #include <stdint.h>
 
-#include "util/base/String.h"
-#include "util/graphic/Image.h"
+#include "Image.h"
+
+#include <util/base/String.h>
 
 namespace Util {
 namespace Graphic {

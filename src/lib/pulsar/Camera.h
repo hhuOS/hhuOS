@@ -33,14 +33,15 @@
 #ifndef HHUOS_LIB_PULSAR_CAMERA_H
 #define HHUOS_LIB_PULSAR_CAMERA_H
 
-#include "pulsar/3d/Orientation.h"
-#include "util/math/Vector3.h"
+#include "3d/Orientation.h"
+
+#include <util/math/Vector3.h>
 
 namespace Pulsar {
 
 /// The camera determines the viewport of the current scene.
-/// It has a position and orientation in 3D space, and provides methods to manipulate them.
-/// It also provides methods to get the front, up and right vectors based on its orientation.
+/// It has a position and orientation in 3D space and provides methods to manipulate them.
+/// It also provides methods to get the front, up, and right vectors based on its orientation.
 /// This class works for both 2D and 3D scenes, but in 2D scenes,
 /// only the position's X and Y components are relevant (rotation is ignored).
 /// Each scene has exactly one camera, which is automatically created when the scene is created

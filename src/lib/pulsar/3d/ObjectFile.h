@@ -35,9 +35,9 @@
 
 #include <stddef.h>
 
-#include "util/base/String.h"
-#include "util/math/Vector3.h"
-#include "util/collection/Array.h"
+#include <util/base/String.h>
+#include <util/collection/Array.h>
+#include <util/math/Vector3.h>
 
 namespace Pulsar {
 namespace D3 {
@@ -50,18 +50,18 @@ public:
     /// Create a new object file instance by loading the OBJ file from the specified path.
     explicit ObjectFile(const Util::String &path);
 
-    /// Get the array of vertices, that define the shape of the 3D object.
+    /// Get the array of vertices that define the shape of the 3D object.
     const Util::Array<Util::Math::Vector3<float>>& getVertices() const {
         return vertices;
     }
 
-    /// Get the array of vertex normals, that define the orientation of the 3D object's surfaces.
+    /// Get the array of vertex normals that define the orientation of the 3D object's surfaces.
     /// These are used for lighting calculations during rendering.
     const Util::Array<Util::Math::Vector3<float>>& getVertexNormals() const {
         return vertexNormals;
     }
 
-    /// Get the array of texture coordinates, that map 2D textures onto the 3D object's surfaces.
+    /// Get the array of texture coordinates that map 2D textures onto the 3D object's surfaces.
     const Util::Array<Util::Math::Vector3<float>>& getVertexTextures() const {
         return vertexTextures;
     }

@@ -36,7 +36,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "pulsar/2d/particle/Emitter.h"
+#include "Emitter.h"
 
 namespace Pulsar {
 namespace D2 {
@@ -54,7 +54,7 @@ public:
         Emitter(tag, particleTag, position, minEmissionRate, maxEmissionRate) {}
 
     /// Update the emitter state. This method is called automatically during the scene update cycle.
-    /// On the first update, it emits the particles. Further updates just checks if all particles have expired
+    /// On the first update, it emits the particles. Further updates just check if all particles have expired
     /// and remove the emitter from the scene if so.
     void onUpdate(float delta) override;
 

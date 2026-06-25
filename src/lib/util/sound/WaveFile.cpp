@@ -20,7 +20,7 @@
 
 #include "WaveFile.h"
 
-#include "util/base/Panic.h"
+#include <util/base/Panic.h>
 
 namespace Util {
 namespace Sound {

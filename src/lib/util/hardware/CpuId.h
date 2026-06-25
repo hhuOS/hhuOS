@@ -23,8 +23,8 @@
 
 #include <stdint.h>
 
-#include "util/base/String.h"
-#include "util/collection/Array.h"
+#include <util/base/String.h>
+#include <util/collection/Array.h>
 
 namespace Util {
 namespace Hardware {

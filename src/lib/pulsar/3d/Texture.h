@@ -51,7 +51,7 @@ public:
     /// Create a new texture instance by loading the image from the given file path.
     explicit Texture(const Util::String &path);
 
-    /// Check if the texture is valid (i.e. has a non-zero OpenGL texture ID).
+    /// Check if the texture is valid (i.e., has a non-zero OpenGL texture ID).
     bool isValid() const {
         return textureId != 0;
     }

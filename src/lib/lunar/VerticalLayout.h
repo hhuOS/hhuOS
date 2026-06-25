@@ -21,12 +21,12 @@
 #ifndef HHUOS_LIB_LUNAR_VERTICALLAYOUT_H
 #define HHUOS_LIB_LUNAR_VERTICALLAYOUT_H
 
-#include "lunar/Layout.h"
+#include "Layout.h"
 
 namespace Lunar {
 
 /// A layout that arranges widgets vertically in a single column.
-/// Widgets are placed on top of each other from top to bottom, with an optional spacing between them.
+/// Widgets are placed on top of each other from top to bottom, with optional spacing between them.
 /// The preferred size of the layout is determined by the sum of the preferred heights of its child widgets,
 /// plus the spacing between them, and the maximum preferred width of its child widgets.
 class VerticalLayout final : public Layout {

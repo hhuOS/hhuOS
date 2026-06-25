@@ -32,11 +32,12 @@
 
 #include "GravityComponent.h"
 
-#include "lib/util/math/Math.h"
-#include "lib/pulsar/2d/Entity.h"
-#include "lib/pulsar/2d/component/Component.h"
-#include "lib/pulsar/2d/event/TranslationEvent.h"
-#include "lib/util/math/Vector2.h"
+#include "Component.h"
+#include "../Entity.h"
+#include "../event/TranslationEvent.h"
+
+#include <util/math/Math.h>
+#include <util/math/Vector2.h>
 
 namespace Pulsar {
 namespace D2 {

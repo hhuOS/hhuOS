@@ -32,8 +32,8 @@
 
 #include "AudioBuffer.h"
 
-#include "util/io/file/File.h"
-#include "util/sound/WaveFile.h"
+#include <util/io/file/File.h>
+#include <util/sound/WaveFile.h>
 
 namespace Pulsar {
 

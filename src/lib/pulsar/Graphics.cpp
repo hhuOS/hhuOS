@@ -26,20 +26,21 @@
 
 #include "Graphics.h"
 
-#include "util/base/Address.h"
-#include "util/base/Panic.h"
-#include "util/graphic/Image.h"
-#include "util/graphic/font/Terminal8x8.h"
-#include "util/math/Math.h"
-#include "util/math/Vector2.h"
-#include "pulsar/Camera.h"
-#include "pulsar/Game.h"
-#include "pulsar/Scene.h"
-#include "pulsar/3d/Orientation.h"
-#include "pulsar/3d/Scene.h"
-#include "pulsar/3d/Light.h"
-#include "pulsar/3d/Model.h"
-#include "pulsar/3d/Texture.h"
+#include "Camera.h"
+#include "Game.h"
+#include "Scene.h"
+#include "3d/Orientation.h"
+#include "3d/Scene.h"
+#include "3d/Light.h"
+#include "3d/Model.h"
+#include "3d/Texture.h"
+
+#include <util/base/Address.h>
+#include <util/base/Panic.h>
+#include <util/graphic/Image.h>
+#include <util/graphic/font/Terminal8x8.h>
+#include <util/math/Math.h>
+#include <util/math/Vector2.h>
 
 namespace Pulsar {
 

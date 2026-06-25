@@ -20,9 +20,9 @@
 
 #include "File.h"
 
-#include "interface.h"
-#include "util/collection/ArrayList.h"
-#include "util/base/Panic.h"
+#include <interface.h>
+#include <util/base/Panic.h>
+#include <util/collection/ArrayList.h>
 
 namespace Util {
 namespace Io {

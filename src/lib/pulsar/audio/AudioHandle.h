@@ -35,7 +35,7 @@
 
 #include <stddef.h>
 
-#include "pulsar/audio/AudioChannel.h"
+#include "AudioChannel.h"
 
 namespace Pulsar {
 
@@ -52,7 +52,7 @@ public:
 
     /// Check if the audio track associated with this handle is currently playing.
     /// If the audio has finished playing or was stopped, this will return false.
-    /// If the handle is empty (i.e. not associated with any playback), this will also return false.
+    /// If the handle is empty (i.e., not associated with any playback), this will also return false.
     bool isPlaying() const;
 
     /// Stop playback of the audio track associated with this handle.

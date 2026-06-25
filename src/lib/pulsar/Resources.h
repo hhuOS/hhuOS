@@ -33,13 +33,14 @@
 #ifndef HHUOS_LIB_PULSAR_RESOURCES_H
 #define HHUOS_LIB_PULSAR_RESOURCES_H
 
-#include "pulsar/3d/ObjectFile.h"
-#include "pulsar/3d/Texture.h"
+#include "3d/ObjectFile.h"
+#include "3d/Texture.h"
 #include "audio/AudioBuffer.h"
-#include "util/graphic/Image.h"
-#include "util/base/String.h"
-#include "util/collection/HashMap.h"
-#include "tinygl/include/GL/gl.h"
+
+#include <util/graphic/Image.h>
+#include <util/base/String.h>
+#include <util/collection/HashMap.h>
+#include <tinygl/include/GL/gl.h>
 
 /// Provides resource management for game assets like images, 3D object files, textures, and audio buffers.
 /// Resources can be added, retrieved, checked for existence, and deleted using string keys.
@@ -47,7 +48,7 @@
 /// This way, resources can be reused across the game without redundant loading.
 /// These functions are used internally by the game engine and should not be called directly by game code.
 /// The engine provides higher-level abstractions for the resources managed here
-/// (e.g., `D2::Sprite` for images, `D3::Model` for 3D objects or `AudioTrack` for audio buffers).
+/// (e.g., `D2::Sprite` for images, `D3::Model` for 3D objects, or `AudioTrack` for audio buffers).
 namespace Pulsar {
 namespace Resources {
 

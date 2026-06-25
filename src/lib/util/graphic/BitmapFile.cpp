@@ -20,9 +20,9 @@
 
 #include "BitmapFile.h"
 
-#include "util/io/file/File.h"
-#include "util/io/stream/FileInputStream.h"
-#include "util/base/Panic.h"
+#include <util/base/Panic.h>
+#include <util/io/file/File.h>
+#include <util/io/stream/FileInputStream.h>
 
 namespace Util {
 namespace Graphic {

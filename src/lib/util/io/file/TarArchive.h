@@ -24,16 +24,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "util/base/String.h"
-#include "util/collection/Array.h"
-#include "util/io/file/File.h"
+#include "../file/File.h"
+
+#include <util/base/String.h>
+#include <util/collection/Array.h>
 
 namespace Util {
 namespace Io {
 
 /// Class to parse tar archives and extract files from it.
 /// This implementation only supports the most basic features of the tar format.
-/// It allows to read files from an uncompressed tar archive, but does not care
+/// It allows reading files from an uncompressed tar archive but does not care
 /// about any metadata like user id, group id, permissions, etc.
 /// While parsing the archive, the checksum of each header is verified to ensure the integrity of the archive.
 /// If a checksum does not match, parsing stops and no further files are available.
@@ -41,12 +42,12 @@ class TarArchive {
 
 public:
     /// The header of a file within a tar archive.
-    /// All fields are stored as ASCII-strings.
+    /// All fields are stored as ASCII strings.
     /// Numeric values are stored as octal numbers in ASCII-string format.
     struct Header {
         /// The name of the file (ASCII-string).
         char filename[100];
-        /// The file's mode (e.g. permissions).
+        /// The file's mode (e.g., permissions).
         char mode[8];
         /// The owner's user id.
         char userId[8];
@@ -58,7 +59,7 @@ public:
         char modificationTime[12];
         /// The checksum for the header record.
         char checkSum[8];
-        /// The type of file (e.g. regular, directory, link, etc.).
+        /// The type of file (e.g., regular, directory, link, etc.).
         char type;
         /// Unused space (may contain data in modern TAR versions).
         uint8_t unused[355];

@@ -24,8 +24,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "util/collection/Queue.h"
-#include "util/io/stream/InputStream.h"
+#include "InputStream.h"
+
+#include <util/collection/Queue.h>
 
 namespace Util {
 namespace Io {

@@ -23,7 +23,7 @@
 
 #include <stddef.h>
 
-#include "util/async/Atomic.h"
+#include "Atomic.h"
 
 namespace Util {
 namespace Async {

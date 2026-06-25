@@ -26,8 +26,8 @@
 
 #include <stdint.h>
 
-#include "util/io/stream/InputStream.h"
-#include "util/io/stream/OutputStream.h"
+#include <util/io/stream/InputStream.h>
+#include <util/io/stream/OutputStream.h>
 
 namespace Util {
 namespace Network {

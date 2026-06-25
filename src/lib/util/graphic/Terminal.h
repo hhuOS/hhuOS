@@ -24,21 +24,22 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "util/async/ReentrantSpinlock.h"
-#include "util/async/Runnable.h"
-#include "util/base/String.h"
-#include "util/collection/Array.h"
-#include "util/graphic/Color.h"
-#include "util/graphic/Colors.h"
-#include "util/io/stream/FilterInputStream.h"
-#include "util/io/stream/FilterOutputStream.h"
-#include "util/io/stream/OutputStream.h"
-#include "util/io/stream/InputStream.h"
-#include "util/io/stream/PipedOutputStream.h"
-#include "util/io/stream/ByteArrayOutputStream.h"
-#include "util/io/stream/PipedInputStream.h"
-#include "util/io/key/layout/DeLayout.h"
-#include "util/io/key/KeyDecoder.h"
+#include "Color.h"
+#include "Colors.h"
+
+#include <util/async/ReentrantSpinlock.h>
+#include <util/async/Runnable.h>
+#include <util/base/String.h>
+#include <util/collection/Array.h>
+#include <util/io/stream/FilterInputStream.h>
+#include <util/io/stream/FilterOutputStream.h>
+#include <util/io/stream/OutputStream.h>
+#include <util/io/stream/InputStream.h>
+#include <util/io/stream/PipedOutputStream.h>
+#include <util/io/stream/ByteArrayOutputStream.h>
+#include <util/io/stream/PipedInputStream.h>
+#include <util/io/key/layout/DeLayout.h>
+#include <util/io/key/KeyDecoder.h>
 
 namespace Util {
 namespace Graphic {
@@ -55,15 +56,15 @@ public:
     enum Command {
         /// Enable or disable echoing of typed characters.
         SET_ECHO,
-        /// Enable or disable line aggregation (i.e. buffering until newline).
+        /// Enable or disable line aggregation (i.e, buffering until newline).
         SET_LINE_AGGREGATION,
         /// Enable or disable ANSI escape sequence parsing.
         SET_ANSI_PARSING,
         /// Enable or disable the terminal cursor.
         SET_CURSOR,
-        /// Enable or disable raw mode (i.e. no line aggregation and no echo).
+        /// Enable or disable raw mode (i.e, no line aggregation and no echo).
         ENABLE_RAW_MODE,
-        /// Enable or disable canonical mode (i.e. line aggregation and echo).
+        /// Enable or disable canonical mode (i.e, line aggregation and echo).
         ENABLE_CANONICAL_MODE,
         /// Enable or disable keyboard scancodes instead of ascii characters.
         ENABLE_KEYBOARD_SCANCODES,
@@ -142,7 +143,7 @@ public:
         echo = enabled;
     }
 
-    /// Enable or disable line aggregation (i.e. buffering until newline).
+    /// Enable or disable line aggregation (i.e, buffering until newline).
     void setLineAggregation(const bool enabled) {
         lineAggregation = enabled;
         terminalStream.flush();

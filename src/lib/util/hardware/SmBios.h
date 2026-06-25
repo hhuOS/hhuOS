@@ -24,8 +24,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "util/collection/Array.h"
-#include "util/collection/Iterator.h"
+#include <util/collection/Array.h>
+#include <util/collection/Iterator.h>
 
 namespace Util {
 namespace Hardware {

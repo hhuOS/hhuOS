@@ -36,7 +36,7 @@
 namespace Pulsar {
 
 /// A subclass of `Event` that can be canceled.
-/// For example, `TranslationEvent` is a cancelable event. One example where a `TranslationEvent` occurs,
+/// For example, `TranslationEvent` is a cancelable event. One example where a `TranslationEvent` occurs
 /// is if an entity has a dynamic collider and collides with another entity. In this case, a `TranslationEvent` is
 /// created to move the entity away from the collision. This translation can then be canceled
 /// by the collision event handler, preventing the entity from being moved.
@@ -47,7 +47,7 @@ public:
     CancelableEvent() = default;
 
     /// Cancel the event. This can be called by event handlers to prevent the action from being performed
-    /// (e.g. prevent an entity from being moved by a `TranslationEvent`).
+    /// (e.g., prevent an entity from being moved by a `TranslationEvent`).
     void cancel() {
         canceled = true;
     }

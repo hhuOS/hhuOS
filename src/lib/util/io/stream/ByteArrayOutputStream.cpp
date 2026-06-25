@@ -20,7 +20,7 @@
 
 #include "ByteArrayOutputStream.h"
 
-#include "lib/util/base/Address.h"
+#include <util/base/Address.h>
 
 namespace Util {
 namespace Io {

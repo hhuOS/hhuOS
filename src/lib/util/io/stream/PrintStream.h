@@ -27,8 +27,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "util/base/String.h"
-#include "util/io/stream/FilterOutputStream.h"
+#include "FilterOutputStream.h"
+
+#include <util/base/String.h>
 
 namespace Util {
 namespace Io {
@@ -64,7 +65,7 @@ public:
 		return bytesWritten;
 	}
 
-	/// Set the numeric base for integer printing (e.g. 2 for binary, 8 for octal, 10 for decimal, 16 for hexadecimal).
+	/// Set the numeric base for integer printing (e.g., 2 for binary, 8 for octal, 10 for decimal, 16 for hexadecimal).
 	/// The default base is 10 (decimal).
 	///
 	/// ### Example
@@ -252,7 +253,7 @@ public:
 		fillDecimalPrecisionWithZeros = fillZeros;
 	}
 
-	/// Set a prefix string to print before integer numbers (e.g. "0x" for hexadecimal).
+	/// Set a prefix string to print before integer numbers (e.g., "0x" for hexadecimal).
 	/// The default is an empty string (no prefix).
 	///
 	/// ### Example
@@ -275,7 +276,7 @@ public:
 		integerPrefix = prefix;
 	}
 
-	/// Set the base character to use for digits above 9 when printing in bases greater than 10 (e.g. hexadecimal).
+	/// Set the base character to use for digits above 9 when printing in bases greater than 10 (e.g., hexadecimal).
 	/// This method accepts any character, although the only sensible choices are 'A' and 'a'.
 	/// The default is 'A' (uppercase).
 	///
@@ -299,7 +300,7 @@ public:
 	}
 
 	/// Set whether to always print a decimal point for floating-point numbers,
-	/// even if there are no decimal digits to print (e.g. "3." instead of "3").
+	/// even if there are no decimal digits to print (e.g., "3." instead of "3").
 	/// The default is false (do not always print the decimal point).
 	///
 	/// ### Example

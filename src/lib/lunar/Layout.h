@@ -24,8 +24,9 @@
 #ifndef HHUOS_LIB_LUNAR_LAYOUT_H
 #define HHUOS_LIB_LUNAR_LAYOUT_H
 
-#include "util/collection/ArrayList.h"
-#include "lunar/Widget.h"
+#include "Widget.h"
+
+#include <util/collection/ArrayList.h>
 
 namespace Lunar {
 class Container;

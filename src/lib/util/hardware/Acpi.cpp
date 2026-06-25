@@ -20,9 +20,9 @@
 
 #include "Acpi.h"
 
-#include "util/base/Address.h"
-#include "util/base/Constants.h"
-#include "interface.h"
+#include <interface.h>
+#include <util/base/Address.h>
+#include <util/base/Constants.h>
 
 namespace Util {
 namespace Hardware {

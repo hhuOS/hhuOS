@@ -21,14 +21,15 @@
 #ifndef HHUOS_LIB_UTIL_ARRAY_QUEUE_H
 #define HHUOS_LIB_UTIL_ARRAY_QUEUE_H
 
-#include "util/async/Thread.h"
-#include "util/collection/Queue.h"
+#include "Queue.h"
+
+#include <util/async/Thread.h>
 
 namespace Util {
 
 /// A bounded blocking queue implementation based on a fixed-size array, implementing only basic queue operations.
 /// It is thread-safe for a single producer and a single consumer scenario.
-/// This is for example useful for interrupt handling, where data needs to be queued and processed in a FIFO manner,
+/// This is, for example, useful for interrupt handling, where data needs to be queued and processed in a FIFO manner,
 /// without using any locking mechanisms.
 ///
 /// ## Example

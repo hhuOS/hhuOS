@@ -30,16 +30,17 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#include "Sprite.h"
-
 #include <stdint.h>
 
-#include "util/graphic/Color.h"
-#include "util/graphic/Image.h"
-#include "util/graphic/BitmapFile.h"
-#include "pulsar/Game.h"
-#include "pulsar/Graphics.h"
-#include "pulsar/Resources.h"
+#include "Sprite.h"
+
+#include "../Game.h"
+#include "../Graphics.h"
+#include "../Resources.h"
+
+#include <util/graphic/Color.h>
+#include <util/graphic/Image.h>
+#include <util/graphic/BitmapFile.h>
 
 namespace Pulsar {
 namespace D2 {

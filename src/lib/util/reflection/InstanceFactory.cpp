@@ -1,7 +1,8 @@
 #include "InstanceFactory.h"
 
-#include "util/collection/HashMap.h"
-#include "util/reflection/Prototype.h"
+#include "Prototype.h"
+
+#include <util/collection/HashMap.h>
 
 namespace Util {
 namespace Reflection {

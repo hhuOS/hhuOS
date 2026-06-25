@@ -24,10 +24,9 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "util/async/Spinlock.h"
-#include "util/base/HeapMemoryManager.h"
-#include "util/base/String.h"
-#include "util/reflection/Prototype.h"
+#include "HeapMemoryManager.h"
+
+#include <util/async/Spinlock.h>
 
 namespace Util {
 /// A memory manager that uses a doubly linked free list to manage a heap.
@@ -46,7 +45,7 @@ public:
 
     /// Reallocate a previously allocated block of memory to a new size and alignment.
     /// If the current block can be extended, it is done in place.
-    /// Otherwise, a new block is allocated and the content of the old block is copied into the new one.
+    /// Otherwise, a new block is allocated, and the content of the old block is copied into the new one.
     /// If no sufficient block of memory is available, a panic is fired.
     void* reallocateMemory(void *ptr, size_t size, size_t alignment) override;
 

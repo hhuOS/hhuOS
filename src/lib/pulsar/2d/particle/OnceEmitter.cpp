@@ -32,7 +32,7 @@
 
 #include "OnceEmitter.h"
 
-#include "pulsar/2d/particle/Emitter.h"
+#include "Emitter.h"
 
 namespace Pulsar {
 namespace D2 {

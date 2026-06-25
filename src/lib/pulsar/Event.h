@@ -36,9 +36,9 @@
 namespace Pulsar {
 
 /// Base class for all events in the game engine.
-/// Events are used to notify entities about changes or actions that have occurred (e.g. translation, collision, etc.).
+/// Events are used to notify entities about changes or actions that have occurred (e.g., translation, collision, etc.).
 /// If an event inherits from `CancelableEvent`, it can be canceled to stop the action from being performed.
-/// All other events are non-cancelable, i.e. they will always be executed, regardless of the handling.
+/// All other events are non-cancelable, i.e., they will always be executed, regardless of the handling.
 class Event {
 
 public:

@@ -23,8 +23,6 @@
 
 #include "MacAddress.h"
 
-#include "util/network/NetworkAddress.h"
-
 namespace Util {
 namespace Network {
 

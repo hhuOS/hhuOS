@@ -35,9 +35,9 @@
 
 #include <stdint.h>
 
-#include "util/graphic/Colors.h"
-#include "util/math/Vector3.h"
-#include "util/graphic/Color.h"
+#include <util/graphic/Color.h>
+#include <util/graphic/Colors.h>
+#include <util/math/Vector3.h>
 
 namespace Pulsar {
 namespace D3 {

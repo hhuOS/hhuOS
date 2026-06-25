@@ -33,9 +33,10 @@
 #ifndef HHUOS_LIB_PULSAR_AUDIORUNNABLE_H
 #define HHUOS_LIB_PULSAR_AUDIORUNNABLE_H
 
-#include "util/async/Runnable.h"
-#include "util/collection/Array.h"
-#include "pulsar/audio/AudioChannel.h"
+#include "AudioChannel.h"
+
+#include <util/async/Runnable.h>
+#include <util/collection/Array.h>
 
 namespace Pulsar {
 

@@ -27,10 +27,11 @@
 
 #include <stdint.h>
 
-#include "util/base/Panic.h"
-#include "util/collection/ArrayListQueue.h"
-#include "util/io/key/KeyEvent.h"
-#include "util/io/key/KeyboardLayout.h"
+#include "KeyEvent.h"
+#include "KeyboardLayout.h"
+
+#include <util/base/Panic.h>
+#include <util/collection/ArrayListQueue.h>
 
 namespace Util {
 namespace Io {

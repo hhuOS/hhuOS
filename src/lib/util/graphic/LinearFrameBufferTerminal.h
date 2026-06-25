@@ -23,12 +23,13 @@
 
 #include <stdint.h>
 
-#include "util/async/Spinlock.h"
-#include "util/graphic/BufferedLinearFrameBuffer.h"
-#include "util/graphic/Color.h"
-#include "util/graphic/Colors.h"
-#include "util/graphic/Terminal.h"
-#include "util/graphic/font/Terminal8x16.h"
+#include "BufferedLinearFrameBuffer.h"
+#include "Color.h"
+#include "Colors.h"
+#include "Terminal.h"
+#include "font/Terminal8x16.h"
+
+#include <util/async/Spinlock.h>
 
 namespace Util {
 namespace Graphic {

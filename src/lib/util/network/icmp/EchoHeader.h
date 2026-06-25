@@ -26,15 +26,15 @@
 
 #include <stdint.h>
 
-#include "util/io/stream/InputStream.h"
-#include "util/io/stream/OutputStream.h"
+#include <util/io/stream/InputStream.h>
+#include <util/io/stream/OutputStream.h>
 
 namespace Util {
 namespace Network {
 namespace Icmp {
 
 /// Represents a header for an Echo Request or Echo Reply in the Internet Control Message Protocol (ICMP).
-/// The Echo message is contained in the payload of an ICMP packet
+/// The Echo message is contained in the payload of an ICMP packet,
 /// and the header follows directly after the ICMP header.
 /// The header is 4 bytes long and consists of the following fields:
 ///
@@ -49,12 +49,12 @@ public:
     EchoHeader() = default;
 
     /// Read the header values from the given input stream.
-    /// The input stream must deliver the 4 bytes of data, that make up the header.
+    /// The input stream must deliver the 4 bytes of data that make up the header.
     /// The identifier and sequence number are read in this exact order.
     void read(Io::InputStream &stream);
 
     /// Write the header values to the given output stream.
-    /// The output stream will receive the 4 bytes of data, that make up the header.
+    /// The output stream will receive the 4 bytes of data that make up the header.
     /// The identifier and sequence number are written in this exact order.
     void write(Io::OutputStream &stream) const;
 

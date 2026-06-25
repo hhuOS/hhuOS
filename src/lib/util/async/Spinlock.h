@@ -23,9 +23,9 @@
 
 #include <stdint.h>
 
-#include "util/async/Atomic.h"
-#include "util/async/Lock.h"
-#include "util/async/Thread.h"
+#include "Atomic.h"
+#include "Lock.h"
+#include "Thread.h"
 
 namespace Util {
 namespace Async {

@@ -23,10 +23,11 @@
 
 #include "ScanStream.h"
 
-#include "util/base/CharacterTypes.h"
-#include "util/base/WideChar.h"
-#include "util/io/stream/InputStream.h"
-#include "util/math/Math.h"
+#include "InputStream.h"
+
+#include <util/base/CharacterTypes.h>
+#include <util/base/WideChar.h>
+#include <util/math/Math.h>
 
 namespace Util {
 namespace Io {

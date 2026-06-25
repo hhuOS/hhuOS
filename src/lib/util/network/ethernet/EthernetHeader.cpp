@@ -23,7 +23,7 @@
 
 #include "EthernetHeader.h"
 
-#include "../../io/stream/NumberUtil.h"
+#include <util/io/stream/NumberUtil.h>
 
 namespace Util {
 namespace Network {

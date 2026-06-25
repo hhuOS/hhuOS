@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "util/graphic/Color.h"
+#include "Color.h"
 
 namespace Util {
 namespace Graphic {

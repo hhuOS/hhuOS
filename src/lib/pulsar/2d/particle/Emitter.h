@@ -36,9 +36,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "util/collection/ArrayList.h"
-#include "util/math/Random.h"
-#include "pulsar/2d/Entity.h"
+#include "../Entity.h"
+
+#include <util/collection/ArrayList.h>
+#include <util/math/Random.h>
 
 namespace Pulsar {
 namespace D2 {
@@ -100,21 +101,21 @@ public:
     void destroy(bool immediate = false);
 
     /// Called when a particle is initialized. Subclasses should override this method to configure
-    /// the particle's initial properties (e.g. position, velocity, lifetime, color, size, etc.) and
+    /// the particle's initial properties (e.g., position, velocity, lifetime, color, size, etc.) and
     /// attach any necessary components.
     virtual void onParticleInitialization(Particle &particle) = 0;
 
     /// Called during each update cycle for every active particle. Subclasses should override this method to update
-    /// the particle's properties over time (e.g. position, velocity, size, etc.)
+    /// the particle's properties over time (e.g., position, velocity, size, etc.)
     /// based on the elapsed time since the last update.
     virtual void onParticleUpdate(Particle &particle, float delta) = 0;
 
     /// Called when a particle collides with another entity. Subclasses should override this method to define
-    /// custom collision behavior (e.g. bounce, destroy, etc.).
+    /// custom collision behavior (e.g., bounce, destroy, etc.).
     virtual void onParticleCollision(Particle &particle, const CollisionEvent &event) = 0;
 
     /// Called when a particle is destroyed/removed. Subclasses should override this method to perform any necessary
-    /// cleanup or effects (e.g. spawn new particles, play sound, etc.) when a particle is removed.
+    /// cleanup or effects (e.g., spawn new particles, play sound, etc.) when a particle is removed.
     virtual void onParticleDestruction(const Particle &particle) = 0;
 
     /// Get the minimum emission rate (particles per emission cycle).

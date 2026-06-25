@@ -27,7 +27,7 @@
 namespace Util {
 namespace Async {
 
-/// A bitmap that can be used to manage a set of blocks (e.g. page frames).
+/// A bitmap that can be used to manage a set of blocks (e.g., page frames).
 /// It uses atomic operations to ensure thread-safety.
 ///
 /// ## Example

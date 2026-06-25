@@ -32,8 +32,6 @@
 
 #include "Particle.h"
 
-#include "util/math/Vector2.h"
-
 namespace Pulsar {
 namespace D2 {
 

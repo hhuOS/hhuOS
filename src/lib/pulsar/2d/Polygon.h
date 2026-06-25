@@ -33,17 +33,18 @@
 #ifndef HHUOS_LIB_PULSAR_2D_POLYGON_H
 #define HHUOS_LIB_PULSAR_2D_POLYGON_H
 
-#include "util/collection/Array.h"
-#include "util/math/Vector2.h"
-#include "pulsar/2d/Entity.h"
+#include "Entity.h"
+
+#include <util/collection/Array.h>
+#include <util/math/Vector2.h>
 
 namespace Pulsar {
 namespace D2 {
 
 /// A 2D polygon entity, defined by a set of vertices.
-/// The vertices are defined in local space (i.e. relative to the position of the polygon), with (0,0) being the center.
-/// The polygon is always closed, i.e. the last vertex is connected to the first vertex. It can be scaled and rotated.
-/// Only its outline is drawn, it can not be filled.
+/// The vertices are defined in local space (i.e., relative to the position of the polygon), with (0,0) being the center.
+/// The polygon is always closed, i.e., the last vertex is connected to the first vertex. It can be scaled and rotated.
+/// Only its outline is drawn, it cannot be filled.
 class Polygon : public Entity {
 
 public:

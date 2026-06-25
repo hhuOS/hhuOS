@@ -24,14 +24,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "util/async/Spinlock.h"
-#include "util/io/stream/InputStream.h"
+#include "InputStream.h"
+
+#include <util/async/Spinlock.h>
 
 namespace Util {
 namespace Io {
 class PipedOutputStream;
-} // namespace Io
-} // namespace Util
+}
+}
 
 namespace Util {
 namespace Io {
@@ -121,7 +122,7 @@ public:
 	}
 
 	/// Return the number of bytes that can be read from the stream without blocking
-	/// (i.e. the number of bytes currently stored in the internal buffer).
+	/// (i.e, the number of bytes currently stored in the internal buffer).
 	size_t getReadableBytes() {
 		lock.acquire();
 

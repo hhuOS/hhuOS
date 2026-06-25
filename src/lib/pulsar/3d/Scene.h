@@ -33,19 +33,20 @@
 #ifndef HHUOS_LIB_PULSAR_3D_SCENE_H
 #define HHUOS_LIB_PULSAR_3D_SCENE_H
 
-#include "util/graphic/Color.h"
-#include "util/graphic/Colors.h"
-#include "util/math/Vector3.h"
-#include "pulsar/Scene.h"
-#include "pulsar/3d/Entity.h"
-#include "pulsar/3d/Light.h"
-#include "tinygl/include/GL/gl.h"
+#include "../Scene.h"
+#include "Entity.h"
+#include "Light.h"
+
+#include <util/graphic/Color.h>
+#include <util/graphic/Colors.h>
+#include <util/math/Vector3.h>
+#include <tinygl/include/GL/gl.h>
 
 namespace Pulsar {
 namespace D3 {
 
 /// Base class for 3D scenes used in the game engine.
-/// It extends the base `Pulsar::Scene` class with 3D-specific behaviors (e.g. lighting).
+/// It extends the base `Pulsar::Scene` class with 3D-specific behaviors (e.g., lighting).
 /// 3D scenes manage 3D entities with sphere colliders and check for collisions between them.
 /// They also manage OpenGL specific settings like render styles and shading models, which
 /// can be adjusted at runtime:

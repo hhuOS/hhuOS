@@ -34,10 +34,10 @@
 
 #include "ObjectFile.h"
 
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/io/stream/BufferedInputStream.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/util/math/Math.h"
+#include <util/collection/ArrayList.h>
+#include <util/io/stream/FileInputStream.h>
+#include <util/io/stream/BufferedInputStream.h>
+#include <util/math/Math.h>
 
 namespace Pulsar {
 namespace D3 {

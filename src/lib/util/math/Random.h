@@ -18,12 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LIB_UTIL_RANDOM_H
-#define HHUOS_LIB_UTIL_RANDOM_H
+#ifndef HHUOS_LIB_UTIL_MATH_RANDOM_H
+#define HHUOS_LIB_UTIL_MATH_RANDOM_H
 
 #include <stdint.h>
 
-#include "util/time/Timestamp.h"
+#include <util/time/Timestamp.h>
 
 namespace Util {
 namespace Math {

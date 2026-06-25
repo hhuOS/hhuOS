@@ -23,8 +23,8 @@
 
 #include <stddef.h>
 
-#include "util/collection/Iterator.h"
-#include "util/collection/Array.h"
+#include "Iterator.h"
+#include "Array.h"
 
 namespace Util {
 

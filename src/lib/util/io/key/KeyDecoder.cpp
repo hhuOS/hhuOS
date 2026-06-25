@@ -20,7 +20,7 @@
 
 #include "KeyDecoder.h"
 
-#include "lib/util/io/key/KeyboardLayout.h"
+#include "KeyboardLayout.h"
 
 namespace Util {
 namespace Io {

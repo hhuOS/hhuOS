@@ -18,9 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-
-#include "lib/util/collection/ArrayList.h"
 #include "CpuId.h"
+
+#include <util/collection/ArrayList.h>
 
 namespace Util {
 namespace Hardware {
