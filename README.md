@@ -125,6 +125,11 @@ When you are done tinkering with the OS, why not try to build your own applicati
 
 ## Notes
 
+Window manager icons:
+ - [Telescope](https://icons8.com/icon/12069/telescope) [Icons8](https://icons8.com)
+ - [Doom](https://icons8.com/icon/e7DUzb65WlzN/doom-logo) [Icons8](https://icons8.com)
+ - [Gears](https://icons8.com/icon/22998/gears) [Icons8](https://icons8.com)
+
 Assets for the dino game have been taken from [itch.io](https://itch.io):
  - [Dino Characters](https://arks.itch.io/dino-characters) by [*@ScissorMarks*](https://twitter.com/ScissorMarks) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
  - [Dino Family](https://demching.itch.io/dino-family) by [*DemChing*](https://demching.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))

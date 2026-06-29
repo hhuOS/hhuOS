@@ -30,6 +30,10 @@ namespace Graphic {
 BitmapFile* BitmapFile::open(const String &path) {
     // Read bitmap file into memory
     const Io::File file(path);
+    if (!file.exists() || file.isDirectory()) {
+        return nullptr;
+    }
+
     Io::FileInputStream stream(file);
     auto *buffer = new uint8_t[file.getLength()];
     stream.read(buffer, 0, file.getLength());

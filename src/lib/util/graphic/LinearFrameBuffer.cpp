@@ -332,7 +332,7 @@ void LinearFrameBuffer::drawImage(const Image &image, const int32_t x, const int
 
     for (uint16_t offsetY = 0; offsetY < height; ++offsetY) {
         for (uint16_t offsetX = 0; offsetX < width; ++offsetX) {
-            drawPixel(x + offsetX, y + offsetY, pixelBuffer[offsetY * width + offsetX]);
+            drawPixel(x + offsetX, y + image.getHeight() - offsetY, pixelBuffer[offsetY * width + offsetX]);
         }
     }
 }
