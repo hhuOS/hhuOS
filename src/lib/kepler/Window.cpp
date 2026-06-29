@@ -28,7 +28,8 @@
 
 namespace Kepler {
 
-Window::Window(const uint16_t width, const uint16_t height, const Util::String &title, Client &client) : client(client) {
+Window::Window(const uint16_t width, const uint16_t height, const Util::String &title) {
+    const auto &client = Client::getInstance();
     if (!client.sendRequest(Request::CreateWindow(width, height, title))) {
         Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
     }
@@ -67,6 +68,7 @@ Util::Graphic::LinearFrameBuffer& Window::getFrameBuffer() const {
 }
 
 bool Window::flush() const {
+    const auto &client = Client::getInstance();
     if (!client.sendRequest(Request::Flush(id))) {
         Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
     }
@@ -80,6 +82,7 @@ bool Window::flush() const {
 }
 
 bool Window::setTitle(const Util::String &title) const {
+    const auto &client = Client::getInstance();
     if (!client.sendRequest(Request::SetWindowTitle(id, title))) {
         Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
     }
@@ -93,6 +96,7 @@ bool Window::setTitle(const Util::String &title) const {
 }
 
 bool Window::close() const {
+    const auto &client = Client::getInstance();
     if (!client.sendRequest(Request::CloseWindow(id))) {
         Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
     }

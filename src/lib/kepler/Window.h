@@ -35,7 +35,7 @@ class Window {
 
 public:
 
-    Window(uint16_t width, uint16_t height, const Util::String &title, Client &client);
+    Window(uint16_t width, uint16_t height, const Util::String &title);
 
     Window(const Window &other) = delete;
 
@@ -52,7 +52,7 @@ public:
     bool close() const;
 
     void registerEventListener(EventListener &listener) const {
-        client.registerEventListener(id, listener);
+        Client::getInstance().registerEventListener(id, listener);
     }
 
     static constexpr const char *EVENT_PIPE_PATH = "/process/%u/pipes/kepler-event";
@@ -60,8 +60,6 @@ public:
 private:
 
     size_t id = 0;
-
-    Client &client;
 
     Util::Async::SharedMemory *sharedMemory = nullptr;
     Util::Graphic::LinearFrameBuffer *lfb = nullptr;

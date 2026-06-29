@@ -18,8 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LIB_KEPLER_WINDOWMANAGERPIPE_H
-#define HHUOS_LIB_KEPLER_WINDOWMANAGERPIPE_H
+#ifndef HHUOS_LIB_KEPLER_CLIENT_H
+#define HHUOS_LIB_KEPLER_CLIENT_H
 
 #include "EventListener.h"
 #include "EventRunnable.h"
@@ -34,7 +34,7 @@ class Client {
 
 public:
 
-    Client();
+    Client() = default;
 
     Client(const Client &other) = delete;
 
@@ -42,15 +42,23 @@ public:
 
     ~Client();
 
-    [[nodiscard]] bool sendRequest(const Util::Async::Streamable &streamable) const;
+    bool connect();
 
-    [[nodiscard]] bool receiveResponse(Util::Async::Streamable &streamable) const;
-
-    [[nodiscard]] size_t getWindowManagerProcessId() const;
-
-    void registerEventListener(const size_t windowId, EventListener &listener) const {
-        eventRunnable->registerListener(windowId, listener);
+    bool isConnected() const {
+        return windowManagerProcessId != 0;
     }
+
+    bool sendRequest(const Util::Async::Streamable &streamable) const;
+
+    bool receiveResponse(Util::Async::Streamable &streamable) const;
+
+    size_t getWindowManagerProcessId() const {
+        return windowManagerProcessId;
+    }
+
+    void registerEventListener(size_t windowId, EventListener &listener) const;
+
+    static Client& getInstance();
 
 private:
 

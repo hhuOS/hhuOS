@@ -28,7 +28,13 @@
 
 namespace Kepler {
 
-Client::Client() {
+Client::~Client() {
+    destroyPipe("kepler-event");
+    delete responseInputStream;
+    delete requestOutputStream;
+}
+
+bool Client::connect() {
     const Util::Io::File desktopFile("/system/kepler");
     while (!desktopFile.exists()) {
         Util::Async::Thread::sleep(Util::Time::Timestamp::ofSeconds(1));
@@ -71,24 +77,41 @@ Client::Client() {
     createPipe("kepler-event");
     eventRunnable = new EventRunnable(Util::String::format("/process/%u/pipes/kepler-event", processId));
     Util::Async::Thread::createThread("Kepler-Event", eventRunnable);
-}
 
-Client::~Client() {
-    destroyPipe("kepler-event");
-    delete responseInputStream;
-    delete requestOutputStream;
+    return true;
 }
 
 bool Client::sendRequest(const Util::Async::Streamable &streamable) const {
+    if (requestOutputStream == nullptr) {
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Client: Not connected to a kepler instance yet!");
+    }
+
     return streamable.writeToStream(*requestOutputStream);
 }
 
 bool Client::receiveResponse(Util::Async::Streamable &streamable) const {
+    if (responseInputStream == nullptr) {
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Client: Not connected to a kepler instance yet!");
+    }
+
     return streamable.readFromStream(*responseInputStream);
 }
 
-size_t Client::getWindowManagerProcessId() const {
-    return windowManagerProcessId;
+void Client::registerEventListener(const size_t windowId, EventListener &listener) const {
+    if (eventRunnable == nullptr) {
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Client: Not connected to a kepler instance yet!");
+    }
+
+    eventRunnable->registerListener(windowId, listener);
+}
+
+Client& Client::getInstance() {
+    static Client client;
+    if (!client.isConnected()) {
+        client.connect();
+    }
+
+    return client;
 }
 
 }

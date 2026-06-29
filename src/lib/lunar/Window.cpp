@@ -27,8 +27,8 @@
 
 namespace Lunar {
 
-Window::Window(Kepler::Client &client, const size_t width, const size_t height, const Util::String &title) :
-    Container(width, height), Kepler::Window(width, height, title, client)
+Window::Window(const size_t width, const size_t height, const Util::String &title) :
+    Container(width, height), Kepler::Window(width, height, title)
 {
     registerEventListener(*this);
 }

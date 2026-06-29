@@ -20,7 +20,6 @@
 
 #include "util/async/Thread.h"
 #include "util/graphic/font/Terminal8x16.h"
-#include "kepler/Client.h"
 #include "kepler/Window.h"
 #include "lunar/BorderLayout.h"
 #include "lunar/Button.h"
@@ -91,8 +90,7 @@ private:
 };
 
 int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
-    auto client = Kepler::Client();
-    auto window = Lunar::Window(client, 320, 240, argv[0]);
+    auto window = Lunar::Window(320, 240, argv[0]);
     window.setLayout(new Lunar::BorderLayout());
 
     // Add a label to the top
