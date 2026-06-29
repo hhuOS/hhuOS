@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2017-2026 Heinrich Heine University Düsseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
+ * Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
+ * This project has been supported by several students.
+ * A full list of integrated student theses can be found here: https://github.com/hhuOS/hhuOS/wiki/Student-theses
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ */
+
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,19 +25,20 @@
 
 #include "ClassiCube/src/Core.h"
 #undef CC_BUILD_NETWORKING
-#include "ClassiCube/src/_PlatformBase.h"
-#include "ClassiCube/src/Utils.h"
-#include "ClassiCube/src/Errors.h"
 #include "ClassiCube/src/main_impl.h"
-#include "lib/util/async/Thread.h"
-#include "lib/util/time/Timestamp.h"
 #include "ClassiCube/src/Constants.h"
 #include "ClassiCube/src/Logger.h"
+#include "ClassiCube/src/Utils.h"
+#include "ClassiCube/src/Errors.h"
 #include "ClassiCube/src/Platform.h"
-#include "lib/util/base/String.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/time/Date.h"
+#include "ClassiCube/src/_PlatformBase.h"
+
+#include <util/async/Thread.h>
+#include <util/time/Timestamp.h>
+#include <util/base/String.h>
+#include <util/collection/Array.h>
+#include <util/io/file/File.h>
+#include <util/time/Date.h>
 
 cc_uint8 Platform_Flags = PLAT_FLAG_SINGLE_PROCESS | PLAT_FLAG_APP_EXIT;
 
@@ -28,35 +49,30 @@ const cc_result ReturnCode_FileNotFound = ENOENT;
 const cc_result ReturnCode_DirectoryExists = EEXIST;
 const cc_result ReturnCode_PathNotFound = 99999; // Same as MSDOS
 const cc_result ReturnCode_FileShareViolation = 1000000000; // Same as MSDOS
-const cc_result ReturnCode_SocketInProgess  = -10002; // Same as MSDOS
-const cc_result ReturnCode_SocketWouldBlock = -10002; // Same as MSDOS
-const cc_result ReturnCode_SocketDropped    = -10002; // Same as MSDOS
 
-/*########################################################################################################################*
-*-----------------------------------------------------Main entrypoint-----------------------------------------------------*
-*#########################################################################################################################*/
+/*##################################################################################################################*
+*--------------------------------------------------Main entrypoint--------------------------------------------------*
+*###################################################################################################################*/
 
-int32_t main(const int32_t, char **) {
-	constexpr int32_t argc = 2;
-	char* argv[] = {const_cast<char*>("classicube"), const_cast<char*>("--singleplayer")};
-
+int32_t main(const int32_t argc, char **argv) {
 	SetupProgram(argc, argv);
+
 	while (true) {
 		RunProgram(argc, argv);
 	}
 }
 
-/*########################################################################################################################*
-*------------------------------------------------------Logging/Time-------------------------------------------------------*
-*#########################################################################################################################*/
+/*##################################################################################################################*
+*---------------------------------------------------Logging/Time----------------------------------------------------*
+*###################################################################################################################*/
 
-void Platform_Log(const char *, const int) {}
+void Platform_Log(const char*, const int) {}
 
 TimeMS DateTime_CurrentUTC() {
 	return Util::Time::Date().getUnixTime();
 }
 
-void DateTime_CurrentLocal(cc_datetime* t) {
+void DateTime_CurrentLocal(cc_datetime *t) {
 	const auto date = Util::Time::Date();
 	t->year = date.getYear();
 	t->month = date.getMonth();
@@ -66,9 +82,9 @@ void DateTime_CurrentLocal(cc_datetime* t) {
 	t->second = date.getSeconds();
 }
 
-/*########################################################################################################################*
-*-------------------------------------------------------Crash handling----------------------------------------------------*
-*#########################################################################################################################*/
+/*##################################################################################################################*
+*----------------------------------------------------Crash handling-------------------------------------------------*
+*###################################################################################################################*/
 
 void CrashHandler_Install() {}
 
@@ -76,9 +92,9 @@ void Process_Abort2(const cc_result result, const char *raw_msg) {
 	Logger_DoAbort(result, raw_msg, nullptr);
 }
 
-/*########################################################################################################################*
-*--------------------------------------------------------Stopwatch--------------------------------------------------------*
-*#########################################################################################################################*/
+/*##################################################################################################################*
+*-----------------------------------------------------Stopwatch-----------------------------------------------------*
+*###################################################################################################################*/
 
 cc_uint64 Stopwatch_Measure() {
 	return Util::Time::Timestamp::getSystemTime().toMicroseconds();
@@ -92,32 +108,22 @@ cc_uint64 Stopwatch_ElapsedMicroseconds(const cc_uint64 beg, const cc_uint64 end
 	return end - beg;
 }
 
-/*########################################################################################################################*
-*-----------------------------------------------------Directory/File------------------------------------------------------*
-*#########################################################################################################################*/
+/*##################################################################################################################*
+*--------------------------------------------------Directory/File---------------------------------------------------*
+*###################################################################################################################*/
 
 void Platform_EncodePath(cc_filepath *dst, const cc_string *src) {
 	String_EncodeUtf8(dst->buffer, src);
 }
 
-void Platform_DecodePath(cc_string* dst, const cc_filepath* path) {
-	const char* str = path->buffer;
-	String_AppendUtf8(dst, str, String_Length(str));
+void Platform_DecodePath(cc_string *dst, const cc_filepath *path) {
+	String_AppendUtf8(dst, path->buffer, String_Length(path->buffer));
 }
 
-void Directory_GetCachePath([[maybe_unused]] cc_string *path) {}
+void Directory_GetCachePath(cc_string*) {}
 
-cc_result Directory_Create(const cc_filepath *path) {
-	auto file = Util::Io::File(path->buffer);
-	if (file.exists()) {
-		return ReturnCode_DirectoryExists;
-	}
-
-	return file.create(Util::Io::File::DIRECTORY) ? 0 : -1;
-}
-
-cc_result Directory_Create2(const cc_filepath* path) {
-	auto file = Util::Io::File(path->buffer);
+cc_result Directory_Create2(const cc_filepath *path) {
+	const auto file = Util::Io::File(path->buffer);
 	if (file.exists()) {
 		return ReturnCode_DirectoryExists;
 	}
@@ -126,19 +132,20 @@ cc_result Directory_Create2(const cc_filepath* path) {
 }
 
 int File_Exists(const cc_filepath *path) {
-	auto file = Util::Io::File(path->buffer);
+	const auto file = Util::Io::File(path->buffer);
 	return file.exists() ? 1 : 0;
 }
 
 cc_result Directory_Enum(const cc_string *path, void *obj, const Directory_EnumCallback callback) {
-	auto file = Util::Io::File(path->buffer);
+	const auto file = Util::Io::File(path->buffer);
 	if (!file.exists() || !file.isDirectory()) {
 		return ReturnCode_FileNotFound;
 	}
 
 	const auto basePath = file.getCanonicalPath();
 	for (auto &child : file.getChildren()) {
-		callback(reinterpret_cast<const cc_string*>(static_cast<const char*>(child.getName())), obj, child.isDirectory() ? 1 : 0);
+		const auto isDir = child.isDirectory() ? 1 : 0;
+		callback(reinterpret_cast<const cc_string*>(static_cast<const char*>(child.getName())), obj, isDir);
 	}
 
 	return 0;
@@ -198,74 +205,74 @@ cc_result File_Length(const cc_file file, cc_uint32 *len) {
 	return 0;
 }
 
-/*########################################################################################################################*
-*--------------------------------------------------------Threading--------------------------------------------------------*
-*#########################################################################################################################*/
+/*##################################################################################################################*
+*-----------------------------------------------------Threading-----------------------------------------------------*
+*###################################################################################################################*/
 
 void Thread_Sleep(const cc_uint32 milliseconds) {
 	const auto time = Util::Time::Timestamp::ofMilliseconds(milliseconds);
 	Util::Async::Thread::sleep(time);
 }
 
-void Thread_Run([[maybe_unused]] void **handle, [[maybe_unused]] Thread_StartFunc func, [[maybe_unused]] int stackSize, [[maybe_unused]] const char *name) {
+void Thread_Run(void **handle, Thread_StartFunc, int, const char*) {
 	*handle = nullptr;
 }
 
-void Thread_Detach([[maybe_unused]] void *handle) {}
+void Thread_Detach(void*) {}
 
-void Thread_Join([[maybe_unused]] void *handle) {}
+void Thread_Join(void*) {}
 
-void* Mutex_Create([[maybe_unused]] const char *name) {
+void* Mutex_Create(const char*) {
 	return nullptr;
 }
 
-void Mutex_Free([[maybe_unused]] void *handle) {}
+void Mutex_Free(void*) {}
 
-void Mutex_Lock([[maybe_unused]] void *handle) {}
+void Mutex_Lock(void*) {}
 
-void Mutex_Unlock([[maybe_unused]] void *handle) {}
+void Mutex_Unlock(void*) {}
 
-void* Waitable_Create([[maybe_unused]] const char *name) {
+void* Waitable_Create(const char*) {
 	return nullptr;
 }
 
-void Waitable_Free([[maybe_unused]] void *handle) {}
+void Waitable_Free(void*) {}
 
-void Waitable_Signal([[maybe_unused]] void *handle) {}
+void Waitable_Signal(void*) {}
 
-void Waitable_Wait([[maybe_unused]] void *handle) {}
+void Waitable_Wait(void*) {}
 
-void Waitable_WaitFor([[maybe_unused]] void *handle, [[maybe_unused]] cc_uint32 milliseconds) {}
+void Waitable_WaitFor(void*, cc_uint32) {}
 
-/*########################################################################################################################*
-*--------------------------------------------------------Font/Text--------------------------------------------------------*
-*#########################################################################################################################*/
+/*##################################################################################################################*
+*-----------------------------------------------------Font/Text-----------------------------------------------------*
+*###################################################################################################################*/
 
 void Platform_LoadSysFonts() {}
 
-/*########################################################################################################################*
-*---------------------------------------------------------Socket----------------------------------------------------------*
-*#########################################################################################################################*/
+/*##################################################################################################################*
+*------------------------------------------------------Socket-------------------------------------------------------*
+*###################################################################################################################*/
 
-cc_bool SockAddr_ToString([[maybe_unused]] const cc_sockaddr* addr, [[maybe_unused]] cc_string* dst) {
+cc_bool SockAddr_ToString(const cc_sockaddr*, cc_string*) {
 	return false;
 }
 
-cc_bool ParseIPv4([[maybe_unused]] const cc_string* ip, [[maybe_unused]] int port, [[maybe_unused]] cc_sockaddr* dst) {
+cc_bool ParseIPv4(const cc_string*, int, cc_sockaddr*) {
 	return false;
 }
 
-cc_bool ParseIPv6([[maybe_unused]] const char* ip, [[maybe_unused]] int port, [[maybe_unused]] cc_sockaddr* dst) {
+cc_bool ParseIPv6(const char*, int, cc_sockaddr*) {
 	return false;
 }
 
-cc_result ParseHost([[maybe_unused]] const char* host, [[maybe_unused]] int port, [[maybe_unused]] cc_sockaddr* addrs, [[maybe_unused]] int* numValidAddrs) {
+cc_result ParseHost(const char*, int, cc_sockaddr*, int*) {
 	return ERR_NOT_SUPPORTED;
 }
 
-/*########################################################################################################################*
-*-----------------------------------------------------Process/Module------------------------------------------------------*
-*#########################################################################################################################*/
+/*##################################################################################################################*
+*--------------------------------------------------Process/Module---------------------------------------------------*
+*###################################################################################################################*/
 
 cc_bool Process_OpenSupported = false;
 
@@ -277,13 +284,13 @@ void Process_Exit(const cc_result code) {
 	exit(static_cast<int>(code));
 }
 
-cc_result Process_StartOpen([[maybe_unused]] const cc_string *args) {
+cc_result Process_StartOpen(const cc_string*) {
 	return ERR_NOT_SUPPORTED;
 }
 
-/*########################################################################################################################*
-*--------------------------------------------------------Platform---------------------------------------------------------*
-*#########################################################################################################################*/
+/*##################################################################################################################*
+*-----------------------------------------------------Platform------------------------------------------------------*
+*###################################################################################################################*/
 
 void Platform_Free() {}
 
@@ -296,25 +303,25 @@ cc_bool Platform_DescribeError(const cc_result res, cc_string *dst) {
 
 void Platform_Init() {}
 
-/*########################################################################################################################*
-*-------------------------------------------------------Encryption--------------------------------------------------------*
-*#########################################################################################################################*/
+/*##################################################################################################################*
+*----------------------------------------------------Encryption-----------------------------------------------------*
+*###################################################################################################################*/
 
-cc_result Platform_Encrypt([[maybe_unused]] const void *data, [[maybe_unused]] int len, [[maybe_unused]] cc_string *dst) {
+cc_result Platform_Encrypt(const void*, int, cc_string*) {
 	return ERR_NOT_SUPPORTED;
 }
 
-cc_result Platform_Decrypt([[maybe_unused]] const void *data, [[maybe_unused]] int len, [[maybe_unused]] cc_string *dst) {
+cc_result Platform_Decrypt(const void*, int, cc_string*) {
 	return ERR_NOT_SUPPORTED;
 }
 
-cc_result Platform_GetEntropy([[maybe_unused]] void *data, [[maybe_unused]] int len) {
+cc_result Platform_GetEntropy(void*, int) {
 	return ERR_NOT_SUPPORTED;
 }
 
-/*########################################################################################################################*
-*-----------------------------------------------------Configuration-------------------------------------------------------*
-*#########################################################################################################################*/
+/*##################################################################################################################*
+*--------------------------------------------------Configuration----------------------------------------------------*
+*###################################################################################################################*/
 
 int Platform_GetCommandLineArgs(int argc, STRING_REF char **argv, cc_string *args) {
 	if (gameHasArgs) {
@@ -334,6 +341,6 @@ int Platform_GetCommandLineArgs(int argc, STRING_REF char **argv, cc_string *arg
 	return count;
 }
 
-cc_result Platform_SetDefaultCurrentDirectory([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+cc_result Platform_SetDefaultCurrentDirectory(int, char**) {
 	return Util::Io::File::changeDirectory("/user/classicube/") ? 0 : ReturnCode_FileNotFound;
 }

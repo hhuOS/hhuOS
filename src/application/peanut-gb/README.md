@@ -12,7 +12,6 @@ Supported options:
 * -s, --save FILE: Load a save game from the specified FILE.
 * -h, --help: Show this help message and exit.
 
-
 Key mappings
 -----
 The emulator uses the following key mappings:

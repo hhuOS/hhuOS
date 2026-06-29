@@ -1,46 +1,80 @@
+/*
+ * Copyright (C) 2017-2026 Heinrich Heine University Düsseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
+ * Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
+ * This project has been supported by several students.
+ * A full list of integrated student theses can be found here: https://github.com/hhuOS/hhuOS/wiki/Student-theses
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ */
+
+#include <stddef.h>
 #include <stdint.h>
 
-#include "application/classicube/ClassiCube/src/Core.h"
-#include "application/classicube/ClassiCube/src/_WindowBase.h"
-#include "application/classicube/ClassiCube/src/Bitmap.h"
-#include "application/classicube/ClassiCube/src/Errors.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/io/key/KeyDecoder.h"
-#include "lib/util/io/key/MouseDecoder.h"
-#include "lib/util/io/key/layout/DeLayout.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/math/Math.h"
-#include "application/classicube/ClassiCube/src/Event.h"
-#include "application/classicube/ClassiCube/src/Input.h"
-#include "application/classicube/ClassiCube/src/Platform.h"
-#include "application/classicube/ClassiCube/src/Window.h"
-#include "lib/util/base/Address.h"
-#include "lib/util/base/Panic.h"
-#include "lib/util/base/String.h"
-#include "lib/util/io/key/KeyEvent.h"
+#include "ClassiCube/src/Core.h"
+#include "ClassiCube/src/Bitmap.h"
+#include "ClassiCube/src/Errors.h"
+#include "ClassiCube/src/Event.h"
+#include "ClassiCube/src/Input.h"
+#include "ClassiCube/src/Platform.h"
+#include "ClassiCube/src/Window.h"
+#include "ClassiCube/src/_WindowBase.h"
 
-auto lfbFile = Util::Io::File("/device/lfb");
-auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
+#include <util/graphic/Ansi.h>
+#include <util/graphic/Colors.h>
+#include <util/graphic/BufferedLinearFrameBuffer.h>
+#include <util/io/file/File.h>
+#include <util/graphic/LinearFrameBuffer.h>
+#include <util/io/key/KeyDecoder.h>
+#include <util/io/key/MouseDecoder.h>
+#include <util/io/key/layout/DeLayout.h>
+#include <util/io/stream/FileInputStream.h>
+#include <util/math/Math.h>
+#include <util/base/Address.h>
+#include <util/base/Panic.h>
+#include <util/base/String.h>
+#include <util/io/key/KeyEvent.h>
+
+/// The frame buffer that is shown on the screen.
+Util::Graphic::LinearFrameBuffer lfb(Util::Io::File("/device/lfb"));
+/// Double buffer that ClassiCube renders in. It is flushed to `lfb` each frame.
 Util::Graphic::BufferedLinearFrameBuffer *bufferedLfb = nullptr;
 
-auto keyboardInputStream = Util::Io::FileInputStream(1);
-auto keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
+/// Keyboard layout to use for keyboard input.
+Util::Io::DeLayout layout;
+/// Decoder used to decode keyboard scancodes into key events.
+Util::Io::KeyDecoder keyDecoder(layout);
 
-auto mouseInputStream = Util::Io::FileInputStream("/device/mouse");
+/// Input stream for mouse data.
+Util::Io::FileInputStream mouseInputStream("/device/mouse");
+/// Buffer to read mouse events from `mouseInputStream` (each event consists of exactly four bytes).
 uint8_t mouseValues[4]{};
-uint32_t mouseValueIndex = 0;
+/// Current index into `mouseValues`
+size_t mouseValueIndex = 0;
 
+/// Whether the mouse cursor is currently visible or not.
 bool cursorVisible = true;
+/// If enabled, raw mouse coordinates are forwarded to ClassiCube, otherwise they are clipped to screen boundaries.
+/// Typically, ClassiCube enables raw mouse input for 3D-scenes and disables it for 2D-scenes (i.e., menus).
 bool rawMouseInput = false;
+/// Current x-coordinate of the mouse cursor.
 int32_t mouseX = 0;
+/// Current y-coordinate of the mouse cursor.
 int32_t mouseY = 0;
 
+/// Read all available key events and forward them to ClassiCube.
 void pollKeyboard() {
-	int16_t scancode = keyboardInputStream.read();
+	int16_t scancode = Util::System::in.read();
 	while (scancode >= 0) {
 		if (keyDecoder.parseScancode(scancode)) {
 			auto key = keyDecoder.getKeyEvent();
@@ -106,13 +140,13 @@ void pollKeyboard() {
 					ccCode = CCKEY_UP;
 					break;
 				case Util::Io::KeyEvent::DOWN:
-					ccCode = CCKEY_UP;
+					ccCode = CCKEY_DOWN;
 					break;
 				case Util::Io::KeyEvent::LEFT:
-					ccCode = CCKEY_UP;
+					ccCode = CCKEY_LEFT;
 					break;
 				case Util::Io::KeyEvent::RIGHT:
-					ccCode = CCKEY_UP;
+					ccCode = CCKEY_RIGHT;
 					break;
 				case Util::Io::KeyEvent::ZERO:
 					ccCode = CCKEY_0;
@@ -223,7 +257,7 @@ void pollKeyboard() {
 					ccCode = CCKEY_Z;
 					break;
 				default:
-					scancode = keyboardInputStream.read();
+					scancode = Util::System::in.read();
 					continue;
 			}
 
@@ -235,10 +269,11 @@ void pollKeyboard() {
 			}
 		}
 
-		scancode = keyboardInputStream.read();
+		scancode = Util::System::in.read();
 	}
 }
 
+/// Read all available mouse events and update the cursor position accordingly.
 void pollMouse() {
 	int16_t value = mouseInputStream.read();
 
@@ -252,17 +287,24 @@ void pollMouse() {
 				mouseY -= mouseUpdate.yMovement;
 
 				if (!rawMouseInput) {
-					if (mouseX < 0) mouseX = 0;
-					if (mouseX >= DisplayInfo.Width) mouseX = DisplayInfo.Width - 1;
-					if (mouseY < 0) mouseY = 0;
-					if (mouseY >= DisplayInfo.Height) mouseY = DisplayInfo.Height - 1;
+					if (mouseX < 0) {
+						mouseX = 0;
+					}
+					if (mouseX >= DisplayInfo.Width) {
+						mouseX = DisplayInfo.Width - 1;
+					}
+					if (mouseY < 0) {
+						mouseY = 0;
+					}
+					if (mouseY >= DisplayInfo.Height) {
+						mouseY = DisplayInfo.Height - 1;
+					}
 
 					Pointer_SetPosition(0, mouseX, mouseY);
 					Event_RaiseVoid(&WindowEvents.RedrawNeeded);
 				}
 			}
 
-			Util::Address(mouseValues).setRange(0, 4);
 			mouseValueIndex = 0;
 
 			Input_SetNonRepeatable(CCMOUSE_L, mouseUpdate.buttons & Util::Io::MouseDecoder::LEFT_BUTTON);
@@ -273,6 +315,10 @@ void pollMouse() {
 		value = mouseInputStream.read();
 	}
 }
+
+/*##################################################################################################################*
+*-----------------------------------------------ClassiCube Functions------------------------------------------------*
+*###################################################################################################################*/
 
 static void Cursor_DoSetVisible(const cc_bool visible) {
 	cursorVisible = visible;
@@ -289,12 +335,8 @@ void Cursor_SetPosition(const int x, const int y) {
 }
 
 void Window_PreInit() {
-	if (!keyboardInputStream.setAccessMode(Util::Io::File::NON_BLOCKING)) {
-		Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Failed to set keyboard input stream to non-blocking mode!");
-	}
-	if (!mouseInputStream.setAccessMode(Util::Io::File::NON_BLOCKING)) {
-		Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Failed to set mouse input stream to non-blocking mode!");
-	}
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
+	mouseInputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
 	Util::Graphic::Ansi::prepareGraphicalApplication(true);
 }
@@ -309,7 +351,7 @@ void Window_Init() {
 
 void Window_Free() {}
 
-void Window_Create2D([[maybe_unused]] int width, [[maybe_unused]] int height) {
+void Window_Create2D(int width, int height) {
 	// 2D windows are always rendered at full display resolution
 	Window_Main.Width    = lfb.getResolutionX();
 	Window_Main.Height   = lfb.getResolutionY();
@@ -319,7 +361,7 @@ void Window_Create2D([[maybe_unused]] int width, [[maybe_unused]] int height) {
 	Window_Main.UIScaleY = DEFAULT_UI_SCALE_Y;
 }
 
-void Window_Create3D([[maybe_unused]] const int width, [[maybe_unused]] const int height) {
+void Window_Create3D(const int width, const int height) {
 	// 3D windows are rendered at desired resolution and upscaled (resolution is capped to display resolution)
 	Window_Main.Width    = width > lfb.getResolutionX() ? lfb.getResolutionX() : width;
 	Window_Main.Height   = height > lfb.getResolutionY() ? lfb.getResolutionY() : height;
@@ -338,11 +380,11 @@ void Window_Create3D([[maybe_unused]] const int width, [[maybe_unused]] const in
 
 void Window_Destroy() {}
 
-void Window_SetTitle([[maybe_unused]] const cc_string *title) {}
+void Window_SetTitle(const cc_string*) {}
 
-void Clipboard_GetText([[maybe_unused]] cc_string *value) {}
+void Clipboard_GetText(cc_string*) {}
 
-void Clipboard_SetText([[maybe_unused]] const cc_string *value) {}
+void Clipboard_SetText(const cc_string*) {}
 
 int Window_GetWindowState() {
 	return WINDOW_STATE_NORMAL;
@@ -362,13 +404,13 @@ int Window_IsObscured() {
 
 void Window_Show() {}
 
-void Window_SetSize([[maybe_unused]] int width, [[maybe_unused]] int height) {}
+void Window_SetSize(int, int) {}
 
 void Window_RequestClose() {
 	Process_Exit(0);
 }
 
-void Window_ProcessEvents([[maybe_unused]] float delta) {
+void Window_ProcessEvents(float) {
 	pollKeyboard();
 
 	if (!rawMouseInput) {
@@ -380,18 +422,18 @@ void Gamepads_PreInit() {}
 
 void Gamepads_Init() {}
 
-void Gamepads_Process([[maybe_unused]] float delta) {}
+void Gamepads_Process(float) {}
 
-static void ShowDialogCore(const char* title, const char* msg) {
+static void ShowDialogCore(const char *title, const char *msg) {
 	Platform_LogConst(title);
 	Platform_LogConst(msg);
 }
 
-cc_result Window_OpenFileDialog([[maybe_unused]] const OpenFileDialogArgs *args) {
+cc_result Window_OpenFileDialog(const OpenFileDialogArgs*) {
 	return ERR_NOT_SUPPORTED;
 }
 
-cc_result Window_SaveFileDialog([[maybe_unused]] const SaveFileDialogArgs *args) {
+cc_result Window_SaveFileDialog(const SaveFileDialogArgs*) {
 	return ERR_NOT_SUPPORTED;
 }
 
@@ -404,30 +446,35 @@ void Window_AllocFramebuffer(Bitmap *bmp, const int width, const int height) {
 	bmp->height = height;
 }
 
-void Window_DrawFramebuffer([[maybe_unused]] Rect2D r, [[maybe_unused]] Bitmap *bmp) {
-	if (cursorVisible) {
-		const auto sizeX = static_cast<uint16_t>(25 * DisplayInfo.ScaleX);
-		const auto sizeY = static_cast<uint16_t>(25 * DisplayInfo.ScaleY);
+void Window_DrawFramebuffer(Rect2D, Bitmap*) {
+	const auto sizeX = static_cast<uint16_t>(25 * DisplayInfo.ScaleX);
+	const auto sizeY = static_cast<uint16_t>(25 * DisplayInfo.ScaleY);
 
-		bufferedLfb->drawLine(mouseX, mouseY, mouseX + sizeX, mouseY + sizeY / 2, Util::Graphic::Colors::RED);
-		bufferedLfb->drawLine(mouseX, mouseY, mouseX + sizeX / 2, mouseY + sizeY, Util::Graphic::Colors::RED);
-		bufferedLfb->drawLine(mouseX + sizeX, mouseY + sizeY / 2, mouseX + sizeX / 2, mouseY + sizeY, Util::Graphic::Colors::RED);
+	// Draw cursor on top of screen (if it is visible)
+	if (cursorVisible) {
+		bufferedLfb->drawLine(mouseX, mouseY, mouseX + sizeX, mouseY + sizeY / 2,
+			Util::Graphic::Colors::RED);
+		bufferedLfb->drawLine(mouseX, mouseY, mouseX + sizeX / 2, mouseY + sizeY,
+			Util::Graphic::Colors::RED);
+		bufferedLfb->drawLine(mouseX + sizeX, mouseY + sizeY / 2, mouseX + sizeX / 2, mouseY + sizeY,
+			Util::Graphic::Colors::RED);
 	}
 
 	bufferedLfb->flush();
 }
 
-void Window_FreeFramebuffer([[maybe_unused]] Bitmap *bmp) {
+void Window_FreeFramebuffer(Bitmap *bmp) {
 	if (reinterpret_cast<uint32_t>(bmp->scan0) != bufferedLfb->getBuffer().get()) {
-		Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Trying to free another framebuffer than the current one!");
+		Util::Panic::fire(Util::Panic::INVALID_ARGUMENT,
+			"Trying to free another framebuffer than the current one!");
 	}
 
 	delete bufferedLfb;
 }
 
-void OnscreenKeyboard_Open([[maybe_unused]] OpenKeyboardArgs *args) {}
+void OnscreenKeyboard_Open(OpenKeyboardArgs*) {}
 
-void OnscreenKeyboard_SetText([[maybe_unused]] const cc_string *text) {}
+void OnscreenKeyboard_SetText(const cc_string*) {}
 
 void OnscreenKeyboard_Close() {}
 

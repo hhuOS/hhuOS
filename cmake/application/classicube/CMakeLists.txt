@@ -46,6 +46,11 @@ add_custom_target(classicube-resources DEPENDS
         "${CMAKE_BINARY_DIR}/classicube/options.txt"
         "${CMAKE_BINARY_DIR}/classicube/texpacks/classicube.zip")
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
+
+make_readme_includable(${HHUOS_SRC_DIR}/application/classicube)
+
 add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-function>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
@@ -74,7 +79,10 @@ add_compile_options(
         -DCC_NO_SOCKETS
 )
 
-set(SOURCE_FILES
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic)
+target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/application/classicube/Window_hhuOS.cpp
         ${HHUOS_SRC_DIR}/application/classicube/Platform_hhuOS.cpp
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Animations.c
@@ -126,6 +134,7 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Particle.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Physics.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Picking.c
+        ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/PluginAPI.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Protocol.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Queue.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Resources.c
@@ -158,9 +167,3 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_smooth.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_truetype.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/_type1.c)
-
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic)
