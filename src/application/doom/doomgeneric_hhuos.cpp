@@ -21,24 +21,14 @@
  * The original source code can be found here: https://github.com/ToboterXP/hhuOS/tree/thesis
  */
 
-#include <stdio.h>
 #include <time.h>
-#include <string.h>
 #include <ctype.h>
-#include <math.h>
 
-
-#include "lib/util/async/Process.h"
 #include "lib/util/async/SharedMemory.h"
-#include "doomgeneric/doomgeneric/doomtype.h"
 #include "doomgeneric/doomgeneric/i_video.h"
 #include "doomgeneric/doomgeneric/doomgeneric.h"
 #include "doomgeneric/doomgeneric/doomkeys.h"
-#include "doomgeneric/doomgeneric/doomtype.h"
-#include "doomgeneric/doomgeneric/i_sound.h"
-#include "util/io/stream/FileInputStream.h"
 #include "kepler/Window.h"
-#include "kepler/Client.h"
 #include "lib/interface.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
@@ -48,7 +38,6 @@
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/io/key/KeyDecoder.h"
 #include "lib/util/io/key/layout/DeLayout.h"
-#include "lib/util/sound/PcSpeaker.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
 #include "lib/util/graphic/Colors.h"
 #include "util/collection/ArrayQueue.h"
@@ -147,8 +136,7 @@ int32_t main(int argc, char **argv) {
 
 	doomgeneric_Create(argc, argv);
 
-    auto windowManagerPipe = Kepler::Client();
-    const auto window = Kepler::Window(DOOMGENERIC_RESX, DOOMGENERIC_RESY, initialTitle, windowManagerPipe);
+    const auto window = Kepler::Window(DOOMGENERIC_RESX, DOOMGENERIC_RESY, initialTitle);
     lfb = &window.getFrameBuffer();
     win = &window;
 

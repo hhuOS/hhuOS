@@ -38,7 +38,7 @@ class Window : public Container, public Kepler::Window, public Kepler::EventList
 
 public:
 
-    Window(Kepler::Client &client, size_t width, size_t height, const Util::String &title);
+    Window(size_t width, size_t height, const Util::String &title);
 
     ~Window() override;
 

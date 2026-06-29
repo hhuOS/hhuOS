@@ -47,7 +47,6 @@
 #include <util/graphic/BufferedLinearFrameBuffer.h>
 #include <util/graphic/font/Terminal8x8.h>
 #include <pulsar/Statistics.h>
-#include <kepler/Client.h>
 #include <kepler/Window.h>
 #include <tinygl/include/zbuffer.h>
 
@@ -161,9 +160,8 @@ int32_t main(const int32_t argc, char *argv[]) {
         return -1;
     }
 
-    Kepler::Client client;
     const Kepler::Window window(320, 240, Util::String::format("TinyGL (%s)",
-        static_cast<const char*>(demoName)), client);
+        static_cast<const char*>(demoName)));
 
     EventListener eventListener;
     window.registerEventListener(eventListener);
