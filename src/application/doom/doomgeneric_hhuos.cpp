@@ -136,7 +136,7 @@ int32_t main(int argc, char **argv) {
 
 	doomgeneric_Create(argc, argv);
 
-    const auto window = Kepler::Window(DOOMGENERIC_RESX, DOOMGENERIC_RESY, initialTitle);
+    const auto window = Kepler::Window(640, 400, initialTitle);
     lfb = &window.getFrameBuffer();
     win = &window;
 

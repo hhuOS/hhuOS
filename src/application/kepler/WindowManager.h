@@ -23,6 +23,7 @@
 
 #include "Client.h"
 #include "ClientWindow.h"
+#include "Desktop.h"
 #include "MouseInputHandler.h"
 #include "WindowStack.h"
 #include "util/async/IdGenerator.h"
@@ -69,7 +70,7 @@ private:
     bool needRedraw = true;
     bool fullRedraw = true;
 
-    Util::Graphic::Image *logo = nullptr;
+    Desktop desktop;
 
     MouseInputHandler mouseInputHandler;
     Util::Io::KeyDecoder keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());

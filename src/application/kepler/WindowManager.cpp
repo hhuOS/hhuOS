@@ -36,6 +36,7 @@ const Util::Time::Timestamp WindowManager::TARGET_FRAMETIME =
 
 WindowManager::WindowManager(Util::Graphic::LinearFrameBuffer &lfb) : lfb(lfb), doubleLfb(lfb),
     tripleLfb(reinterpret_cast<Util::Graphic::LinearFrameBuffer&>(doubleLfb)),
+    desktop(lfb.getResolutionX(), lfb.getResolutionY()),
     mouseInputHandler(lfb.getResolutionX(), lfb.getResolutionY())
 {
     const auto idString = Util::String::format("%u", processId);
@@ -46,9 +47,12 @@ WindowManager::WindowManager(Util::Graphic::LinearFrameBuffer &lfb) : lfb(lfb), 
     auto desktopFileStream = Util::Io::FileOutputStream(desktopFile);
     desktopFileStream.write(static_cast<const uint8_t*>(idString), 0, idString.length());
 
-    logo = Util::Graphic::BitmapFile::open("/user/demo/logo.bmp");
-
     createNextPipe();
+
+    desktop.addEntry("wintest", "/bin/wintest", Util::Array<Util::String>({""}), "");
+    desktop.addEntry("doom", "/bin/doom", Util::Array<Util::String>({""}), "/user/kepler/doom.bmp");
+    desktop.addEntry("gears", "/bin/tinygl", Util::Array<Util::String>({"gears"}), "/user/kepler/gears.bmp");
+    desktop.addEntry("cubes", "/bin/tinygl", Util::Array<Util::String>({"cubes"}), "/user/dino/block/box.bmp");
 }
 
 void WindowManager::run() {
@@ -99,8 +103,7 @@ void WindowManager::run() {
         // Clear screen if a full redraw is needed (e.g., after dragging a window)
         if (fullRedraw) {
             tripleLfb.clear();
-            tripleLfb.drawImage(*logo, (lfb.getResolutionX() - logo->getWidth()) / 2,
-                (lfb.getResolutionY() - logo->getHeight()) / 2);
+            desktop.draw(tripleLfb);
         }
 
         // Draw dirty windows
@@ -131,9 +134,8 @@ void WindowManager::run() {
 
             if (needRedraw) {
                 // Draw FPS string
-                tripleLfb.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0,
-                    static_cast<const char*>(fpsString), Util::Graphic::Colors::WHITE,
-                    Util::Graphic::Colors::BLACK);
+                tripleLfb.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, fpsString,
+                    Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
                 // Flush windows into double buffer
                 tripleLfb.flush();
@@ -280,6 +282,11 @@ void WindowManager::dispatchMouseEvents() {
 
             lastHoveredTitleBarWindow = nullptr;
         }
+
+        // Check if mouse is clicked outside a window and forward event to desktop if so
+        if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
+            desktop.handleMouseClick(mouseX, mouseY);
+        }
     } else {
         const auto windowMouseEvent = mouseHoveredWindow->containsPoint(mouseX, mouseY);
 
@@ -385,20 +392,20 @@ void WindowManager::createWindow(const Client &client) {
     auto request = Kepler::Request::CreateWindow();
     request.readFromStream(inputStream);
 
+    const auto width = request.getWidth() > lfb.getResolutionX() - 50 ? lfb.getResolutionX() - 50 : request.getWidth();
+    const auto height = request.getHeight() > lfb.getResolutionY() - 50 ? lfb.getResolutionY() - 50 : request.getHeight();
+
     const auto windowId = windowIdGenerator.getNextId();
-    const auto bufferSize = 320 * 240 * ((tripleLfb.getColorDepth() + 7) / 8);
+    const auto bufferSize = width * height * ((tripleLfb.getColorDepth() + 7) / 8);
     const auto bufferPages = bufferSize % Util::PAGESIZE == 0 ?
         bufferSize / Util::PAGESIZE : bufferSize / Util::PAGESIZE + 1;
     auto *sharedBuffer = new Util::Async::SharedMemory(Util::String::format("%u", windowId), bufferPages);
 
     sharedBuffer->getAddress().setRange(0, bufferSize);
-
     sharedBuffer->publish();
 
-    constexpr auto width = 320;
-    constexpr auto height = 240;
-    const auto posX = windowId == 0 || windowId == 2 ? 32 : 400;
-    const auto posY = windowId == 0 || windowId == 1 ? 32 : 320;
+    const auto posX = (lfb.getResolutionX() - width) / 2;
+    const auto posY = (lfb.getResolutionY() - height) / 2;
 
     const auto response = Kepler::Response::CreateWindow(windowId, width, height, lfb.getColorDepth());
     response.writeToStream(outputStream);
