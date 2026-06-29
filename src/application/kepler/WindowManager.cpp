@@ -35,7 +35,8 @@ const Util::Time::Timestamp WindowManager::TARGET_FRAMETIME =
     Util::Time::Timestamp::ofNanoseconds(1000000000 / TARGET_FPS);
 
 WindowManager::WindowManager(Util::Graphic::LinearFrameBuffer &lfb) : lfb(lfb), doubleLfb(lfb),
-    tripleLfb(reinterpret_cast<Util::Graphic::LinearFrameBuffer&>(doubleLfb)), mouseInputHandler(lfb.getResolutionX(), lfb.getResolutionY())
+    tripleLfb(reinterpret_cast<Util::Graphic::LinearFrameBuffer&>(doubleLfb)),
+    mouseInputHandler(lfb.getResolutionX(), lfb.getResolutionY())
 {
     const auto idString = Util::String::format("%u", processId);
 

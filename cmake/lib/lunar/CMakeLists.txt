@@ -24,7 +24,7 @@ set(CMAKE_C_STANDARD 99)
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic lib.user.kepler)
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/lunar/BorderLayout.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/Button.cpp
@@ -39,4 +39,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/lunar/RadioButtonGroup.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/Theme.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/VerticalLayout.cpp
-        ${HHUOS_SRC_DIR}/lib/lunar/Widget.cpp)
+        ${HHUOS_SRC_DIR}/lib/lunar/Widget.cpp
+        ${HHUOS_SRC_DIR}/lib/lunar/Window.cpp)

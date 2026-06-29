@@ -16,55 +16,47 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The widget and layout system is based on a bachelor's thesis, written by Michael Zuchniewski.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_KEPLER_WINDOW_H
-#define HHUOS_LIB_KEPLER_WINDOW_H
+#ifndef HHUOS_LIB_LUNAR_WINDOW_H
+#define HHUOS_LIB_LUNAR_WINDOW_H
 
 #include <stdint.h>
 
-#include "Client.h"
-#include "EventRunnable.h"
+#include "Container.h"
 
-#include <util/async/SharedMemory.h>
-#include <util/graphic/LinearFrameBuffer.h>
+#include <util/async/Thread.h>
+#include <kepler/Client.h>
+#include <kepler/Window.h>
 
-namespace Kepler {
+namespace Lunar {
 
-class Window {
+class Window : public Container, public Kepler::Window, public Kepler::EventListener {
 
 public:
 
-    Window(uint16_t width, uint16_t height, const Util::String &title, Client &client);
+    Window(Kepler::Client &client, size_t width, size_t height, const Util::String &title);
 
-    Window(const Window &other) = delete;
+    ~Window() override;
 
-    Window& operator=(const Window &other) = delete;
+    void onMouseHover(uint16_t x, uint16_t y) override;
 
-    virtual ~Window();
+    void onMouseClick(uint16_t x, uint16_t y, Kepler::Event::MouseClick::Button,
+        Kepler::Event::MouseClick::Action) override;
 
-    [[nodiscard]] Util::Graphic::LinearFrameBuffer& getFrameBuffer() const;
+    void onKeyEvent(const Util::Io::KeyEvent&) override;
 
-    bool flush() const;
+    void onCloseButtonPressed() override;
 
-    bool setTitle(const Util::String &title) const;
-
-    bool close() const;
-
-    void registerEventListener(EventListener &listener) const {
-        client.registerEventListener(id, listener);
-    }
-
-    static constexpr const char *EVENT_PIPE_PATH = "/process/%u/pipes/kepler-event";
+    void redraw();
 
 private:
 
-    size_t id = 0;
-
-    Client &client;
-
-    Util::Async::SharedMemory *sharedMemory = nullptr;
-    Util::Graphic::LinearFrameBuffer *lfb = nullptr;
+    Widget *lastHoveredChild = nullptr;
+    Widget *lastPressedChild = nullptr;
 };
 
 }
