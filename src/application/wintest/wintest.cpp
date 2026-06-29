@@ -18,7 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "graphic/BufferedLinearFrameBuffer.h"
 #include "util/async/Thread.h"
 #include "util/graphic/font/Terminal8x16.h"
 #include "kepler/Client.h"
@@ -33,6 +32,7 @@
 #include "lunar/Label.h"
 #include "lunar/RadioButtonGroup.h"
 #include "lunar/VerticalLayout.h"
+#include "lunar/Window.h"
 
 bool isRunning = true;
 
@@ -44,10 +44,6 @@ public:
 
     void onMouseClicked() override {
         label.setText(Util::String::format("Pressed: %u", ++count));
-    }
-
-    [[nodiscard]] size_t getCount() const {
-        return count;
     }
 
 private:
@@ -63,8 +59,6 @@ public:
     void onMouseClicked() override {
         isRunning = false;
     }
-
-private:
 };
 
 class PackListener final : public Lunar::ActionListener {
@@ -96,84 +90,10 @@ private:
     Lunar::Button &packButton;
 };
 
-class WindowEventListener final : public Kepler::EventListener {
-
-public:
-
-    explicit WindowEventListener(Lunar::Container &rootContainer) :
-        rootContainer(rootContainer) {}
-
-    void onMouseHover(const uint16_t x, const uint16_t y) override {
-        auto *hoveredChild = rootContainer.getChildAtPoint(x, y);
-
-        if (hoveredChild != lastHoveredChild) {
-            if (lastHoveredChild != nullptr) {
-                lastHoveredChild->mouseExited();
-            }
-            if (hoveredChild != nullptr) {
-                hoveredChild->mouseEntered();
-            }
-        }
-
-        lastHoveredChild = hoveredChild;
-    }
-
-    void onMouseClick(const uint16_t x, const uint16_t y, const Kepler::Event::MouseClick::Button button, Kepler::Event::MouseClick::Action action) override {
-        if (button == Kepler::Event::MouseClick::LEFT) {
-            if (action == Kepler::Event::MouseClick::PRESS) {
-                auto *clickedChild = rootContainer.getChildAtPoint(x, y);
-                if (clickedChild != lastPressedChild && lastPressedChild != nullptr) {
-                    lastPressedChild->setFocused(false);
-                }
-
-                if (clickedChild != nullptr) {
-                    clickedChild->setFocused(true);
-                    clickedChild->mousePressed();
-                }
-
-                lastPressedChild = clickedChild;
-            } else if (action == Kepler::Event::MouseClick::RELEASE) {
-                if (lastPressedChild != nullptr) {
-                    lastPressedChild->mouseReleased();
-                    lastPressedChild->mouseClicked();
-                }
-            }
-        }
-    }
-
-    void onKeyEvent(const Util::Io::KeyEvent &key) override {
-        if (lastPressedChild != nullptr) {
-            if (key.isPressed()) {
-                lastPressedChild->keyPressed(key);
-            } else {
-                lastPressedChild->keyReleased(key);
-                lastPressedChild->keyTyped(key);
-            }
-        }
-    }
-
-    void onCloseButtonPressed() override {
-        isRunning = false;
-    }
-
-private:
-
-    Lunar::Container &rootContainer;
-    Lunar::Widget *lastHoveredChild = nullptr;
-    Lunar::Widget *lastPressedChild = nullptr;
-};
-
 int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
-    auto keplerClient = Kepler::Client();
-    const auto window = Kepler::Window(320, 240, argv[0], keplerClient);
-    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(window.getFrameBuffer());
-
-    auto rootContainer = Lunar::Container();
-    rootContainer.setSize(320, 240);
-    rootContainer.setLayout(new Lunar::BorderLayout());
-
-    auto eventListener = WindowEventListener(rootContainer);
-    window.registerEventListener(eventListener);
+    auto client = Kepler::Client();
+    auto window = Lunar::Window(client, 320, 240, argv[0]);
+    window.setLayout(new Lunar::BorderLayout());
 
     // Add a label to the top
     auto *northContainer = new Lunar::Container();
@@ -182,7 +102,7 @@ int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
     auto *northLabel = new Lunar::Label("Widget Demo", Util::Graphic::Fonts::TERMINAL_8x16);
     northContainer->addChild(northLabel);
 
-    rootContainer.addChild(northContainer, Util::Array<size_t>{Lunar::BorderLayout::NORTH});
+    window.addChild(northContainer, Util::Array<size_t>{Lunar::BorderLayout::NORTH});
 
     // Add exit and pack buttons to the south
     auto *southContainer = new Lunar::Container();
@@ -192,12 +112,12 @@ int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
     exitButton->addActionListener(new ExitListener());
 
     auto *packButton = new Lunar::Button("Pack");
-    packButton->addActionListener(new PackListener(rootContainer, *packButton));
+    packButton->addActionListener(new PackListener(window, *packButton));
 
     southContainer->addChild(exitButton);
     southContainer->addChild(packButton);
 
-    rootContainer.addChild(southContainer, Util::Array<size_t>{Lunar::BorderLayout::SOUTH});
+    window.addChild(southContainer, Util::Array<size_t>{Lunar::BorderLayout::SOUTH});
 
     // Add a container in the center with a grid layout
     auto *centerContainer = new Lunar::Container();
@@ -218,7 +138,7 @@ int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
     centerContainer->addChild(bottomLeftContainer);
     centerContainer->addChild(bottomRightContainer);
 
-    rootContainer.addChild(centerContainer, Util::Array<size_t>{Lunar::BorderLayout::CENTER});
+    window.addChild(centerContainer, Util::Array<size_t>{Lunar::BorderLayout::CENTER});
 
     // Test labels
     auto *testLabel = new Lunar::Label("This is a test!");
@@ -263,15 +183,12 @@ int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
     bottomRightContainer->addChild(inputField);
 
     while (isRunning) {
-        if (rootContainer.requiresRedraw()) {
-            rootContainer.draw(bufferedLfb);
-            bufferedLfb.flush();
-            window.flush();
+        if (window.requiresRedraw()) {
+            window.redraw();
         } else {
             Util::Async::Thread::yield();
         }
     }
 
-    window.close();
     return 0;
 }
