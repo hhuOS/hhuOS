@@ -52,6 +52,8 @@ set(CMAKE_C_STANDARD 99)
 make_readme_includable(${HHUOS_SRC_DIR}/application/classicube)
 
 add_compile_options(
+        -Wno-unused-parameter
+        -Wno-missing-field-initializers
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-function>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-but-set-variable>
@@ -64,8 +66,6 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-missing-braces>
         $<$<COMPILE_LANGUAGE:C>:-Wno-dangling-pointer>
         $<$<COMPILE_LANGUAGE:C>:-Wno-strict-aliasing>
-        -Wno-unused-parameter
-        -Wno-missing-field-initializers
         -DCC_BUILD_MANUAL
         -DCC_BUILD_COOPTHREADED
         -DCC_BUILD_NOMUSIC

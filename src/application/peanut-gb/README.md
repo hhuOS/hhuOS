@@ -9,6 +9,7 @@ peanut-gb [OPTION]... FILE
 ```
 
 Supported options:
+* -r, --resolution WIDTHxHEIGHT\@BPP: Set the display resolution before starting the emulator (may not have any effect depending on the display driver).
 * -s, --save FILE: Load a save game from the specified FILE.
 * -h, --help: Show this help message and exit.
 

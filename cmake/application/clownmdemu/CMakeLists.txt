@@ -19,8 +19,6 @@
 project(clownmdemu)
 message(STATUS "Project " ${PROJECT_NAME})
 
-set(CMAKE_CXX_STANDARD 11)
-
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/roms/miniplanets.bin"
         COMMAND wget "'https://github.com/sikthehedgehog/miniplanets/raw/refs/heads/master/Miniplanets%20REMIX%20Ver%20(REV04).bin'" -O "${CMAKE_BINARY_DIR}/roms/miniplanets.bin"
         COMMAND /bin/touch -a -m "${CMAKE_BINARY_DIR}/roms/miniplanets.bin"
@@ -35,51 +33,57 @@ add_custom_target(megadrive-roms DEPENDS
         "${CMAKE_BINARY_DIR}/roms/miniplanets.bin"
         "${CMAKE_BINARY_DIR}/roms/witch.bin")
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
+
+make_readme_includable(${HHUOS_SRC_DIR}/application/clownmdemu)
 
 add_compile_options(
+        -Wpedantic
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-but-set-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
         $<$<COMPILE_LANGUAGE:C>:-Wno-parentheses>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-maybe-uninitialized>
         $<$<COMPILE_LANGUAGE:C>:-O0> # ClownMDEmu does not work with compiler optimizations
 )
 
-set(SOURCE_FILES
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic)
+target_sources(${PROJECT_NAME} PUBLIC
         # Application frontend
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu.cpp
 
         # 68k interpreter
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/clown68000/interpreter/unity.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/libraries/clown68000/source/interpreter/unity.c
 
         # Z80 interpreter
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/clownz80/unity.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/libraries/clownz80/source/common.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/libraries/clownz80/source/interpreter.c
 
         # Emulator
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/bus-common.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/bus-main-m68k.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/bus-sub-m68k.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/bus-z80.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/cdc.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/cdda.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/clownmdemu.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/controller.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/controller-manager.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/controller-multitap-ea.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/controller-multitap-sega.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-channel.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-lfo.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-operator.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-phase.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/io-port.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/log.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/low-pass-filter.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/pcm.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/psg.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/vdp.c)
-
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic)
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/bus-common.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/bus-main-m68k.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/bus-sub-m68k.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/bus-z80.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/cdc.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/cdda.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/clownmdemu.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/controller.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/controller-manager.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/controller-multitap-ea.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/controller-multitap-sega.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/fm.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/fm-channel.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/fm-lfo.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/fm-operator.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/fm-phase.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/io-port.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/log.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/low-pass-filter.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/pcm.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/psg.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/sync.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/source/vdp.c)

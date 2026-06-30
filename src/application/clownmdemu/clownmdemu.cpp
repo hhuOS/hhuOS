@@ -18,71 +18,111 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdarg.h>
 
-#include "clownmdemu/clowncommon/clowncommon.h"
-#undef CC_CPLUSPLUS
-#include "clownmdemu/clownmdemu.h"
+#include "clownmdemu/libraries/clowncommon/clowncommon.h"
+#include "clownmdemu/source/clownmdemu.h"
 
-#include "lib/util/io/stream/FileOutputStream.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/time/Timestamp.h"
-#include "lib/util/async/Thread.h"
-#include "lib/util/graphic/font/Terminal8x8.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/io/key/layout/DeLayout.h"
-#include "lib/util/io/key/KeyDecoder.h"
-#include "lib/util/base/Address.h"
-#include "lib/util/base/String.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/graphic/Color.h"
-#include "lib/util/io/key/KeyEvent.h"
-#include "lib/util/io/stream/InputStream.h"
-#include "lib/util/base/System.h"
-#include "lib/util/io/stream/PrintStream.h"
+#include <util/async/Thread.h>
+#include <util/base/Address.h>
+#include <util/base/String.h>
+#include <util/base/ArgumentParser.h>
+#include <util/base/System.h>
+#include <util/collection/Array.h>
+#include <util/io/file/File.h>
+#include <util/io/stream/InputStream.h>
+#include <util/io/stream/FileOutputStream.h>
+#include <util/io/stream/FileInputStream.h>
+#include <util/io/stream/PrintStream.h>
+#include <util/io/key/layout/DeLayout.h>
+#include <util/io/key/KeyDecoder.h>
+#include <util/io/key/KeyEvent.h>
+#include <util/graphic/LinearFrameBuffer.h>
+#include <util/graphic/font/Terminal8x8.h>
+#include <util/graphic/Colors.h>
+#include <util/graphic/Ansi.h>
+#include <util/graphic/Color.h>
+#include <util/time/Timestamp.h>
 
-ClownMDEmu emulator{};
-ClownMDEmu_State state{};
-ClownMDEmu_InitialConfiguration configuration{};
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
 
-bool buttons[CLOWNMDEMU_BUTTON_MAX]{};
+/// The emulator instance.
+ClownMDEmu emulator;
+/// The state of the emulator.
+ClownMDEmu_State state;
+/// The emulator configuration struct.
+ClownMDEmu_InitialConfiguration configuration;
+/// Contains all callbacks for the emulator that are implemented by this frontend.
+ClownMDEmu_Callbacks callbacks;
 
-uint32_t palette[65536]{};
+/// An array of boolean values for every controller button.
+/// True means the button is currently pressed; false means it is not.
+bool buttons[CLOWNMDEMU_BUTTON_MAX];
+
+/// The color palette used to render pixels on the screen.
+/// The colors are set by the `colorUpdated()` callback.
+uint32_t palette[65536];
+/// The framebuffer to draw pixels to.
 Util::Graphic::LinearFrameBuffer *lfb = nullptr;
 
-uint32_t targetFrameRate = 0;
-auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(0);
+/// Frame rate that the emulator tries to run at.
+/// The value depends on the region (50 for PAL, 60 for NTSC).
+size_t targetFrameRate = 0;
+/// Time per frame if we want to hit the target frame rate.
+Util::Time::Timestamp targetFrameTime;
 
-Util::Io::File *saveFile = nullptr;
+/// The file to write savegames to.
+/// It is opened/created by the `saveFileOpenedForReading()`/`saveFileOpenedForWriting()` callbacks.
+Util::Io::File saveFile;
+/// Input stream for the savegame file.
+/// It is read by the `saveFileRead()` callback.
 Util::Io::FileInputStream *saveFileInputStream = nullptr;
+/// Output stream for the savegame file.
+/// It is written by the `saveFileWritten()` callback.
 Util::Io::FileOutputStream *saveFileOutputStream = nullptr;
 
+/// The resolution width at which the game is rendered.
+/// The value depends on the region (PAL/NTSC) and is set the first time a scanline is rendered.
 cc_u16f mdScreenWidth = 0;
+/// The resolution height at which the game is rendered.
+/// The value depends on the region (PAL/NTSC) and is set the first time a scanline is rendered.
 cc_u16f mdScreenHeight = 0;
+/// The maximum allowed scale. This is calculated after `mdScreenWidth` and `mdScreenHeight` have been set.
 uint8_t maxScale = 0;
+/// The scale at which the screen is drawn (Can be changed using F1 and F2).
 uint8_t scale = 0;
+/// The x-axis offset to draw the screen centered.
 uint16_t offsetX = 0;
+/// The y-axis offset to draw the screen centered.
 uint16_t offsetY = 0;
-uint16_t resX = 0;
 
+/// Timestamp used to count the number of frames per second (is reset every second).
 Util::Time::Timestamp fpsTimer;
-uint32_t fpsCounter = 0;
-uint32_t fps = 0;
+/// The number of frames that have been drawn since the last `fpsTimer` reset.
+size_t fpsCounter = 0;
+/// The number of frames counted during the last second. This is the number displayed on the screen.
+size_t fps = 0;
 
-void calculate_screen_variables(cc_u16f screen_width, cc_u16f screen_height, bool recalculate = false) {
-    if (mdScreenWidth == screen_width && mdScreenHeight == screen_height && !recalculate) {
+/// Calculate the global screen variables (e.g., scale, offset, etc.) based on the game render resolution.
+/// If the given `width` and `height` are equal to `mdScreenWidth` and `mdScreenHeight`, the function
+/// directly returns without doing anything. Setting `recalculate` to true forces recalculation of all variables.
+void updateScreenVariables(const cc_u16f width, const cc_u16f height, const bool recalculate = false) {
+    if (mdScreenWidth == width && mdScreenHeight == height && !recalculate) {
         return;
     }
 
-    mdScreenWidth = screen_width;
-    mdScreenHeight = screen_height;
+    const auto lfbWidth = lfb->getResolutionX();
+    const auto lfbHeight = lfb->getResolutionY();
 
-    maxScale = lfb->getResolutionX() / screen_width > lfb->getResolutionY() / screen_height ? lfb->getResolutionY() / screen_height : lfb->getResolutionX() / screen_width;
+    mdScreenWidth = width;
+    mdScreenHeight = height;
+
+    maxScale = lfbWidth / width > lfbHeight / height ? lfbHeight / height : lfbWidth / width;
+
     if (maxScale == 0) {
         maxScale = 1;
     }
@@ -90,30 +130,37 @@ void calculate_screen_variables(cc_u16f screen_width, cc_u16f screen_height, boo
         scale = maxScale;
     }
 
-    offsetX = lfb->getResolutionX() - screen_width * scale > 0 ? (lfb->getResolutionX() - screen_width * scale) / 2 : 0;
-    offsetY = static_cast<int16_t>(lfb->getResolutionY() - screen_height * scale) > 0 ? (lfb->getResolutionY() - screen_height * scale) / 2 : 0;
-    resX = screen_width * scale;
+    offsetX = lfbWidth - width * scale > 0 ? (lfbWidth - width * scale) / 2 : 0;
+    offsetY = lfbHeight - height * scale > 0 ? (lfbHeight - height * scale) / 2 : 0;
 
     lfb->clear();
 }
 
-void log([[maybe_unused]] void *user_data, [[maybe_unused]] const char *format, [[maybe_unused]] va_list args) {
+/// Callback function that writes log messages to standard out.
+void log(void*, const char *format, va_list args) {
     const auto message = Util::String::format(format, args);
     Util::System::out << message << Util::Io::PrintStream::lnFlush;
 }
 
-void colour_updated([[maybe_unused]] void *user_data, cc_u16f index, cc_u16f colour) {
+/// Callback function that updates a color in `palette`.
+void colorUpdated(void*, const cc_u16f index, const cc_u16f color) {
     // Decompose XBGR4444 into individual colour channels
-    auto red = (colour >> 4 * 0) & 0xf;
-    auto green = (colour >> 4 * 1) & 0xf;
-    auto blue = (colour >> 4 * 2) & 0xf;
+    const auto red = (color >> 4 * 0) & 0xf;
+    const auto green = (color >> 4 * 1) & 0xf;
+    const auto blue = (color >> 4 * 2) & 0xf;
 
-    palette[index] = Util::Graphic::Color(red << 4 | red, green << 4 | green, blue << 4 | blue).getColorForDepth(lfb->getColorDepth());
+    const auto newColor = Util::Graphic::Color(red << 4 | red, green << 4 | green, blue << 4 | blue);
+    palette[index] = newColor.getColorForDepth(lfb->getColorDepth());
 }
 
-void scanline_rendered_32([[maybe_unused]] void *user_data, cc_u16f scanline, const cc_u8l *pixels, [[maybe_unused]] cc_u16f left_boundary, [[maybe_unused]] cc_u16f right_boundary, cc_u16f screen_width, cc_u16f screen_height) {
-    calculate_screen_variables(screen_width, screen_height);
-    auto *screenBuffer = reinterpret_cast<uint32_t*>(lfb->getBuffer().add(offsetX * 4 + (offsetY + scanline * scale) * lfb->getPitch()).get());
+/// Callback function that draws a scanline from the emulated console to the screen (32-bit color variant).
+void scanlineRendered32(void*, const cc_u16f scanline, const cc_u8l *pixels, cc_u16f, cc_u16f,
+    const cc_u16f screenWidth, const cc_u16f screenHeight)
+{
+    updateScreenVariables(screenWidth, screenHeight);
+    const auto resX = mdScreenWidth * scale;
+    const auto screenAddr = lfb->getBuffer().add(offsetX * 4 + (offsetY + scanline * scale) * lfb->getPitch());
+    auto *screenBuffer = reinterpret_cast<uint32_t*>(screenAddr.get());
 
     for (uint16_t y = 0; y < scale; y++) {
         for (uint16_t x = 0; x < resX; x++) {
@@ -123,13 +170,18 @@ void scanline_rendered_32([[maybe_unused]] void *user_data, cc_u16f scanline, co
             screenBuffer[x] = color;
         }
 
-        screenBuffer += (lfb->getPitch() / 4);
+        screenBuffer += lfb->getPitch() / 4;
     }
 }
 
-void scanline_rendered_24([[maybe_unused]] void *user_data, cc_u16f scanline, const cc_u8l *pixels, [[maybe_unused]] cc_u16f left_boundary, [[maybe_unused]] cc_u16f right_boundary, cc_u16f screen_width, cc_u16f screen_height) {
-    calculate_screen_variables(screen_width, screen_height);
-    auto *screenBuffer = reinterpret_cast<uint8_t*>(lfb->getBuffer().add(offsetX * 3 + (offsetY + scanline * scale) * lfb->getPitch()).get());
+/// Callback function that draws a scanline from the emulated console to the screen (24-bit color variant).
+void scanlineRendered24(void*, const cc_u16f scanline, const cc_u8l *pixels, cc_u16f, cc_u16f,
+    const cc_u16f screenWidth, const cc_u16f screenHeight)
+{
+    updateScreenVariables(screenWidth, screenHeight);
+    const auto resX = mdScreenWidth * scale;
+    const auto screenAddr = lfb->getBuffer().add(offsetX * 3 + (offsetY + scanline * scale) * lfb->getPitch());
+    auto *screenBuffer = reinterpret_cast<uint8_t*>(screenAddr.get());
 
     for (uint16_t y = 0; y < scale; y++) {
         for (uint16_t x = 0; x < resX; x++) {
@@ -141,13 +193,18 @@ void scanline_rendered_24([[maybe_unused]] void *user_data, cc_u16f scanline, co
             screenBuffer[x * 3 + 2] = (color >> 16) & 0xff;
         }
 
-        screenBuffer += (lfb->getPitch());
+        screenBuffer += lfb->getPitch();
     }
 }
 
-void scanline_rendered_16([[maybe_unused]] void *user_data, cc_u16f scanline, const cc_u8l *pixels, [[maybe_unused]] cc_u16f left_boundary, [[maybe_unused]] cc_u16f right_boundary, cc_u16f screen_width, cc_u16f screen_height) {
-    calculate_screen_variables(screen_width, screen_height);
-    auto *screenBuffer = reinterpret_cast<uint16_t*>(lfb->getBuffer().add(offsetX * 2 + (offsetY + scanline * scale) * lfb->getPitch()).get());
+/// Callback function that draws a scanline from the emulated console to the screen (16-bit color variant).
+void scanlineRendered16(void*, const cc_u16f scanline, const cc_u8l *pixels, cc_u16f, cc_u16f,
+    const cc_u16f screenWidth, const cc_u16f screenHeight)
+{
+    updateScreenVariables(screenWidth, screenHeight);
+    const auto resX = mdScreenWidth * scale;
+    const auto screenAddr = lfb->getBuffer().add(offsetX * 2 + (offsetY + scanline * scale) * lfb->getPitch());
+    auto *screenBuffer = reinterpret_cast<uint16_t*>(screenAddr.get());
 
     for (uint16_t y = 0; y < scale; y++) {
         for (uint16_t x = 0; x < resX; x++) {
@@ -157,74 +214,88 @@ void scanline_rendered_16([[maybe_unused]] void *user_data, cc_u16f scanline, co
             screenBuffer[x] = color;
         }
 
-        screenBuffer += (lfb->getPitch() / 2);
+        screenBuffer += lfb->getPitch() / 2;
     }
 }
 
-cc_bool input_requested([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u8f player_id, ClownMDEmu_Button button_id) {
-    return buttons[button_id];
+/// Callback function that reads the state (pressed/released) of a controller button.
+cc_bool inputRequested(void*, cc_u8f, const ClownMDEmu_Button buttonId) {
+    return buttons[buttonId];
 }
 
-void fm_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] ClownMDEmu *clownmdemu, [[maybe_unused]] size_t total_frames, [[maybe_unused]] void (*generate_fm_audio)(ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, size_t total_frames)) {}
+/// Callback function that handles FM audio playback (not supported by this frontend).
+void fmAudioToBeGenerated(void*, ClownMDEmu*, size_t,
+    void (*)(ClownMDEmu *clownmdemu, cc_s16l *sampleBuffer, size_t totalFrames)) {}
 
-void psg_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] ClownMDEmu *clownmdemu, [[maybe_unused]] size_t total_samples, [[maybe_unused]] void (*generate_psg_audio)(ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, size_t total_samples)) {}
+/// Callback function that handles PSG audio playback (not supported by this frontend).
+void psgAudioToBeGenerated(void*, ClownMDEmu*, size_t,
+    void (*)(ClownMDEmu *clownmdemu, cc_s16l *sampleBuffer, size_t totalSamples)) {}
 
-void pcm_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] ClownMDEmu *clownmdemu, [[maybe_unused]] size_t total_frames, [[maybe_unused]] void (*generate_pcm_audio)(ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, size_t total_frames)) {}
+/// Callback function that handles PCM audio playback (not supported by this frontend).
+void pcmAudioToBeGenerated(void*, ClownMDEmu*, size_t,
+    void (*)(ClownMDEmu *clownmdemu, cc_s16l *sampleBuffer, size_t totalFrames)) {}
 
-void cdda_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] ClownMDEmu *clownmdemu, [[maybe_unused]] size_t total_frames, [[maybe_unused]] void (*generate_cdda_audio)(ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, size_t total_frames)) {}
+/// Callback function that handles CDDA audio playback (not supported by this frontend).
+void cddaAudioToBeGenerated(void*, ClownMDEmu*, size_t,
+    void (*)(ClownMDEmu *clownmdemu, cc_s16l *sampleBuffer, size_t totalFrames)) {}
 
-void cd_seeked([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u32f sector_index) {}
+/// Callback function that seeks to a given sector on the emulated CD (not supported by this frontend).
+void cdSeeked(void*, cc_u32f) {}
 
-void cd_sector_read([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u16l *buffer) {}
+/// Callback function that reads the current sector on the emulated CD (not supported by this frontend).
+void cdSectorRead(void*, cc_u16l*) {}
 
-cc_bool cd_track_seeked([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u16f track_index, [[maybe_unused]] ClownMDEmu_CDDAMode mode) {
+/// Callback function that seeks to a given track on the emulated audio CD (not supported by this frontend).
+cc_bool cdTrackSeeked(void*, cc_u16f, ClownMDEmu_CDDAMode) {
     return false;
 }
 
-uint32_t cd_audio_read([[maybe_unused]] void *user_data, [[maybe_unused]] cc_s16l *sample_buffer, [[maybe_unused]] size_t total_frames) {
+/// Callback function that read the current track on the emulated audio CD (not supported by this frontend).
+uint32_t cdAudioRead(void*, cc_s16l*, size_t) {
     return 0;
 }
 
-cc_bool save_file_opened_for_reading([[maybe_unused]] void *user_data, [[maybe_unused]] const char *filename) {
-    saveFile = new Util::Io::File(filename);
-    if (!saveFile->exists()) {
-        saveFile->create(Util::Io::File::REGULAR);
+/// Callback function that opens the savegame file with read privileges.
+cc_bool saveFileOpenedForReading(void*, const char *filename) {
+    saveFile = Util::Io::File(filename);
+    if (!saveFile.exists()) {
+        saveFile.create(Util::Io::File::REGULAR);
     }
 
-    saveFileInputStream = new Util::Io::FileInputStream(*saveFile);
+    saveFileInputStream = new Util::Io::FileInputStream(saveFile);
     return true;
 }
 
-cc_s16f save_file_read([[maybe_unused]] void *user_data) {
+/// Callback function that reads from the savegame file.
+cc_s16f saveFileRead(void*) {
     return saveFileInputStream->read();
 }
 
-cc_bool save_file_opened_for_writing([[maybe_unused]] void *user_data, [[maybe_unused]] const char *filename) {
-    saveFile = new Util::Io::File(filename);
-    if (!saveFile->exists()) {
-        saveFile->create(Util::Io::File::REGULAR);
+/// Callback function that opens the savegame file with write privileges.
+cc_bool saveFileOpenedForWriting(void *, const char *filename) {
+    saveFile = Util::Io::File(filename);
+    if (!saveFile.exists()) {
+        saveFile.create(Util::Io::File::REGULAR);
     }
 
-    saveFileOutputStream = new Util::Io::FileOutputStream(*saveFile);
+    saveFileOutputStream = new Util::Io::FileOutputStream(saveFile);
     return true;
 }
 
-void save_file_written([[maybe_unused]] void *user_data, cc_u8f byte) {
+/// Callback function that writes to the savegame file.
+void saveFileWritten(void*, const cc_u8f byte) {
     saveFileOutputStream->write(byte);
 }
 
-void save_file_closed([[maybe_unused]] void *user_data) {
+/// Callback function that closes the savegame file.
+void saveFileClosed(void*) {
     delete saveFileInputStream;
     delete saveFileOutputStream;
-    delete saveFile;
-
-    saveFileInputStream = nullptr;
-    saveFileOutputStream = nullptr;
-    saveFile = nullptr;
 }
 
-cc_bool save_file_removed([[maybe_unused]] void *user_data, [[maybe_unused]] const char *filename) {
-    auto file = Util::Io::File(filename);
+/// Callback function that removes the savegame file.
+cc_bool saveFileRemoved(void*, const char *filename) {
+    const Util::Io::File file(filename);
     if (!file.exists()) {
         return false;
     }
@@ -232,8 +303,9 @@ cc_bool save_file_removed([[maybe_unused]] void *user_data, [[maybe_unused]] con
     return file.remove();
 }
 
-cc_bool save_file_size_obtained([[maybe_unused]] void *user_data, [[maybe_unused]] const char *filename, [[maybe_unused]] size_t *size) {
-    auto file = Util::Io::File(filename);
+/// Callback function that gets the size of the savegame file.
+cc_bool saveFileSizeObtained(void*, const char *filename, size_t *size) {
+    const Util::Io::File file(filename);
     if (!file.exists()) {
         return false;
     }
@@ -242,20 +314,10 @@ cc_bool save_file_size_obtained([[maybe_unused]] void *user_data, [[maybe_unused
     return true;
 }
 
-ClownMDEmu_Callbacks callbacks{};
-
 int32_t main(int32_t argc, char *argv[]) {
     Util::ArgumentParser argumentParser;
-    argumentParser.setHelpText("Mega Drive emulator by 'Clownacy' (https://github.com/Clownacy/clownmdemu).\n"
-                               "Joypad is mapped to arrow keys; ABC and XYZ buttons are mapped to A, S, D and Y(Z), X, C respectively; Start is mapped to Space and Mode is mapped to Enter.\n"
-                               "Use 'F1' and 'F2' to adjust screen scaling.\n"
-                               "Usage: clownmdemu [FILE]\n"
-                               "Options:\n"
-                               "  -r, --resolution: Set display resolution\n"
-                               "  -h, --help: Show this help message");
-
-    argumentParser.addArgument("save", false, "s");
     argumentParser.addArgument("resolution", false, "r");
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
@@ -268,6 +330,7 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
+    // Read the ROM file
     Util::Io::File romFile(arguments[0]);
     Util::Io::FileInputStream stream(romFile);
     auto *fileBuffer = new uint8_t[romFile.getLength()];
@@ -281,62 +344,56 @@ int32_t main(int32_t argc, char *argv[]) {
 
     delete[] fileBuffer;
 
+    // Initialize the linear frame buffer
     auto lfbFile = Util::Io::File("/device/lfb");
-
     if (argumentParser.hasArgument("resolution")) {
-        auto split1 = argumentParser.getArgument("resolution").split("x");
-        auto split2 = split1[1].split("@");
-
-        auto resolutionX = Util::String::parseNumber<uint16_t>(split1[0]);
-        auto resolutionY = Util::String::parseNumber<uint16_t>(split2[0]);
-        uint8_t colorDepth = split2.length() > 1 ? Util::String::parseNumber<uint8_t>(split2[1]) : 32;
-
-        lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
+        const auto resolutionString = argumentParser.getArgument("resolution");
+        Util::Graphic::LinearFrameBuffer::setResolution(lfbFile, resolutionString);
     }
 
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
-    Util::Graphic::LinearFrameBuffer buffer(lfbFile);
-    lfb = &buffer;
+    Util::Graphic::LinearFrameBuffer framebuffer(lfbFile);
+    lfb = &framebuffer;
     lfb->clear();
 
-    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
-    Util::Io::DeLayout layout;
-    Util::Io::KeyDecoder keyDecoder(layout);
-
-    auto scanlineCallback = scanline_rendered_32;
+    auto scanlineCallback = scanlineRendered32;
     if (lfb->getColorDepth() == 24) {
-        scanlineCallback = scanline_rendered_24;
+        scanlineCallback = scanlineRendered24;
     } else if (lfb->getColorDepth() == 16) {
-        scanlineCallback = scanline_rendered_16;
+        scanlineCallback = scanlineRendered16;
+    } else if (lfb->getColorDepth() != 32) {
+        Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "clownmdemu: Unsupported color depth!");
     }
 
+    // Initialize the callback object
     callbacks = {
         nullptr,
-        colour_updated,
+        colorUpdated,
         scanlineCallback,
-        input_requested,
-        fm_audio_to_be_generated,
-        psg_audio_to_be_generated,
-        pcm_audio_to_be_generated,
-        cdda_audio_to_be_generated,
-        cd_seeked,
-        cd_sector_read,
-        cd_track_seeked,
-        cd_audio_read,
-        save_file_opened_for_reading,
-        save_file_read,
-        save_file_opened_for_writing,
-        save_file_written,
-        save_file_closed,
-        save_file_removed,
-        save_file_size_obtained
+        inputRequested,
+        fmAudioToBeGenerated,
+        psgAudioToBeGenerated,
+        pcmAudioToBeGenerated,
+        cddaAudioToBeGenerated,
+        cdSeeked,
+        cdSectorRead,
+        cdTrackSeeked,
+        cdAudioRead,
+        saveFileOpenedForReading,
+        saveFileRead,
+        saveFileOpenedForWriting,
+        saveFileWritten,
+        saveFileClosed,
+        saveFileRemoved,
+        saveFileSizeObtained
     };
 
+    // Initialize the emulator
     configuration.general.region = CLOWNMDEMU_REGION_OVERSEAS;
     configuration.general.tv_standard = CLOWNMDEMU_TV_STANDARD_NTSC;
 
     targetFrameRate = configuration.general.tv_standard == CLOWNMDEMU_TV_STANDARD_NTSC ? 60 : 50;
-    targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / targetFrameRate));
+    targetFrameTime = Util::Time::Timestamp::ofSecondsFloat(1.0f / static_cast<float>(targetFrameRate));
 
     ClownMDEmu_SetLogCallback(log, nullptr);
     ClownMDEmu_Constant_Initialise();
@@ -344,11 +401,19 @@ int32_t main(int32_t argc, char *argv[]) {
     ClownMDEmu_SetCartridge(&emulator, rom, romLength);
     ClownMDEmu_HardReset(&emulator, true, false);
 
+    // Initialize keyboard input
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
+    Util::Io::DeLayout layout;
+    Util::Io::KeyDecoder keyDecoder(layout);
+
+    // Enter main loop
     while(true) {
+        // Get time for frame time measurement
         auto startTime = Util::Time::Timestamp::getSystemTime();
 
+        // Read and process all available key events
         auto c = Util::System::in.read();
-        if (c != -1 && keyDecoder.parseScancode(c)) {
+        while (c != -1 && keyDecoder.parseScancode(c)) {
             const auto keyEvent = keyDecoder.getKeyEvent();
             bool pressed = keyEvent.isPressed();
 
@@ -392,29 +457,39 @@ int32_t main(int32_t argc, char *argv[]) {
                 case Util::Io::KeyEvent::F1:
                     if (scale > 1) {
                         scale--;
-                        calculate_screen_variables(mdScreenWidth, mdScreenHeight, true);
+                        updateScreenVariables(mdScreenWidth, mdScreenHeight, true);
                     }
                     break;
                 case Util::Io::KeyEvent::F2:
                     if (scale < maxScale) {
                         scale++;
-                        calculate_screen_variables(mdScreenWidth, mdScreenHeight, true);
+                        updateScreenVariables(mdScreenWidth, mdScreenHeight, true);
                     }
                     break;
                 case Util::Io::KeyEvent::ESC:
                     return 0;
+                default:
+                    break;
             }
+
+            c = Util::System::in.read();
         }
 
+        // Emulate the next frame -> Automatically calls scanline draw function to update the screen
         ClownMDEmu_Iterate(&emulator);
 
-        lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+        // Update FPS display
+        const auto fpsString = Util::String::format("FPS: %u", fps);
+        lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(fpsString),
+            Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
+        // Sleep to hit the target framerate
         auto renderTime = Util::Time::Timestamp::getSystemTime() - startTime;
         if (renderTime < targetFrameTime) {
             Util::Async::Thread::sleep(targetFrameTime - renderTime);
         }
 
+        // Update FPS counter
         fpsCounter++;
         auto frameTime = Util::Time::Timestamp::getSystemTime() - startTime;
         fpsTimer += frameTime;

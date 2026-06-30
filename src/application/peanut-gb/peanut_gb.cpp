@@ -75,13 +75,13 @@ uint8_t *ram = nullptr;
 Util::Graphic::LinearFrameBuffer *lfb = nullptr;
 /// The color palette currently used to draw pixels (Can be changed using F3 and reset using F4).
 uint32_t *palette = nullptr;
-/// The scale at which the screen is rendered (Can be changed using F1 and F2).
+/// The scale at which the screen is drawn (Can be changed using F1 and F2).
 uint8_t scale = 1;
 /// The maximum allowed scale. This is calculated at program start depending on the screen resolution.
 uint8_t maxScale = 1;
-/// The x-axis offset to draw the screen so it is centered.
+/// The x-axis offset to draw the screen centered.
 uint16_t offsetX = 0;
-/// The y-axis offset to draw the screen so it is centered.
+/// The y-axis offset to draw the screen centered.
 uint16_t offsetY = 0;
 
 /// The Game Boy instance, containing all emulation state.
@@ -280,7 +280,7 @@ int32_t main(const int32_t argc, char *argv[]) {
         return -1;
     }
 
-    // Read the ROM file.
+    // Read the ROM file
     const Util::Io::File romFile(arguments[0]);
     Util::Io::FileInputStream stream(romFile);
 
@@ -294,8 +294,8 @@ int32_t main(const int32_t argc, char *argv[]) {
         Util::Graphic::LinearFrameBuffer::setResolution(lfbFile, resolutionString);
     }
 
-    Util::Graphic::LinearFrameBuffer buffer(lfbFile);
-    lfb = &buffer;
+    Util::Graphic::LinearFrameBuffer framebuffer(lfbFile);
+    lfb = &framebuffer;
     maxScale = lfb->getResolutionX() / LCD_WIDTH > lfb->getResolutionY() / LCD_HEIGHT ?
         lfb->getResolutionY() / LCD_HEIGHT : lfb->getResolutionX() / LCD_WIDTH;
     scale = maxScale;
@@ -336,7 +336,7 @@ int32_t main(const int32_t argc, char *argv[]) {
             gb_init_lcd(&gb, &drawLine16);
             break;
         default:
-            Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "Unsupported color depth!");
+            Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "peanut-gb: Unsupported color depth!");
     }
 
     lfb->clear();
@@ -363,9 +363,9 @@ int32_t main(const int32_t argc, char *argv[]) {
         // Get time for frame time measurement
         auto startTime = Util::Time::Timestamp::getSystemTime();
 
-        // Read and process a single key event
+        // Read and process all available key events
         auto c = Util::System::in.read();
-        if (c != -1 && keyDecoder.parseScancode(c)) {
+        while (c != -1 && keyDecoder.parseScancode(c)) {
             auto key = keyDecoder.getKeyEvent();
             uint8_t joyKey = 0;
 
@@ -442,6 +442,8 @@ int32_t main(const int32_t argc, char *argv[]) {
             } else {
                 gb.direct.joypad |= joyKey;
             }
+
+            c = Util::System::in.read();
         }
 
         // Emulate the next frame -> Automatically calls LCD draw function to update the screen
