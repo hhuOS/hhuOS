@@ -21,71 +21,53 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_RAINEMITTER_H
-#define HHUOS_RAINEMITTER_H
+#ifndef HHUOS_APPLICATION_DEMO_RAINEMITTER_H
+#define HHUOS_APPLICATION_DEMO_RAINEMITTER_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/pulsar/2d/particle/Emitter.h"
-#include "lib/pulsar/2d/Sprite.h"
-#include "lib/util/math/Random.h"
+#include <util/math/Random.h>
+#include <util/math/Vector2.h>
+#include <pulsar/2d/particle/Emitter.h>
+#include <pulsar/2d/Sprite.h>
 
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
-
+/// A cloud that moves horizontally across the screen and emits rain particles.
 class RainEmitter : public Pulsar::D2::Emitter {
 
 public:
-    /**
-     * Default.
-     */
+    /// Create a new rain emitter instance at the given position.
     explicit RainEmitter(const Util::Math::Vector2<float> &position);
 
-    /**
-     * Copy Constructor.
-     */
-    RainEmitter(const RainEmitter &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    RainEmitter &operator=(const RainEmitter &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~RainEmitter() override = default;
-
+    /// Initialize the rain emitter by loading its sprite and the raindrop sprite.
     void initialize() override;
 
-    void onUpdate(float delta) override;
-
+    /// Draw the cloud using its sprite.
     void draw(Pulsar::Graphics &graphics) const override;
 
+    /// Check if the cloud hits a left or right boundary with the new position.
+    /// If so, change the movement direction.
     void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(const Pulsar::D2::CollisionEvent &event) override;
-
+    /// Initialize a raindrop particle.
     void onParticleInitialization(Pulsar::D2::Particle &particle) override;
 
-    void onParticleUpdate(Pulsar::D2::Particle &particle, float delta) override;
-
+    /// Handle raindrop particle collisions.
+    /// If a raindrop collides with a dinosaur or the ground,
+    /// it spawns new smaller water droplets and is removed from the scene.
     void onParticleCollision(Pulsar::D2::Particle &particle, const Pulsar::D2::CollisionEvent &event) override;
 
-    void onParticleDestruction(const Pulsar::D2::Particle &particle) override;
-
-    static const constexpr uint32_t TAG = 0;
-    static const constexpr uint32_t PARTICLE_TAG = 1;
+    /// Unique tag to distinguish the cloud from other object types in collision events.
+    static constexpr size_t TAG = 0;
+    /// Unique tag to distinguish raindrops from other object types in collision events.
+    static constexpr size_t PARTICLE_TAG = 1;
 
 private:
 
     Util::Math::Random random;
     Pulsar::D2::Sprite cloudSprite;
+    Pulsar::D2::Sprite raindropSprite;
 
-    static const constexpr float SPEED = 0.25;
+    static constexpr float SPEED = 0.25;
 };
 
 #endif

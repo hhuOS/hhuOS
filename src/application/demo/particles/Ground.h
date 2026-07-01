@@ -21,56 +21,34 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_PARTICLES_GROUND_H
-#define HHUOS_PARTICLES_GROUND_H
+#ifndef HHUOS_APPLICATION_DEMO_GROUND_H
+#define HHUOS_APPLICATION_DEMO_GROUND_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/pulsar/2d/Entity.h"
-#include "lib/pulsar/2d/Sprite.h"
+#include <util/math/Vector2.h>
+#include <pulsar/2d/Entity.h>
+#include <pulsar/2d/Sprite.h>
 
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
-
+/// The ground on which the raindrop particles fall.
 class Ground : public Pulsar::D2::Entity {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new ground instance at the given position.
     explicit Ground(const Util::Math::Vector2<float> &position);
 
-    /**
-     * Copy Constructor.
-     */
-    Ground(const Ground &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Ground &operator=(const Ground &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Ground() override = default;
-
+    /// Initialize the ground instance by loading its sprite.
     void initialize() override;
 
-    void onUpdate(float delta) override;
-
-    void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
-
-    void onCollisionEvent(const Pulsar::D2::CollisionEvent &event) override;
-
+    /// Draw the ground object using its sprite.
     void draw(Pulsar::Graphics &graphics) const override;
 
-    static const constexpr uint32_t TAG = 6;
-    static const constexpr float WIDTH = 1.0;
-    static const constexpr float HEIGHT = 0.1;
+    /// Unique tag to distinguish the ground from other object types in collision events.
+    static constexpr size_t TAG = 6;
+    /// The width of the ground in game coordinates.
+    static constexpr float WIDTH = 1.0;
+    /// The height of the ground in game coordinates.
+    static constexpr float HEIGHT = 0.1;
 
 private:
 

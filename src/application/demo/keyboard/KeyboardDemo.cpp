@@ -20,15 +20,15 @@
 
 #include "KeyboardDemo.h"
 
-#include "util/base/System.h"
-#include "util/graphic/Ansi.h"
-#include "util/io/key/KeyDecoder.h"
-#include "util/io/key/layout/DeLayout.h"
+#include <util/base/System.h>
+#include <util/graphic/Ansi.h>
+#include <util/io/key/KeyDecoder.h>
+#include <util/io/key/layout/DeLayout.h>
 
 void keyboardDemo() {
-    auto keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
-    Util::Graphic::Ansi::prepareGraphicalApplication(true);
-    Util::Graphic::Ansi::enableCursor();
+    const Util::Io::DeLayout layout;
+    Util::Io::KeyDecoder keyDecoder(layout);
+    Util::Graphic::Ansi::enableKeyboardScancodes();
 
     Util::System::out << "Press keys to see their scancode, ASCII code and modifiers." <<
         " Press ESC to exit." << Util::Io::PrintStream::lnFlush;
@@ -36,7 +36,7 @@ void keyboardDemo() {
     auto c = Util::System::in.read();
     while (c > 0) {
         if (keyDecoder.parseScancode(static_cast<uint8_t>(c))) {
-            auto key = keyDecoder.getKeyEvent();
+            const auto key = keyDecoder.getKeyEvent();
 
             if (key.getScancode() == Util::Io::KeyEvent::ESC) {
                 break;
@@ -58,11 +58,33 @@ void keyboardDemo() {
             if (key.getCtrlRight()) {
                 modifiers.add("CtrlRight");
             }
+            if (key.getCapsLock()) {
+                modifiers.add("CapsLock");
+            }
+            if (key.getNumLock()) {
+                modifiers.add("NumLock");
+            }
+            if (key.getScrollLock()) {
+                modifiers.add("ScrollLock");
+            }
 
-            Util::System::out << Util::Io::PrintStream::hex << "Key " << (key.isPressed() ? "pressed:" : "released:") <<
-                " [scancode = 0x" << key.getScancode() <<
-                ", ascii = '" << key.getAscii() << "'" <<
-                ", modifiers = (";
+            Util::System::out << Util::Io::PrintStream::hex << "Key " << (key.isPressed() ? "pressed:" : "released:")
+                << " [scancode = 0x" << key.getScancode();
+
+            const auto ascii = key.getAscii();
+            if (ascii == 0) {
+                Util::System::out << ", ascii = None";
+            } else if (ascii == '\n') {
+                Util::System::out << ", ascii = '\\n'";
+            } else if (ascii == '\r') {
+                Util::System::out << ", ascii = '\\r'";
+            } else if (ascii == '\t') {
+                Util::System::out << ", ascii = '\\t'";
+            } else {
+                Util::System::out << ", ascii = '" << ascii << "'";
+            }
+
+            Util::System::out << ", modifiers = (";
 
             for (size_t i = 0; i < modifiers.size(); i++) {
                 Util::System::out << modifiers.get(i);

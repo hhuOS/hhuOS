@@ -402,9 +402,9 @@ int32_t main(int32_t argc, char *argv[]) {
     ClownMDEmu_HardReset(&emulator, true, false);
 
     // Initialize keyboard input
-    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
-    Util::Io::DeLayout layout;
+    const Util::Io::DeLayout layout;
     Util::Io::KeyDecoder keyDecoder(layout);
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
     // Enter main loop
     while(true) {

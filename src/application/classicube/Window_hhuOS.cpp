@@ -51,7 +51,7 @@ Util::Graphic::LinearFrameBuffer lfb(Util::Io::File("/device/lfb"));
 Util::Graphic::BufferedLinearFrameBuffer *bufferedLfb = nullptr;
 
 /// Keyboard layout to use for keyboard input.
-Util::Io::DeLayout layout;
+const Util::Io::DeLayout layout;
 /// Decoder used to decode keyboard scancodes into key events.
 Util::Io::KeyDecoder keyDecoder(layout);
 

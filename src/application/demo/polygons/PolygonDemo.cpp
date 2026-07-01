@@ -18,26 +18,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "PolygonDemo.h"
+#include <stddef.h>
 
+#include "PolygonDemo.h"
 #include "DemoPolygon.h"
 #include "DemoPolygonFactory.h"
-#include "lib/util/io/key/KeyEvent.h"
-#include "lib/pulsar/Game.h"
 
-PolygonDemo::PolygonDemo(uint32_t initialCount) : initialCount(initialCount) {}
+#include <util/io/key/KeyEvent.h>
+#include <pulsar/Game.h>
 
 void PolygonDemo::initialize() {
-    for (uint32_t i = 0; i < initialCount; i++) {
+    for (size_t i = 0; i < INITIAL_POLYGON_COUNT; i++) {
         auto *polygon = factory.createPolygon();
         polygons.offer(polygon);
         addEntity(polygon);
     }
-
-
 }
-
-void PolygonDemo::update([[maybe_unused]] float delta) {}
 
 void PolygonDemo::keyPressed(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
@@ -60,5 +56,3 @@ void PolygonDemo::keyPressed(const Util::Io::KeyEvent &key) {
             break;
     }
 }
-
-void PolygonDemo::keyReleased([[maybe_unused]] const Util::Io::KeyEvent &key) {}

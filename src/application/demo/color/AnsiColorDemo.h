@@ -18,9 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ANSICOLORTEST_H
-#define HHUOS_ANSICOLORTEST_H
+#ifndef HHUOS_APPLICATION_DEMO_ANSICOLORDEMO_H
+#define HHUOS_APPLICATION_DEMO_ANSICOLORDEMO_H
 
+/// A demo that showcases the ANSI color code implementation of the terminal.
+/// It prints multiple whitespace characters, each with a different background color by using ANSI escape sequences.
 void ansiColorDemo();
 
 #endif

@@ -21,33 +21,31 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
+#include <stddef.h>
+
 #include "ParticleDemo.h"
-
-#include <stdint.h>
-
-#include "lib/pulsar/Game.h"
 #include "RainEmitter.h"
 #include "Ground.h"
-#include "lib/pulsar/Graphics.h"
-#include "lib/util/graphic/Color.h"
-#include "lib/util/io/key/KeyEvent.h"
-#include "lib/util/math/Vector2.h"
 #include "Dino.h"
+
+#include <pulsar/Game.h>
+#include <pulsar/Graphics.h>
+#include <util/graphic/Color.h>
+#include <util/io/key/KeyEvent.h>
+#include <util/math/Vector2.h>
 
 void ParticleDemo::initialize() {
     cloud = new RainEmitter(Util::Math::Vector2<float>(0, 0.8));
     addEntity(cloud);
 
-    for (uint32_t i = 0; i < 3; i++) {
-        auto *newGround = new Ground(Util::Math::Vector2<float>(-1.5 + i, -1));
+    for (size_t i = 0; i < 3; i++) {
+        auto *newGround = new Ground(Util::Math::Vector2<float>(-1.5f + static_cast<float>(i), -1));
         addEntity(newGround);
     }
 
     addEntity(new Dino(Util::Math::Vector2<float>(-0.7, -1 + Ground::HEIGHT), false));
     addEntity(new Dino(Util::Math::Vector2<float>(0.5, -1 + Ground::HEIGHT), true));
 }
-
-void ParticleDemo::update([[maybe_unused]] float delta) {}
 
 bool ParticleDemo::initializeBackground(Pulsar::Graphics &graphics) {
     graphics.clear(Util::Graphic::Color(153, 221, 255));
@@ -63,5 +61,3 @@ void ParticleDemo::keyPressed(const Util::Io::KeyEvent &key) {
             break;
     }
 }
-
-void ParticleDemo::keyReleased([[maybe_unused]] const Util::Io::KeyEvent &key) {}

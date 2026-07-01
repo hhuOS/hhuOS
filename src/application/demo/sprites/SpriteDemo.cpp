@@ -18,27 +18,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <stddef.h>
+
 #include "SpriteDemo.h"
+#include "DemoSprite.h"
+#include "DemoSpriteFactory.h"
 
-#include "lib/pulsar/Game.h"
-#include "application/demo/sprites/DemoSprite.h"
-#include "application/demo/sprites/DemoSpriteFactory.h"
-#include "lib/util/io/key/KeyEvent.h"
-
-SpriteDemo::SpriteDemo(uint32_t initialCount) : initialCount(initialCount) {
-}
+#include <util/io/key/KeyEvent.h>
+#include <pulsar/Game.h>
 
 void SpriteDemo::initialize() {
-    for (uint32_t i = 0; i < initialCount; i++) {
+    for (size_t i = 0; i < INITIAL_SPRITE_COUNT; i++) {
         auto *sprite = factory.createSprite();
         entities.offer(sprite);
         addEntity(sprite);
     }
-
-
 }
-
-void SpriteDemo::update([[maybe_unused]] float delta) {}
 
 void SpriteDemo::keyPressed(const Util::Io::KeyEvent &key) {
     switch (key.getScancode()) {
@@ -61,5 +56,3 @@ void SpriteDemo::keyPressed(const Util::Io::KeyEvent &key) {
             break;
     }
 }
-
-void SpriteDemo::keyReleased([[maybe_unused]] const Util::Io::KeyEvent &key) {}

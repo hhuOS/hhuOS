@@ -22,31 +22,29 @@
  */
 
 #include "RainEmitter.h"
-
-#include "Dino.h"
-#include "lib/pulsar/2d/event/TranslationEvent.h"
-#include "lib/pulsar/2d/component/LinearMovementComponent.h"
 #include "DropletEmitter.h"
 #include "Ground.h"
-#include "pulsar/2d/event/CollisionEvent.h"
-#include "lib/pulsar/Scene.h"
-#include "lib/util/base/String.h"
-#include "lib/pulsar/2d/collider/RectangleCollider.h"
-#include "lib/pulsar/2d/particle/Particle.h"
-#include "lib/pulsar/Collider.h"
-#include "lib/util/math/Vector2.h"
+#include "Dino.h"
 
-RainEmitter::RainEmitter(const Util::Math::Vector2<float> &position) : Pulsar::D2::Emitter(TAG, PARTICLE_TAG, position, 2, 2, Util::Time::Timestamp::ofMilliseconds(200)) {
+#include <util/base/String.h>
+#include <util/math/Vector2.h>
+#include <pulsar/Scene.h>
+#include <pulsar/2d/event/TranslationEvent.h>
+#include <pulsar/2d/component/LinearMovementComponent.h>
+#include <pulsar/2d/event/CollisionEvent.h>
+#include <pulsar/2d/collider/RectangleCollider.h>
+#include <pulsar/2d/particle/Particle.h>
+
+RainEmitter::RainEmitter(const Util::Math::Vector2<float> &position) : Emitter(TAG, PARTICLE_TAG, position,
+    2, 2, Util::Time::Timestamp::ofMilliseconds(200))
+{
     addComponent(new Pulsar::D2::LinearMovementComponent());
 }
 
 void RainEmitter::initialize() {
     cloudSprite = Pulsar::D2::Sprite("/user/dino/background/cloud3.bmp", 0.6, 0.15);
+    raindropSprite = Pulsar::D2::Sprite(Util::Graphic::Color(44, 197, 246), 0.005, 0.03);
     setVelocityX(SPEED);
-}
-
-void RainEmitter::onUpdate(float delta) {
-    Emitter::onUpdate(delta);
 }
 
 void RainEmitter::draw(Pulsar::Graphics &graphics) const {
@@ -63,20 +61,17 @@ void RainEmitter::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
     }
 }
 
-void RainEmitter::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}
-
 void RainEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
-    particle.setSprite(Pulsar::D2::Sprite(Util::Graphic::Color(44, 197, 246), 0.005, 0.03));
-    particle.setPosition(getPosition() + Util::Math::Vector2<float>(random.getRandomNumber<float>() * 0.5, 0));
+    particle.setSprite(raindropSprite);
+    particle.setPosition(getPosition() + Util::Math::Vector2<float>(random.getRandomNumber<float>() * 0.5f, 0));
     particle.setVelocity(Util::Math::Vector2<float>(0, -0.8));
-    particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), 0.005, 0.03, Pulsar::D2::RectangleCollider::STATIC));
+    particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), 0.005, 0.03,
+        Pulsar::D2::RectangleCollider::STATIC));
 
     particle.addComponent(new Pulsar::D2::LinearMovementComponent());
 }
 
-void RainEmitter::onParticleUpdate([[maybe_unused]] Pulsar::D2::Particle &particle, [[maybe_unused]] float delta) {}
-
-void RainEmitter::onParticleCollision(Pulsar::D2::Particle &particle, [[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {
+void RainEmitter::onParticleCollision(Pulsar::D2::Particle &particle, const Pulsar::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == Ground::TAG || event.getCollidedWidth().getTag() == Dino::TAG) {
         auto *dropletEmitter = new DropletEmitter(particle.getPosition());
         getScene().addEntity(dropletEmitter);
@@ -84,5 +79,3 @@ void RainEmitter::onParticleCollision(Pulsar::D2::Particle &particle, [[maybe_un
         removeParticle(&particle);
     }
 }
-
-void RainEmitter::onParticleDestruction([[maybe_unused]] const Pulsar::D2::Particle &particle) {}

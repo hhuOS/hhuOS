@@ -18,58 +18,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DEMOPOLYGONFACTORY_H
-#define HHUOS_DEMOPOLYGONFACTORY_H
+#ifndef HHUOS_APPLICATION_DEMO_DEMOPOLYGONFACTORY_H
+#define HHUOS_APPLICATION_DEMO_DEMOPOLYGONFACTORY_H
 
-#include "lib/util/math/Random.h"
+#include "DemoPolygon.h"
 
-class DemoPolygon;
+#include <util/collection/Array.h>
+#include <util/math/Random.h>
+#include <util/math/Vector2.h>
 
-namespace Util {
-
-template <typename T> class Array;
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-
-}  // namespace Util
-
+/// A factory class that creates random 2D polygons on request.
 class DemoPolygonFactory {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// Create a new polygon factory instance.
     DemoPolygonFactory() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    DemoPolygonFactory(const DemoPolygonFactory &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    DemoPolygonFactory &operator=(const DemoPolygonFactory &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~DemoPolygonFactory() = default;
-
+    /// Create a new demo polygon.
+    /// The polygon instance is created on the heap, and the caller is responsible for freeing it.
     DemoPolygon* createPolygon();
 
 private:
 
-    Util::Math::Random random = Util::Math::Random();
+    Util::Math::Random random;
 
-    static const Util::Array<Util::Math::Vector2<float>> shape1;
-    static const Util::Array<Util::Math::Vector2<float>> shape2;
-    static const Util::Array<Util::Math::Vector2<float>> shape3;
-    static const Util::Array<Util::Math::Vector2<float>> shape4;
-    static const Util::Array<Util::Math::Vector2<float>> shape5;
-
-    static const Util::Array<const Util::Array<Util::Math::Vector2<float>>*> shapes;
+    static const Util::Array<Util::Array<Util::Math::Vector2<float>>> SHAPES;
 };
 
 #endif

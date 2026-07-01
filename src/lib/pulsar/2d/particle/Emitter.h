@@ -108,15 +108,15 @@ public:
     /// Called during each update cycle for every active particle. Subclasses should override this method to update
     /// the particle's properties over time (e.g., position, velocity, size, etc.)
     /// based on the elapsed time since the last update.
-    virtual void onParticleUpdate(Particle &particle, float delta) = 0;
+    virtual void onParticleUpdate(Particle&, float) {}
 
     /// Called when a particle collides with another entity. Subclasses should override this method to define
     /// custom collision behavior (e.g., bounce, destroy, etc.).
-    virtual void onParticleCollision(Particle &particle, const CollisionEvent &event) = 0;
+    virtual void onParticleCollision(Particle&, const CollisionEvent&) {}
 
     /// Called when a particle is destroyed/removed. Subclasses should override this method to perform any necessary
     /// cleanup or effects (e.g., spawn new particles, play sound, etc.) when a particle is removed.
-    virtual void onParticleDestruction(const Particle &particle) = 0;
+    virtual void onParticleDestruction(const Particle&) {}
 
     /// Get the minimum emission rate (particles per emission cycle).
     uint32_t getMinEmissionRate() const {

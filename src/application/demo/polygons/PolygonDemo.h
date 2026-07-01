@@ -18,53 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_POLYGONDEMO_H
-#define HHUOS_POLYGONDEMO_H
+#ifndef HHUOS_APPLICATION_DEMO_POLYGONDEMO_H
+#define HHUOS_APPLICATION_DEMO_POLYGONDEMO_H
 
-#include <stdint.h>
-
-#include "lib/util/collection/ArrayListQueue.h"
+#include "DemoPolygon.h"
 #include "DemoPolygonFactory.h"
-#include "lib/pulsar/2d/Scene.h"
 
-class DemoPolygon;
+#include <util/collection/ArrayListQueue.h>
+#include <lib/pulsar/2d/Scene.h>
 
+/// A demo using the Pulsar game engine that shows rotating and scaling 2D polygons.
 class PolygonDemo : public Pulsar::D2::Scene {
 
 public:
-    /**
-     * Default Constructor.
-     */
-    explicit PolygonDemo(uint32_t initialCount);
+    /// Create a new polygon demo instance.
+    PolygonDemo() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    PolygonDemo(const PolygonDemo &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    PolygonDemo &operator=(const PolygonDemo &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~PolygonDemo() override = default;
-
+    /// Initialize the demo by creating the first polygons.
     void initialize() override;
 
-    void update(float delta) override;
-
+    /// Handle key presses:
+    /// - `+`: Add a polygon.
+    /// - `-`: Remove the last polygon.
+    /// - `Escape`: Exit the demo.
     void keyPressed(const Util::Io::KeyEvent &key) override;
-
-    void keyReleased(const Util::Io::KeyEvent &key) override;
 
 private:
 
-    uint32_t initialCount;
     DemoPolygonFactory factory;
     Util::ArrayListQueue<DemoPolygon*> polygons;
+
+    static constexpr size_t INITIAL_POLYGON_COUNT = 10;
 };
 
 #endif

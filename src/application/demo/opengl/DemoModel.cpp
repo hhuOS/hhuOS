@@ -20,24 +20,27 @@
 
 #include "DemoModel.h"
 
-#include "lib/pulsar/Graphics.h"
-#include "lib/util/base/Panic.h"
-#include "lib/util/base/String.h"
-#include "lib/util/math/Vector3.h"
+#include <util/base/Panic.h>
+#include <util/base/String.h>
+#include <util/math/Vector3.h>
+#include <pulsar/Graphics.h>
 
-uint32_t DemoModel::TREE_DRAW_LIST_ID = UINT32_MAX;
-uint32_t DemoModel::LANTERN_DRAW_LIST_ID = UINT32_MAX;
-uint32_t DemoModel::ICOSPHERE_DRAW_LIST_ID = UINT32_MAX;
+size_t DemoModel::TREE_DRAW_LIST_ID = SIZE_MAX;
+size_t DemoModel::LANTERN_DRAW_LIST_ID = SIZE_MAX;
+size_t DemoModel::ICOSPHERE_DRAW_LIST_ID = SIZE_MAX;
 
-DemoModel::DemoModel(Type type, const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation, const Util::Math::Vector3<float> &scale, const Util::Graphic::Color &color) :
-        Model(0, Util::String::format("%s.obj", pathForType(type)), type == ICOSPHERE ? Util::String::format("%s.bmp", pathForType(type)) : Util::String(), position, rotation, scale), type(type), color(color) {}
+DemoModel::DemoModel(const Type type, const Util::Math::Vector3<float> &position,
+    const Util::Math::Vector3<float> &rotation, const Util::Math::Vector3<float> &scale,
+    const Util::Graphic::Color &color) : Model(0, Util::String::format("%s.obj", pathForType(type)),
+        type == ICOSPHERE ? Util::String::format("%s.bmp", pathForType(type)) : Util::String(),
+        position, rotation, scale), type(type), color(color) {}
 
 void DemoModel::initialize() {
     Model::initialize();
 
     switch (type) {
         case TREE:
-            if (TREE_DRAW_LIST_ID == UINT32_MAX) {
+            if (TREE_DRAW_LIST_ID == SIZE_MAX) {
                 TREE_DRAW_LIST_ID = Pulsar::Graphics::startList3D();
                 Pulsar::Graphics::listModel3D(*this);
                 Pulsar::Graphics::endList3D();
@@ -45,7 +48,7 @@ void DemoModel::initialize() {
             drawListID = TREE_DRAW_LIST_ID;
             break;
         case LANTERN:
-            if (LANTERN_DRAW_LIST_ID == UINT32_MAX) {
+            if (LANTERN_DRAW_LIST_ID == SIZE_MAX) {
                 LANTERN_DRAW_LIST_ID = Pulsar::Graphics::startList3D();
                 Pulsar::Graphics::listModel3D(*this);
                 Pulsar::Graphics::endList3D();
@@ -53,7 +56,7 @@ void DemoModel::initialize() {
             drawListID = LANTERN_DRAW_LIST_ID;
             break;
         case ICOSPHERE:
-            if (ICOSPHERE_DRAW_LIST_ID == UINT32_MAX) {
+            if (ICOSPHERE_DRAW_LIST_ID == SIZE_MAX) {
                 ICOSPHERE_DRAW_LIST_ID = Pulsar::Graphics::startList3D();
                 Pulsar::Graphics::listModel3D(*this);
                 Pulsar::Graphics::endList3D();
@@ -70,16 +73,14 @@ void DemoModel::draw(Pulsar::Graphics &graphics) const {
     graphics.drawList3D(getPosition(), getScale(), getRotation(), drawListID);
 }
 
-void DemoModel::onUpdate([[maybe_unused]] float delta) {
+void DemoModel::onUpdate(const float delta) {
     if (type == ICOSPHERE) {
         rotate(Util::Math::Vector3<float>(0, 0, 1) * delta * 30);
         translate(getFrontVector() * delta * 10);
     }
 }
 
-void DemoModel::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {}
-
-const char* DemoModel::pathForType(Type type) {
+const char* DemoModel::pathForType(const Type type) {
     switch (type) {
         case TREE:
             return "/user/demo/tree";

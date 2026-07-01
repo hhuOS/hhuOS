@@ -21,66 +21,49 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_DROPLETEMITTER_H
-#define HHUOS_DROPLETEMITTER_H
+#ifndef HHUOS_APPLICAITON_DEMO_DROPLETEMITTER_H
+#define HHUOS_APPLICAITON_DEMO_DROPLETEMITTER_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/pulsar/2d/particle/OnceEmitter.h"
-#include "lib/util/math/Random.h"
+#include <util/math/Random.h>
+#include <util/math/Vector2.h>
+#include <pulsar/2d/Sprite.h>
+#include <pulsar/2d/particle/OnceEmitter.h>
 
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
-
+/// An emitter that emits small rain droplets only one time.
+/// It removes itself automatically once none of its particles are remaining in the scene.
+/// This emitter is used to simulate larger raindrops splashing into multiple small droplets when they hit the ground.
 class DropletEmitter : public Pulsar::D2::OnceEmitter {
 
 public:
-    /**
-     * Default.
-     */
+    /// Create a new droplet emitter instance at the given position.
     explicit DropletEmitter(const Util::Math::Vector2<float> &position);
 
-    /**
-     * Copy Constructor.
-     */
-    DropletEmitter(const DropletEmitter &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    DropletEmitter &operator=(const DropletEmitter &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~DropletEmitter() override = default;
-
+    /// Initialize the emitter instance by loading the droplet sprite.
     void initialize() override;
 
-    void draw(Pulsar::Graphics &graphics) const override;
-
-    void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
-
-    void onCollisionEvent(const Pulsar::D2::CollisionEvent &event) override;
-
+    /// Initialize a droplet particle.
     void onParticleInitialization(Pulsar::D2::Particle &particle) override;
 
+    /// Decrease the particle's alpha value, so that slowly fades over time.
     void onParticleUpdate(Pulsar::D2::Particle &particle, float delta) override;
 
+    /// Handle droplet particle collisions.
+    /// If a droplet collides with the ground, it is removed from the scene.
     void onParticleCollision(Pulsar::D2::Particle &particle, const Pulsar::D2::CollisionEvent &event) override;
 
-    void onParticleDestruction(const Pulsar::D2::Particle &particle) override;
-
-    static const constexpr uint32_t TAG = 2;
-    static const constexpr uint32_t PARTICLE_TAG = 3;
+    /// Unique tag to distinguish the droplet emitter from other object types in collision events.
+    static constexpr size_t TAG = 2;
+    /// Unique tag to distinguish droplets from other object types in collision events.
+    static constexpr size_t PARTICLE_TAG = 3;
 
 private:
 
     bool emitted = false;
     Util::Math::Random random;
+
+    Pulsar::D2::Sprite dropletSprite;
 };
 
 #endif

@@ -18,58 +18,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DEMOSPRITE_H
-#define HHUOS_DEMOSPRITE_H
+#ifndef HHUOS_APPLICATION_DEMO_DEMOSPRITE_H
+#define HHUOS_APPLICATION_DEMO_DEMOSPRITE_H
 
-#include <stdint.h>
+#include <pulsar/2d/Entity.h>
+#include <pulsar/2d/SpriteAnimation.h>
+#include <util/math/Vector2.h>
 
-#include "lib/pulsar/2d/Entity.h"
-#include "lib/pulsar/2d/SpriteAnimation.h"
-#include "lib/util/math/Vector2.h"
-
+/// A 2D animated sprite that scales and rotates over time.
 class DemoSprite : public Pulsar::D2::Entity {
 
 public:
-    /**
-     * Default Constructor.
-     */
-    DemoSprite(const Util::Math::Vector2<float> &position, float size, float rotationSpeed, float scaleSpeed, bool flipX);
+    /// Create a new sprite instance at the given position.
+    DemoSprite(const Util::Math::Vector2<float> &position, float size, float rotSpeed, float scaleSpeed, bool flipX);
 
-    /**
-     * Copy Constructor.
-     */
-    DemoSprite(const DemoSprite &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    DemoSprite &operator=(const DemoSprite &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~DemoSprite() override = default;
-
+    /// Initialize the demo sprite instance by loading its animation sprites.
     void initialize() override;
 
+    /// Rotate and scale the sprite according to the given delta time.
     void onUpdate(float delta) override;
 
+    /// Draw the demo sprite using its current animation frame.
     void draw(Pulsar::Graphics &graphics) const override;
-
-    void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
-
-    void onCollisionEvent(const Pulsar::D2::CollisionEvent &event) override;
-
-    static const constexpr uint32_t TAG = 0;
 
 private:
 
     Pulsar::D2::SpriteAnimation animation;
 
-    Util::Math::Vector2<float> initialPosition;
+    const Util::Math::Vector2<float> initialPosition;
+    const float rotationSpeed;
+    const float scaleSpeed;
+
     float size;
-    float rotationSpeed;
-    float scaleSpeed;
     bool flipX;
     bool scaleUp = true;
 };

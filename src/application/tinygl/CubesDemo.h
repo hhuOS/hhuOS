@@ -32,7 +32,7 @@
 #include <util/math/Random.h>
 #include <tinygl/include/GL/gl.h>
 
-/// TinyGL demo that renders three rotating gear wheels, similar to the famous `glxgears` application.
+/// TinyGL demo that renders rotating textured cubes.
 class CubesDemo : public TinyGlDemo {
 
 public:

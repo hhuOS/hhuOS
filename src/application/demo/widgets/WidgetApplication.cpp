@@ -20,12 +20,12 @@
 
 #include "WidgetApplication.h"
 
-#include "util/base/System.h"
-#include "util/io/key/MouseDecoder.h"
-#include "util/graphic/Colors.h"
+#include <util/base/System.h>
+#include <util/io/key/MouseDecoder.h>
+#include <util/graphic/Colors.h>
 
 WidgetApplication::WidgetApplication(Util::Graphic::LinearFrameBuffer &lfb, const size_t width, const size_t height) :
-    Container(width, height), lfb(lfb), bufferedLfb(lfb), mouseInputStream("/device/mouse")
+    Container(width, height), lfb(lfb), bufferedLfb(lfb), keyDecoder(layout), mouseInputStream("/device/mouse")
 {
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     mouseInputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
@@ -146,7 +146,9 @@ void WidgetApplication::update() {
         bufferedLfb.flush();
 
         // Draw mouse cursor
-        lfb.drawLine(mouseX - 10, mouseY, mouseX + 10, mouseY, Util::Graphic::Colors::RED);
-        lfb.drawLine(mouseX, mouseY - 10, mouseX, mouseY + 10, Util::Graphic::Colors::RED);
+        const auto xStart = mouseX - 10 < 0 ? 0 : mouseX - 10;
+        const auto yStart = mouseY - 10 < 0 ? 0 : mouseY - 10;
+        lfb.drawLine(xStart, mouseY, mouseX + 10, mouseY, Util::Graphic::Colors::RED);
+        lfb.drawLine(mouseX, yStart, mouseX, mouseY + 10, Util::Graphic::Colors::RED);
     }
 }

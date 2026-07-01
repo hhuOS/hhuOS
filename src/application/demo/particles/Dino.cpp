@@ -23,16 +23,15 @@
 
 #include "Dino.h"
 
-#include "lib/util/base/String.h"
-#include "lib/util/collection/Array.h"
-#include "lib/pulsar/2d/Sprite.h"
-#include "lib/pulsar/2d/collider/RectangleCollider.h"
-#include "lib/pulsar/Collider.h"
-#include "lib/util/math/Vector2.h"
+#include <util/base/String.h>
+#include <util/collection/Array.h>
+#include <util/math/Vector2.h>
+#include <pulsar/2d/Sprite.h>
+#include <pulsar/2d/collider/RectangleCollider.h>
 
-Dino::Dino(const Util::Math::Vector2<float> &position, bool flipX) :
-        Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE * 1.133, Pulsar::D2::RectangleCollider::STATIC)),
-        flipX(flipX) {}
+Dino::Dino(const Util::Math::Vector2<float> &position, const bool flipX) :
+    Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE * 1.133,
+        Pulsar::D2::RectangleCollider::STATIC)), flipX(flipX) {}
 
 void Dino::initialize() {
     animation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
@@ -45,13 +44,9 @@ void Dino::initialize() {
     }
 }
 
-void Dino::onUpdate(float delta) {
+void Dino::onUpdate(const float delta) {
     animation.update(delta);
 }
-
-void Dino::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
-
-void Dino::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}
 
 void Dino::draw(Pulsar::Graphics &graphics) const {
     animation.draw(graphics, getPosition());

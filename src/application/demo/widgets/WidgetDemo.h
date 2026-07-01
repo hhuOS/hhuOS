@@ -18,20 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_WIDGETDEMO_H
-#define HHUOS_WIDGETDEMO_H
+#ifndef HHUOS_APPLICATION_DEMO_WIDGETDEMO_H
+#define HHUOS_APPLICATION_DEMO_WIDGETDEMO_H
 
 #include "WidgetApplication.h"
 
-#include "util/graphic/LinearFrameBuffer.h"
-#include "lunar/Label.h"
+#include <util/graphic/LinearFrameBuffer.h>
+#include <lunar/Label.h>
 
+/// A demo that showcases the Lunar widget library.
+/// It renders multiple different widgets (e.g., buttons, labels, etc.) that react to mouse and keyboard input.
 class WidgetDemo : public WidgetApplication {
 
 public:
-
+    /// Create a new widget demo instance that renders to the given framebuffer.
     explicit WidgetDemo(Util::Graphic::LinearFrameBuffer &lfb);
 
+    /// Run the demo by creating all widgets and entering the main loop.
     void run();
 
 private:

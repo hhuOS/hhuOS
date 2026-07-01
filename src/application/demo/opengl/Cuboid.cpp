@@ -23,15 +23,19 @@
 
 #include "Cuboid.h"
 
-#include "lib/pulsar/Graphics.h"
-#include "lib/pulsar/3d/Orientation.h"
-#include "lib/pulsar/3d/Texture.h"
+#include <pulsar/Graphics.h>
+#include <pulsar/3d/Orientation.h>
+#include <pulsar/3d/Texture.h>
 
-Cuboid::Cuboid(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation, const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector3<float> &size, const Util::Graphic::Color &color) :
-        Entity(0, position, startRotation, size), rotationAngle(rotationAngle), color(color) {}
+Cuboid::Cuboid(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation,
+    const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector3<float> &size,
+    const Util::Graphic::Color &color) :
+    Entity(0, position, startRotation, size), rotationAngle(rotationAngle), color(color) {}
 
-Cuboid::Cuboid(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation, const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector3<float> &size, const Util::String &texturePath) :
-        Entity(0, position, startRotation, size), rotationAngle(rotationAngle), texturePath(texturePath) {}
+Cuboid::Cuboid(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation,
+    const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector3<float> &size,
+    const Util::String &texturePath) :
+    Entity(0, position, startRotation, size), rotationAngle(rotationAngle), texturePath(texturePath) {}
 
 void Cuboid::initialize() {
     if (!texturePath.isEmpty()) {
@@ -39,7 +43,7 @@ void Cuboid::initialize() {
     }
 }
 
-void Cuboid::onUpdate(float delta) {
+void Cuboid::onUpdate(const float delta) {
     rotate(rotationAngle * delta * 60);
 }
 
@@ -47,5 +51,3 @@ void Cuboid::draw(Pulsar::Graphics &graphics) const {
     graphics.setColor(color);
     graphics.drawCuboid3D(getPosition(), getScale(), getOrientation().getRotation(), texture);
 }
-
-void Cuboid::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {}

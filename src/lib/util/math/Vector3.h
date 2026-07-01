@@ -49,6 +49,21 @@ public:
     /// Create a new 3D vector with the given x, y, and z values.
     Vector3(T x, T y, T z) : x(x), y(y), z(z) {}
 
+    /// Create a new 3D vector from a given 2D vector.
+    /// The x and y components are set to vales of the 2D vector and z is set 0.
+    Vector3(const Vector2<T> &vector) : x(vector.getX()), y(vector.getY()), z(0) {}
+
+    /// Create a new 2D vector from the 3D vector's x and y values.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto vector3 = Util::Math::Vector3<float>(1.0f, 2.0f, 3.0f);
+    /// const auto vector2 = static_cast<Vector2<float>>(vector3); // { 1.0f, 2.0f }
+    /// ```
+    explicit operator Vector2<T>() const {
+        return Vector2<T>(x, y);
+    }
+
     /// Create a new 3D vector by multiplying this vector with a scalar value.
     ///
     /// ### Example

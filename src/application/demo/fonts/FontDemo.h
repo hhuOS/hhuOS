@@ -18,15 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_FONTDEMO_H
-#define HHUOS_FONTDEMO_H
+#ifndef HHUOS_APPLICATION_DEMO_FONTDEMO_H
+#define HHUOS_APPLICATION_DEMO_FONTDEMO_H
 
-namespace Util {
-namespace Graphic {
-class LinearFrameBuffer;
-}  // namespace Graphic
-}  // namespace Util
+#include <util/graphic/LinearFrameBuffer.h>
 
-void fontDemo(Util::Graphic::LinearFrameBuffer &lfb);
+/// A demo that prints a test string in various fonts.
+void fontDemo(const Util::Graphic::LinearFrameBuffer &lfb);
 
 #endif

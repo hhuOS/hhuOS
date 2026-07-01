@@ -18,9 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_KEYBOARDDEMO_H
-#define HHUOS_KEYBOARDDEMO_H
+#ifndef HHUOS_APPLICATION_DEMO_KEYBOARDDEMO_H
+#define HHUOS_APPLICATION_DEMO_KEYBOARDDEMO_H
 
+/// A demo that reads key events and prints information about each on to standard out.
 void keyboardDemo();
 
 #endif

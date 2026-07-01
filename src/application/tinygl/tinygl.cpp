@@ -164,7 +164,7 @@ int32_t main(const int32_t argc, char *argv[]) {
     demo->initialize(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
 
     // Initialize keyboard input
-    Util::Io::DeLayout layout;
+    const Util::Io::DeLayout layout;
     Util::Io::KeyDecoder keyDecoder(layout);
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 

@@ -18,29 +18,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DEMOPOLYGON_H
-#define HHUOS_DEMOPOLYGON_H
+#ifndef HHUOS_APPLICATION_DEMO_DEMOPOLYGON_H
+#define HHUOS_APPLICATION_DEMO_DEMOPOLYGON_H
 
-#include "lib/pulsar/2d/Polygon.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/graphic/Color.h"
-#include "lib/pulsar/2d/Entity.h"
-#include "lib/util/math/Vector2.h"
+#include <util/collection/Array.h>
+#include <util/math/Vector2.h>
+#include <util/graphic/Color.h>
+#include <pulsar/2d/Polygon.h>
 
+/// A 2D polygon that rotates and scales up and down over time.
 class DemoPolygon : public Pulsar::D2::Polygon {
 
 public:
+    /// Create a new 2D polygon of the given vertices.
+    /// The initial scale factor dictates the scale applied from the start.
+    /// The polygon grows and shrinks around that scale factor.
+    DemoPolygon(const Util::Array<Util::Math::Vector2<float>> &vertices, const Util::Math::Vector2<float> &position,
+        const Util::Graphic::Color &color, float initialScaleFactor, float scaleSpeed, float rotationSpeed);
 
-    DemoPolygon();
-
-    DemoPolygon(const Util::Array<Util::Math::Vector2<float>> &vertices, const Util::Math::Vector2<float> &position, const Util::Graphic::Color &color, float initialScaleFactor, float scaleSpeed, float rotationSpeed);
-
+    /// Rotate and scale the polygon according to the given delta time.
     void onUpdate(float delta) override;
 
 private:
 
-    float rotationSpeed;
-    float scaleSpeed;
+    const float rotationSpeed = 0;
+    const float scaleSpeed = 0;
+
     float currentScale = 1;
     bool scaleUp = true;
 };

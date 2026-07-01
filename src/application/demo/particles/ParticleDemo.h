@@ -21,45 +21,31 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_PARTICLEDEMO_H
-#define HHUOS_PARTICLEDEMO_H
+#ifndef HHUOS_APPLICATION_DEMO_PARTICLEDEMO_H
+#define HHUOS_APPLICATION_DEMO_PARTICLEDEMO_H
 
-#include "lib/pulsar/2d/Scene.h"
+#include "RainEmitter.h"
 
-class RainEmitter;
+#include <pulsar/2d/Scene.h>
 
+/// A demo showcasing the 2D particle system of the Pulsar game engine.
+/// A cloud is moving from left to right and vice versa on the upper half of the screen and emits raindrops.
+/// When a raindrop hits the ground, or one of the dinosaur sprites standing on the ground,
+/// it splashes into multiple smaller droplets.
 class ParticleDemo : public Pulsar::D2::Scene {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new particle demo scene instance.
     ParticleDemo() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    ParticleDemo(const ParticleDemo &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    ParticleDemo &operator=(const ParticleDemo &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~ParticleDemo() override = default;
-
+    /// Initialize the particle demo scene by loading all its objects.
     void initialize() override;
 
-    void update(float delta) override;
-
+    /// Set the scene's background to a light blue color.
     bool initializeBackground(Pulsar::Graphics &graphics) override;
 
+    /// Exit the demo when the Escape key is pressed.
     void keyPressed(const Util::Io::KeyEvent &key) override;
-
-    void keyReleased(const Util::Io::KeyEvent &key) override;
 
 private:
 

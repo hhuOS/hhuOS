@@ -188,7 +188,7 @@ void LinearFrameBuffer::drawString(const Font &font, uint16_t x, const uint16_t 
     }
 }
 
-void LinearFrameBuffer::drawString(const Font &font, uint16_t x, const uint16_t y, const String &string,
+void LinearFrameBuffer::drawString(const Font &font, const uint16_t x, const uint16_t y, const String &string,
     const Color &fgColor, const Color &bgColor) const
 {
     drawString(font, x, y, static_cast<const char*>(string), fgColor, bgColor);

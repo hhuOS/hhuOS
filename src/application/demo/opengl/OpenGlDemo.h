@@ -21,47 +21,38 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#ifndef OPENGLDEMO_H
-#define OPENGLDEMO_H
+#ifndef HHUOS_APPLICATION_OPENGLDEMO_H
+#define HHUOS_APPLICATION_OPENGLDEMO_H
 
-#include "lib/pulsar/3d/Scene.h"
-#include "lib/util/math/Vector3.h"
+#include <util/math/Vector3.h>
+#include <pulsar/3d/Scene.h>
 
+/// A 3D demo scene rendered by the Pulsar game engine using TinyGL.
+/// It renders some colored and textured objects and allows the user to move around freely
+/// using the arrow keys and WASD.
 class OpenGlDemo : public Pulsar::D3::Scene {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new demo scene instance.
+    /// No entities are created yet. This is done by `initialize()`.
     OpenGlDemo() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    OpenGlDemo(const OpenGlDemo &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    OpenGlDemo &operator=(const OpenGlDemo &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~OpenGlDemo() override = default;
-
+    /// Initialize the demo scene by loading all its objects.
     void initialize() override;
 
+    /// Update the scene by translating and rotating the camera according to the user input.
     void update(float delta) override;
 
+    /// Handle key presses (e.g., by modifying the translation/rotation values applied to the camera during `update()`).
     void keyPressed(const Util::Io::KeyEvent &key) override;
 
+    /// Handle key presses (e.g., by modifying the translation/rotation values applied to the camera during `update()`).
     void keyReleased(const Util::Io::KeyEvent &key) override;
 
 private:
 
-    Util::Math::Vector3<float> cameraRotation = Util::Math::Vector3<float>(0, 0, 0);
-    Util::Math::Vector3<float> cameraTranslation = Util::Math::Vector3<float>(0, 0, 0);
+    Util::Math::Vector3<float> cameraRotation;
+    Util::Math::Vector3<float> cameraTranslation;
 };
 
 #endif

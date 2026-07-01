@@ -20,12 +20,13 @@
 
 #include "DemoSprite.h"
 
-#include "lib/util/collection/Array.h"
-#include "lib/pulsar/2d/Sprite.h"
-#include "lib/util/base/String.h"
+#include <util/base/String.h>
+#include <util/collection/Array.h>
+#include <pulsar/2d/Sprite.h>
 
-DemoSprite::DemoSprite(const Util::Math::Vector2<float> &position, float size, float rotationSpeed, float scaleSpeed, bool flipX)
-        : Pulsar::D2::Entity(TAG, position), initialPosition(position), size(size), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed), flipX(flipX) {}
+DemoSprite::DemoSprite(const Util::Math::Vector2<float> &position, const float size, const float rotSpeed,
+    const float scaleSpeed, const bool flipX) : Entity(0, position), initialPosition(position),
+    rotationSpeed(rotSpeed), scaleSpeed(scaleSpeed), size(size), flipX(flipX) {}
 
 void DemoSprite::initialize() {
     animation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
@@ -47,26 +48,23 @@ void DemoSprite::initialize() {
     }
 }
 
-void DemoSprite::onUpdate(float delta) {
+void DemoSprite::onUpdate(const float delta) {
     animation.update(delta);
 
-    if (animation.getScale().getX() >= 2) {
+    const auto scaleX = animation.getScale().getX();
+    if (scaleX >= 2) {
         scaleUp = false;
-    } else if (animation.getScale().getX() <= 0.5) {
+    } else if (scaleX <= 0.5) {
         scaleUp = true;
     }
 
-    animation.setScale(scaleUp ? animation.getScale().getX() + delta * scaleSpeed : animation.getScale().getX() - delta * scaleSpeed);
+    animation.setScale(scaleUp ? scaleX + delta * scaleSpeed : scaleX - delta * scaleSpeed);
     animation.rotate(delta * rotationSpeed);
 
-    auto positionOffset = (animation.getOriginalSize().getX() - animation.getSize().getX()) / 2;
+    const auto positionOffset = (animation.getOriginalSize().getX() - animation.getSize().getX()) / 2;
     setPosition(initialPosition + Util::Math::Vector2<float>(positionOffset, positionOffset));
 }
 
 void DemoSprite::draw(Pulsar::Graphics &graphics) const {
     animation.draw(graphics, getPosition());
 }
-
-void DemoSprite::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
-
-void DemoSprite::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}

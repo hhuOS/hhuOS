@@ -20,23 +20,20 @@
 
 #include "DemoPolygon.h"
 
-#include "lib/pulsar/Graphics.h"
-#include "lib/util/math/Vector2.h"
-
-DemoPolygon::DemoPolygon() : Polygon(0, Util::Math::Vector2<float>(0, 0),
-    Util::Array<Util::Math::Vector2<float>>(0)), rotationSpeed(0), scaleSpeed(0) {}
+#include <util/math/Vector2.h>
+#include <pulsar/Graphics.h>
 
 DemoPolygon::DemoPolygon(const Util::Array<Util::Math::Vector2<float>> &vertices,
     const Util::Math::Vector2<float> &position, const Util::Graphic::Color &color,
-    float initialScaleFactor, float scaleSpeed, float rotationSpeed) :
+    const float initialScaleFactor, const float scaleSpeed, const float rotationSpeed) :
     Polygon(0, position, vertices, color), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed)
 {
     scale(initialScaleFactor);
 }
 
 void DemoPolygon::onUpdate(const float delta) {
-    const float rotationAngle = delta * rotationSpeed;
-    const float scaleFactor = scaleUp ? 1 + (delta * scaleSpeed) : 1 - (delta * scaleSpeed);
+    // const float rotationAngle = delta * rotationSpeed;
+    const float scaleFactor = scaleUp ? 1 + delta * scaleSpeed : 1 - delta * scaleSpeed;
     currentScale *= scaleFactor;
     if (currentScale >= 2) {
         scaleUp = false;
@@ -44,6 +41,6 @@ void DemoPolygon::onUpdate(const float delta) {
         scaleUp = true;
     }
 
-    rotate(rotationAngle);
+    // rotate(rotationAngle);
     scale(scaleFactor);
 }

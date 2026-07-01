@@ -21,55 +21,36 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_DINO_H
-#define HHUOS_DINO_H
+#ifndef HHUOS_APPLICATION_DEMO_DINO_H
+#define HHUOS_APPLICATION_DEMO_DINO_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/pulsar/2d/Entity.h"
-#include "lib/pulsar/2d/SpriteAnimation.h"
+#include <util/math/Vector2.h>
+#include <pulsar/2d/Entity.h>
+#include <pulsar/2d/SpriteAnimation.h>
 
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
-
+/// A dinosaur sprite that does not move but plays a short idle animation.
 class Dino : public Pulsar::D2::Entity {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// Create a new dinosaur instance at the given position.
+    /// The `flipX` parameter determines whether the sprite should be mirrored at the x-axis.
     explicit Dino(const Util::Math::Vector2<float> &position, bool flipX);
 
-    /**
-     * Copy Constructor.
-     */
-    Dino(const Dino &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Dino &operator=(const Dino &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Dino() override = default;
-
+    /// Initialize the dinosaur by loading its animation sprites.
     void initialize() override;
 
+    /// Update the dinosaur's animation.
     void onUpdate(float delta) override;
 
-    void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
-
-    void onCollisionEvent(const Pulsar::D2::CollisionEvent &event) override;
-
+    /// Draw the dinosaur using its current animation frame.
     void draw(Pulsar::Graphics &graphics) const override;
 
-    static const constexpr uint32_t TAG = 5;
-    static const constexpr float SIZE = 0.15;
+    /// Unique tag to distinguish dinosaurs from other object types in collision events.
+    static constexpr size_t TAG = 5;
+    /// The size of a dinosaur in game coordinates.
+    static constexpr float SIZE = 0.15;
 
 private:
 

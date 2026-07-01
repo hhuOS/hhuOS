@@ -125,7 +125,7 @@ bool KeyDecoder::parseScancode(uint8_t code) {
                 currentModifiers ^= KeyEvent::CAPS_LOCK;
                 break;
             case 70:
-                currentModifiers ^= KeyEvent::NUM_LOCK;
+                currentModifiers ^= KeyEvent::SCROLL_LOCK;
                 break;
             case 69:
                 // On old keyboards, the Break function could only be reached via Ctrl+NumLock.

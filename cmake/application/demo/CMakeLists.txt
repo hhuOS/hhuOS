@@ -19,18 +19,26 @@
 project(demo)
 message(STATUS "Project " ${PROJECT_NAME})
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
+
+make_readme_includable(${HHUOS_SRC_DIR}/application/demo)
+
 add_compile_options(
+        -Wpedantic
         -Wno-unused-function
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-overflow>
 )
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-
-set(SOURCE_FILES
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.pulsar lib.user.lunar)
+target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/application/demo/demo.cpp
-        ${HHUOS_SRC_DIR}/application/demo/ant/Ant.cpp
+        ${HHUOS_SRC_DIR}/application/demo/ant/AntDemo.cpp
         ${HHUOS_SRC_DIR}/application/demo/color/AnsiColorDemo.cpp
         ${HHUOS_SRC_DIR}/application/demo/fonts/FontDemo.cpp
         ${HHUOS_SRC_DIR}/application/demo/keyboard/KeyboardDemo.cpp
@@ -49,9 +57,5 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/demo/sprites/SpriteDemo.cpp
         ${HHUOS_SRC_DIR}/application/demo/sprites/DemoSprite.cpp
         ${HHUOS_SRC_DIR}/application/demo/sprites/DemoSpriteFactory.cpp
-        ${HHUOS_SRC_DIR}/application/demo/widget/WidgetApplication.cpp
-        ${HHUOS_SRC_DIR}/application/demo/widget/WidgetDemo.cpp)
-
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.lunar lib.user.pulsar)
+        ${HHUOS_SRC_DIR}/application/demo/widgets/WidgetApplication.cpp
+        ${HHUOS_SRC_DIR}/application/demo/widgets/WidgetDemo.cpp)

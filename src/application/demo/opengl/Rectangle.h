@@ -18,62 +18,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef RECTANGLE_H
-#define RECTANGLE_H
+#ifndef HHUOS_APPLICATION_DEMO_RECTANGLE_H
+#define HHUOS_APPLICATION_DEMO_RECTANGLE_H
 
-#include <lib/pulsar/3d/Texture.h>
+#include <util/base/String.h>
+#include <util/graphic/Color.h>
+#include <util/math/Vector3.h>
+#include <pulsar/3d/Entity.h>
+#include <pulsar/3d/Texture.h>
 
-#include "lib/util/base/String.h"
-#include "lib/util/graphic/Color.h"
-#include "lib/pulsar/3d/Entity.h"
-#include "lib/util/math/Vector3.h"
-
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
-
+/// A 2D rectangle placed in a 3D world that rotates around its center.
+/// It can either be filled with a color or a texture.
 class Rectangle : public Pulsar::D3::Entity {
 
 public:
-    /**
-     * Constructor.
-     */
-    Rectangle(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation, const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector2<float> &size, const Util::Graphic::Color &color);
+    /// Create a new rectangle instance with the given position, size, and initial rotation.
+    /// The rotation angle parameter is applied on each update cycle (multiplied with the time delta).
+    /// The rectangle is filled with the given color.
+    Rectangle(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation,
+        const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector2<float> &size,
+        const Util::Graphic::Color &color);
 
-    /**
-     * Constructor.
-     */
-    Rectangle(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation, const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector2<float> &size, const Util::String &texturePath);
+    /// Create a new rectangle instance with the given position, size, and initial rotation.
+    /// The rotation angle parameter is applied on each update cycle (multiplied with the time delta).
+    /// The rectangle is filled with the given texture.
+    Rectangle(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation,
+        const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector2<float> &size,
+        const Util::String &texturePath);
 
-    /**
-     * Copy Constructor.
-     */
-    Rectangle(const Rectangle &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Rectangle &operator=(const Rectangle &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Rectangle() override = default;
-
+    /// Initialize the rectangle instance, loading its texture (if it has one).
     void initialize() override;
 
+    /// Rotate the rectangle according to its rotation angle and the given delta time.
     void onUpdate(float delta) override;
 
+    /// Draw the rectangle.
     void draw(Pulsar::Graphics &graphics) const override;
-
-    void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
 private:
 
-    Util::Math::Vector3<float> rotationAngle;
-    Util::Graphic::Color color;
+    const Util::Math::Vector3<float> rotationAngle;
+
+    const Util::Graphic::Color color;
 
     const Util::String texturePath;
     Pulsar::D3::Texture texture;

@@ -20,37 +20,36 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/System.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/pulsar/Engine.h"
-#include "lib/util/base/ArgumentParser.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/base/String.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/pulsar/Game.h"
-#include "application/demo/polygons/PolygonDemo.h"
-#include "application/demo/sprites/SpriteDemo.h"
-#include "application/demo/ant/Ant.h"
-#include "application/demo/particles/ParticleDemo.h"
-#include "application/demo/color/AnsiColorDemo.h"
-#include "application/demo/fonts/FontDemo.h"
+#include "ant/AntDemo.h"
+#include "color/AnsiColorDemo.h"
+#include "fonts/FontDemo.h"
 #include "keyboard/KeyboardDemo.h"
 #include "opengl/OpenGlDemo.h"
-#include "widget/WidgetDemo.h"
+#include "particles/ParticleDemo.h"
+#include "polygons/PolygonDemo.h"
+#include "sprites/SpriteDemo.h"
+#include "widgets/WidgetDemo.h"
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Demo applications, showing off the systems graphical capabilities.\n"
-                               "Usage: demo [DEMO] [OPTIONS]...\n"
-                               "Demos: ant, color, fonts, opengl, particles, polygons, sprites\n"
-                               "Options:\n"
-                               "  -r, --resolution: Set display resolution\n"
-                               "  -s, --scale: Set display scale factor (Must be <= 1; The application will be rendered at a lower internal resolution and scaled up/centered to fill the screen)\n"
-                               "  -h, --help: Show this help message");
+#include <util/base/ArgumentParser.h>
+#include <util/base/String.h>
+#include <util/base/System.h>
+#include <util/collection/Array.h>
+#include <util/graphic/Ansi.h>
+#include <util/graphic/LinearFrameBuffer.h>
+#include <util/io/file/File.h>
+#include <util/io/stream/PrintStream.h>
+#include <pulsar/Engine.h>
+#include <pulsar/Game.h>
 
+constexpr const char *HELP_TEXT =
+#include "generated/README.md"
+;
+
+int32_t main(const int32_t argc, char *argv[]) {
+    Util::ArgumentParser argumentParser;
     argumentParser.addArgument("resolution", false, "r");
     argumentParser.addArgument("scale", false, "s");
+    argumentParser.setHelpText(HELP_TEXT);
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::lnFlush;
@@ -59,56 +58,51 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "demo: No arguments provided! Please specify a demo (ant, color, fonts, mouse, opengl, particles, polygons, sprites)." << Util::Io::PrintStream::lnFlush;
+        Util::System::error << "demo: No arguments provided! Please specify a demo" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
-    auto demo = arguments[0];
+    const auto &demo = arguments[0];
 
     if (demo == "color") {
         ansiColorDemo();
         return 0;
     }
-
-    auto lfbFile = Util::Io::File("/device/lfb");
-
-    if (argumentParser.hasArgument("resolution")) {
-        auto split1 = argumentParser.getArgument("resolution").split("x");
-        auto split2 = split1[1].split("@");
-
-        auto resolutionX = Util::String::parseNumber<uint16_t>(split1[0]);
-        auto resolutionY = Util::String::parseNumber<uint16_t>(split2[0]);
-        uint8_t colorDepth = split2.length() > 1 ? Util::String::parseNumber<uint8_t>(split2[1]) : 32;
-
-        lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
-    }
-
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-
     if (demo == "keyboard") {
         keyboardDemo();
-    } else if (demo == "ant") {
-        auto sleepInterval = arguments.length() <= 1 ? 0 : Util::String::parseNumber<uint32_t>(arguments[0]);
-        antDemo(lfb, sleepInterval);
+        return 0;
+    }
+
+    auto lfbFile = Util::Io::File("/device/lfb");
+    if (argumentParser.hasArgument("resolution")) {
+        const auto resolutionString = argumentParser.getArgument("resolution");
+        Util::Graphic::LinearFrameBuffer::setResolution(lfbFile, resolutionString);
+    }
+
+    Util::Graphic::Ansi::prepareGraphicalApplication(true);
+    Util::Graphic::LinearFrameBuffer lfb(lfbFile);
+    lfb.clear();
+
+    if (demo == "ant") {
+        antDemo(lfb);
     } else if (demo == "fonts") {
         fontDemo(lfb);
     } else if (demo == "widgets") {
-        auto widgetDemo = WidgetDemo(lfb);
+        WidgetDemo widgetDemo(lfb);
         widgetDemo.run();
     } else {
-        auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<double>(argumentParser.getArgument("scale")) : 1.0;
-        auto engine = Pulsar::Engine(lfb, 60, scaleFactor);
+        const auto scaleFactor = Util::String::parseFloat<float>(
+            argumentParser.getArgument("scale", "1.0f"));
+         Pulsar::Engine engine(lfb, 60, scaleFactor);
 
         if (demo == "opengl") {
             Pulsar::Game::getInstance().pushScene(new OpenGlDemo());
         } else if (demo == "particles") {
             Pulsar::Game::getInstance().pushScene(new ParticleDemo());
         } else if (demo == "polygons") {
-            auto initialCount = arguments.length() > 1 ? Util::String::parseNumber<uint32_t>(arguments[1]) : 10;
-            Pulsar::Game::getInstance().pushScene(new PolygonDemo(initialCount));
+            Pulsar::Game::getInstance().pushScene(new PolygonDemo());
         } else if (demo == "sprites") {
-            auto initialCount = arguments.length() > 1 ? Util::String::parseNumber<uint32_t>(arguments[1]) : 10;
-            Pulsar::Game::getInstance().pushScene(new SpriteDemo(initialCount));
+            Pulsar::Game::getInstance().pushScene(new SpriteDemo());
         } else {
             Util::System::error << "demo: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::lnFlush;
             return -1;
@@ -117,5 +111,6 @@ int32_t main(int32_t argc, char *argv[]) {
         engine.run();
     }
 
+    Util::Graphic::Ansi::cleanupGraphicalApplication();
     return 0;
 }

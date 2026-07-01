@@ -18,41 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DEMOSPRITEFACTORY_H
-#define HHUOS_DEMOSPRITEFACTORY_H
+#ifndef HHUOS_APPLICATION_DEMO_DEMOSPRITEFACTORY_H
+#define HHUOS_APPLICATION_DEMO_DEMOSPRITEFACTORY_H
 
-#include "lib/util/math/Random.h"
+#include "DemoSprite.h"
 
-class DemoSprite;
+#include <util/math/Random.h>
 
+/// A factory class that creates random demo sprites on request.
 class DemoSpriteFactory {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new demo sprite factory instance.
     DemoSpriteFactory() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    DemoSpriteFactory(const DemoSpriteFactory &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    DemoSpriteFactory &operator=(const DemoSpriteFactory &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~DemoSpriteFactory() = default;
-
+    /// Create a new demo sprite.
+    /// The sprite instance is created on the heap, and the caller is responsible for freeing it.
     DemoSprite* createSprite();
 
 private:
 
-    Util::Math::Random random = Util::Math::Random();
+    Util::Math::Random random;
 };
 
 #endif

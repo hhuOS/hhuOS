@@ -18,67 +18,57 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#ifndef DEMOMODEL_H
-#define DEMOMODEL_H
+#ifndef HHUOS_APPLICATION_DEMO_DEMOMODEL_H
+#define HHUOS_APPLICATION_DEMO_DEMOMODEL_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/pulsar/3d/Model.h"
-#include "lib/util/graphic/Color.h"
-#include "lib/util/graphic/Colors.h"
+#include <util/math/Vector3.h>
+#include <util/graphic/Color.h>
+#include <util/graphic/Colors.h>
+#include <pulsar/3d/Model.h>
 
-namespace Util {
-namespace Math {
-template <typename T> class Vector3;
-}  // namespace Math
-}  // namespace Util
-
+/// A 3D object loaded from a predefined model.
+/// See the `Type` enum for more details on the different models.
 class DemoModel : public Pulsar::D3::Model {
 
 public:
+    /// The supported model types.
     enum Type {
-        TREE, LANTERN, ICOSPHERE
+        /// A static tree model (does not move or rotate) without a texture.
+        TREE,
+        /// A static mode of a street lantern (does not move or rotate) without a texture.
+        LANTERN,
+        /// A textured icosphere-shaped model that rotates around its center and moves in a circle.
+        ICOSPHERE
     };
 
-    /**
-     * Constructor.
-     */
-    DemoModel(Type type, const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation, const Util::Math::Vector3<float> &scale, const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE);
+    /// Create a new model instance of the given type.
+    /// The color is used to fill the object if it has no texture.
+    DemoModel(Type type, const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation,
+        const Util::Math::Vector3<float> &scale, const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE);
 
-    /**
-     * Copy Constructor.
-     */
-    DemoModel(const DemoModel &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    DemoModel &operator=(const DemoModel &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~DemoModel() override = default;
-
+    /// Initialize the model instance by loadings its vertices and texture and creating a display list.
     void initialize() override;
 
-    void draw(Pulsar::Graphics &graphics) const override;
-
+    /// Translate and rotate the model according to its type and the given delta time.
     void onUpdate(float delta) override;
 
-    void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
+    /// Draw the model.
+    void draw(Pulsar::Graphics &graphics) const override;
 
 private:
 
     Type type;
-    uint32_t drawListID = UINT32_MAX;
     Util::Graphic::Color color;
+
+    size_t drawListID = SIZE_MAX;
 
     static const char* pathForType(Type type);
 
-    static uint32_t TREE_DRAW_LIST_ID;
-    static uint32_t LANTERN_DRAW_LIST_ID;
-    static uint32_t ICOSPHERE_DRAW_LIST_ID;
+    static size_t TREE_DRAW_LIST_ID;
+    static size_t LANTERN_DRAW_LIST_ID;
+    static size_t ICOSPHERE_DRAW_LIST_ID;
 };
 
 
