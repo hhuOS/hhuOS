@@ -79,10 +79,6 @@ Thread& Scheduler::getCurrentThread() {
     return *currentThread;
 }
 
-Thread* Scheduler::getLastFpuThread() const {
-    return reinterpret_cast<Thread*>(lastFpuThread);
-}
-
 void Scheduler::start() {
     readyQueueLock.acquire();
     if (readyQueue.isEmpty()) {
@@ -137,7 +133,11 @@ void Scheduler::exit() {
 
     currentThread->freeUserStack();
     currentThread->getParent().removeThread(*currentThread);
-    resetLastFpuThread(*currentThread);
+
+    if (lastFpuThread == currentThread) {
+        lastFpuThread = nullptr;
+    }
+
     Service::getService<ProcessService>().cleanup(currentThread);
 
     readyQueueLock.release();
@@ -172,7 +172,10 @@ void Scheduler::kill(Thread &thread) {
     readyQueue.remove(&thread);
     thread.getParent().removeThread(thread);
 
-    resetLastFpuThread(thread);
+    if (lastFpuThread == &thread) {
+        lastFpuThread = nullptr;
+    }
+
     Service::getService<ProcessService>().cleanup(&thread);
     readyQueueLock.release();
 }
@@ -190,10 +193,6 @@ void Scheduler::yield(bool interrupt) {
 
     readyQueue.offer(current);
 
-    if (fpu != nullptr) {
-        Device::Fpu::armFpuMonitor();
-    }
-
     if (interrupt) {
         auto &interruptService = Service::getService<InterruptService>();
         interruptService.sendEndOfInterrupt(timerInterrupt);
@@ -203,24 +202,24 @@ void Scheduler::yield(bool interrupt) {
 }
 
 void Scheduler::switchFpuContext() {
-    if (fpu == nullptr) {
-        Util::Panic::fire(Util::Panic::DEVICE_NOT_AVAILABLE, "FPU not found!");
-    }
-
     readyQueueLock.acquire();
 
-    // Disable FPU monitoring (will be enabled by scheduler at next thread switch)
-    Device::Fpu::disarmFpuMonitor();
+    Device::Cpu::clearTaskSwitchedFlag();
 
-    auto current = reinterpret_cast<uint32_t>(currentThread);
-    if (current == lastFpuThread) {
+    // No other thread has used the FPU in the meantime -> No need to switch context
+    if (currentThread == lastFpuThread) {
         readyQueueLock.release();
         return;
     }
 
-    fpu->switchContext();
+    if (lastFpuThread != nullptr) {
+        fpu->saveContext(*lastFpuThread);
+    }
 
-    lastFpuThread = current;
+    fpu->restoreContext(*currentThread);
+
+    lastFpuThread = currentThread;
+
     readyQueueLock.release();
 }
 
@@ -250,10 +249,6 @@ void Scheduler::block() {
     // Thread has enqueued itself into sleep list and waited so long, that it dequeued itself in the meantime
     if (current == next) {
         return;
-    }
-
-    if (fpu != nullptr) {
-        Device::Fpu::armFpuMonitor();
     }
 
     Thread::switchThread(*current, *next);
@@ -299,11 +294,6 @@ void Scheduler::checkSleepList() {
         }
         sleepQueueLock.release();
     }
-}
-
-void Scheduler::resetLastFpuThread(Thread &terminatedThread) {
-    Util::Async::Atomic<uint32_t> wrapper(lastFpuThread);
-    wrapper.compareAndSet(reinterpret_cast<uint32_t>(&terminatedThread), 0);
 }
 
 Thread* Scheduler::getThread(uint32_t id) {

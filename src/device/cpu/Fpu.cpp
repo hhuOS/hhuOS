@@ -32,10 +32,8 @@
 namespace Device {
 
 Fpu::Fpu(uint8_t *defaultFpuContext) {
-    disarmFpuMonitor();
-
-    // Make sure FPU emulation is disabled
-    Device::Cpu::writeCr0(Device::Cpu::readCr0() & ~Device::Cpu::X87_FPU_EMULATION);
+    Cpu::writeCr0(Cpu::readCr0() & ~Cpu::X87_FPU_EMULATION);
+    Cpu::writeCr0(Cpu::readCr0() | Cpu::MONITOR_COPROCESSOR);
 
     if (isFxsrAvailable()) {
         LOG_INFO("FXSR support detected -> Using FXSAVE/FXRSTR for FPU context switching");
@@ -48,7 +46,7 @@ Fpu::Fpu(uint8_t *defaultFpuContext) {
 
         if (cpuInfo.features & Util::Hardware::CpuId::SSE) {
             LOG_INFO("SSE support detected -> Activating OSFXSR and OSXMMEXCPT");
-            Device::Cpu::writeCr4(Device::Cpu::readCr4() | Device::Cpu::OS_FXSR | Device::Cpu::OS_XMM_EXCEPTIONS);
+            Cpu::writeCr4(Cpu::readCr4() | Cpu::OS_FXSR | Cpu::OS_XMM_EXCEPTIONS);
         }
 
         asm volatile (
@@ -89,6 +87,34 @@ bool Fpu::isFxsrAvailable() {
     return (cpuInfo.features & Util::Hardware::CpuId::FXSR) != 0;
 }
 
+void Fpu::saveContext(const Kernel::Thread &thread) {
+    if (fxsrAvailable) {
+        asm volatile (
+                "fxsave %0;"
+                : "=m"(*thread.getFpuContext())
+                );
+    } else {
+        asm volatile (
+                "fnsave %0;"
+                : "=m"(*thread.getFpuContext())
+                );
+    }
+}
+
+void Fpu::restoreContext(const Kernel::Thread &thread) {
+    if (fxsrAvailable) {
+        asm volatile (
+                "fxrstor %0;"
+                : "=m"(*thread.getFpuContext())
+                );
+    } else {
+        asm volatile (
+                "frstor %0;"
+                : "=m"(*thread.getFpuContext())
+                );
+    }
+}
+
 bool Fpu::probeFpu() {
     uint16_t fpuStatus = 0x1797;
     asm volatile (
@@ -103,48 +129,6 @@ bool Fpu::probeFpu() {
             );
 
     return fpuStatus == 0;
-}
-
-void Fpu::switchContext() const {
-    auto &scheduler = Kernel::Service::getService<Kernel::ProcessService>().getScheduler();
-    auto &currentThread = scheduler.getCurrentThread();
-    auto *lastFpuThread = scheduler.getLastFpuThread();
-
-    if (fxsrAvailable) {
-        if (lastFpuThread != nullptr) {
-            asm volatile (
-                    "fxsave %0;"
-                    : "=m"(*lastFpuThread->getFpuContext())
-                    );
-        }
-
-        asm volatile (
-                "fxrstor %0"
-                : :
-                "m"(*currentThread.getFpuContext())
-                );
-    } else {
-        if (lastFpuThread != nullptr) {
-            asm volatile (
-                    "fnsave %0;"
-                    : "=m"(*lastFpuThread->getFpuContext())
-                    );
-        }
-
-        asm volatile (
-                "frstor %0"
-                : :
-                "m"(*currentThread.getFpuContext())
-                );
-    }
-}
-
-void Fpu::armFpuMonitor() {
-    Device::Cpu::writeCr0(Device::Cpu::readCr0() | Device::Cpu::MONITOR_COPROCESSOR);
-}
-
-void Fpu::disarmFpuMonitor() {
-    Device::Cpu::writeCr0(Device::Cpu::readCr0() & ~Device::Cpu::MONITOR_COPROCESSOR);
 }
 
 }

@@ -112,8 +112,6 @@ public:
      */
     Thread& getCurrentThread();
 
-    Thread* getLastFpuThread() const;
-
     Thread* getThread(uint32_t id);
 
     uint32_t getThreadCount() const;
@@ -130,8 +128,6 @@ private:
 
     void checkSleepList();
 
-    void resetLastFpuThread(Thread &terminatedThread);
-
     struct SleepEntry {
         Thread *thread;
         Util::Time::Timestamp wakeupTime;
@@ -144,7 +140,7 @@ private:
 
     Device::Fpu *fpu = nullptr;
     uint8_t *defaultFpuContext = nullptr;
-    uint32_t lastFpuThread = 0; // Actually a pointer, but needs to be a uint32_t for atomic operations
+    Thread *lastFpuThread = nullptr;
 
     InterruptVector timerInterrupt = Service::getService<InterruptService>().getTimerInterrupt();
 

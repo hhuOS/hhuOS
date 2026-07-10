@@ -246,6 +246,11 @@ void Thread::startKernelThread([[maybe_unused]] uint32_t *oldStackPointer) {
     asm volatile (
             "mov 4(%esp), %esp;" // First parameter -> load 'oldStackPointer'
 
+            // Set Task Switched bit in CR0
+            "mov %cr0, %eax;"
+            "or $0x00000008, %eax;"
+            "mov %eax, %cr0;"
+
             // Load registers from prepared stack
             "pop %ds;"
             "pop %es;"
@@ -286,6 +291,11 @@ void Thread::switchThread([[maybe_unused]] uint32_t **oldStackPointer, [[maybe_u
             "push 64(%esp);" // 52 bytes of saved registers + 3 * 4 bytes for third parameter
             "call set_tss_stack_entry;"
             "add $4, %esp;"
+
+            // Set Task Switched bit in CR0
+            "mov %cr0, %eax;"
+            "or $0x00000008, %eax;"
+            "mov %eax, %cr0;"
 
             // Load registers of next thread using second parameter 'nextStackPointer'
             "mov 60(%esp), %esp;" // 52 bytes of saved registers + 2 * 4 bytes for second parameter

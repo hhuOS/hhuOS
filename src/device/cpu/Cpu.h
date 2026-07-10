@@ -142,6 +142,10 @@ public:
 
     static void loadTaskStateSegment(const SegmentSelector &selector);
 
+    static void clearTaskSwitchedFlag() {
+        asm volatile("clts");
+    }
+
     /**
      * Stop the processor via hlt instruction.
      */

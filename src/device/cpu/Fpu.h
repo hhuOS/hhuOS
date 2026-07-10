@@ -23,6 +23,8 @@
 
 #include <stdint.h>
 
+#include "kernel/process/Thread.h"
+
 namespace Device {
 
 class Fpu {
@@ -41,7 +43,7 @@ public:
     /**
      * Assignment operator.
      */
-    Fpu &operator=(const Fpu &other) = delete;
+    Fpu& operator=(const Fpu &other) = delete;
 
     /**
      * Destructor.
@@ -52,11 +54,9 @@ public:
 
     static bool isFxsrAvailable();
 
-    static void armFpuMonitor();
+    void saveContext(const Kernel::Thread &thread);
 
-    static void disarmFpuMonitor();
-
-    void switchContext() const;
+    void restoreContext(const Kernel::Thread &thread);
 
     static bool probeFpu();
 
