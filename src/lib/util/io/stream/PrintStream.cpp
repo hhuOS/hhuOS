@@ -113,6 +113,7 @@ void PrintStream::print(uint64_t number, const char sign) {
 	}
 }
 
+#ifndef HHUOS_KERNEL
 void PrintStream::print(double number) {
 	ByteArrayOutputStream numberStream;
 	PrintStream formatStream(numberStream);
@@ -191,6 +192,7 @@ void PrintStream::print(double number) {
 		}
 	}
 }
+#endif
 
 }
 }

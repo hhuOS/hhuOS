@@ -174,7 +174,11 @@ public:
         }
 
         // Blend if necessary
-        const Color toWrite = color.getAlpha() < 255 ? readPixel(x, y).blend(color) : color;
+#ifdef HHUOS_KERNEL
+        const auto toWrite = color;
+#else
+        const auto toWrite = color.getAlpha() < 255 ? readPixel(x, y).blend(color) : color;
+#endif
 
         switch (colorDepth) {
             case 32:
@@ -272,11 +276,13 @@ public:
     /// the specified size, and the given color.
     void fillSquare(uint16_t x, uint16_t y, uint16_t size, const Color &color) const;
 
+#ifndef HHUOS_KERNEL
     /// Draw the outline of a circle centered at (x, y) with the specified radius and color.
     void drawCircle(uint16_t x, uint16_t y, uint16_t radius, const Color& color) const;
 
     /// Draw a filled circle centered at (x, y) with the specified radius and color.
     void fillCircle(uint16_t x, uint16_t y, uint16_t radius, const Color& color) const;
+#endif
 
     /// Draw a character of the given bitmap font with the upper-left corner at (x, y),
     /// using the specified foreground and background colors.

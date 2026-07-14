@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-target_sources(kernel PUBLIC
+target_sources(${PROJECT_NAME} PRIVATE
         ${HHUOS_SRC_DIR}/kernel/memory/GlobalDescriptorTable.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/MemoryStatusNode.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/PageFrameAllocator.cpp

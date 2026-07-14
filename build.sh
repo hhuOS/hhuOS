@@ -24,6 +24,7 @@ readonly VALID_GENERATORS=("Unix Makefiles" "Ninja")
 
 BUILD_TYPE="Release"
 TARGET="towboot"
+SIMD="SSE2"
 NCORES="$(nproc)"
 
 if command -v ninja > /dev/null 2>&1; then
@@ -72,6 +73,22 @@ parse_generator() {
 
     printf "Invalid generator '%s'!\\n" "${generator}"
     exit 1
+}
+
+parse_simd() {
+    local simd="${1^^}"
+
+    if [ "${simd}" == "NONE" ]; then
+        SIMD="NONE"
+    elif [ "${simd}" == "MMX" ]; then
+        SIMD="MMX"
+    elif [ "${simd}" == "SSE" ]; then
+        SIMD="SSE"
+    elif [ "${simd}" == "SSE2" ]; then
+        SIMD="SSE2"
+    else
+        printf "Invalid value for --simd '%s'!\\n" "${simd}"
+    fi
 }
 
 parse_ncores() {
@@ -138,7 +155,9 @@ print_usage() {
     -n, --ncores
         Set the number of cores used by make (default: Output of nproc).
     -c, --clean
-        Remove all build files
+        Remove all build files.
+    -s, --simd
+        Set SIMD instruction set to use (NONE/MMX/SSE/SSE2, newer sets enable all older sets, default: SSE2).
     -h, --help
         Show this help message.\\n"
 }
@@ -160,6 +179,9 @@ parse_args() {
             ;;
             -n|--ncores)
             parse_ncores "${val}"
+            ;;
+            -s|--simd)
+            parse_simd "${val}"
             ;;
             -c|--clean)
             cleanup
@@ -187,7 +209,7 @@ build() {
         mkdir -p "${build_dir}"
 
         cd "${build_dir}" || exit
-        cmake .. -G "${GENERATOR}" -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
+        cmake -E env HHUOS_SIMD="${SIMD}" cmake .. -G "${GENERATOR}" -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
         cd .. || exit
     fi
 

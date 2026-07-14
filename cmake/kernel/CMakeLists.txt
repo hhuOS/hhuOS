@@ -20,8 +20,27 @@ project(kernel)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} device filesystem)
+target_compile_options(${PROJECT_NAME} PUBLIC
+        -march=i386
+        -mno-80387
+)
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+        HHUOS_VERSION=${HHUOS_VERSION}
+        HHUOS_CODENAME=${HHUOS_CODENAME}
+        HHUOS_GIT_REV=${HHUOS_GIT_REV}
+        HHUOS_GIT_BRANCH=${HHUOS_GIT_BRANCH}
+        HHUOS_BUILD_DATE=${HHUOS_BUILD_DATE}
+        HHUOS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        HHUOS_KERNEL
+)
+
+target_sources(${PROJECT_NAME} PRIVATE
+        ${HHUOS_SRC_DIR}/kernel/boot.asm
+        ${HHUOS_SRC_DIR}/kernel/BuildConfig.cpp
+        ${HHUOS_SRC_DIR}/kernel/GatesOfHell.cpp)
 
 # Add subdirectories
 add_subdirectory(interrupt)

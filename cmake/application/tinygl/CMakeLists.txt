@@ -21,23 +21,44 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 99)
-add_compile_options(-Wpedantic)
 
 make_readme_includable(${HHUOS_SRC_DIR}/application/tinygl)
 
-add_compile_options(
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic lib.user.tinygl)
+target_compile_options(${PROJECT_NAME} PUBLIC
+        -march=i386
+        -Wpedantic
         -Wno-unused-function
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
         $<$<COMPILE_LANGUAGE:C>:-Wno-overflow>
-        -mmmx -msse -msse2
 )
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic lib.user.tinygl)
-target_sources(${PROJECT_NAME} PUBLIC
+if ("${HHUOS_SIMD}" STREQUAL "MMX")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mmmx
+            -mfpmath=387
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse
+            -mfpmath=sse
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE2")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse2
+            -mfpmath=sse
+    )
+else ()
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mfpmath=387
+    )
+endif ()
+
+target_sources(${PROJECT_NAME} PRIVATE
         ${HHUOS_SRC_DIR}/application/tinygl/tinygl.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/TriangleDemo.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/GearsDemo.cpp

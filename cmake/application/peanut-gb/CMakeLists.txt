@@ -38,18 +38,44 @@ add_custom_target(gameboy-roms DEPENDS
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 99)
-add_compile_options(
-        -DAUDIO_SAMPLE_RATE=22050
-        -DMINIGB_APU_AUDIO_FORMAT_S16SYS
-        -DENABLE_SOUND
-)
 
 make_readme_includable(${HHUOS_SRC_DIR}/application/peanut-gb)
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.libc lib.user.sound lib.user.graphic)
-target_sources(${PROJECT_NAME} PUBLIC
+target_compile_options(${PROJECT_NAME} PUBLIC
+        -march=i386
+)
+
+if ("${HHUOS_SIMD}" STREQUAL "MMX")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mmmx
+            -mfpmath=387
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse
+            -mfpmath=sse
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE2")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse2
+            -mfpmath=sse
+    )
+else ()
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mfpmath=387
+    )
+endif ()
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+        AUDIO_SAMPLE_RATE=22050
+        MINIGB_APU_AUDIO_FORMAT_S16SYS
+        ENABLE_SOUND
+)
+
+target_sources(${PROJECT_NAME} PRIVATE
         ${HHUOS_SRC_DIR}/application/peanut-gb/palettes.cpp
         ${HHUOS_SRC_DIR}/application/peanut-gb/peanut_gb.cpp
         ${HHUOS_SRC_DIR}/application/peanut-gb/Peanut-GB/examples/sdl2/minigb_apu/minigb_apu.c)

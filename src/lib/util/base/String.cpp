@@ -330,12 +330,15 @@ int32_t String::format(const char *format, va_list args, Io::OutputStream &targe
             printStream.setBase(10);
             printStream.setNumberPadding(0);
             printStream.setIntegerPrecision(0);
-            printStream.setDecimalPrecision(-1);
             printStream.setNumberJustification(false);
             printStream.setPositiveSign('\0');
             printStream.setNegativeSign('-');
             printStream.setIntegerPrefix("");
+
+#ifndef HHUOS_KERNEL
+            printStream.setDecimalPrecision(-1);
             printStream.setAlwaysPrintDecimalPoint(false);
+#endif
 
             // Parse flags, width and precision modifiers
             while (true) {
@@ -502,12 +505,14 @@ int32_t String::format(const char *format, va_list args, Io::OutputStream &targe
 
                     break;
                 }
+#ifndef HHUOS_KERNEL
                 case 'f':
                 case 'F':
                 case 'e':
                 case 'E':
                 case 'g':
-                case 'G': {
+                case 'G':
+                {
                     if (padding >= 0) {
                         printStream.setNumberPadding(padding);
                     }
@@ -580,6 +585,7 @@ int32_t String::format(const char *format, va_list args, Io::OutputStream &targe
 
                     break;
                 }
+#endif
                 default:
                     return -1;
             }

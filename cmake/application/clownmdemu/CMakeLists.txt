@@ -38,7 +38,11 @@ set(CMAKE_C_STANDARD 99)
 
 make_readme_includable(${HHUOS_SRC_DIR}/application/clownmdemu)
 
-add_compile_options(
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic)
+target_compile_options(${PROJECT_NAME} PUBLIC
+        -march=i386
         -Wpedantic
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-but-set-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
@@ -49,10 +53,28 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-O0> # ClownMDEmu does not work with compiler optimizations
 )
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic)
-target_sources(${PROJECT_NAME} PUBLIC
+if ("${HHUOS_SIMD}" STREQUAL "MMX")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mmmx
+            -mfpmath=387
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse
+            -mfpmath=sse
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE2")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse2
+            -mfpmath=sse
+    )
+else ()
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mfpmath=387
+    )
+endif ()
+
+target_sources(${PROJECT_NAME} PRIVATE
         # Application frontend
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu.cpp
 

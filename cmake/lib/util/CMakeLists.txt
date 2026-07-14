@@ -18,7 +18,6 @@
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 99)
-add_compile_options(-Wpedantic)
 
 # Add subdirectories
 add_subdirectory(async)

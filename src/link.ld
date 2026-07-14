@@ -26,10 +26,15 @@ SECTIONS
     . = 0x00100000;
 
     ___KERNEL_DATA_START__ = .;
+    ___WRITE_PROTECTED_START__ = .;
+
+    .boot :
+    {
+        *(.multiboot2)
+    }
 
     .text ALIGN (4K) :
     {
-        ___WRITE_PROTECTED_START__ = .;
         ___TEXT_START__ = .;
         *(.text)
         *(.text.*)
@@ -63,7 +68,7 @@ SECTIONS
        KEEP (*(.dtor))
        ___FINI_ARRAY_END__ = .;
     }
-    
+
     ___WRITE_PROTECTED_END__ = ALIGN(4K);
 
    .data ALIGN (4K) :

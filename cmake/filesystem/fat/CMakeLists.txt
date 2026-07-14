@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-target_sources(filesystem PUBLIC
+target_sources(${PROJECT_NAME} PRIVATE
         ${HHUOS_SRC_DIR}/filesystem/fat/FatDriver.cpp
         ${HHUOS_SRC_DIR}/filesystem/fat/FatDirectory.cpp
         ${HHUOS_SRC_DIR}/filesystem/fat/FatFile.cpp

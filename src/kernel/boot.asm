@@ -37,7 +37,7 @@ STACK_SIZE equ 0x10000
 ; Multiboot2 constants
 MULTIBOOT2_HEADER_MAGIC equ 0xe85250d6
 MULTIBOOT2_HEADER_ARCHITECTURE equ 0
-MULTIBOOT2_HEADER_LENGTH equ (boot - multiboot2_header)
+MULTIBOOT2_HEADER_LENGTH equ (multiboot2_header_end - multiboot2_header)
 MULTIBOOT2_HEADER_CHECKSUM equ -(MULTIBOOT2_HEADER_MAGIC + MULTIBOOT2_HEADER_ARCHITECTURE + MULTIBOOT2_HEADER_LENGTH)
 
 ; Multiboot2 tag types
@@ -84,7 +84,7 @@ MULTIBOOT2_TAG_FLAG_OPTIONAL equ 0x01
 MULTIBOOT2_CONSOLE_FLAG_FORCE_TEXT_MODE equ 0x01
 MULTIBOOT2_CONSOLE_FLAG_SUPPORT_TEXT_MODE equ 0x02
 
-[SECTION .text]
+[SECTION .multiboot2]
 [BITS 32]
 
 multiboot2_header:
@@ -143,6 +143,10 @@ multiboot2_header:
     dw MULTIBOOT2_TAG_TERMINATE
     dw 0
     dd 8
+
+multiboot2_header_end:
+
+[SECTION .text]
 
 boot:
     cld ; Expected by GCC

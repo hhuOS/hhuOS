@@ -51,7 +51,11 @@ set(CMAKE_C_STANDARD 99)
 
 make_readme_includable(${HHUOS_SRC_DIR}/application/classicube)
 
-add_compile_options(
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic)
+target_compile_options(${PROJECT_NAME} PUBLIC
+        -march=i386
         -Wno-unused-parameter
         -Wno-missing-field-initializers
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-function>
@@ -66,23 +70,44 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-missing-braces>
         $<$<COMPILE_LANGUAGE:C>:-Wno-dangling-pointer>
         $<$<COMPILE_LANGUAGE:C>:-Wno-strict-aliasing>
-        -DCC_BUILD_MANUAL
-        -DCC_BUILD_COOPTHREADED
-        -DCC_BUILD_NOMUSIC
-        -DCC_BUILD_NOSOUNDS
-        -DCC_GFX_BACKEND=CC_GFX_BACKEND_SOFTGPU
-        -DCC_AUD_BACKEND=CC_AUD_BACKEND_NULL
-        -DCC_NET_BACKEND=CC_NET_BACKEND_BUILTIN
-        -DCC_SSL_BACKEND=CC_SSL_BACKEND_NONE
-        -DCC_NO_UPDATER
-        -DCC_NO_DYNLIB
-        -DCC_NO_SOCKETS
+        $<$<COMPILE_LANGUAGE:C>:-Wno-stringop-overflow>
 )
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic)
-target_sources(${PROJECT_NAME} PUBLIC
+if ("${HHUOS_SIMD}" STREQUAL "MMX")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mmmx
+            -mfpmath=387
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse
+            -mfpmath=sse
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE2")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse2
+            -mfpmath=sse
+    )
+else ()
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mfpmath=387
+    )
+endif ()
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+        CC_BUILD_MANUAL
+        CC_BUILD_COOPTHREADED
+        CC_BUILD_NOMUSIC
+        CC_BUILD_NOSOUNDS
+        CC_GFX_BACKEND=CC_GFX_BACKEND_SOFTGPU
+        CC_AUD_BACKEND=CC_AUD_BACKEND_NULL
+        CC_NET_BACKEND=CC_NET_BACKEND_BUILTIN
+        CC_SSL_BACKEND=CC_SSL_BACKEND_NONE
+        CC_NO_UPDATER
+        CC_NO_DYNLIB
+        CC_NO_SOCKETS)
+
+target_sources(${PROJECT_NAME} PRIVATE
         ${HHUOS_SRC_DIR}/application/classicube/Window_hhuOS.cpp
         ${HHUOS_SRC_DIR}/application/classicube/Platform_hhuOS.cpp
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Animations.c

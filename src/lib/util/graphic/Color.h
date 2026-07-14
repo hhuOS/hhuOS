@@ -556,6 +556,7 @@ public:
         return Color(red, green, blue, alpha);
     }
 
+#ifndef HHUOS_KERNEL
     /// Blend this color with another color, taking into account their alpha values.
     /// The resulting color is a combination of both colors based on their transparency.
     /// If the other color is fully transparent (alpha = 0), this color is returned.
@@ -592,6 +593,7 @@ public:
 
         return Color(r, g, b, a);
     }
+#endif
 
     /// Get the green component of this color (0-255).
     uint8_t getGreen() const {

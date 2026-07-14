@@ -209,50 +209,6 @@ public:
 		integerPrecisionPaddingChar = paddingChar;
 	}
 
-	/// Set the number of digits to print after the decimal point for floating-point numbers.
-	/// If the number has more decimal places, it will be rounded.
-	/// The default value is -1, which means to print all available decimal places.
-	///
-	/// ### Example
-	/// ```c++
-	/// Util::System::out.println(3.141592653589793); // prints "3.141592653589793"
-	///
-	/// Util::System::out.setDecimalPrecision(2);
-	/// Util::System::out.println(3.141592653589793); // prints "3.14"
-	///
-	/// Util::System::out.setDecimalPrecision(5);
-	/// Util::System::out.println(3.141592653589793); // prints "3.14159"
-	///
-	/// Util::System::out.setDecimalPrecision(0);
-	/// Util::System::out.println(3.141592653589793); // prints "3"
-	///
-	/// Util::System::out.flush();
-	/// ```
-	void setDecimalPrecision(const int32_t precision) {
-		decimalPrecision = precision;
-	}
-
-	/// Set whether to fill the decimal precision with trailing zeros for floating-point numbers.
-	/// For example, if the decimal precision is set to 3,
-	/// the number 3.1 will be printed as "3.100" if this option is enabled.
-	/// The default is false (do not fill with zeros).
-	///
-	/// ### Example
-	/// ```c++
-	/// Util::System::out.setDecimalPrecision(3);
-	/// Util::System::out.println(3.1); // prints "3.1"
-	///
-	/// Util::System::out.setFillDecimalPrecisionWithZeros(true);
-	/// Util::System::out.println(3.1); // prints "3.100"
-	///
-	/// Util::System::out.println(3.1234); // prints "3.123"
-	///
-	/// Util::System::out.flush();
-	/// ```
-	void setFillDecimalPrecisionWithZeros(const bool fillZeros) {
-		fillDecimalPrecisionWithZeros = fillZeros;
-	}
-
 	/// Set a prefix string to print before integer numbers (e.g., "0x" for hexadecimal).
 	/// The default is an empty string (no prefix).
 	///
@@ -299,6 +255,51 @@ public:
 		hexNumericBase = hexBase;
 	}
 
+#ifndef HHUOS_KERNEL
+	/// Set the number of digits to print after the decimal point for floating-point numbers.
+	/// If the number has more decimal places, it will be rounded.
+	/// The default value is -1, which means to print all available decimal places.
+	///
+	/// ### Example
+	/// ```c++
+	/// Util::System::out.println(3.141592653589793); // prints "3.141592653589793"
+	///
+	/// Util::System::out.setDecimalPrecision(2);
+	/// Util::System::out.println(3.141592653589793); // prints "3.14"
+	///
+	/// Util::System::out.setDecimalPrecision(5);
+	/// Util::System::out.println(3.141592653589793); // prints "3.14159"
+	///
+	/// Util::System::out.setDecimalPrecision(0);
+	/// Util::System::out.println(3.141592653589793); // prints "3"
+	///
+	/// Util::System::out.flush();
+	/// ```
+	void setDecimalPrecision(const int32_t precision) {
+		decimalPrecision = precision;
+	}
+
+	/// Set whether to fill the decimal precision with trailing zeros for floating-point numbers.
+	/// For example, if the decimal precision is set to 3,
+	/// the number 3.1 will be printed as "3.100" if this option is enabled.
+	/// The default is false (do not fill with zeros).
+	///
+	/// ### Example
+	/// ```c++
+	/// Util::System::out.setDecimalPrecision(3);
+	/// Util::System::out.println(3.1); // prints "3.1"
+	///
+	/// Util::System::out.setFillDecimalPrecisionWithZeros(true);
+	/// Util::System::out.println(3.1); // prints "3.100"
+	///
+	/// Util::System::out.println(3.1234); // prints "3.123"
+	///
+	/// Util::System::out.flush();
+	/// ```
+	void setFillDecimalPrecisionWithZeros(const bool fillZeros) {
+		fillDecimalPrecisionWithZeros = fillZeros;
+	}
+
 	/// Set whether to always print a decimal point for floating-point numbers,
 	/// even if there are no decimal digits to print (e.g., "3." instead of "3").
 	/// The default is false (do not always print the decimal point).
@@ -315,6 +316,7 @@ public:
 	void setAlwaysPrintDecimalPoint(const bool value) {
 		alwaysPrintDecimalPoint = value;
 	}
+#endif
 
 	/// Print a single character.
 	///
@@ -685,6 +687,7 @@ public:
 		print(reinterpret_cast<uintptr_t>(pointer));
 	}
 
+#ifndef HHUOS_KERNEL
 	/// Print a floating-point number.
 	/// The number of decimal places printed is controlled by the current decimal precision setting.
 	/// Rounding is applied if the number has more decimal places than specified.
@@ -709,6 +712,8 @@ public:
 	/// Util::System::out.flush();
 	/// ```
 	void print(double number);
+#endif
+
 
 	/// Print a new line character ('\n').
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -1369,6 +1374,7 @@ public:
 		return *this;
 	}
 
+#ifndef HHUOS_KERNEL
 	/// Print a floating-point number via the stream insertion operator.
 	/// The number of decimal places printed is controlled by the current decimal precision setting.
 	/// Rounding is applied if the number has more decimal places than specified.
@@ -1391,6 +1397,7 @@ public:
 		print(number);
 		return *this;
 	}
+#endif
 
 	/// Call a manipulator function via the stream insertion operator.
 	/// Manipulator functions can be used to modify the state of the `PrintStream` or

@@ -150,6 +150,7 @@ void LinearFrameBuffer::fillSquare(const uint16_t x, const uint16_t y, const uin
     fillRectangle(x, y, size, size, color);
 }
 
+#ifndef HHUOS_KERNEL
 void LinearFrameBuffer::drawCircle(const uint16_t x, const uint16_t y, const uint16_t radius,
     const Color &color) const
 {
@@ -172,6 +173,7 @@ void LinearFrameBuffer::fillCircle(const uint16_t x, const uint16_t y, const uin
         }
     }
 }
+#endif
 
 void LinearFrameBuffer::drawChar(const Font &font, const uint16_t x, const uint16_t y, const char c,
     const Color &fgColor, const Color &bgColor) const

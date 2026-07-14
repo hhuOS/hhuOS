@@ -70,11 +70,13 @@ public:
         return height;
     }
 
+#ifndef HHUOS_KERNEL
     /// Scale the image to the specified new width and height.
     /// This method returns a new image instance with the scaled pixel buffer.
     /// The scaling is done using nearest-neighbor interpolation.
     /// The returned image instance is allocated on the heap and must be deleted manually.
     Image* scale(uint16_t newWidth, uint16_t newHeight) const;
+#endif
 
 private:
 

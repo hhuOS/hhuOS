@@ -19,11 +19,11 @@
 project(application)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-
-add_compile_options(
-        -DHHUOS
+add_compile_definitions(
+        HHUOS
 )
+
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 
 function(make_readme_includable app_dir)
     file(READ ${app_dir}/README.md content)

@@ -19,16 +19,40 @@
 project(dino)
 message(STATUS "Project " ${PROJECT_NAME})
 
-add_compile_options(
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.pulsar)
+target_compile_options(${PROJECT_NAME} PUBLIC
+        -march=i386
+        -Wpedantic
         -Wno-unused-function
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
 )
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+if ("${HHUOS_SIMD}" STREQUAL "MMX")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mmmx
+            -mfpmath=387
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse
+            -mfpmath=sse
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE2")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse2
+            -mfpmath=sse
+    )
+else ()
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mfpmath=387
+    )
+endif ()
 
-set(SOURCE_FILES
+target_sources(${PROJECT_NAME} PRIVATE
         ${HHUOS_SRC_DIR}/application/dino/dino.cpp
         ${HHUOS_SRC_DIR}/application/dino/entity/Block.cpp
         ${HHUOS_SRC_DIR}/application/dino/entity/Coin.cpp
@@ -39,6 +63,3 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/dino/particle/GrassEmitter.cpp
         ${HHUOS_SRC_DIR}/application/dino/Level.cpp)
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.pulsar)

@@ -16,10 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-project(quakegeneric)
+project(quake)
 message(STATUS "Project " ${PROJECT_NAME})
-
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/quake/id1"
         COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/quake/id1")
@@ -40,7 +38,10 @@ else()
             "${CMAKE_BINARY_DIR}/quake/id1/pak0.pak")
 endif()
 
-add_compile_options(
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic lib.user.libc)
+target_compile_options(${PROJECT_NAME} PUBLIC
         $<$<COMPILE_LANGUAGE:C>:-std=c17>
         $<$<COMPILE_LANGUAGE:C>:-O0> # Quake does not work with compiler optimizations
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
@@ -61,7 +62,28 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-aggressive-loop-optimizations>
 )
 
-set(SOURCE_FILES
+if ("${HHUOS_SIMD}" STREQUAL "MMX")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mmmx
+            -mfpmath=387
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse
+            -mfpmath=sse
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE2")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse2
+            -mfpmath=sse
+    )
+else ()
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mfpmath=387
+    )
+endif ()
+
+target_sources(${PROJECT_NAME} PRIVATE
         ${HHUOS_SRC_DIR}/application/quake/quakegeneric_hhuos.cpp
         ${HHUOS_SRC_DIR}/application/quake/quakegeneric/source/cd_null.c
         ${HHUOS_SRC_DIR}/application/quake/quakegeneric/source/chase.c
@@ -131,7 +153,3 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/quake/quakegeneric/source/wad.c
         ${HHUOS_SRC_DIR}/application/quake/quakegeneric/source/world.c
         ${HHUOS_SRC_DIR}/application/quake/quakegeneric/source/zone.c)
-
-add_executable(quake ${SOURCE_FILES})
-
-target_link_libraries(quake lib.user.runtime lib.user.base lib.user.graphic lib.user.libc)

@@ -16,23 +16,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-project(network)
-message(STATUS "Project " ${PROJECT_NAME})
-
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-
-set(SOURCE_FILES
+target_sources(${PROJECT_NAME} PRIVATE
         ${HHUOS_SRC_DIR}/kernel/network/DatagramSocket.cpp
         ${HHUOS_SRC_DIR}/kernel/network/NetworkModule.cpp
         ${HHUOS_SRC_DIR}/kernel/network/NetworkStack.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/Socket.cpp)
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
-target_link_libraries(${PROJECT_NAME})
-
-# Add subdirectories
-add_subdirectory(arp)
-add_subdirectory(ethernet)
-add_subdirectory(icmp)
-add_subdirectory(ip4)
-add_subdirectory(udp)
+        ${HHUOS_SRC_DIR}/kernel/network/Socket.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/arp/ArpEntry.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/arp/ArpHeader.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/arp/ArpModule.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/ethernet/EthernetModule.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/ethernet/EthernetSocket.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/icmp/IcmpModule.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/icmp/IcmpSocket.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/ip4/Ip4Interface.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/ip4/Ip4Module.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/ip4/Ip4RoutingModule.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/ip4/Ip4Socket.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/udp/Ip4PseudoHeader.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/udp/UdpModule.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/udp/UdpSocket.cpp)

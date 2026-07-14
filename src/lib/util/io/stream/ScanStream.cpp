@@ -160,6 +160,7 @@ int64_t ScanStream::readSigned64(uint8_t base) {
 	return sign * number;
 }
 
+#ifndef HHUOS_KERNEL
 long double ScanStream::readFloatingPointNumber() {
 	int16_t c;
 
@@ -219,6 +220,7 @@ long double ScanStream::readFloatingPointNumber() {
 
 	return sign * number;
 }
+#endif
 
 wchar_t ScanStream::readWideCharacter() {
 	uint8_t wc[4] = {0, 0, 0, 0};
@@ -433,6 +435,7 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 					// No increment of scannedItems for %n
 					break;
 				}
+#ifndef HHUOS_KERNEL
 				case 'f':
 				case 'F':
 				case 'e':
@@ -457,6 +460,7 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 					scannedItems++;
 					break;
 				}
+#endif
 				case 'p': {
 					const auto value = readUnsigned64(16);
 					if (!suppressAssign) {

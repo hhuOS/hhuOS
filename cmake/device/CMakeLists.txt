@@ -20,8 +20,16 @@ project(device)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} filesystem kernel)
+target_compile_options(${PROJECT_NAME} PUBLIC
+        -march=i386
+        -mno-80387
+)
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+        HHUOS_KERNEL
+)
 
 # Add subdirectories
 add_subdirectory(bus)

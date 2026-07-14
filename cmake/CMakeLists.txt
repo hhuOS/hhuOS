@@ -18,6 +18,19 @@
 
 include(ProcessorCount)
 
+# Enable/Disable SIMD instructions for applications
+if ("$ENV{HHUOS_SIMD}" STREQUAL "NONE")
+    set(HHUOS_SIMD "NONE")
+elseif ("$ENV{HHUOS_SIMD}" STREQUAL "MMX")
+    set(HHUOS_SIMD "MMX")
+elseif ("$ENV{HHUOS_SIMD}" STREQUAL "SSE")
+    set(HHUOS_SIMD "SSE")
+elseif ("$ENV{HHUOS_SIMD}" STREQUAL "SSE2")
+    set(HHUOS_SIMD "SSE2")
+else()
+    set(HHUOS_SIMD "SSE2")
+endif ()
+
 # Set version
 execute_process(COMMAND git describe --abbrev=0 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         OUTPUT_VARIABLE HHUOS_VERSION ERROR_QUIET)
@@ -84,11 +97,6 @@ set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> -I${CMAKE_ASM_NASM_
 add_compile_options(
         # General compiler flags
         -m32
-        -march=i386
-        -mfpmath=387
-        -mno-mmx
-        -mno-sse
-        -mno-avx
         -fno-stack-protector
         -fno-pic
         -no-pie
@@ -150,13 +158,17 @@ function(make_includable input_file output_file)
     file(WRITE ${output_file} "${content}")
 endfunction(make_includable)
 
+# Add system image as target
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+add_executable(system)
+target_link_libraries(system device filesystem kernel lib.kernel.base lib.kernel.network lib.kernel.graphic lib.kernel.sound)
+
 # Add subdirectories
 add_subdirectory(application)
 add_subdirectory(device)
 add_subdirectory(filesystem)
 add_subdirectory(kernel)
 add_subdirectory(lib)
-add_subdirectory(system)
 
 add_subdirectory(grub)
 add_subdirectory(limine)

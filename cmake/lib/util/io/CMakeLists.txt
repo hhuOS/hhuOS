@@ -19,6 +19,11 @@
 project(lib.io)
 message(STATUS "Project " ${PROJECT_NAME})
 
+add_compile_options(
+		-march=i386
+		-mtune=i386
+)
+
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_sources(${PROJECT_NAME} PUBLIC

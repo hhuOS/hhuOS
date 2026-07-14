@@ -32,6 +32,31 @@
 namespace Util {
 namespace Math {
 
+/// Calculate the absolute value (the value without its sign) of a 32-bit integer.
+///
+/// ### Example
+/// ```c++
+/// const uint32_t value1 = 42;
+/// const uint32_t value2 = -42;
+///
+/// const auto absolute1 = Util::Math::absolute(value1); // 42
+/// const auto absolute2 = Util::Math::absolute(value2); // 42
+/// ```
+inline uint32_t absolute(int32_t value);
+
+/// Calculate the absolute value (the value without its sign) of a 64-bit integer.
+///
+/// ### Example
+/// ```c++
+/// const uint64_t value1 = 42;
+/// const uint64_t value2 = -42;
+///
+/// const auto absolute1 = Util::Math::absolute(value1); // 42
+/// const auto absolute2 = Util::Math::absolute(value2); // 42
+/// ```
+inline uint64_t absolute(int64_t value);
+
+#ifndef HHUOS_KERNEL
 /// Disassemble a single precision float into its internal representation (mantissa and exponent).
 /// The return value is a pair containing the mantissa as the first element and the exponent as the second element.
 /// The original value can be reconstructed using the formula `value = mantissa * 2^exponent`.
@@ -190,30 +215,6 @@ inline bool equals(float first, float second, float epsilon);
 /// const double equals2 = Util::Math::equals(3.14, 3.15, 0.01); // false
 /// ```
 inline bool equals(double first, double second, double epsilon);
-
-/// Calculate the absolute value (the value without its sign) of a 32-bit integer.
-///
-/// ### Example
-/// ```c++
-/// const uint32_t value1 = 42;
-/// const uint32_t value2 = -42;
-///
-/// const auto absolute1 = Util::Math::absolute(value1); // 42
-/// const auto absolute2 = Util::Math::absolute(value2); // 42
-/// ```
-inline uint32_t absolute(int32_t value);
-
-/// Calculate the absolute value (the value without its sign) of a 64-bit integer.
-///
-/// ### Example
-/// ```c++
-/// const uint64_t value1 = 42;
-/// const uint64_t value2 = -42;
-///
-/// const auto absolute1 = Util::Math::absolute(value1); // 42
-/// const auto absolute2 = Util::Math::absolute(value2); // 42
-/// ```
-inline uint64_t absolute(int64_t value);
 
 /// Calculate the absolute value (the value without its sign) of a single precision float.
 ///
@@ -912,7 +913,17 @@ static constexpr double E_DOUBLE = 2.718281828459045235360;
 
 /// The constant E (Euler's number) as a single precision float.
 static constexpr float E_FLOAT = E_DOUBLE;
+#endif
 
+inline uint32_t absolute(const int32_t value) {
+    return value < 0 ? -value : value;
+}
+
+inline uint64_t absolute(const int64_t value) {
+    return value < 0 ? -value : value;
+}
+
+#ifndef HHUOS_KERNEL
 inline Pair<float, int8_t> getInternals(const float value) {
     uint32_t bits;
     Address(&bits).copyRange(Address(&value), sizeof(value));
@@ -997,14 +1008,6 @@ inline bool equals(const float first, const float second, const float epsilon) {
 
 inline bool equals(const double first, const double second, const double epsilon) {
     return absolute(first - second) < epsilon;
-}
-
-inline uint32_t absolute(const int32_t value) {
-    return value < 0 ? -value : value;
-}
-
-inline uint64_t absolute(const int64_t value) {
-    return value < 0 ? -value : value;
 }
 
 inline float modulo(const float dividend, const float divisor) {
@@ -1598,6 +1601,7 @@ inline double arccosine(const double value) {
 
     return arccosineUnchecked(value);
 }
+#endif
 
 }
 }

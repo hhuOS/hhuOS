@@ -271,6 +271,7 @@ public:
 		return static_cast<uint64_t>(value) * (value > 0);
 	}
 
+#ifndef HHUOS_KERNEL
 	/// Read a floating point number from the stream.
 	/// The number can be in standard decimal notation (e.g., "3.14") or scientific notation (e.g., "1.5e10").
 	/// Whitespaces are skipped before reading the number.
@@ -291,6 +292,7 @@ public:
 	/// const auto number4 = scanStream.readDouble(); // number4 = -0.0015
 	/// ```
 	long double readFloatingPointNumber();
+#endif
 
 	/// Read a single wide character (`wchar_t`) from the stream.
 	///
@@ -561,6 +563,7 @@ public:
 		return *this;
 	}
 
+#ifndef HHUOS_KERNEL
 	/// Read a floating point number from the stream via the stream extraction operator.
 	/// This operator is overloaded to support `float`, `double`, and `long double` types.
 	/// The number can be in standard decimal notation (e.g., "3.14") or scientific notation (e.g., "1.5e10").
@@ -635,6 +638,7 @@ public:
 		number = readFloatingPointNumber();
 		return *this;
 	}
+#endif
 
 	/// Read a single wide character (`wchar_t`) from the stream via the stream extraction operator.
 	///

@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-target_sources(device PUBLIC
+target_sources(${PROJECT_NAME} PRIVATE
         ${HHUOS_SRC_DIR}/device/cpu/Cpu.cpp
         ${HHUOS_SRC_DIR}/device/cpu/Fpu.cpp
         ${HHUOS_SRC_DIR}/device/cpu/IoPort.cpp

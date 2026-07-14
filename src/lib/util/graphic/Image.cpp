@@ -23,6 +23,7 @@
 namespace Util {
 namespace Graphic {
 
+#ifndef HHUOS_KERNEL
 Image* Image::scale(const uint16_t newWidth, const uint16_t newHeight) const {
     auto *newPixelBuffer = new Color[newWidth * newHeight];
     const auto factorX = static_cast<float>(newWidth) / width;
@@ -38,6 +39,7 @@ Image* Image::scale(const uint16_t newWidth, const uint16_t newHeight) const {
 
     return new Image(newWidth, newHeight, newPixelBuffer);
 }
+#endif
 
 }
 }

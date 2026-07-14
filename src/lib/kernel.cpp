@@ -55,7 +55,7 @@
 #include "kernel/service/InformationService.h"
 #include "filesystem/Node.h"
 #include "device/cpu/Cpu.h"
-#include "GatesOfHell.h"
+#include "../kernel/GatesOfHell.h"
 
 void* allocateMemory(const size_t size, const size_t alignment) {
     return GatesOfHell::getKernelHeap().allocateMemory(size, alignment);

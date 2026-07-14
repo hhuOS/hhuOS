@@ -163,7 +163,7 @@ int32_t main(const int32_t argc, char *argv[]) {
             scancode = Util::System::in.read();
         }
 
-        // Update the demo state.
+        // Update the demo state
         demo->update(statistics.getLastFrameTime().toSecondsFloat<float>());
         statistics.stopUpdateTimeTime();
 

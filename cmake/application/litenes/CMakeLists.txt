@@ -30,12 +30,36 @@ add_custom_target(nes-roms DEPENDS
         "${CMAKE_BINARY_DIR}/roms/nes15.nes"
         "${CMAKE_BINARY_DIR}/roms/falling.nes")
 
-include_directories(${HHUOS_SRC_DIR}
-        ${HHUOS_SRC_DIR}/lib
-        ${HHUOS_SRC_DIR}/lib/libc
-        ${HHUOS_SRC_DIR}/application/litenes/LiteNES/include)
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/application/litenes/LiteNES/include)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.libc lib.user.graphic)
+target_compile_options(${PROJECT_NAME} PUBLIC
+        -march=i386
+        $<$<COMPILE_LANGUAGE:C>:-fcommon>
+)
 
-set(SOURCE_FILES
+if ("${HHUOS_SIMD}" STREQUAL "MMX")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mmmx
+            -mfpmath=387
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse
+            -mfpmath=sse
+    )
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE2")
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -msse2
+            -mfpmath=sse
+    )
+else ()
+    target_compile_options(${PROJECT_NAME} PUBLIC
+            -mfpmath=387
+    )
+endif ()
+
+target_sources(${PROJECT_NAME} PRIVATE
         ${HHUOS_SRC_DIR}/application/litenes/LiteNES/src/fce/common.c
         ${HHUOS_SRC_DIR}/application/litenes/LiteNES/src/fce/cpu.c
         ${HHUOS_SRC_DIR}/application/litenes/LiteNES/src/fce/cpu-addressing.c
@@ -45,11 +69,3 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/litenes/LiteNES/src/fce/ppu.c
         ${HHUOS_SRC_DIR}/application/litenes/LiteNES/src/fce/psg.c
         ${HHUOS_SRC_DIR}/application/litenes/litenes.cpp)
-
-add_compile_options(
-        $<$<COMPILE_LANGUAGE:C>:-fcommon>
-)
-
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.libc lib.user.graphic)

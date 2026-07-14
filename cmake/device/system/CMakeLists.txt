@@ -16,42 +16,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-project(echo)
-message(STATUS "Project " ${PROJECT_NAME})
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_C_STANDARD 99)
-
-make_readme_includable(${HHUOS_SRC_DIR}/application/echo)
-
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base)
-target_compile_options(${PROJECT_NAME} PUBLIC
-        -march=i386
-        -Wpedantic
-)
-
-if ("${HHUOS_SIMD}" STREQUAL "MMX")
-    target_compile_options(${PROJECT_NAME} PUBLIC
-            -mmmx
-            -mfpmath=387
-    )
-elseif ("${HHUOS_SIMD}" STREQUAL "SSE")
-    target_compile_options(${PROJECT_NAME} PUBLIC
-            -msse
-            -mfpmath=sse
-    )
-elseif ("${HHUOS_SIMD}" STREQUAL "SSE2")
-    target_compile_options(${PROJECT_NAME} PUBLIC
-            -msse2
-            -mfpmath=sse
-    )
-else ()
-    target_compile_options(${PROJECT_NAME} PUBLIC
-            -mfpmath=387
-    )
-endif ()
-
 target_sources(${PROJECT_NAME} PRIVATE
-        ${HHUOS_SRC_DIR}/application/echo/echo.cpp)
+        ${HHUOS_SRC_DIR}/device/system/Acpi.cpp
+        ${HHUOS_SRC_DIR}/device/system/AdvancedPowerManagement.cpp
+        ${HHUOS_SRC_DIR}/device/system/bios.asm
+        ${HHUOS_SRC_DIR}/device/system/Bios.cpp
+        ${HHUOS_SRC_DIR}/device/system/FirmwareConfiguration.cpp
+        ${HHUOS_SRC_DIR}/device/system/Machine.cpp
+        ${HHUOS_SRC_DIR}/device/system/SmBios.cpp)

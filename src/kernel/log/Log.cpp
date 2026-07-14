@@ -24,7 +24,7 @@
 
 #include "lib/util/graphic/Ansi.h"
 #include "device/port/serial/SerialPort.h"
-#include "GatesOfHell.h"
+#include "../GatesOfHell.h"
 #include "lib/interface.h"
 #include "device/port/serial/Serial.h"
 #include "device/port/serial/SimpleSerialPort.h"

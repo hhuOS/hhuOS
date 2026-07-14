@@ -16,10 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-project(doomgeneric)
+project(doom)
 message(STATUS "Project " ${PROJECT_NAME})
-
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/doom/"
        COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/doom/")
@@ -41,7 +39,10 @@ else()
 	add_custom_target(doom-wad DEPENDS "${CMAKE_BINARY_DIR}/doom/DOOM.WAD")
 endif()
 
-add_compile_options(
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic lib.user.sound lib.user.libc)
+target_compile_options(${PROJECT_NAME} PUBLIC
 		$<$<COMPILE_LANGUAGE:C>:-std=c17>
 		$<$<COMPILE_LANGUAGE:C>:-Wno-sign-compare>
 		$<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
@@ -55,12 +56,36 @@ add_compile_options(
 		$<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
 		$<$<COMPILE_LANGUAGE:C>:-Wno-unterminated-string-initialization>
 		$<$<COMPILE_LANGUAGE:C>:-Wno-dangling-pointer>
-		-DDOOMGENERIC_RESX=320
-		-DDOOMGENERIC_RESY=200
-		-DCMAP256
 )
 
-set(SOURCE_FILES
+if ("${HHUOS_SIMD}" STREQUAL "MMX")
+	target_compile_options(${PROJECT_NAME} PUBLIC
+			-mmmx
+			-mfpmath=387
+	)
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE")
+	target_compile_options(${PROJECT_NAME} PUBLIC
+			-msse
+			-mfpmath=sse
+	)
+elseif ("${HHUOS_SIMD}" STREQUAL "SSE2")
+	target_compile_options(${PROJECT_NAME} PUBLIC
+			-msse2
+			-mfpmath=sse
+	)
+else ()
+	target_compile_options(${PROJECT_NAME} PUBLIC
+			-mfpmath=387
+	)
+endif ()
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+		DOOMGENERIC_RESX=320
+		DOOMGENERIC_RESY=200
+		CMAP256
+)
+
+target_sources(${PROJECT_NAME} PRIVATE
 		${HHUOS_SRC_DIR}/application/doom/doomgeneric_hhuos.cpp
         ${HHUOS_SRC_DIR}/application/doom/doomgeneric/doomgeneric/am_map.c
         ${HHUOS_SRC_DIR}/application/doom/doomgeneric/doomgeneric/d_event.c
@@ -145,7 +170,3 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/doom/doomgeneric/doomgeneric/w_main.c
         ${HHUOS_SRC_DIR}/application/doom/doomgeneric/doomgeneric/w_wad.c
         ${HHUOS_SRC_DIR}/application/doom/doomgeneric/doomgeneric/z_zone.c)
-
-add_executable(doom ${SOURCE_FILES})
-
-target_link_libraries(doom lib.user.runtime lib.user.base lib.user.graphic lib.user.sound lib.user.libc)

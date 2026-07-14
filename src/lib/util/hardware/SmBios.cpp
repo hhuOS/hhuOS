@@ -134,7 +134,11 @@ uint32_t BiosInformation::calculateRuntimeSize() const {
 }
 
 uint32_t BiosInformation::calculateRomSize() const {
-    return static_cast<uint32_t>(Math::pow(65536.0, romSize + 1));
+    uint32_t result = 1;
+    for (uint32_t i = 0; i <= romSize; i++) {
+        result *= 65536;
+    }
+    return result;
 }
 
 }

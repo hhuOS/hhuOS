@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-target_sources(filesystem PUBLIC
+target_sources(${PROJECT_NAME} PRIVATE
         ${HHUOS_SRC_DIR}/filesystem/smbios/SmBiosDriver.cpp
         ${HHUOS_SRC_DIR}/filesystem/smbios/SmBiosTableNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/smbios/SmBiosVersionNode.cpp)
