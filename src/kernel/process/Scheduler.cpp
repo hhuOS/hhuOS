@@ -40,18 +40,6 @@
 
 namespace Kernel {
 
-Scheduler::Scheduler() {
-    defaultFpuContext = static_cast<uint8_t*>(Service::getService<MemoryService>().allocateKernelMemory(512, 16));
-    Util::Address(defaultFpuContext).setRange(0, 512);
-
-    if (Device::Fpu::isAvailable()) {
-        LOG_INFO("FPU detected -> Enabling FPU context switching");
-        fpu = new Device::Fpu(defaultFpuContext);
-    } else {
-        LOG_WARN("No FPU present");
-    }
-}
-
 Scheduler::~Scheduler() {
     while (!readyQueue.isEmpty()) {
         delete readyQueue.poll();
@@ -213,10 +201,10 @@ void Scheduler::switchFpuContext() {
     }
 
     if (lastFpuThread != nullptr) {
-        fpu->saveContext(*lastFpuThread);
+        Device::Fpu::saveContext(*lastFpuThread);
     }
 
-    fpu->restoreContext(*currentThread);
+    Device::Fpu::restoreContext(*currentThread);
 
     lastFpuThread = currentThread;
 
@@ -225,10 +213,6 @@ void Scheduler::switchFpuContext() {
 
 uint32_t Scheduler::getThreadCount() const {
     return readyQueue.size();
-}
-
-uint8_t* Scheduler::getDefaultFpuContext() {
-    return defaultFpuContext;
 }
 
 void Scheduler::unlockReadyQueue() {

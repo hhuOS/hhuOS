@@ -30,37 +30,39 @@ namespace Device {
 class Fpu {
 
 public:
-    /**
-     * Constructor.
-     */
-    explicit Fpu(uint8_t *defaultFpuContext);
 
-    /**
-     * Copy Constructor.
-     */
+    explicit Fpu(uint8_t *defaultFpuContext) = delete;
+
     Fpu(const Fpu &other) = delete;
 
-    /**
-     * Assignment operator.
-     */
     Fpu& operator=(const Fpu &other) = delete;
 
-    /**
-     * Destructor.
-     */
     ~Fpu() = default;
 
-    static bool isAvailable();
+    static void initialize();
 
-    static bool isFxsrAvailable();
+    static bool isAvailable() {
+        return available;
+    }
 
-    void saveContext(const Kernel::Thread &thread);
+    static uint8_t* createContext();
 
-    void restoreContext(const Kernel::Thread &thread);
+    static void saveContext(const Kernel::Thread &thread);
+
+    static void restoreContext(const Kernel::Thread &thread);
+
+private:
+
+    static bool checkExistence();
 
     static bool probeFpu();
 
-    bool fxsrAvailable = false;
+    static bool available;
+    static bool fxsrAvailable;
+    static uint8_t *defaultFpuContext;
+
+    static constexpr size_t FNSAVE_SIZE = 108;
+    static constexpr size_t FXSAVE_SIZE = 512;
 };
 
 }

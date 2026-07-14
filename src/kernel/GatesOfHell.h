@@ -23,8 +23,8 @@
 
 #include <stdint.h>
 
-#include "kernel/memory/Paging.h"
-#include "kernel/memory/GlobalDescriptorTable.h"
+#include "memory/Paging.h"
+#include "memory/GlobalDescriptorTable.h"
 
 namespace Kernel {
 class Multiboot;

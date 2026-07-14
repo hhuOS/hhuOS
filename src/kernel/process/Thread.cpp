@@ -26,6 +26,7 @@
 #include "lib/util/base/Constants.h"
 #include "kernel/process/Process.h"
 #include "device/cpu/Cpu.h"
+#include "device/cpu/Fpu.h"
 #include "filesystem/Filesystem.h"
 #include "kernel/memory/MemoryLayout.h"
 #include "kernel/service/Service.h"
@@ -46,11 +47,8 @@ namespace Kernel {
 Util::Async::IdGenerator Thread::idGenerator;
 
 Thread::Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, uint32_t userInstructionPointer, uint32_t *kernelStack, uint32_t *userStack) :
-        id(idGenerator.getNextId()), name(name), parent(parent), runnable(runnable), userInstructionPointer(userInstructionPointer), kernelStack(kernelStack), userStack(userStack),
-        fpuContext(static_cast<uint8_t*>(Service::getService<MemoryService>().allocateKernelMemory(512, 16))) {
-    auto defaultFpuContext = Util::Address(Service::getService<ProcessService>().getScheduler().getDefaultFpuContext());
-    Util::Address(fpuContext).copyRange(defaultFpuContext, 512);
-}
+        id(idGenerator.getNextId()), name(name), parent(parent), runnable(runnable),
+        userInstructionPointer(userInstructionPointer), kernelStack(kernelStack), userStack(userStack), fpuContext(Device::Fpu::createContext()) {}
 
 Thread::~Thread() {
     auto &memoryService = Service::getService<MemoryService>();

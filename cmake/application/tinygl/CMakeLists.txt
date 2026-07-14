@@ -31,6 +31,7 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
         $<$<COMPILE_LANGUAGE:C>:-Wno-overflow>
+        -mmmx -msse -msse2
 )
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)

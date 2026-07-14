@@ -133,7 +133,7 @@ private:
     uint32_t *userStack;
     uint32_t *oldStackPointer;
 
-    uint8_t *fpuContext;
+    uint8_t *fpuContext = nullptr;
 
     static Util::Async::IdGenerator idGenerator;
     static const constexpr uint32_t PUSHAD_STACK_SPACE = 8 * 4;

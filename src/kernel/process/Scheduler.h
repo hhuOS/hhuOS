@@ -45,7 +45,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Scheduler();
+    Scheduler() = default;
 
     /**
      * Copy Constructor.
@@ -116,8 +116,6 @@ public:
 
     uint32_t getThreadCount() const;
 
-    uint8_t* getDefaultFpuContext();
-
     void unlockReadyQueue();
 
     void removeFromJoinMap(uint32_t threadId);
@@ -138,8 +136,6 @@ private:
     bool initialized = false;
     Thread *currentThread = nullptr;
 
-    Device::Fpu *fpu = nullptr;
-    uint8_t *defaultFpuContext = nullptr;
     Thread *lastFpuThread = nullptr;
 
     InterruptVector timerInterrupt = Service::getService<InterruptService>().getTimerInterrupt();

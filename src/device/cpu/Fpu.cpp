@@ -18,36 +18,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/hardware/CpuId.h"
 #include "Cpu.h"
 #include "Fpu.h"
-#include "device/cpu/Fpu.h"
 #include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
-#include "lib/util/collection/Array.h"
 #include "kernel/service/Service.h"
-#include "kernel/service/ProcessService.h"
-#include "kernel/process/Scheduler.h"
+#include "kernel/service/MemoryService.h"
+#include "lib/util/hardware/CpuId.h"
+
+namespace Kernel {
+class MemoryService;
+}
 
 namespace Device {
 
-Fpu::Fpu(uint8_t *defaultFpuContext) {
-    Cpu::writeCr0(Cpu::readCr0() & ~Cpu::X87_FPU_EMULATION);
-    Cpu::writeCr0(Cpu::readCr0() | Cpu::MONITOR_COPROCESSOR);
+bool Fpu::available = false;
+bool Fpu::fxsrAvailable = false;
+uint8_t* Fpu::defaultFpuContext = nullptr;
 
-    if (isFxsrAvailable()) {
-        LOG_INFO("FXSR support detected -> Using FXSAVE/FXRSTR for FPU context switching");
+void Fpu::initialize() {
+    available = checkExistence();
+    if (!available) {
+        LOG_WARN("No FPU detected! The kernel will boot, but some applications will not work...");
+        return;
+    }
+
+    LOG_INFO("X87 FPU detected");
+    Cpu::writeCr0((Cpu::readCr0() | Cpu::MONITOR_COPROCESSOR) & ~Cpu::X87_FPU_EMULATION);
+
+    const auto cpuId = Util::Hardware::CpuId::getCpuInfo();
+
+    if (cpuId.features & Util::Hardware::CpuId::MMX) {
+        LOG_INFO("MMX support detected");
+    }
+
+    if (cpuId.features & Util::Hardware::CpuId::SSE) {
+        LOG_INFO("SSE support detected -> Activating OSFXSR and OSXMMEXCPT");
+        Cpu::writeCr4(Cpu::readCr4() | Cpu::OS_FXSR | Cpu::OS_XMM_EXCEPTIONS);
+    }
+
+    if (cpuId.features & Util::Hardware::CpuId::FXSR) {
+        LOG_INFO("FXSR support detected -> Using FXSAVE/FXRSTOR for FPU context switching");
         fxsrAvailable = true;
 
-        auto cpuInfo = Util::Hardware::CpuId::getCpuInfo();
-        if (cpuInfo.features & Util::Hardware::CpuId::MMX) {
-            LOG_INFO("MMX support detected");
-        }
-
-        if (cpuInfo.features & Util::Hardware::CpuId::SSE) {
-            LOG_INFO("SSE support detected -> Activating OSFXSR and OSXMMEXCPT");
-            Cpu::writeCr4(Cpu::readCr4() | Cpu::OS_FXSR | Cpu::OS_XMM_EXCEPTIONS);
-        }
+        auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+        defaultFpuContext = static_cast<uint8_t*>(memoryService.allocateKernelMemory(FXSAVE_SIZE, 16));
+        Util::Address(defaultFpuContext).setRange(0, FXSAVE_SIZE);
 
         asm volatile (
                 "fninit;"
@@ -55,7 +71,12 @@ Fpu::Fpu(uint8_t *defaultFpuContext) {
                 : "=m"(*defaultFpuContext)
                 );
     } else {
-        LOG_INFO("FXSR is not supported -> Falling back to FNSAVE/FRSTR for FPU context switching");
+        LOG_INFO("FXSR is not supported -> Falling back to FNSAVE/FRSTOR for FPU context switching");
+
+        auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+        defaultFpuContext = static_cast<uint8_t*>(memoryService.allocateKernelMemory(FNSAVE_SIZE, 16));
+        Util::Address(defaultFpuContext).setRange(0, FNSAVE_SIZE);
+
         asm volatile (
                 "fninit;"
                 "fnsave %0;"
@@ -64,30 +85,24 @@ Fpu::Fpu(uint8_t *defaultFpuContext) {
     }
 }
 
-bool Fpu::isAvailable() {
-    auto cpuInfo = Util::Hardware::CpuId::getCpuInfo();
-    if (cpuInfo.features & Util::Hardware::CpuId::FPU) {
-        return true;
+uint8_t* Fpu::createContext() {
+    if (!available) {
+        return nullptr;
     }
 
-    auto cr0 = Cpu::readCr0();
-    if (cr0 & Cpu::X87_FPU_EMULATION) {
-        return false;
-    }
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    const auto saveSize = fxsrAvailable ? FXSAVE_SIZE : FNSAVE_SIZE;
+    auto *context = static_cast<uint8_t*>(memoryService.allocateKernelMemory(saveSize, 16));
+    Util::Address(context).copyRange(defaultFpuContext, saveSize);
 
-    if (!(cr0 & Cpu::EXTENSION_TYPE)) {
-        return false;
-    }
-
-    return probeFpu();
-}
-
-bool Fpu::isFxsrAvailable() {
-    auto cpuInfo = Util::Hardware::CpuId::getCpuInfo();
-    return (cpuInfo.features & Util::Hardware::CpuId::FXSR) != 0;
+    return context;
 }
 
 void Fpu::saveContext(const Kernel::Thread &thread) {
+    if (!available) {
+        return;
+    }
+
     if (fxsrAvailable) {
         asm volatile (
                 "fxsave %0;"
@@ -102,6 +117,10 @@ void Fpu::saveContext(const Kernel::Thread &thread) {
 }
 
 void Fpu::restoreContext(const Kernel::Thread &thread) {
+    if (!available) {
+        return;
+    }
+
     if (fxsrAvailable) {
         asm volatile (
                 "fxrstor %0;"
@@ -115,6 +134,25 @@ void Fpu::restoreContext(const Kernel::Thread &thread) {
     }
 }
 
+bool Fpu::checkExistence() {
+    const auto cpuInfo = Util::Hardware::CpuId::getCpuInfo();
+    if (cpuInfo.features & Util::Hardware::CpuId::FPU) {
+        return true;
+    }
+
+    const auto cr0 = Cpu::readCr0();
+    if (cr0 & Cpu::X87_FPU_EMULATION) {
+        return false;
+    }
+
+    if (!(cr0 & Cpu::EXTENSION_TYPE)) {
+        return false;
+    }
+
+    return probeFpu();
+}
+
+// Code taken from: https://wiki.osdev.org/FPU
 bool Fpu::probeFpu() {
     uint16_t fpuStatus = 0x1797;
     asm volatile (

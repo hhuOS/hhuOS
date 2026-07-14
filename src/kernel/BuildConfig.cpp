@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "BuildConfig.h"
+#include "../BuildConfig.h"
 
 #define XSTRINGIFY(a) STRINGIFY(a)
 #define STRINGIFY(a) #a
