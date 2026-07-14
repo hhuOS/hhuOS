@@ -31,115 +31,20 @@ size_t Address::stringLength() const {
     return i;
 }
 
-void Address::setRange(const uint8_t value, size_t length) const {
-    // Just set very small memory blocks byte by byte
-    if (length < 16) {
-        auto target = reinterpret_cast<uint8_t*>(address);
-        while (length-- > 0) {
-            *target++ = value;
-        }
+void Address::setRange(const uint8_t value, const size_t length) const {
+    auto *target = reinterpret_cast<uint8_t*>(address);
 
-        return;
-    }
-
-    // Variables needed to fill the bytes up to the next 8-byte aligned address
-
-    // Number of bytes to next 8-byte aligned address
-    auto alignDifference = address % 8;
-    // Start of the memory block (used to fill the bytes before the 8-byte aligned address)
-    auto beforeAlign = reinterpret_cast<uint8_t*>(address);
-
-    // Variables needed to fill the 8-byte aligned memory blocks
-
-    // Number of 8-byte blocks to fill
-    auto remainingBlocks = (length - alignDifference) / 8;
-    // Start of the 8-byte aligned memory block
-    auto *target = reinterpret_cast<uint64_t*>(address + alignDifference);
-    // 8-byte value to fill the memory block
-    const auto longValue = static_cast<uint64_t>(value) |
-                           static_cast<uint64_t>(value) << 8 |
-                           static_cast<uint64_t>(value) << 16 |
-                           static_cast<uint64_t>(value) << 24 |
-                           static_cast<uint64_t>(value) << 32 |
-                           static_cast<uint64_t>(value) << 40 |
-                           static_cast<uint64_t>(value) << 48 |
-                           static_cast<uint64_t>(value) << 56;
-
-    // Variables needed to fill the remaining bytes
-
-    // Number of remaining bytes to fill
-    auto remainingBytes = (length - alignDifference) % 8;
-    // Start of the remaining memory block (used to fill the remaining bytes)
-    auto *rest = reinterpret_cast<uint8_t*>(target) + remainingBlocks * 8;
-
-    // First fill the bytes up to the next 8-byte aligned address
-    while (alignDifference-- > 0) {
-        *beforeAlign++ = value;
-    }
-
-    // Now fill the 8-byte aligned memory blocks
-    while (remainingBlocks-- > 0) {
-        *target++ = longValue;
-    }
-
-    // Finally fill the remaining bytes
-    while (remainingBytes-- > 0) {
-        *rest++ = value;
+    for (size_t i = 0; i < length; ++i) {
+        target[i] = value;
     }
 }
 
-void Address::copyRange(const Address &sourceAddress, size_t length) const {
-    // Just copy very small memory blocks byte by byte
-    if (length < 16) {
-        auto source = reinterpret_cast<uint8_t*>(sourceAddress.get());
-        auto target = reinterpret_cast<uint8_t*>(address);
-        while (length-- > 0) {
-            *target++ = *source++;
-        }
+void Address::copyRange(const Address &sourceAddress, const size_t length) const {
+    auto * __restrict__ target = reinterpret_cast<uint8_t*>(address);
+    const auto * __restrict__ source = reinterpret_cast<const uint8_t*>(sourceAddress.get());
 
-        return;
-    }
-
-    // Variables needed to fill the bytes up to the next 8-byte aligned address
-
-    // Number of bytes to next 8-byte aligned address
-    auto alignDifference = address % 8;
-    // Start of the source memory block (used to copy the bytes before the 8-byte aligned address)
-    auto beforeAlignSource = reinterpret_cast<uint8_t*>(sourceAddress.get());
-    // Start of the target memory block (used to copy the bytes before the 8-byte aligned address)
-    auto beforeAlign = reinterpret_cast<uint8_t*>(address);
-
-    // Variables needed to fill the 8-byte aligned memory blocks
-
-    // Number of 8-byte blocks to fill
-    auto remainingBlocks = (length - alignDifference) / 8;
-    // Start of the 8-byte aligned source memory block
-    auto *source = reinterpret_cast<uint64_t*>(sourceAddress.get() + alignDifference);
-    // Start of the 8-byte aligned target memory block
-    auto *target = reinterpret_cast<uint64_t*>(address + alignDifference);
-
-    // Variables needed to fill the remaining bytes
-
-    // Number of remaining bytes to fill
-    auto remainingBytes = (length - alignDifference) % 8;
-    // Start of the remaining source memory block (used to copy the remaining bytes)
-    const auto *restSource = reinterpret_cast<uint8_t*>(source) + remainingBlocks * 8;
-    // Start of the remaining target memory block (used to copy the remaining bytes)
-    auto *rest = reinterpret_cast<uint8_t*>(target) + remainingBlocks * 8;
-
-    // First fill the bytes up to the next 8-byte aligned address
-    while (alignDifference-- > 0) {
-        *beforeAlign++ = *beforeAlignSource++;
-    }
-
-    // Now fill the 8-byte aligned memory blocks
-    while (remainingBlocks-- > 0) {
-        *target++ = *source++;
-    }
-
-    // Finally fill the remaining bytes
-    while (remainingBytes-- > 0) {
-        *rest++ = *restSource++;
+    for (size_t i = 0; i < length; ++i) {
+        target[i] = source[i];
     }
 }
 
