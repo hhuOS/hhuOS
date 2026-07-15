@@ -131,6 +131,8 @@ public:
      */
     void* unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount = 0);
 
+    void* unmap(VirtualAddressSpace &addressSpace, void *virtualAddress, uint32_t pageCount, uint32_t breakCount = 0);
+
     /**
      * Map a page at a given physical address to a virtual address.
      * The physical address should be allocated right now, since this function does only map it!

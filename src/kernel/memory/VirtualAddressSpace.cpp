@@ -139,16 +139,18 @@ void VirtualAddressSpace::map(const void *physicalAddress, const void *virtualAd
 }
 
 void* VirtualAddressSpace::unmap(const void *virtualAddress) {
+    pageDirectoryLock.acquire();
+    auto *physicalAddress = unmapAlgorithm(virtualAddress);
+    return pageDirectoryLock.releaseAndReturn(physicalAddress);
+}
+
+void * VirtualAddressSpace::unmapAlgorithm(const void *virtualAddress) {
     // Get indices into page table and directory
     uint32_t pageDirectoryIndex = Paging::DIRECTORY_INDEX(reinterpret_cast<uint32_t>(virtualAddress));
     uint32_t pageTableIndex = Paging::TABLE_INDEX(reinterpret_cast<uint32_t>(virtualAddress));
 
-    // Lock page directory
-    pageDirectoryLock.acquire();
-
     // Check if the requested page table is present
     if ((*virtualPageDirectory)[pageDirectoryIndex].isUnused()) {
-        pageDirectoryLock.release();
         return nullptr;
     }
 
@@ -157,7 +159,6 @@ void* VirtualAddressSpace::unmap(const void *virtualAddress) {
 
     // Check if the requested page is present
     if (pageTable[pageTableIndex].isUnused()) {
-        pageDirectoryLock.release();
         return nullptr;
     }
 
@@ -165,31 +166,31 @@ void* VirtualAddressSpace::unmap(const void *virtualAddress) {
     auto physicalAddress = pageTable[pageTableIndex].getAddress();
     pageTable[pageTableIndex].clear();
 
-    // Invalidate entry in TLB
-    if (useInvlpg) {
-        asm volatile (
-                "invlpg (%0)"
-                :
-                : "r"(virtualAddress)
-                );
-    } else {
-        // We are running on an original 386 CPU -> INVLPG is not avaialable!
-        // Thus, we have to flush the TLB fully by reloading CR3.
-        Device::Cpu::writeCr0(Device::Cpu::readCr0());
+    auto &memoryService = Service::getService<MemoryService>();
+    if (&memoryService.getCurrentAddressSpace() == this) {
+        // Invalidate entry in TLB
+        if (useInvlpg) {
+            asm volatile (
+                    "invlpg (%0)"
+                    :
+                    : "r"(virtualAddress)
+                    );
+        } else {
+            // We are running on an original 386 CPU -> INVLPG is not available!
+            // Thus, we have to flush the TLB fully by reloading CR3.
+            Device::Cpu::writeCr0(Device::Cpu::readCr0());
+        }
     }
 
-    // Delete page table, if it is empty
-    // TODO: When running doom or classicube twice in a release build,
-    //       the system crashes with "Requested page is already mapped!".
-    //       It works if we comment out the following lines, but I don't know why.
-    /*if (!kernelAddressSpace && pageTable.isEmpty()) {
+    // Delete page table if it is empty
+    if (!kernelAddressSpace && pageTable.isEmpty()) {
         (*virtualPageDirectory)[pageDirectoryIndex].clear();
         (*physicalPageDirectory)[pageDirectoryIndex].clear();
 
-        Service::getService<MemoryService>().freePageTable(&pageTable);
-    }*/
+        unmapAlgorithm(&pageTable);
+        memoryService.freePageTable(&pageTable);
+    }
 
-    pageDirectoryLock.release();
     return reinterpret_cast<void*>(physicalAddress);
 }
 

@@ -34,7 +34,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit SlabAllocator(uint8_t *slabMemory);
+    explicit SlabAllocator(uint8_t *slabMemory, uint32_t slabMemorySize);
 
     /**
      * Copy Constructor.

@@ -84,6 +84,8 @@ public:
 
 private:
 
+    void* unmapAlgorithm(const void *virtualAddress);
+
     bool kernelAddressSpace;
     Paging::Table *physicalPageDirectory;
     Paging::Table *virtualPageDirectory;

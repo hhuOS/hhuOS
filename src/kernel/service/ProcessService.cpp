@@ -20,7 +20,6 @@
 
 #include <stdarg.h>
 
-#include "kernel/process/AddressSpaceCleaner.h"
 #include "kernel/process/BinaryLoader.h"
 #include "ProcessService.h"
 #include "FilesystemService.h"
@@ -257,13 +256,13 @@ void ProcessService::killProcess(Process &process) {
         scheduler.kill(*thread);
     }
 
-    auto &cleanerThread = Thread::createKernelThread("Address-Space-Cleaner", process, new AddressSpaceCleaner());
-    scheduler.ready(cleanerThread);
     process.setExitCode(-1);
 
     lock.acquire();
     processList.remove(&process);
     lock.release();
+
+    cleanup(&process);
 }
 
 Process& ProcessService::getCurrentProcess() {
@@ -286,19 +285,16 @@ bool ProcessService::isProcessActive(uint32_t id) {
 
 void ProcessService::exitCurrentProcess(int32_t exitCode) {
     auto &process = getCurrentProcess();
-    auto &cleanerThread = Thread::createKernelThread("Address-Space-Cleaner", process, new AddressSpaceCleaner());
-
     process.killAllThreadsButCurrent();
-    scheduler.ready(cleanerThread);
-
     process.setExitCode(exitCode);
 
     lock.acquire();
     processList.remove(&process);
     lock.release();
 
-    scheduler.exit();
+    cleanup(&process);
 
+    scheduler.exit();
     __builtin_unreachable();
 }
 

@@ -24,13 +24,13 @@
 
 namespace Kernel {
 
-SlabAllocator::SlabAllocator(uint8_t *slabMemory) :
-        pool4K(slabMemory, slabMemory + POOL_SIZE, 4 * 1024),
-        pool8K(slabMemory + 1 * POOL_SIZE, slabMemory + 2 * POOL_SIZE, 8 * 1024),
-        pool16K(slabMemory + 2 * POOL_SIZE, slabMemory + 3 * POOL_SIZE, 16 * 1024),
-        pool32K(slabMemory + 3 * POOL_SIZE, slabMemory + 4 * POOL_SIZE, 32 * 1024),
-        pool64K(slabMemory + 4 * POOL_SIZE, slabMemory + 5 * POOL_SIZE, 64 * 1024),
-        pool128K(slabMemory + 5 * POOL_SIZE, slabMemory + 6 * POOL_SIZE, 128 * 1024) {}
+SlabAllocator::SlabAllocator(uint8_t *slabMemory, uint32_t slabMemorySize) :
+        pool4K(slabMemory, slabMemory + 1 * (slabMemorySize / 6), 4 * 1024),
+        pool8K(slabMemory + 1 * (slabMemorySize / 6), slabMemory + 2 * (slabMemorySize / 6), 8 * 1024),
+        pool16K(slabMemory + 2 * (slabMemorySize / 6), slabMemory + 3 * (slabMemorySize / 6), 16 * 1024),
+        pool32K(slabMemory + 3 * (slabMemorySize / 6), slabMemory + 4 * (slabMemorySize / 6), 32 * 1024),
+        pool64K(slabMemory + 4 * (slabMemorySize / 6), slabMemory + 5 * (slabMemorySize / 6), 64 * 1024),
+        pool128K(slabMemory + 5 * (slabMemorySize / 6), slabMemory + 6 * (slabMemorySize / 6), 128 * 1024) {}
 
 void *SlabAllocator::allocateBlock(uint32_t frameCount) {
     switch (frameCount) {

@@ -43,7 +43,7 @@
 namespace Kernel {
 
 MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace) :
-        pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), pageFrameSlabAllocator(reinterpret_cast<uint8_t*>(allocatePhysicalMemory(SlabAllocator::MAX_SLAB_SIZE / Util::PAGESIZE))),
+        pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), pageFrameSlabAllocator(static_cast<uint8_t*>(allocatePhysicalMemory(2048)), 2048 * Util::PAGESIZE),
         kernelStackAllocator(reinterpret_cast<uint8_t*>(MemoryLayout::KERNEL_STACK_AREA.startAddress), reinterpret_cast<uint8_t*>(MemoryLayout::KERNEL_STACK_AREA.endAddress), MemoryLayout::KERNEL_STACK_SIZE),
         currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
     addressSpaces.add(kernelAddressSpace);
@@ -235,25 +235,27 @@ Paging::Table* MemoryService::allocatePageTable() {
 }
 
 void MemoryService::freePageTable(Paging::Table *pageTable) {
-    void *physicalAddress = currentAddressSpace->unmap(pageTable);
-    if (physicalAddress == nullptr) {
-        return;
-    }
-
-    // Free virtual memory
     pagingAreaManager.freeBlock(pageTable);
 }
 
 void Kernel::MemoryService::map(void *virtualAddress, uint32_t pageCount, uint16_t flags, bool abortIfLocked) {
     for (uint32_t i = 0; i < pageCount; i++) {
-        // Allocate a physical page frames to where the page should be mapped
+        // Allocate a physical page frame to where the page should be mapped
         auto *physicalAddress = pageFrameAllocator.allocateBlock();
+        if (physicalAddress == nullptr) {
+            Util::Panic::fire(Util::Panic::OUT_OF_MEMORY, "MemoryService: Out of physical memory!");
+        }
+
         // Map the frame to given virtual address
         currentAddressSpace->map(physicalAddress, reinterpret_cast<uint8_t*>(virtualAddress) + i * Util::PAGESIZE, flags, abortIfLocked);
     }
 }
 
 void* Kernel::MemoryService::unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount) {
+    return unmap(*currentAddressSpace, virtualAddress, pageCount, breakCount);
+}
+
+void* Kernel::MemoryService::unmap(VirtualAddressSpace &addressSpace, void *virtualAddress, uint32_t pageCount, uint32_t breakCount) {
     // Check if the virtual address is page aligned
     if (reinterpret_cast<uint32_t>(virtualAddress) % Util::PAGESIZE != 0) {
         Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "MemoryService: unmap() called with unaligned virtual address!");
@@ -264,7 +266,7 @@ void* Kernel::MemoryService::unmap(void *virtualAddress, uint32_t pageCount, uin
     uint8_t nonMappedCount = 0;
     for (uint32_t i = 0; i < pageCount; i++) {
         auto currentVirtualAddress = reinterpret_cast<uint32_t>(virtualAddress) + (i * Util::PAGESIZE);
-        physicalAddress = currentAddressSpace->unmap(reinterpret_cast<const void*>(currentVirtualAddress));
+        physicalAddress = addressSpace.unmap(reinterpret_cast<const void*>(currentVirtualAddress));
 
         if (physicalAddress == nullptr) {
             nonMappedCount++;

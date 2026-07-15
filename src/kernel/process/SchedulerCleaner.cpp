@@ -20,6 +20,8 @@
 
 #include "SchedulerCleaner.h"
 
+#include "kernel/memory/MemoryLayout.h"
+#include "kernel/memory/VirtualAddressSpace.h"
 #include "lib/util/async/Thread.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
@@ -28,6 +30,7 @@
 #include "kernel/service/Service.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Scheduler.h"
+#include "kernel/service/MemoryService.h"
 
 namespace Kernel {
 
@@ -59,7 +62,11 @@ void SchedulerCleaner::run() {
 
 void SchedulerCleaner::cleanupProcesses() {
     while (processQueue.size() > 0) {
-        delete processQueue.poll();
+        auto *process = processQueue.poll();
+        auto &memoryService = Service::getService<MemoryService>();
+        memoryService.unmap(process->getAddressSpace(), reinterpret_cast<void*>(MemoryLayout::KERNEL_END), (MemoryLayout::MEMORY_END - MemoryLayout::KERNEL_END + 1) / Util::PAGESIZE);
+
+        delete process;
     }
 }
 

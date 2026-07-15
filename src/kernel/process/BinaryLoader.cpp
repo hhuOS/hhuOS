@@ -54,7 +54,6 @@ void BinaryLoader::run() {
     auto binaryStream = Util::Io::FileInputStream(file);
     binaryStream.read(buffer, 0, file.getLength());
 
-    // Buffer is automatically deleted by file destructor
     auto executable = Util::Io::ElfFile(buffer);
     executable.loadProgram();
 
@@ -97,6 +96,8 @@ void BinaryLoader::run() {
     auto &process = processService.getCurrentProcess();
     auto heapAddress = Util::Address(currentAddress + 1).alignUp(Util::PAGESIZE).get();
     auto &userThread = Thread::createMainUserThread(file.getName(), process, reinterpret_cast<uint32_t>(executable.getEntryPoint()), argc, argv, nullptr, heapAddress);
+
+    delete[] buffer;
 
     processService.getCurrentProcess().setMainThread(userThread);
     processService.getScheduler().ready(userThread);

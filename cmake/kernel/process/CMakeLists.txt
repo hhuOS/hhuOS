@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 target_sources(${PROJECT_NAME} PRIVATE
-        ${HHUOS_SRC_DIR}/kernel/process/AddressSpaceCleaner.cpp
         ${HHUOS_SRC_DIR}/kernel/process/BinaryLoader.cpp
         ${HHUOS_SRC_DIR}/kernel/process/FileDescriptor.cpp
         ${HHUOS_SRC_DIR}/kernel/process/FileDescriptorManager.cpp
