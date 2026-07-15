@@ -52,6 +52,31 @@ bool isAvailable() {
     return eax == 0x00200000; // Check if the ID bit is set
 }
 
+bool is386() {
+    uint32_t originalFlags;
+    uint32_t modifiedFlags;
+
+    asm volatile(
+        "pushf;" // Push the flags register
+        "pop %0;" // Store flags in a register
+        "mov %0, %1;" // Create a copy of flags in another register
+        "xor $0x00040000, %1;" // Toggle the "Alignment Check" bit (only available in 486+ CPUs)
+        "push %1;" // Push the modified flags onto the stack
+        "popf;" // Pop the modified flags into the flag register
+        "pushf;" // Push the flag register back onto the stack
+        "pop %1;" // Pop the flags into the register that formerly contained the modified flags
+        "push %0;" // Push the original flags onto the stack
+        "popf;" // Restore the original flags from the stack
+        : "=&r"(originalFlags), "=&r"(modifiedFlags)
+        :
+        : "cc"
+    );
+
+    // If it is a 386 CPU, the AC flag should be the same in both variables.
+    // Otherwise, it is at least a 486 CPU.
+    return ((originalFlags ^ modifiedFlags) & 0x00040000) == 0;
+}
+
 String getVendorString() {
     if (!isAvailable()) {
         return "";

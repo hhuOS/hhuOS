@@ -75,9 +75,8 @@ public:
     };
 
     struct SegmentSelector {
-    public:
 
-        SegmentSelector(Cpu::PrivilegeLevel privilegeLevel, uint8_t index);
+        SegmentSelector(PrivilegeLevel privilegeLevel, uint8_t index);
 
         explicit SegmentSelector(uint16_t selectorBits);
 

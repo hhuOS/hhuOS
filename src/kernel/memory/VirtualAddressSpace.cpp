@@ -30,7 +30,7 @@
 #include "kernel/service/Service.h"
 #include "lib/util/base/Panic.h"
 #include "lib/util/base/FreeListMemoryManager.h"
-#include "lib/util/collection/ArrayList.h"
+#include "util/hardware/CpuId.h"
 
 namespace Util {
 
@@ -39,6 +39,8 @@ class HeapMemoryManager;
 }  // namespace Util
 
 namespace Kernel {
+
+bool VirtualAddressSpace::useInvlpg = !Util::Hardware::CpuId::is386();
 
 VirtualAddressSpace::VirtualAddressSpace(Paging::Table *physicalPageDirectory, Paging::Table *virtualPageDirectory, Util::HeapMemoryManager &kernelHeapMemoryManager) :
         kernelAddressSpace(true), physicalPageDirectory(physicalPageDirectory), virtualPageDirectory(virtualPageDirectory), memoryManager(kernelHeapMemoryManager) {}
@@ -164,11 +166,17 @@ void* VirtualAddressSpace::unmap(const void *virtualAddress) {
     pageTable[pageTableIndex].clear();
 
     // Invalidate entry in TLB
-    asm volatile (
-            "invlpg (%0)"
-            :
-            : "r"(virtualAddress)
-            );
+    if (useInvlpg) {
+        asm volatile (
+                "invlpg (%0)"
+                :
+                : "r"(virtualAddress)
+                );
+    } else {
+        // We are running on an original 386 CPU -> INVLPG is not avaialable!
+        // Thus, we have to flush the TLB fully by reloading CR3.
+        Device::Cpu::writeCr0(Device::Cpu::readCr0());
+    }
 
     // Delete page table, if it is empty
     // TODO: When running doom or classicube twice in a release build,

@@ -409,7 +409,10 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         }
         LOG_INFO("CPU features: %s", static_cast<const char*>(featureString));
     } else {
-        LOG_ERROR("CPUID not available!");
+        LOG_WARN("CPUID not available!");
+
+        const auto is386 = Util::Hardware::CpuId::is386();
+        LOG_INFO("Detected a %s CPU", is386 ? "386" : "486");
     }
 
     // Initialize FPU/SIMD instructions
@@ -856,13 +859,13 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
         auto banner = bufferedStream.readString(bannerFile.getLength());
         Util::System::out << Util::String::format(static_cast<const char*>(banner),
-                          BuildConfig::getVersion(), BuildConfig::getCodename(), BuildConfig::getBuildDate(), BuildConfig::getBuildType(),
+                          BuildConfig::getVersion(), BuildConfig::getCodename(), BuildConfig::getBuildDate(), BuildConfig::getBuildType(), BuildConfig::getSimd(),
                           BuildConfig::getGitBranch(), BuildConfig::getGitRevision(), static_cast<const char*>(multiboot->getBootloaderName()))
                           << Util::Io::PrintStream::lnFlush;
     } else {
         Util::System::out << "Welcome to hhuOS!" << Util::Io::PrintStream::ln
                           << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getCodename() << ")" << Util::Io::PrintStream::ln
-                          << "Build Date: " << BuildConfig::getBuildDate() << " (" << BuildConfig::getBuildType() << ")" << Util::Io::PrintStream::ln
+                          << "Build Date: " << BuildConfig::getBuildDate() << " (" << BuildConfig::getBuildType() << ", " << BuildConfig::getSimd() << ")" << Util::Io::PrintStream::ln
                           << "Git Branch: " << BuildConfig::getGitBranch() << Util::Io::PrintStream::ln
                           << "Git Commit: " << BuildConfig::getGitRevision() << Util::Io::PrintStream::ln
                           << "Bootloader: " << multiboot->getBootloaderName() << Util::Io::PrintStream::lnFlush;

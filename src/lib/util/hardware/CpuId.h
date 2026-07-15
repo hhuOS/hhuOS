@@ -144,6 +144,16 @@ struct CpuInfo {
 /// The code for this function is based on a code snippet from https://wiki.osdev.org/CPUID
 bool isAvailable();
 
+/// Check if the CPU is an original 386 CPU, or at least a 486 CPU.
+/// If this function returns true, the system is running on a 386 CPU.
+/// Otherwise, it is at least a 486 or any newer CPU.
+/// If `cpuid` is not available (i.e., on 386 and early 486 CPUs),
+/// this function can be used to at least get some clue about the CPU.
+///
+/// This is done by toggling the "Alignment Check" flag, which was introduced in the 486.
+/// If toggling the flag fails, it must be an original 386.
+bool is386();
+
 /// Get the 12 byte vendor string of the CPU by executing the CPUID instruction with EAX = 0.
 ///
 /// ### Example

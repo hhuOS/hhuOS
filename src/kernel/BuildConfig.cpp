@@ -59,5 +59,11 @@ const char *BuildConfig::BUILD_TYPE = XSTRINGIFY(HHUOS_BUILD_TYPE);
 const char *BuildConfig::BUILD_TYPE = "unknown";
 #endif
 
+#ifdef HHUOS_SIMD
+const char *BuildConfig::SIMD = XSTRINGIFY(HHUOS_SIMD);
+#else
+const char *BuildConfig::SIMD = "unknown";
+#endif
+
 #undef STRINGIFY
 #undef XSTRINGIFY

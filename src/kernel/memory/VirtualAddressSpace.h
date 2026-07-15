@@ -89,6 +89,8 @@ private:
     Paging::Table *virtualPageDirectory;
     Util::Async::Spinlock pageDirectoryLock;
     Util::HeapMemoryManager &memoryManager;
+
+    static bool useInvlpg;
 };
 
 }

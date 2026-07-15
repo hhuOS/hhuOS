@@ -24,57 +24,33 @@
 class BuildConfig {
 
 public:
-    /**
-     * Get the version number.
-     *
-     * @return The version number
-     */
-    static inline const char* getVersion() {
+
+    static const char* getVersion() {
         return VERSION;
     }
-    /**
-     * Get the version codename.
-     *
-     * @return The version codename
-     */
-    static inline const char* getCodename() {
+
+    static const char* getCodename() {
         return CODENAME;
     }
 
-    /**
-     * Get the git revision.
-     *
-     * @return The git revision
-     */
-    static inline const char* getGitRevision() {
+    static const char* getGitRevision() {
         return GIT_REV;
     }
 
-    /**
-     * Get the git branch.
-     *
-     * @return The git branch
-     */
-    static inline const char* getGitBranch() {
+    static const char* getGitBranch() {
         return GIT_BRANCH;
     }
 
-    /**
-     * Get the build date.
-     *
-     * @return The build date
-     */
-    static inline const char* getBuildDate() {
+    static const char* getBuildDate() {
         return BUILD_DATE;
     }
 
-    /**
-     * Get the build type.
-     *
-     * @return The build type
-     */
-    static inline const char* getBuildType() {
+    static const char* getBuildType() {
         return BUILD_TYPE;
+    }
+
+    static const char* getSimd() {
+        return SIMD;
     }
 
 private:
@@ -85,6 +61,7 @@ private:
     static const char *GIT_BRANCH;
     static const char *BUILD_DATE;
     static const char *BUILD_TYPE;
+    static const char *SIMD;
 };
 
 #undef STRINGIFY
