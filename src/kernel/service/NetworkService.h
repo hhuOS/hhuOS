@@ -88,6 +88,14 @@ public:
 
 private:
 
+    static int64_t systemCallCreateSocket(Util::Network::Socket::Type socketType);
+
+    static int64_t systemCallSendDatagram(int32_t fileDescriptor, const uint8_t *remoteAddressBuffer,
+        const uint8_t *payload, uint32_t length, uint32_t datagramArg);
+
+    static int64_t systemCallReceiveDatagram(int32_t fileDescriptor, uint8_t **remoteAddressBuffer,
+        uint8_t **payload, uint32_t *length, uint32_t *datagramArg);
+
     Util::Async::Spinlock lock;
     Util::HashMap<Util::String, Device::Network::NetworkDevice*> deviceMap;
     Network::NetworkStack networkStack;

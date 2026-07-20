@@ -34,61 +34,41 @@ class KeyboardLayout;
 
 namespace Device::Graphic {
 
-TerminalNode::TerminalNode(const Util::String &name, Util::Graphic::Terminal *terminal) : Filesystem::Memory::StreamNode(name, terminal, terminal), terminal(terminal) {}
+TerminalNode::TerminalNode(const Util::String &name, Util::Graphic::Terminal *terminal) : StreamNode(name, terminal, terminal), terminal(terminal) {}
 
-bool TerminalNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
+int64_t TerminalNode::control(const uint32_t request, const uint32_t arg0, const uint32_t, const uint32_t) {
     switch (request) {
         case Util::Graphic::Terminal::Command::SET_ECHO:
-            if (parameters.length() < 1) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring echo!");
-            }
-
-            terminal->setEcho(parameters[0]);
-            return true;
+            terminal->setEcho(arg0);
+            return 0;
         case Util::Graphic::Terminal::Command::SET_LINE_AGGREGATION:
-            if (parameters.length() < 1) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring line aggregation!");
-            }
-
-            terminal->setLineAggregation(parameters[0]);
-            return true;
+            terminal->setLineAggregation(arg0);
+            return 0;
         case Util::Graphic::Terminal::Command::SET_CURSOR:
-            if (parameters.length() < 1) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring cursor!");
-            }
-
-            terminal->setCursorEnabled(parameters[0]);
-            return true;
+            terminal->setCursorEnabled(arg0);
+            return 0;
         case Util::Graphic::Terminal::Command::SET_ANSI_PARSING:
-            if (parameters.length() < 1) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring ANSI parsing!");
-            }
-
-            terminal->setAnsiParsing(parameters[0]);
-            return true;
+            terminal->setAnsiParsing(arg0);
+            return 0;
         case Util::Graphic::Terminal::Command::ENABLE_RAW_MODE:
             terminal->setEcho(false);
             terminal->setAnsiParsing(false);
             terminal->setLineAggregation(false);
             terminal->setKeyboardScancodes(false);
-            return true;
+            return 0;
         case Util::Graphic::Terminal::Command::ENABLE_CANONICAL_MODE:
             terminal->setEcho(true);
             terminal->setAnsiParsing(true);
             terminal->setLineAggregation(true);
             terminal->setKeyboardScancodes(false);
-            return true;
+            return 0;
         case Util::Graphic::Terminal::Command::ENABLE_KEYBOARD_SCANCODES:
             terminal->setEcho(false);
             terminal->setLineAggregation(false);
             terminal->setKeyboardScancodes(true);
-            return true;
+            return 0;
         case Util::Graphic::Terminal::Command::SET_KEYBOARD_LAYOUT: {
-            if (parameters.length() < 1) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring keyboard layout!");
-            }
-
-            const auto layoutName = Util::String(reinterpret_cast<const char *>(parameters[0])).toLowerCase();
+            const auto layoutName = Util::String(reinterpret_cast<const char *>(arg0)).toLowerCase();
 
             if (layoutName == "de") {
                 terminal->setKeyboardLayout(Util::Io::DeLayout());
@@ -98,10 +78,10 @@ bool TerminalNode::control(uint32_t request, const Util::Array<uint32_t> &parame
                 return false;
             }
 
-            return true;
+            return 0;
         }
         default:
-            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Terminal: Invalid control request!");
+            return -1;
     }
 }
 

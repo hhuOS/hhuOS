@@ -50,173 +50,19 @@ class VirtualAddressSpace;
 ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelProcess) {
     processList.add(kernelProcess);
 
-    Service::getService<InterruptService>().assignSystemCall(Util::System::YIELD, [](uint32_t, va_list) -> bool {
-        Service::getService<ProcessService>().getScheduler().yield();
-        return true;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::GET_CURRENT_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 1) {
-            return false;
-        }
-
-        auto &processService = Service::getService<ProcessService>();
-        auto &threadId = *va_arg(arguments, uint32_t*);
-
-        threadId = processService.getScheduler().getCurrentThread().getId();
-        return true;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::CREATE_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 4) {
-            return false;
-        }
-
-        auto &processService = Service::getService<ProcessService>();
-        auto *name = va_arg(arguments, const char*);
-        auto *runnable = va_arg(arguments, Util::Async::Runnable*);
-        auto eip = va_arg(arguments, uint32_t);
-        auto &threadId = *va_arg(arguments, uint32_t*);
-
-        auto &thread = Kernel::Thread::createUserThread(name, processService.getCurrentProcess(), eip, runnable);
-
-        threadId = thread.getId();
-        processService.getScheduler().ready(thread);
-        return true;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::SLEEP, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 1) {
-            return false;
-        }
-
-        auto &processService = Service::getService<ProcessService>();
-        auto &time = *va_arg(arguments, Util::Time::Timestamp*);
-
-        processService.getScheduler().sleep(time);
-        return true;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::JOIN_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 1) {
-            return false;
-        }
-
-        auto &processService = Service::getService<ProcessService>();
-        auto threadId = va_arg(arguments, uint32_t);
-
-        auto *thread = processService.getScheduler().getThread(threadId);
-        if (thread != nullptr) {
-            thread->join();
-        }
-
-        return true;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::EXIT_THREAD, []([[maybe_unused]] uint32_t paramCount, [[maybe_unused]] va_list arguments) -> bool {
-        Service::getService<ProcessService>().getScheduler().exit();
-        return true;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::EXIT_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
-        auto &processService = Service::getService<ProcessService>();
-        int32_t exitCode = paramCount >= 1 ? va_arg(arguments, int32_t) : 0;
-
-        processService.exitCurrentProcess(exitCode);
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::EXECUTE_BINARY, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 7) {
-            return false;
-        }
-
-        auto &processService = Service::getService<ProcessService>();
-        auto *binaryFile = va_arg(arguments, Util::Io::File*);
-        auto *inputFile = va_arg(arguments, Util::Io::File*);
-        auto *outputFile = va_arg(arguments, Util::Io::File*);
-        auto *errorFile = va_arg(arguments, Util::Io::File*);
-        auto *command = va_arg(arguments, const Util::String*);
-        auto *commandArguments = va_arg(arguments, Util::Array<Util::String>*);
-        auto &processId = *va_arg(arguments, uint32_t*);
-
-        auto &process = processService.loadBinary(*binaryFile, *inputFile, *outputFile, *errorFile, *command,*commandArguments);
-
-        processId = process.getId();
-        return true;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::GET_CURRENT_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 1) {
-            return false;
-        }
-
-        auto &processService = Service::getService<ProcessService>();
-        auto &processId = *va_arg(arguments, uint32_t*);
-
-        processId = processService.getCurrentProcess().getId();
-        return true;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::JOIN_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 1) {
-            return false;
-        }
-
-        auto &processService = Service::getService<ProcessService>();
-        auto processId = va_arg(arguments, uint32_t);
-
-        auto *process = processService.getProcess(processId);
-        if (process == nullptr) {
-            return false;
-        }
-
-        process->join();
-        return true;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::KILL_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 1) {
-            return false;
-        }
-
-        auto &processService = Service::getService<ProcessService>();
-        auto processId = va_arg(arguments, int32_t);
-
-        auto *process = processService.getProcess(processId);
-        if (process == nullptr) {
-            return false;
-        }
-
-        processService.killProcess(*process);
-        return true;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::CREATE_PIPE, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 1) {
-            return false;
-        }
-
-        auto &processService = Service::getService<ProcessService>();
-        auto &currentProcess = processService.getCurrentProcess();
-
-        auto *name = va_arg(arguments, const char*);
-        return currentProcess.createPipe(name);
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::CREATE_SHARED_MEMORY, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 3) {
-            return false;
-        }
-
-        auto &processService = Service::getService<ProcessService>();
-        auto &currentProcess = processService.getCurrentProcess();
-
-        auto *name = va_arg(arguments, const char*);
-        auto *startAddress = va_arg(arguments, void*);
-        auto pageCount = va_arg(arguments, uint32_t);
-
-        return currentProcess.createSharedMemory(name, startAddress, pageCount);
-    });
+    ASSIGN_SYSTEM_CALL(Util::System::YIELD, ProcessService::systemCallYield);
+    ASSIGN_SYSTEM_CALL(Util::System::GET_CURRENT_THREAD, ProcessService::systemCallGetCurrentThread);
+    ASSIGN_SYSTEM_CALL(Util::System::CREATE_THREAD, ProcessService::systemCallCreateThread);
+    ASSIGN_SYSTEM_CALL(Util::System::SLEEP, ProcessService::systemCallSleep);
+    ASSIGN_SYSTEM_CALL(Util::System::JOIN_THREAD, ProcessService::systemCallJoinThread);
+    ASSIGN_SYSTEM_CALL(Util::System::EXIT_THREAD, ProcessService::systemCallExitThread);
+    ASSIGN_SYSTEM_CALL(Util::System::EXIT_PROCESS, ProcessService::systemCallExitProcess);
+    ASSIGN_SYSTEM_CALL(Util::System::EXECUTE_BINARY, ProcessService::systemCallExecuteBinary);
+    ASSIGN_SYSTEM_CALL(Util::System::GET_CURRENT_PROCESS, ProcessService::systemCallGetCurrentProcess);
+    ASSIGN_SYSTEM_CALL(Util::System::JOIN_PROCESS, ProcessService::systemCallJoinProcess);
+    ASSIGN_SYSTEM_CALL(Util::System::KILL_PROCESS, ProcessService::systemCallKillProcess);
+    ASSIGN_SYSTEM_CALL(Util::System::CREATE_PIPE, ProcessService::systemCallCreatePipe);
+    ASSIGN_SYSTEM_CALL(Util::System::CREATE_SHARED_MEMORY, ProcessService::systemCallSharedMemory);
 }
 
 Process& ProcessService::createProcess(VirtualAddressSpace &addressSpace, const Util::String &name, const Util::Io::File &workingDirectory, const Util::Io::File &standardIn, const Util::Io::File &standardOut, const Util::Io::File &standardError) {
@@ -339,6 +185,121 @@ void ProcessService::startScheduler() {
     scheduler.ready(schedulerCleanerThread);
 
     scheduler.start();
+}
+
+int64_t ProcessService::systemCallYield() {
+    auto &processService = getService<ProcessService>();
+    
+    processService.getScheduler().yield();
+    return 0;
+}
+
+int64_t ProcessService::systemCallGetCurrentThread() {
+    auto &processService = getService<ProcessService>();
+
+    return processService.getScheduler().getCurrentThread().getId();
+}
+
+int64_t ProcessService::systemCallCreateThread(const char *name, Util::Async::Runnable *runnable, const uint32_t eip) {
+    auto &processService = getService<ProcessService>();
+
+    auto &thread = Thread::createUserThread(name, processService.getCurrentProcess(), eip, runnable);
+    processService.getScheduler().ready(thread);
+    
+    return thread.getId();
+}
+
+int64_t ProcessService::systemCallSleep(const Util::Time::Timestamp* time) {
+    auto &processService = getService<ProcessService>();
+
+    processService.getScheduler().sleep(*time);
+    return 0;
+}
+
+int64_t ProcessService::systemCallJoinThread(const uint32_t threadId) {
+    auto &processService = getService<ProcessService>();
+
+    auto *thread = processService.getScheduler().getThread(threadId);
+    if (thread == nullptr) {
+        return -1;
+    }
+    
+    thread->join();
+    return 0;
+}
+
+int64_t ProcessService::systemCallExitThread() {
+    auto &processService = getService<ProcessService>();
+    
+    processService.getScheduler().exit();
+    return 0;
+}
+
+int64_t ProcessService::systemCallExitProcess(const int32_t exitCode) {
+    auto &processService = getService<ProcessService>();
+    
+    processService.exitCurrentProcess(exitCode);
+    return 0;
+}
+
+int64_t ProcessService::systemCallExecuteBinary(const char *binaryPath, const char **stdPaths, const char *command, const uint32_t argc, const char **argv) {
+    auto &processService = getService<ProcessService>();
+    const Util::Io::File binaryFile(binaryPath);
+    const Util::Io::File inputFile(stdPaths[0]);
+    const Util::Io::File outputFile(stdPaths[1]);
+    const Util::Io::File errorFile(stdPaths[2]);
+    Util::Array<Util::String> commandArguments(argc);
+
+    for (uint32_t i = 0; i < argc; i++) {
+        commandArguments[i] = argv[i];
+    }
+
+    auto &process = processService.loadBinary(binaryFile, inputFile, outputFile, errorFile, *command, commandArguments);
+    return process.getId();
+}
+
+int64_t ProcessService::systemCallGetCurrentProcess() {
+    auto &processService = getService<ProcessService>();
+    
+    return processService.getCurrentProcess().getId();
+}
+
+int64_t ProcessService::systemCallJoinProcess(const uint32_t processId) {
+    auto &processService = getService<ProcessService>();
+
+    auto *process = processService.getProcess(processId);
+    if (process == nullptr) {
+        return -1;
+    }
+
+    process->join();
+    return 0;
+}
+
+int64_t ProcessService::systemCallKillProcess(const uint32_t processId) {
+    auto &processService = getService<ProcessService>();
+
+    auto *process = processService.getProcess(processId);
+    if (process == nullptr) {
+        return -1;
+    }
+
+    processService.killProcess(*process);
+    return 0;
+}
+
+int64_t ProcessService::systemCallCreatePipe(const char *name) {
+    auto &processService = getService<ProcessService>();
+    auto &currentProcess = processService.getCurrentProcess();
+
+    return currentProcess.createPipe(name) ? 0 : -1;
+}
+
+int64_t ProcessService::systemCallSharedMemory(const char *name, void *startAddress, const uint32_t pageCount) {
+    auto &processService = getService<ProcessService>();
+    auto &currentProcess = processService.getCurrentProcess();
+
+    return currentProcess.createSharedMemory(name, startAddress, pageCount) ? 0 : -1;
 }
 
 }

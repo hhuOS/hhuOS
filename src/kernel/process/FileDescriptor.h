@@ -60,7 +60,7 @@ public:
      */
     ~FileDescriptor();
 
-    bool control(uint32_t request, const Util::Array<uint32_t> &parameters);
+    int32_t control(uint32_t request, uint32_t arg0, uint32_t arg1, uint32_t arg2);
 
     bool isValid() const;
 

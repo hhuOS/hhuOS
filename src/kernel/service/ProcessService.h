@@ -95,6 +95,32 @@ public:
 
 private:
 
+    static int64_t systemCallYield();
+
+    static int64_t systemCallGetCurrentThread();
+
+    static int64_t systemCallCreateThread(const char *name, Util::Async::Runnable *runnable, uint32_t eip);
+
+    static int64_t systemCallSleep(const Util::Time::Timestamp *time);
+
+    static int64_t systemCallJoinThread(uint32_t threadId);
+
+    static int64_t systemCallExitThread();
+
+    static int64_t systemCallExitProcess(int32_t exitCode);
+
+    static int64_t systemCallExecuteBinary(const char *binaryPath, const char **stdPaths, const char *command, uint32_t argc, const char **argv);
+
+    static int64_t systemCallGetCurrentProcess();
+
+    static int64_t systemCallJoinProcess(uint32_t processId);
+
+    static int64_t systemCallKillProcess(uint32_t processId);
+
+    static int64_t systemCallCreatePipe(const char *name);
+
+    static int64_t systemCallSharedMemory(const char *name, void *startAddress, uint32_t pageCount);
+
     Scheduler scheduler;
     SchedulerCleaner *cleaner = nullptr;
 

@@ -20,8 +20,6 @@
 
 #include "PowerManagementService.h"
 
-#include <stdarg.h>
-
 #include "lib/util/hardware/Machine.h"
 #include "InterruptService.h"
 #include "kernel/service/Service.h"
@@ -31,23 +29,7 @@
 namespace Kernel {
 
 PowerManagementService::PowerManagementService(Device::Machine *machine) : machine(machine) {
-    Service::getService<InterruptService>().assignSystemCall(Util::System::SHUTDOWN, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 1) {
-            return false;
-        }
-
-        auto &powerManagementService = Service::getService<PowerManagementService>();
-        auto type = static_cast<Util::Hardware::Machine::ShutdownType>(va_arg(arguments, uint32_t));
-
-        if (type == Util::Hardware::Machine::SHUTDOWN) {
-            powerManagementService.shutdownMachine();
-        } else if (type == Util::Hardware::Machine::REBOOT) {
-            powerManagementService.rebootMachine();
-        }
-
-        // Should never be executed
-        return false;
-    });
+    ASSIGN_SYSTEM_CALL(Util::System::SHUTDOWN, PowerManagementService::systemCallShutdown);
 }
 
 void PowerManagementService::shutdownMachine() {
@@ -56,6 +38,19 @@ void PowerManagementService::shutdownMachine() {
 
 void PowerManagementService::rebootMachine() {
     machine->reboot();
+}
+
+int64_t PowerManagementService::systemCallShutdown(const Util::Hardware::Machine::ShutdownType type) {
+    auto &powerManagementService = getService<PowerManagementService>();
+
+    if (type == Util::Hardware::Machine::SHUTDOWN) {
+        powerManagementService.shutdownMachine();
+    } else if (type == Util::Hardware::Machine::REBOOT) {
+        powerManagementService.rebootMachine();
+    }
+
+    // If we reach this code, the shutdown was not successful
+    return -1;
 }
 
 }

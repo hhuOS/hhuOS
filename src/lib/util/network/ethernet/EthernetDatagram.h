@@ -85,13 +85,6 @@ public:
         return type;
     }
 
-    /// Set the EtherType of this Ethernet datagram to the one of the given datagram.
-    /// This is used by the kernel to copy attributes from a kernel space datagram to a user space datagram.
-    void setAttributes(const Datagram &datagram) override {
-        auto &ethernetDatagram = reinterpret_cast<const EthernetDatagram&>(datagram);
-        type = ethernetDatagram.getEtherType();
-    }
-
 private:
 
     EthernetHeader::EtherType type = EthernetHeader::INVALID;

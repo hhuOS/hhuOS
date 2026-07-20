@@ -32,41 +32,9 @@
 namespace Kernel {
 
 TimeService::TimeService(Device::WaitTimer *waitTimer) : waitTimer(waitTimer) {
-    Service::getService<InterruptService>().assignSystemCall(Util::System::GET_SYSTEM_TIME, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 1) {
-            return false;
-        }
-
-        auto &timeService = Service::getService<TimeService>();
-        auto &targetTime = *va_arg(arguments, Util::Time::Timestamp*);
-
-        targetTime = timeService.getSystemTime();
-        return true;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::GET_CURRENT_DATE, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 1) {
-            return false;
-        }
-
-        auto &timeService = Service::getService<TimeService>();
-        auto &targetDate = *va_arg(arguments, Util::Time::Date*);
-
-        targetDate = timeService.getCurrentDate();
-        return true;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::SET_DATE, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 1) {
-            return false;
-        }
-
-        auto &timeService = Service::getService<TimeService>();
-        auto &date = *va_arg(arguments, Util::Time::Date*);
-
-        timeService.setCurrentDate(date);
-        return true;
-    });
+    ASSIGN_SYSTEM_CALL(Util::System::GET_SYSTEM_TIME, TimeService::systemCallGetSystemTime);
+    ASSIGN_SYSTEM_CALL(Util::System::GET_CURRENT_DATE, TimeService::systemCallGetCurrentDate);
+    ASSIGN_SYSTEM_CALL(Util::System::SET_DATE, TimeService::systemCallSetDate);
 }
 
 void TimeService::setTimeProvider(Device::TimeProvider *timeProvider) {
@@ -92,19 +60,41 @@ Util::Time::Date TimeService::getCurrentDate() const {
         return dateProvider->getCurrentDate();
     }
 
-    Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "TimeService: No date provider available!");
+    return Util::Time::Date(0);
 }
 
-void TimeService::setCurrentDate(const Util::Time::Date &date) {
+bool TimeService::setCurrentDate(const Util::Time::Date &date) const {
     if (dateProvider != nullptr) {
-        return dateProvider->setCurrentDate(date);
-    } else {
-        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "TimeService: No date provider available!");
+        dateProvider->setCurrentDate(date);
+        return true;
     }
+
+    return false;
 }
 
 void TimeService::busyWait(const Util::Time::Timestamp &time) const {
     waitTimer->wait(time);
+}
+
+int64_t TimeService::systemCallGetSystemTime() {
+    const auto &timeService = getService<TimeService>();
+
+    return timeService.getSystemTime().toNanoseconds();
+}
+
+int64_t TimeService::systemCallGetCurrentDate() {
+    const auto &timeService = getService<TimeService>();
+
+    return timeService.getCurrentDate().getUnixTime();
+}
+
+int64_t TimeService::systemCallSetDate(const uint32_t unixTimeLow, const uint32_t unixTimeHigh) {
+    auto &timeService = getService<TimeService>();
+    const auto unixTime = static_cast<int64_t>(unixTimeLow) | (static_cast<int64_t>(unixTimeHigh) << 32);
+    const auto date = Util::Time::Date(unixTime);
+
+    timeService.setCurrentDate(date);
+    return 0;
 }
 
 }

@@ -77,16 +77,12 @@ public:
 
     void assignInterrupt(InterruptVector slot, InterruptHandler &handler);
 
-    void assignSystemCall(Util::System::Code code, bool(*func)(uint32_t paramCount, va_list params));
-
 #pragma GCC push_options
 #pragma GCC target("general-regs-only")
 
     [[noreturn]] void handleException(const InterruptFrame &frame, uint32_t errorCode, InterruptVector vector);
 
     void dispatchInterrupt(const InterruptFrame &frame, InterruptVector slot);
-
-    void dispatchSystemCall(Util::System::Code code, uint16_t paramCount, va_list params, bool &result);
 
 #pragma GCC pop_options
 
@@ -123,7 +119,6 @@ private:
 
     InterruptDescriptorTable idt;
     InterruptDispatcher interruptDispatcher;
-    SystemCallDispatcher systemCallDispatcher;
 
     bool parallelComputingAllowed = false;
 };

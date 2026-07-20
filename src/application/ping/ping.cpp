@@ -84,7 +84,7 @@ int32_t main(const int32_t argc, char *argv[]) {
         Util::Io::ByteArrayOutputStream packet;
         echoHeader.write(packet);
         Util::Io::NumberUtil::writeUnsigned32BitValue(Util::Time::Timestamp::getSystemTime().toMilliseconds(),
-            packet);
+        packet);
 
         // Create and send ICMP datagram with echo payload
         Util::Network::Icmp::IcmpDatagram datagram(packet, destinationAddress,
@@ -96,16 +96,16 @@ int32_t main(const int32_t argc, char *argv[]) {
 
         // Read ICMP datagrams until a valid echo reply is received.
         do {
-            Util::Network::Icmp::IcmpDatagram receivedDatagram;
-            if (!socket.receive(receivedDatagram)) {
+            const auto *receivedDatagram = reinterpret_cast<const Util::Network::Icmp::IcmpDatagram*>(socket.receive());
+            if (receivedDatagram == nullptr) {
                 Util::System::error << "ping: Failed to receive echo reply!" << Util::Io::PrintStream::lnFlush;
                 return -1;
             }
 
             // The socket may receive any ICMP datagrams, so we need to filter for ECHO_REPLY
-            if (receivedDatagram.getType() == Util::Network::Icmp::IcmpHeader::ECHO_REPLY) {
-                Util::Io::ByteArrayInputStream receivedPacket(receivedDatagram.getData(),
-                    receivedDatagram.getLength());
+            if (receivedDatagram->getType() == Util::Network::Icmp::IcmpHeader::ECHO_REPLY) {
+                Util::Io::ByteArrayInputStream receivedPacket(receivedDatagram->getData(),
+                    receivedDatagram->getLength());
 
                 // Read echo header from datagram and check sequence number
                 echoHeader.read(receivedPacket);
@@ -113,13 +113,15 @@ int32_t main(const int32_t argc, char *argv[]) {
                     validReply = true;
                     const auto sourceTimestamp = Util::Io::NumberUtil::readUnsigned32BitValue(receivedPacket);
                     const auto currentTimestamp = Util::Time::Timestamp::getSystemTime().toMilliseconds();
-                    Util::System::out << receivedDatagram.getLength() << " bytes from "
-                                      << static_cast<const char*>(receivedDatagram.getRemoteAddress().toString())
+                    Util::System::out << receivedDatagram->getLength() << " bytes from "
+                                      << static_cast<const char*>(receivedDatagram->getRemoteAddress().toString())
                                       << " (Sequence number: " << echoHeader.getSequenceNumber()
                                       << ", Time: " << currentTimestamp - sourceTimestamp << " ms)"
                                       << Util::Io::PrintStream::lnFlush;
                 }
             }
+
+            delete receivedDatagram;
         } while (!validReply);
 
         // Wait one second before sending the next echo datagram

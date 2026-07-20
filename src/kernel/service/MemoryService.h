@@ -221,6 +221,10 @@ public:
 
 private:
 
+    static int64_t systemCallUnmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount);
+
+    static int64_t systemCallMapIO(uint32_t physicalAddress, uint32_t pageCount);
+
     bool slabAllocatorEnabled = false;
     PageFrameAllocator &pageFrameAllocator;
     PagingAreaManager &pagingAreaManager;

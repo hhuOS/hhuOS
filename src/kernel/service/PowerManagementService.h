@@ -25,6 +25,8 @@
 
 #include "Service.h"
 
+#include "lib/util/hardware/Machine.h"
+
 namespace Device {
 class Machine;
 }  // namespace Device
@@ -61,6 +63,8 @@ public:
     static const constexpr uint8_t SERVICE_ID = 3;
 
 private:
+
+    static int64_t systemCallShutdown(Util::Hardware::Machine::ShutdownType type);
 
     Device::Machine *machine;
 };

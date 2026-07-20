@@ -66,13 +66,19 @@ public:
 
     Util::Time::Date getCurrentDate() const;
 
-    void setCurrentDate(const Util::Time::Date &date);
+    bool setCurrentDate(const Util::Time::Date &date) const;
 
     void busyWait(const Util::Time::Timestamp &time) const;
 
     static const constexpr uint8_t SERVICE_ID = 6;
 
 private:
+
+    static int64_t systemCallGetSystemTime();
+
+    static int64_t systemCallGetCurrentDate();
+
+    static int64_t systemCallSetDate(uint32_t unixTimeLow, uint32_t unixTimeHigh);
 
     Device::WaitTimer *waitTimer;
     Device::TimeProvider *timeProvider = nullptr;

@@ -128,8 +128,6 @@ private:
 
     __attribute__ ((interrupt)) static void handleFpuException(InterruptFrame *frame);
 
-    __attribute__ ((interrupt)) static void handleSystemCall(InterruptFrame *frame);
-
     // CPU Exceptions
     EXCEPTION_HANDLER(0, handleException)
     EXCEPTION_HANDLER(1, handleException)

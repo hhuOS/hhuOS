@@ -51,133 +51,119 @@ Socket::~Socket() {
 }
 
 void Socket::setTimeout(const Time::Timestamp timeout) const {
-    controlFile(fileDescriptor, SET_TIMEOUT,
-        Array<size_t>({static_cast<size_t>(timeout.toMilliseconds())}));
+    Io::File::controlFile(fileDescriptor, SET_TIMEOUT, timeout.toMilliseconds());
 }
 
 bool Socket::bind(const NetworkAddress &address) const {
-    return controlFile(fileDescriptor, BIND,
-        Array<size_t>({reinterpret_cast<size_t>(&address)}));
+    return Io::File::controlFile(fileDescriptor, BIND, reinterpret_cast<size_t>(address.getBuffer())) == 0;
 }
 
 bool Socket::getLocalAddress(NetworkAddress &address) const {
-    return controlFile(fileDescriptor, GET_LOCAL_ADDRESS,
-        Array<size_t>({reinterpret_cast<size_t>(&address)}));
+    return Io::File::controlFile(fileDescriptor, GET_LOCAL_ADDRESS,
+        reinterpret_cast<size_t>(address.getBuffer())) == 0;
 }
 
 bool Socket::send(const Datagram &datagram) const {
-    return sendDatagram(fileDescriptor, datagram);
+    return sendDatagram(fileDescriptor, type, datagram);
 }
 
-bool Socket::receive(Datagram &datagram) const {
-    return receiveDatagram(fileDescriptor, datagram);
+const Datagram* Socket::receive() const {
+    return receiveDatagram(fileDescriptor, type);
 }
 
 Array<Ip4::Ip4SubnetAddress> Socket::getIp4Addresses() const {
-    // The system call fills the given array with the addresses up to the array size.
-    // If there are more addresses, the system call aborts when the array is full and returns successfully.
-    // Therefore, we start with an array of size 1 and double the size
-    // until the system call does not fill the array completely.
-    auto addresses = Array<Ip4::Ip4SubnetAddress>(1);
-    if (!controlFile(fileDescriptor, GET_IP4_ADDRESSES,
-        Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&addresses)})))
-    {
+    uint8_t *buffer;
+    const auto count = Io::File::controlFile(fileDescriptor, GET_IP4_ADDRESSES,
+        reinterpret_cast<size_t>(&buffer));
+
+    if (count <= 0) {
         return Array<Ip4::Ip4SubnetAddress>(0);
     }
 
-    // If the last address `ANY` ("0.0.0.0"), the address is empty and has not been overwritten by the system call.
-    // This means we are finished. Otherwise, the array was not large enough and we try again with a larger array.
-    while (addresses[addresses.length()- 1].getIp4Address() != Ip4::Ip4Address::ANY) {
-        addresses = Array<Ip4::Ip4SubnetAddress>(addresses.length() * 2);
-        if (!controlFile(fileDescriptor, GET_IP4_ADDRESSES,
-            Array<uint32_t>({reinterpret_cast<uint32_t>(&addresses)})))
-        {
-            return Array<Ip4::Ip4SubnetAddress>(0);
-        }
+    Array<Ip4::Ip4SubnetAddress> addresses(count);
+    for (size_t i = 0; i < count; i++) {
+        addresses[i] = Ip4::Ip4SubnetAddress(buffer + i * Ip4::Ip4SubnetAddress::ADDRESS_LENGTH);
     }
 
-    ArrayList<Ip4::Ip4SubnetAddress> ret;
-    for (uint32_t i = 0; i < addresses.length() && addresses[i].getIp4Address() != Ip4::Ip4Address::ANY; i++) {
-        ret.add(addresses[i]);
-    }
-
-    return ret.toArray();
+    delete buffer;
+    return addresses;
 }
 
 bool Socket::removeIp4Address(const Ip4::Ip4SubnetAddress &address) const {
-    return controlFile(fileDescriptor, REMOVE_IP4_ADDRESS,
-        Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
+    return Io::File::controlFile(fileDescriptor, REMOVE_IP4_ADDRESS,
+        reinterpret_cast<size_t>(address.getBuffer())) == 0;
 }
 
 bool Socket::addIp4Address(const Ip4::Ip4SubnetAddress &address) const {
-    return controlFile(fileDescriptor, ADD_IP4_ADDRESS,
-        Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
+    return Io::File::controlFile(fileDescriptor, ADD_IP4_ADDRESS,
+        reinterpret_cast<size_t>(address.getBuffer())) == 0;
 }
 
 Array<Ip4::Ip4Route> Socket::getRoutes() const {
-    // The system call fills the given arrays with the route parts up to the array size.
-    // If there are more routes, the system call aborts when an array is full and returns successfully.
-    // Therefore, we start with an array of size 1 and double the size
-    // until the system call does not fill the arrays completely.
-    auto sourceAddresses = Array<Ip4::Ip4Address>(1);
-    auto targetAddresses = Array<Ip4::Ip4SubnetAddress>(1);
-    auto nextHops = Array<Ip4::Ip4Address>(1);
-    auto devices = Array<char*>(1);
+    uint8_t *addressBuffer;
+    char **deviceBuffer;
+    const auto count = Io::File::controlFile(fileDescriptor, GET_ROUTES,
+        reinterpret_cast<size_t>(&addressBuffer), reinterpret_cast<size_t>(&deviceBuffer));
 
-    if (!controlFile(fileDescriptor, GET_ROUTES,
-            Array<uint32_t>({
-                reinterpret_cast<uint32_t>(&sourceAddresses),
-                reinterpret_cast<uint32_t>(&targetAddresses),
-                reinterpret_cast<uint32_t>(&nextHops),
-                reinterpret_cast<uint32_t>(&devices)})))
-    {
-        return Array<Ip4::Ip4Route>(0);
-    }
+    auto routes = Array<Ip4::Ip4Route>(count);
+    for (size_t i = 0; i < count; i++) {
+        constexpr auto ENTRY_LENGTH = 2 * Ip4::Ip4SubnetAddress::ADDRESS_LENGTH +
+            Ip4::Ip4SubnetAddress::ADDRESS_LENGTH;
 
-    // If the last device name is empty, the array has not been filled completely.
-    // This means we are finished. Otherwise, the arrays were not large enough, and we try again with larger arrays.
-    while (!String(devices[devices.length() - 1]).isEmpty()) {
-        sourceAddresses = Array<Ip4::Ip4Address>(sourceAddresses.length() * 2);
-        targetAddresses = Array<Ip4::Ip4SubnetAddress>(targetAddresses.length() * 2);
-        nextHops = Array<Ip4::Ip4Address>(nextHops.length() * 2);
-        devices = Array<char*>(devices.length() * 2);
-        for (auto &string: devices) {
-            string = nullptr;
-        }
+        auto sourceAddress = Ip4::Ip4Address(addressBuffer + i * ENTRY_LENGTH);
+        auto targetAddress = Ip4::Ip4SubnetAddress(addressBuffer + i * ENTRY_LENGTH +
+            Ip4::Ip4Address::ADDRESS_LENGTH);
+        auto nextHop = Ip4::Ip4Address(addressBuffer + i * ENTRY_LENGTH + Ip4::Ip4Address::ADDRESS_LENGTH +
+            Ip4::Ip4SubnetAddress::ADDRESS_LENGTH);
 
-        if (!controlFile(fileDescriptor, GET_ROUTES,
-            Array<uint32_t>({
-                reinterpret_cast<uint32_t>(&sourceAddresses),
-                reinterpret_cast<uint32_t>(&targetAddresses),
-                reinterpret_cast<uint32_t>(&nextHops),
-                reinterpret_cast<uint32_t>(&devices)})))
-        {
-            return Array<Ip4::Ip4Route>(0);
-        }
-    }
-
-    ArrayList<Ip4::Ip4Route> ret(sourceAddresses.length());
-    for (uint32_t i = 0; i < sourceAddresses.length() && !String(devices[i]).isEmpty(); i++) {
-        if (nextHops[i] == Ip4::Ip4Address::ANY) {
-            ret.add(Ip4::Ip4Route(sourceAddresses[i], targetAddresses[i], devices[i]));
+        if (nextHop == Ip4::Ip4Address::ANY) {
+            routes[i] = Ip4::Ip4Route(sourceAddress, targetAddress, String(deviceBuffer[i]));
         } else {
-            ret.add(Ip4::Ip4Route(sourceAddresses[i], targetAddresses[i], nextHops[i], devices[i]));
+            routes[i] = Ip4::Ip4Route(sourceAddress, targetAddress, nextHop, String(deviceBuffer[i]));
         }
-
-        delete devices[i];
     }
 
-    return ret.toArray();
+    for (size_t i = 0; i < count; i++) {
+        delete deviceBuffer[i];
+    }
+    delete addressBuffer;
+    delete deviceBuffer;
+
+    return routes;
 }
 
 bool Socket::removeRoute(const Ip4::Ip4Route &route) const {
-    return controlFile(fileDescriptor, REMOVE_ROUTE,
-        Array<uint32_t>({reinterpret_cast<uint32_t>(&route)}));
+    uint8_t buffer[2 * Ip4::Ip4SubnetAddress::ADDRESS_LENGTH + Ip4::Ip4SubnetAddress::ADDRESS_LENGTH];
+    route.getSourceAddress().getAddress(buffer);
+    route.getTargetAddress().getAddress(buffer + Ip4::Ip4Address::ADDRESS_LENGTH);
+
+    if (route.hasNextHop()) {
+        route.getNextHop().getAddress(buffer + Ip4::Ip4Address::ADDRESS_LENGTH +
+            Ip4::Ip4SubnetAddress::ADDRESS_LENGTH);
+    } else {
+        Ip4::Ip4Address::ANY.getAddress(buffer + Ip4::Ip4Address::ADDRESS_LENGTH +
+            Ip4::Ip4SubnetAddress::ADDRESS_LENGTH);
+    }
+
+    return Io::File::controlFile(fileDescriptor, REMOVE_ROUTE, reinterpret_cast<size_t>(buffer),
+        reinterpret_cast<size_t>(static_cast<const char*>(route.getDeviceIdentifier()))) == 0;
 }
 
 bool Socket::addRoute(const Ip4::Ip4Route &route) const {
-    return controlFile(fileDescriptor, ADD_ROUTE,
-        Array<uint32_t>({reinterpret_cast<uint32_t>(&route)}));
+    uint8_t buffer[2 * Ip4::Ip4SubnetAddress::ADDRESS_LENGTH + Ip4::Ip4SubnetAddress::ADDRESS_LENGTH];
+    route.getSourceAddress().getAddress(buffer);
+    route.getTargetAddress().getAddress(buffer + Ip4::Ip4Address::ADDRESS_LENGTH);
+
+    if (route.hasNextHop()) {
+        route.getNextHop().getAddress(buffer + Ip4::Ip4Address::ADDRESS_LENGTH +
+            Ip4::Ip4SubnetAddress::ADDRESS_LENGTH);
+    } else {
+        Ip4::Ip4Address::ANY.getAddress(buffer + Ip4::Ip4Address::ADDRESS_LENGTH +
+            Ip4::Ip4SubnetAddress::ADDRESS_LENGTH);
+    }
+
+    return Io::File::controlFile(fileDescriptor, ADD_ROUTE, reinterpret_cast<size_t>(buffer),
+        reinterpret_cast<size_t>(static_cast<const char*>(route.getDeviceIdentifier()))) == 0;
 }
 
 bool Socket::setAccessMode(const Io::File::AccessMode accessMode) const {

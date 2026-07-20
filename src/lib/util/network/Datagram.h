@@ -39,8 +39,6 @@ namespace Network {
 /// Base class for network datagrams, which are used to send and receive data over a network.
 /// A datagram contains a buffer with the data, its length, and the remote address to
 /// which it is sent or from which it is received.
-/// Subclasses must implement the `setAttributes()` method to copy type dependent attributes
-/// from another datagram.
 class Datagram {
 
 public:
@@ -124,18 +122,6 @@ public:
     /// This should be used with care, as the datagram will take ownership of the buffer,
     /// freeing it when the datagram is destroyed.
     void setData(uint8_t *buffer, uint32_t length);
-
-    /// Set type dependent attributes from another datagram.
-    /// This is used by the kernel to copy attributes from a kernel space datagram to a user space datagram.
-    ///
-    /// ### Example (from `EthernetDatagram`)
-    /// ```c++
-    /// void setAttributes(const Datagram &datagram) override {
-    ///     auto &ethernetDatagram = reinterpret_cast<const EthernetDatagram&>(datagram); // Cast to specific type
-    ///     type = ethernetDatagram.getEtherType(); // Set ether type (the only attribute for Ethernet datagrams)
-    /// }
-    /// ```
-    virtual void setAttributes(const Datagram &datagram) = 0;
 
 private:
 

@@ -46,18 +46,20 @@ int32_t server(const Util::Network::Socket &socket) {
         << Util::Io::PrintStream::lnFlush;
 
     while (true) {
-        Util::Network::Udp::UdpDatagram receiveDatagram;
-        if (!socket.receive(receiveDatagram)) {
+        const auto *receiveDatagram = reinterpret_cast<const Util::Network::Udp::UdpDatagram*>(socket.receive());
+        if (receiveDatagram == nullptr) {
             Util::System::error << "uecho: Failed to receive echo request!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
 
-        if (!socket.send(receiveDatagram)) {
+        if (!socket.send(*receiveDatagram)) {
             Util::System::error << "uecho: Failed to send echo reply!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
 
-        const auto datagramString = Util::String(receiveDatagram.getData(), receiveDatagram.getLength()).strip();
+        const auto datagramString = Util::String(receiveDatagram->getData(), receiveDatagram->getLength()).strip();
+        delete receiveDatagram;
+
         if (datagramString == "exit") {
             break;
         }
@@ -96,13 +98,15 @@ int32_t client(const Util::Network::Socket &socket, const Util::Network::Ip4::Ip
             return -1;
         }
 
-        Util::Network::Udp::UdpDatagram receiveDatagram;
-        if (!socket.receive(receiveDatagram)) {
+        const auto *receiveDatagram = reinterpret_cast<const Util::Network::Udp::UdpDatagram*>(socket.receive());
+        if (receiveDatagram == nullptr) {
             Util::System::error << "uecho: Failed to receive echo reply!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
 
-        auto receiveMessage = Util::String(receiveDatagram.getData(), receiveDatagram.getLength()).strip();
+        auto receiveMessage = Util::String(receiveDatagram->getData(), receiveDatagram->getLength()).strip();
+        delete receiveDatagram;
+
         Util::System::out << "Received: " << sendMessage << Util::Io::PrintStream::lnFlush;
 
         if (sendMessage == "exit") {

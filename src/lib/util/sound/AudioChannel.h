@@ -76,7 +76,7 @@ public:
     /// Requests that can be issued to the audio mixer/channel via file control operations.
     enum Request {
         /// Create a new audio channel in the audio mixer.
-        CREATE,
+        CREATE_CHANNEL,
         /// Delete the audio channel from the audio mixer.
         DELETE,
         /// Start playback of the audio channel.

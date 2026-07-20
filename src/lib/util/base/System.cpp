@@ -43,14 +43,6 @@ Io::FileOutputStream errorStream(Io::STANDARD_ERROR);
 Io::BufferedOutputStream bufferedErrorStream(errorStream);
 Io::PrintStream System::error(bufferedErrorStream);
 
-void systemCall(System::Code code, bool &result, size_t paramCount, va_list args) {
-    asm volatile (
-            "int $0x86;"
-            : "=m"(result)
-            : "b"(code | (paramCount << 8)), "c"(args), "d"(&result)
-            );
-}
-
 const char* getSymbolName(const size_t symbolAddress) {
     const auto &addressSpaceHeader = System::getAddressSpaceHeader();
 
@@ -65,17 +57,6 @@ const char* getSymbolName(const size_t symbolAddress) {
     }
 
     return nullptr;
-}
-
-bool System::call(const Code code, const size_t paramCount...) {
-    va_list args;
-    va_start(args, paramCount);
-    bool result = false;
-
-    systemCall(code, result, paramCount, args);
-
-    va_end(args);
-    return result;
 }
 
 void System::printStackTrace(Io::PrintStream &stream, size_t minEbp) {

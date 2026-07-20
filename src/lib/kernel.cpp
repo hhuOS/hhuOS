@@ -82,9 +82,9 @@ void* mapIO(const size_t physicalAddress, const size_t pageCount) {
     return memoryService.mapIO(reinterpret_cast<void*>(physicalAddress), pageCount, false);
 }
 
-void unmap(void *virtualAddress, const size_t pageCount, const size_t breakCount) {
+bool unmap(void *virtualAddress, const size_t pageCount, const size_t breakCount) {
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    memoryService.unmap(virtualAddress, pageCount, breakCount);
+    return memoryService.unmap(virtualAddress, pageCount, breakCount);
 }
 
 bool mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName) {
@@ -142,7 +142,7 @@ Util::Io::File::Type getFileType(const int32_t fileDescriptor) {
     return filesystemService.getFileDescriptor(fileDescriptor).getNode().getType();
 }
 
-size_t getFileLength(const int32_t fileDescriptor) {
+uint64_t getFileLength(const int32_t fileDescriptor) {
     auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
     return filesystemService.getFileDescriptor(fileDescriptor).getNode().getLength();
 }
@@ -165,22 +165,24 @@ uint64_t readFile(const int32_t fileDescriptor, uint8_t *targetBuffer, const uin
 }
 
 uint64_t writeFile(const int32_t fileDescriptor, const uint8_t *sourceBuffer, const uint64_t pos,
-    const uint64_t length)
+    const uint32_t length)
 {
     auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
     return filesystemService.getFileDescriptor(fileDescriptor).getNode().writeData(sourceBuffer, pos, length);
 }
 
-bool controlFile(const int32_t fileDescriptor, const size_t request, const Util::Array<size_t> &parameters) {
-    auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
-    return filesystemService.getFileDescriptor(fileDescriptor).getNode().control(request, parameters);
-}
-
-bool controlFileDescriptor(const int32_t fileDescriptor, const size_t request,
-    const Util::Array<size_t> &parameters)
+int64_t controlFile(const int32_t fileDescriptor, const size_t request, const size_t arg0, const size_t arg1,
+    const size_t arg2)
 {
     auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
-    return filesystemService.getFileDescriptor(fileDescriptor).control(request, parameters);
+    return filesystemService.getFileDescriptor(fileDescriptor).getNode().control(request, arg0, arg1, arg2);
+}
+
+bool controlFileDescriptor(const int32_t fileDescriptor, const size_t request, const size_t arg0, const size_t arg1,
+    const size_t arg2)
+{
+    auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
+    return filesystemService.getFileDescriptor(fileDescriptor).control(request, arg0, arg1, arg2);
 }
 
 bool changeDirectory(const Util::String &path) {
@@ -208,7 +210,9 @@ int32_t createSocket(const Util::Network::Socket::Type socketType) {
     return networkService.createSocket(socketType);
 }
 
-bool sendDatagram(const int32_t fileDescriptor, const Util::Network::Datagram &datagram) {
+bool sendDatagram(const int32_t fileDescriptor, const Util::Network::Socket::Type,
+    const Util::Network::Datagram &datagram)
+{
     auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
     auto &socketNode = filesystemService.getFileDescriptor(fileDescriptor).getNode();
     auto &socket = reinterpret_cast<Kernel::Network::Socket&>(socketNode);
@@ -216,28 +220,12 @@ bool sendDatagram(const int32_t fileDescriptor, const Util::Network::Datagram &d
     return socket.send(datagram);
 }
 
-bool receiveDatagram(const int32_t fileDescriptor, Util::Network::Datagram &datagram) {
+const Util::Network::Datagram* receiveDatagram(const int32_t fileDescriptor, const Util::Network::Socket::Type) {
     auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
     auto &socketNode = filesystemService.getFileDescriptor(fileDescriptor).getNode();
     auto &socket = reinterpret_cast<Kernel::Network::Socket&>(socketNode);
 
-    const auto *kernelDatagram = socket.receive();
-    if (kernelDatagram == nullptr) {
-        return false;
-    }
-
-    auto *datagramBuffer = new uint8_t[kernelDatagram->getLength()];
-
-    const auto source = Util::Address(kernelDatagram->getData());
-    const auto target = Util::Address(datagramBuffer);
-    target.copyRange(source, kernelDatagram->getLength());
-
-    datagram.setData(datagramBuffer, kernelDatagram->getLength());
-    datagram.setRemoteAddress(kernelDatagram->getRemoteAddress());
-    datagram.setAttributes(*kernelDatagram);
-
-    delete kernelDatagram;
-    return true;
+    return socket.receive();
 }
 
 Util::Async::Process executeBinary(const Util::Io::File &binaryFile, const Util::Io::File &inputFile,
@@ -335,9 +323,9 @@ Util::Time::Date getCurrentDate() {
     return timeService.getCurrentDate();
 }
 
-void setDate(const Util::Time::Date &date) {
+bool setDate(const Util::Time::Date &date) {
     auto &timeService = Kernel::Service::getService<Kernel::TimeService>();
-    timeService.setCurrentDate(date);
+    return timeService.setCurrentDate(date);
 }
 
 bool shutdown(const Util::Hardware::Machine::ShutdownType type) {
@@ -380,7 +368,8 @@ void printKernelStackTrace(const bool log) {
         if (log) {
             LOG_ERROR("0x%08x %s", eip, symbolName);
         } else {
-            Util::System::out << Util::String::format("0x%08x", eip) << " " << symbolName << Util::Io::PrintStream::lnFlush;
+            Util::System::out << Util::String::format("0x%08x", eip) << " " << symbolName <<
+                Util::Io::PrintStream::lnFlush;
         }
 
         ebp = reinterpret_cast<uint32_t*>(ebp[0]);

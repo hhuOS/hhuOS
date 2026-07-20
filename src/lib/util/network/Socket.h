@@ -224,9 +224,8 @@ public:
     bool send(const Datagram &datagram) const;
 
     /// Receive a datagram from the socket.
-    /// The received data is not returned, but written to the given `Datagram` object.
-    /// The datagram must be of the type that the socket was created with (e.g `Udp::UdpDatagram` for a UDP socket).
-    /// The return value indicates whether a datagram was received successfully.
+    /// A pointer to the received datagram is returned (or nullptr on failure).
+    /// The datagram is allocated on the heap and the caller is responsible for deleting it.
     /// This method will block until either a datagram is received or the timeout set by `setTimeout()` expires.
     /// To change this behavior, so that this method returns immediately if no datagram is available,
     /// use `setAccessMode()` to set the socket to non-blocking mode.
@@ -246,13 +245,13 @@ public:
     /// socket.setTimeout(Util::Time::Timestamp::ofSeconds(5));
     ///
     /// // Try to receive a datagram
-    /// auto receivedDatagram = Util::Network::Udp::UdpDatagram();
-    /// if (!socket.receive(receivedDatagram)) {
+    /// const auto *receivedDatagram = Util::Network::Udp::UdpDatagram();
+    /// if (receivedDatagram == nullptr) {
     ///     Util::System::out << "Failed to receive datagram!" << Util::Io::PrintStream::lnFlush;
     ///     return;
     /// }
     /// ```
-    bool receive(Datagram &datagram) const;
+    const Datagram* receive() const;
 
     /// Get all IPv4 addresses that are assigned to the interface this socket is bound to.
     /// This only works if the socket is of type `ETHERNET` and bound to a MAC address.

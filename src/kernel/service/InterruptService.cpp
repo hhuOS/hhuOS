@@ -67,10 +67,6 @@ void InterruptService::assignInterrupt(InterruptVector slot, InterruptHandler &h
     interruptDispatcher.assign(slot, handler);
 }
 
-void InterruptService::assignSystemCall(Util::System::Code code, bool(*func)(uint32_t, va_list)) {
-    systemCallDispatcher.assign(code, func);
-}
-
 void InterruptService::handleException(const InterruptFrame &frame, uint32_t errorCode, InterruptVector vector) {
     auto &processService = Service::getService<ProcessService>();
     if (processService.getCurrentProcess().isKernelProcess()) {
@@ -91,10 +87,6 @@ void InterruptService::handleException(const InterruptFrame &frame, uint32_t err
 
 void InterruptService::dispatchInterrupt(const InterruptFrame &frame, InterruptVector slot) {
     interruptDispatcher.dispatch(frame, slot);
-}
-
-void InterruptService::dispatchSystemCall(Util::System::Code code, uint16_t paramCount, va_list params, bool &result) {
-    systemCallDispatcher.dispatch(code, paramCount, params, result);
 }
 
 void InterruptService::allowHardwareInterrupt(Device::InterruptRequest interrupt) {

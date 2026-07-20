@@ -47,26 +47,26 @@ bool Ip4RoutingModule::addRoute(const Util::Network::Ip4::Ip4Route &route) {
     if (route.getTargetAddress().getBitCount() == 0) {
         routes.remove(route);
         defaultRoute = route;
-    } else if (!routes.contains(route)) {
-        routes.add(route);
+        return lock.releaseAndReturn(true);
     }
 
-    return lock.releaseAndReturn(true);
+    if (!routes.contains(route)) {
+        routes.add(route);
+        return lock.releaseAndReturn(true);
+    }
+
+    return lock.releaseAndReturn(false);
 }
 
 bool Ip4RoutingModule::removeRoute(const Util::Network::Ip4::Ip4Route &route) {
-    bool ret;
     lock.acquire();
 
     if (route == defaultRoute) {
         defaultRoute = Util::Network::Ip4::Ip4Route();
-        ret = true;
-    } else {
-        ret = routes.remove(route);
+        return lock.releaseAndReturn(true);
     }
 
-    lock.release();
-    return ret;
+    return lock.releaseAndReturn(routes.remove(route));
 }
 
 void Ip4RoutingModule::removeRoute(const Util::Network::Ip4::Ip4SubnetAddress &localAddress, const Util::String &device) {

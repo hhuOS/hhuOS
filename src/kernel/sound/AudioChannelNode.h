@@ -54,7 +54,7 @@ public:
 
     uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
 
-    bool control(uint32_t request, const Util::Array<uint32_t> &parameters) override;
+    int64_t control(uint32_t request, uint32_t arg0, uint32_t arg1, uint32_t arg2) override;
 
 private:
 

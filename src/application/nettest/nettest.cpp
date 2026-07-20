@@ -52,8 +52,8 @@ int32_t receiveTraffic(Util::Network::Socket &socket){
     uint32_t intervalCounter = 0;
     uint32_t bytesReceivedInInterval = 0;
 
-    auto firstReceivedDatagram = Util::Network::Udp::UdpDatagram();
-    if (!socket.receive(firstReceivedDatagram)) {
+    const auto *firstReceivedDatagram = socket.receive();
+    if (firstReceivedDatagram == nullptr) {
         Util::System::error << "nettest: Failed to receive echo request!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
@@ -65,19 +65,21 @@ int32_t receiveTraffic(Util::Network::Socket &socket){
     Util::Time::Timestamp secondsPassed = Util::Time::Timestamp::getSystemTime();
     secondsPassed += Util::Time::Timestamp::ofSeconds(1);
 
-    Util::String receivedMessage = Util::String(firstReceivedDatagram.getData(), firstReceivedDatagram.getLength());
+    Util::String receivedMessage = Util::String(firstReceivedDatagram->getData(), firstReceivedDatagram->getLength());
     packetsReceived++;
     previousPacketNumber = (receivedMessage[0] << 24) + (receivedMessage[1] << 16) + (receivedMessage[2] << 8) + receivedMessage[3];
-    bytesReceivedInInterval = firstReceivedDatagram.getLength();
+    bytesReceivedInInterval = firstReceivedDatagram->getLength();
+
+    delete firstReceivedDatagram;
 
     /** Receive Packets until exit is send */
     while (true) {
-        auto receivedDatagram = Util::Network::Udp::UdpDatagram();
-        if (!socket.receive(receivedDatagram)) {
+        const auto *receivedDatagram = socket.receive();
+        if (receivedDatagram == nullptr) {
             Util::System::error << "nettest: Failed to receive echo request!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
-        receivedMessage = Util::String(receivedDatagram.getData(), receivedDatagram.getLength());
+        receivedMessage = Util::String(receivedDatagram->getData(), receivedDatagram->getLength());
 
         /** If message equals exit: break loop
          *  Currently Max Number of Packets: 1.702.390.132 as this equals exit
@@ -95,7 +97,7 @@ int32_t receiveTraffic(Util::Network::Socket &socket){
             packetsOutOfOrder++;
         }
         previousPacketNumber = currentPacketNumber;
-        bytesReceivedInInterval = bytesReceivedInInterval + receivedDatagram.getLength();
+        bytesReceivedInInterval = bytesReceivedInInterval + receivedDatagram->getLength();
 
         /** if a second passed write current bytes per second into output */
         if (secondsPassed < Util::Time::Timestamp::getSystemTime()) {
@@ -107,6 +109,8 @@ int32_t receiveTraffic(Util::Network::Socket &socket){
             /** set seconds to next second passed */
             secondsPassed += Util::Time::Timestamp::ofSeconds(1);
         }
+
+        delete receivedDatagram;
     }
     bytesReceived = bytesReceived + bytesReceivedInInterval;
 
@@ -216,45 +220,52 @@ int32_t server(Util::Network::Socket &socket) {
 
     /** Wait for client to initiate connection, return if exit code is != 0 */
     while (true) {
-        auto receivedDatagram = Util::Network::Udp::UdpDatagram();
-        if (!socket.receive(receivedDatagram)) {
+        const auto *receivedDatagram = reinterpret_cast<const Util::Network::Udp::UdpDatagram*>(socket.receive());
+        if (receivedDatagram == nullptr) {
             Util::System::error << "nettest: Failed to receive echo request!" << Util::Io::PrintStream::lnFlush;
             return -1;
         }
 
         /** If connection request is received: send reply to client */
-        if (Util::String(receivedDatagram.getData(), receivedDatagram.getLength()).strip() == "Init") {
-            if (!socket.send(receivedDatagram)) {
+        if (Util::String(receivedDatagram->getData(), receivedDatagram->getLength()).strip() == "Init") {
+            if (!socket.send(*receivedDatagram)) {
                 Util::System::error << "nettest: Failed to send echo reply!" << Util::Io::PrintStream::lnFlush;
                 return -1;
             }
 
+            delete receivedDatagram;
             return receiveTraffic(socket);
-        } else if (Util::String(receivedDatagram.getData(), receivedDatagram.getLength()).strip() == "InitR") { /** Reverse test: */
-            if (!socket.send(receivedDatagram)) {
+        } else if (Util::String(receivedDatagram->getData(), receivedDatagram->getLength()).strip() == "InitR") { /** Reverse test: */
+            if (!socket.send(*receivedDatagram)) {
                 Util::System::error << "nettest: Failed to send echo reply!" << Util::Io::PrintStream::lnFlush;
                 return -1;
             }
+
+            delete receivedDatagram;
 
             /** Wait for message with packetLength and timing interval */
-            if (!socket.receive(receivedDatagram)) {
+            receivedDatagram = reinterpret_cast<const Util::Network::Udp::UdpDatagram*>(socket.receive());
+            if (receivedDatagram == nullptr) {
                 Util::System::error << "nettest: Failed to receive echo request!" << Util::Io::PrintStream::ln
                                     << Util::Io::PrintStream::flush;
                 return -1;
             }
-            if(receivedDatagram.getLength() != 4){
+            if (receivedDatagram->getLength() != 4) {
+                delete receivedDatagram;
                 Util::System::error << "nettest: Failed to receive reverse test data! " << Util::Io::PrintStream::lnFlush;
                 return -1;
             }
 
             /** Get packetLen and Test duration */
-            auto data = receivedDatagram.getData();
+            auto data = receivedDatagram->getData();
             uint16_t packetLength = (data[0] << 8) + data[1];
             uint16_t timingInterval = (data[2] << 8) + data[3];
 
             /** Get destination address from client */
-            auto destinationAddress = reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress&>(receivedDatagram.getRemoteAddress());
-            destinationAddress.setPort(receivedDatagram.getRemotePort());
+            auto destinationAddress = reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress&>(receivedDatagram->getRemoteAddress());
+            destinationAddress.setPort(receivedDatagram->getRemotePort());
+            delete receivedDatagram;
+
             /** Start reverse test */
             return sendTraffic(socket, destinationAddress, timingInterval, packetLength);
         }
@@ -282,14 +293,16 @@ int32_t client(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4PortA
 
     /** Wait for reply from server */
     Util::System::out << "Waiting for Server reply" << Util::Io::PrintStream::lnFlush;
-    auto receivedDatagram = Util::Network::Udp::UdpDatagram();
-    if (!socket.receive(receivedDatagram)) {
+    const auto *receivedDatagram = socket.receive();
+    if (receivedDatagram == nullptr) {
         Util::System::error << "nettest: Failed to receive server reply!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
 
     /** Check if Server response is correct */
-    auto message = Util::String(receivedDatagram.getData(), receivedDatagram.getLength());
+    auto message = Util::String(receivedDatagram->getData(), receivedDatagram->getLength());
+    delete receivedDatagram;
+
     if (!(message == initMsg)) {
         Util::System::error << "nettest: Server replied with wrong message!" << Util::Io::PrintStream::lnFlush;
         return -1;
@@ -387,7 +400,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     Util::Network::Socket socket(Util::Network::Socket::UDP);
-    socket.setTimeout(Util::Time::Timestamp::ofSeconds(5));
+    socket.setTimeout(Util::Time::Timestamp::ofSeconds(30));
 
     if (!socket.bind(bindAddress)) {
         Util::System::error << "nettest: Failed to bind socket!" << Util::Io::PrintStream::lnFlush;

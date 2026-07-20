@@ -91,11 +91,6 @@ public:
     uint16_t getRemotePort() const {
         return reinterpret_cast<const Ip4::Ip4PortAddress&>(getRemoteAddress()).getPort();
     }
-
-    /// Set attributes of this datagram based on another datagram.
-    /// Since this class has no specific attributes, this method does nothing.
-    /// It is provided to fulfill the interface contract of the Datagram class.
-    void setAttributes(const Datagram&) override {}
 };
 
 }

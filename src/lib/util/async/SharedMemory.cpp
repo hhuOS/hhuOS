@@ -58,7 +58,7 @@ bool SharedMemory::map() const {
     }
 
     auto file = Io::File(String::format("/process/%u/shared/%s", process, static_cast<const char*>(name)));
-    return file.controlFile(MAP, Util::Array<size_t>({address.get()}));
+    return file.control(MAP, address.get());
 }
 
 }

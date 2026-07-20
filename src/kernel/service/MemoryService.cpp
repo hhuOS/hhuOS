@@ -48,36 +48,8 @@ MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaM
         currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
     addressSpaces.add(kernelAddressSpace);
 
-    Service::getService<InterruptService>().assignSystemCall(Util::System::UNMAP, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 2) {
-            return false;
-        }
-
-        auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-        auto virtualAddress = va_arg(arguments, void*);
-        auto pageCount = va_arg(arguments, uint32_t);
-        auto breakCount = va_arg(arguments, uint32_t);
-
-        if (reinterpret_cast<uint32_t>(virtualAddress) < MemoryLayout::KERNEL_END) {
-            return false;
-        }
-
-        return memoryService.unmap(virtualAddress, pageCount, breakCount) != nullptr;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::MAP_IO, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 3) {
-            return false;
-        }
-
-        auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-        auto physicalAddress = va_arg(arguments, uint32_t);
-        auto pageCount = va_arg(arguments, uint32_t);
-        void *&mappedAddress = *va_arg(arguments, void**);
-
-        mappedAddress = memoryService.mapIO(reinterpret_cast<void*>(physicalAddress), pageCount, false);
-        return true;
-    });
+    ASSIGN_SYSTEM_CALL(Util::System::UNMAP, MemoryService::systemCallUnmap);
+    ASSIGN_SYSTEM_CALL(Util::System::MAP_IO, MemoryService::systemCallMapIO);
 }
 
 MemoryService::~MemoryService() {
@@ -462,6 +434,23 @@ const Util::ArrayList<VirtualAddressSpace *> &MemoryService::getAllAddressSpaces
 
 void MemoryService::enableSlabAllocator() {
     slabAllocatorEnabled = true;
+}
+
+int64_t MemoryService::systemCallUnmap(void *virtualAddress, const uint32_t pageCount, const uint32_t breakCount) {
+    auto &memoryService = getService<MemoryService>();
+
+    if (reinterpret_cast<uint32_t>(virtualAddress) < MemoryLayout::KERNEL_END) {
+        return -1;
+    }
+
+    return memoryService.unmap(virtualAddress, pageCount, breakCount) == nullptr ? -1 : 0;
+}
+
+int64_t MemoryService::systemCallMapIO(const uint32_t physicalAddress, const uint32_t pageCount) {
+    auto &memoryService = getService<MemoryService>();
+
+    const auto *virtualAddress = memoryService.mapIO(reinterpret_cast<void*>(physicalAddress), pageCount, false);
+    return reinterpret_cast<int64_t>(virtualAddress);
 }
 
 }

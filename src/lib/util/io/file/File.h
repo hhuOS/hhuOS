@@ -389,11 +389,11 @@ public:
     /// auto file = Util::Io::File("/device/terminal");
     ///
     /// // Disable cursor in terminal
-    /// if (!file.controlFile(Util::Graphic::Terminal::SET_CURSOR, Util::Array<size_t>({false}))) {
+    /// if (!file.control(Util::Graphic::Terminal::SET_CURSOR, false)) {
     ///     Util::System::out << "Failed to disable cursor!" << Util::Io::PrintStream::lnFlush;
     /// }
     /// ```
-    bool controlFile(size_t request, const Array<size_t> &parameters) const;
+    int64_t control(size_t request, size_t arg0 = 0, size_t arg1 = 0, size_t arg2 = 0) const;
 
     /// Resolve the given path to its canonical absolute form.
     /// If the path is relative, it is resolved against the current working directory.
@@ -472,13 +472,13 @@ public:
     /// ```c++
     ///  // Disable cursor in terminal (only works if /device/terminal is the standard output)
     /// const auto success = Util::Io::File::controlFile(Util::Io::STANDARD_OUTPUT,
-    ///     Util::Graphic::Terminal::SET_CURSOR, Util::Array<size_t>({false}));
+    ///     Util::Graphic::Terminal::SET_CURSOR, false);
     ///
     /// if (!success) {
     ///     Util::System::out << "Failed to disable cursor!" << Util::Io::PrintStream::lnFlush;
     /// }
     /// ```
-    static bool controlFile(int32_t fileDescriptor, size_t request, const Array<size_t> &parameters);
+    static int64_t controlFile(int32_t fileDescriptor, size_t request, size_t arg0 = 0, size_t arg1 = 0, size_t arg2 = 0);
 
     /// Issue a control request to the file identified by the given file descriptor.
     /// This method can for example be used to set the access mode (blocking or non-blocking)
@@ -489,13 +489,14 @@ public:
     /// ```c++
     /// // Set standard input to non-blocking mode
     /// const auto success = Util::Io::File::controlFileDescriptor(Util::Io::STANDARD_INPUT,
-    ///     Util::Io::File::SET_ACCESS_MODE, Util::Array<size_t>({Util::Io::File::NON_BLOCKING}));
+    ///     Util::Io::File::SET_ACCESS_MODE, Util::Io::File::NON_BLOCKING);
     ///
     /// if (!success) {
     ///     Util::System::out << "Failed to set access mode!" << Util::Io::PrintStream::lnFlush;
     /// }
     /// ```
-    static bool controlFileDescriptor(int32_t fileDescriptor, FileDescriptorRequest request, const Array<size_t> &parameters);
+    static bool controlFileDescriptor(int32_t fileDescriptor, FileDescriptorRequest request, size_t arg0 = 0,
+        size_t arg1 = 0, size_t arg2 = 0);
 
     /// Set the access mode (blocking or non-blocking) of the given file descriptor.
     /// Note that this only affects the given file descriptor and not the underlying file itself.

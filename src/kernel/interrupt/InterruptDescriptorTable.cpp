@@ -30,6 +30,7 @@
 #include "kernel/process/Scheduler.h"
 
 namespace Kernel {
+
 enum InterruptVector : uint8_t;
 struct InterruptFrame;
 
@@ -295,7 +296,7 @@ InterruptDescriptorTable::InterruptDescriptorTable() {
     SET_IDT_ENTRY(table, 255, handleInterrupt255)
 
     // Set system call handler
-    table[0x86] = GateDescriptor(reinterpret_cast<uint32_t>(handleSystemCall), Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 1), GateType::TRAP_32, Device::Cpu::PrivilegeLevel::Ring3);
+    table[0x86] = GateDescriptor(reinterpret_cast<uint32_t>(SystemCallDispatcher::dispatch), Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 1), TRAP_32, Device::Cpu::PrivilegeLevel::Ring3);
 }
 
 InterruptDescriptorTable::Descriptor::Descriptor(void *address, uint16_t entries) : size((entries * sizeof(uint64_t)) - 1), offset(reinterpret_cast<uint32_t>(address)) {}
@@ -367,22 +368,6 @@ void InterruptDescriptorTable::handlePageFault([[maybe_unused]] InterruptFrame *
 
 void InterruptDescriptorTable::handleFpuException([[maybe_unused]] InterruptFrame *frame) {
     Kernel::Service::getService<Kernel::ProcessService>().getScheduler().switchFpuContext();
-}
-
-void InterruptDescriptorTable::handleSystemCall([[maybe_unused]] InterruptFrame *frame) {
-    uint32_t codeAndParamCount;
-    va_list args;
-    bool *result;
-
-    asm volatile (
-            ""
-            : "=b"(codeAndParamCount), "=c"(args), "=d"(result)
-            );
-
-    auto code = static_cast<Util::System::Code>(codeAndParamCount);
-    auto paramCount = codeAndParamCount >> 8;
-
-    Service::getService<InterruptService>().dispatchSystemCall(code, paramCount, args, *result);
 }
 
 }

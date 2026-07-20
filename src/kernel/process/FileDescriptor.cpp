@@ -31,18 +31,22 @@ FileDescriptor::~FileDescriptor() {
     delete node;
 }
 
-bool FileDescriptor::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
+int32_t FileDescriptor::control(const uint32_t request, const uint32_t arg0, const uint32_t, const uint32_t) {
+    if (!isValid()) {
+        return -1;
+    }
+
     switch (request) {
         case Util::Io::File::SET_ACCESS_MODE:
-            setAccessMode(static_cast<Util::Io::File::AccessMode>(parameters[0]));
-            return true;
+            setAccessMode(static_cast<Util::Io::File::AccessMode>(arg0));
+            return 0;
         case Util::Io::File::IS_READY_TO_READ: {
-            bool &readyToRead = *reinterpret_cast<bool*>(parameters[0]);
+            bool &readyToRead = *reinterpret_cast<bool*>(arg0);
             readyToRead = node->isReadyToRead();
-            return true;
+            return 0;
         }
         default:
-            return false;
+            return -1;
     }
 }
 

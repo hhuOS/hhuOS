@@ -143,6 +143,12 @@ public:
         destination.copyRange(source, length);
     }
 
+    /// Get access to the internal address buffer.
+    /// Modifying the buffer the buffer is highly unsafe and should only be done in exceptional cases.
+    uint8_t* getBuffer() const {
+        return buffer;
+    }
+
     /// Return the address length in bytes.
     uint8_t getLength() const {
         return length;

@@ -52,6 +52,10 @@
 #include "InterruptService.h"
 #include "kernel/service/Service.h"
 #include "kernel/process/FileDescriptor.h"
+#include "util/network/ethernet/EthernetDatagram.h"
+#include "util/network/icmp/IcmpDatagram.h"
+#include "util/network/ip4/Ip4Datagram.h"
+#include "util/network/udp/UdpDatagram.h"
 
 namespace Filesystem {
 class Node;
@@ -62,77 +66,9 @@ namespace Kernel {
 Util::HashMap<Util::String, uint32_t> NetworkService::nameMap;
 
 NetworkService::NetworkService() {
-    Service::getService<InterruptService>().assignSystemCall(Util::System::CREATE_SOCKET, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 2) {
-            return false;
-        }
-
-        auto &networkService = Service::getService<NetworkService>();
-        auto socketType = static_cast<Util::Network::Socket::Type>(va_arg(arguments, int));
-        auto &fileDescriptor = *va_arg(arguments, int32_t*);
-
-        fileDescriptor = networkService.createSocket(socketType);
-        return true;
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::SEND_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 2) {
-            return false;
-        }
-
-        auto &filesystemService = Service::getService<FilesystemService>();
-        auto fileDescriptor = va_arg(arguments, int32_t);
-        auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
-
-        auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getFileDescriptor(fileDescriptor).getNode());
-        if (!socket.isBound()) {
-            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
-        }
-
-        return socket.send(datagram);
-    });
-
-    Service::getService<InterruptService>().assignSystemCall(Util::System::RECEIVE_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> bool {
-        if (paramCount < 2) {
-            return false;
-        }
-
-        auto &filesystemService = Service::getService<FilesystemService>();
-        auto &memoryService = Service::getService<MemoryService>();
-        auto fileDescriptor = va_arg(arguments, int32_t);
-        auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
-
-        auto &socketDescriptor = filesystemService.getFileDescriptor(fileDescriptor);
-        auto &socket = reinterpret_cast<Network::Socket&>(socketDescriptor.getNode());
-        if (!socket.isBound()) {
-            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
-        }
-
-        if (socketDescriptor.getAccessMode() == Util::Io::File::BLOCKING || socket.isReadyToRead()) {
-            // Receive the datagram from the socket (will block if no datagram is available)
-            // If the descriptor is non-blocking, we have already checked if the socket is ready to read
-            auto *kernelDatagram = socket.receive();
-            if (kernelDatagram == nullptr) {
-                return false;
-            }
-
-            auto *datagramBuffer = reinterpret_cast<uint8_t *>(memoryService.allocateUserMemory(kernelDatagram->getLength()));
-
-            auto source = Util::Address(kernelDatagram->getData());
-            auto target = Util::Address(datagramBuffer);
-            target.copyRange(source, kernelDatagram->getLength());
-
-            datagram.setData(datagramBuffer, kernelDatagram->getLength());
-            datagram.setRemoteAddress(kernelDatagram->getRemoteAddress());
-            datagram.setAttributes(*kernelDatagram);
-
-            delete kernelDatagram;
-            return true;
-        } else {
-            // The descriptor is non-blocking and the socket is not ready to read
-            return false;
-        }
-    });
+    ASSIGN_SYSTEM_CALL(Util::System::CREATE_SOCKET, NetworkService::systemCallCreateSocket);
+    ASSIGN_SYSTEM_CALL(Util::System::SEND_DATAGRAM, NetworkService::systemCallSendDatagram);
+    ASSIGN_SYSTEM_CALL(Util::System::RECEIVE_DATAGRAM, NetworkService::systemCallReceiveDatagram);
 }
 
 void NetworkService::initializeLoopback() {
@@ -222,6 +158,129 @@ int32_t NetworkService::createSocket(Util::Network::Socket::Type socketType) {
 
 bool NetworkService::isNetworkDeviceRegistered(const Util::String &identifier) {
     return deviceMap.containsKey(identifier);
+}
+
+int64_t NetworkService::systemCallCreateSocket(const Util::Network::Socket::Type socketType) {
+    auto &networkService = getService<NetworkService>();
+
+    return networkService.createSocket(socketType);
+}
+
+int64_t NetworkService::systemCallSendDatagram(const int32_t fileDescriptor, const uint8_t *remoteAddressBuffer,
+    const uint8_t *payload, const uint32_t length, const uint32_t datagramArg)
+{
+    auto &filesystemService = getService<FilesystemService>();
+
+    const auto &descriptor = filesystemService.getFileDescriptor(fileDescriptor);
+    if (!descriptor.isValid()) {
+        return -1;
+    }
+
+    auto &socket = reinterpret_cast<Network::Socket&>(descriptor.getNode());
+    if (!socket.isBound()) {
+        return -1;
+    }
+
+    switch (socket.getNetworkType()) {
+        case Util::Network::Socket::ETHERNET: {
+            const auto remoteAddress = Util::Network::MacAddress(remoteAddressBuffer);
+            const auto etherType = static_cast<Util::Network::Ethernet::EthernetHeader::EtherType>(datagramArg);
+            const auto datagram = Util::Network::Ethernet::EthernetDatagram(payload, length, remoteAddress, etherType);
+
+            return socket.send(datagram) ? 0 : -1;
+        }
+        case Util::Network::Socket::IP4: {
+            const auto remoteAddress = Util::Network::Ip4::Ip4Address(remoteAddressBuffer);
+            const auto protocol = static_cast<Util::Network::Ip4::Ip4Header::Protocol>(datagramArg);
+            const auto datagram = Util::Network::Ip4::Ip4Datagram(payload, length, remoteAddress, protocol);
+
+            return socket.send(datagram) ? 0 : -1;
+        }
+        case Util::Network::Socket::ICMP: {
+            const auto remoteAddress = Util::Network::Ip4::Ip4Address(remoteAddressBuffer);
+            const auto type = static_cast<Util::Network::Icmp::IcmpHeader::Type>(datagramArg & 0xff);
+            const auto code = static_cast<uint8_t>(datagramArg >> 8);
+            const auto datagram = Util::Network::Icmp::IcmpDatagram(payload, length, remoteAddress, type, code);
+
+            return socket.send(datagram) ? 0 : -1;
+        }
+        case Util::Network::Socket::UDP: {
+            const auto remoteAddress = Util::Network::Ip4::Ip4PortAddress(remoteAddressBuffer);
+            const auto datagram = Util::Network::Udp::UdpDatagram(payload, length, remoteAddress);
+
+            return socket.send(datagram) ? 0 : -1;
+        }
+        case Util::Network::Socket::IP6:
+        case Util::Network::Socket::TCP:
+        default:
+            return -1;
+    }
+}
+
+int64_t NetworkService::systemCallReceiveDatagram(const int32_t fileDescriptor, uint8_t **remoteAddressBuffer,
+    uint8_t **payload, uint32_t *length, uint32_t *datagramArg)
+{
+    auto &filesystemService = getService<FilesystemService>();
+    auto &memoryService = getService<MemoryService>();
+
+    const auto &descriptor = filesystemService.getFileDescriptor(fileDescriptor);
+    if (!descriptor.isValid()) {
+        return -1;
+    }
+
+    auto &socket = reinterpret_cast<Network::Socket&>(descriptor.getNode());
+    if (!socket.isBound()) {
+        return -1;
+    }
+
+    if (descriptor.getAccessMode() == Util::Io::File::BLOCKING || socket.isReadyToRead()) {
+        // Receive the datagram from the socket (will block if no datagram is available)
+        // If the descriptor is non-blocking, we have already checked if the socket is ready to read
+        auto *kernelDatagram = socket.receive();
+        if (kernelDatagram == nullptr) {
+            return -1;
+        }
+
+        switch (socket.getNetworkType()) {
+            case Util::Network::Socket::ETHERNET: {
+                const auto *ethernetDatagram = reinterpret_cast<Util::Network::Ethernet::EthernetDatagram*>(kernelDatagram);
+                *datagramArg = ethernetDatagram->getEtherType();
+            }
+            break;
+            case Util::Network::Socket::IP4: {
+                const auto *ip4Datagram = reinterpret_cast<Util::Network::Ip4::Ip4Datagram*>(kernelDatagram);
+                *datagramArg = ip4Datagram->getProtocol();
+            }
+            break;
+            case Util::Network::Socket::ICMP: {
+                const auto *icmpDatagram = reinterpret_cast<Util::Network::Icmp::IcmpDatagram*>(kernelDatagram);
+                *datagramArg = static_cast<uint32_t>(icmpDatagram->getCode() << 8) | static_cast<uint32_t>(icmpDatagram->getType());
+            }
+            break;
+            case Util::Network::Socket::UDP:
+                break;
+            case Util::Network::Socket::IP6:
+            case Util::Network::Socket::TCP:
+                delete kernelDatagram;
+                return -1;
+        }
+
+        const auto &remoteAddress = kernelDatagram->getRemoteAddress();
+        *remoteAddressBuffer = static_cast<uint8_t*>(memoryService.allocateUserMemory(remoteAddress.getLength()));
+        remoteAddress.getAddress(*remoteAddressBuffer);
+
+        *length = kernelDatagram->getLength();
+        *payload = static_cast<uint8_t*>(memoryService.allocateUserMemory(*length));
+        const auto payloadSource = Util::Address(kernelDatagram->getData());
+        const auto payloadTarget = Util::Address(*payload);
+        payloadTarget.copyRange(payloadSource, *length);
+
+        delete kernelDatagram;
+        return 0;
+    }
+
+    // The descriptor is non-blocking and the socket is not ready to read
+    return -1;
 }
 
 }

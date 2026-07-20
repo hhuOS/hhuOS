@@ -21,43 +21,33 @@
 #ifndef HHUOS_SYSTEMCALLDISPATCHER_H
 #define HHUOS_SYSTEMCALLDISPATCHER_H
 
-#include <stdint.h>
-#include <stdarg.h>
-
+#include "InterruptFrame.h"
 #include "lib/util/base/System.h"
+
+#define ASSIGN_SYSTEM_CALL(code, func) SystemCallDispatcher::assign(code, reinterpret_cast<void(*)()>(&func))
 
 namespace Kernel {
 
 class SystemCallDispatcher {
-
 public:
-    /**
-     * Default Constructor.
-     */
-    SystemCallDispatcher() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    SystemCallDispatcher(const SystemCallDispatcher &other) = delete;
+    SystemCallDispatcher() = delete;
 
-    /**
-     * Assignment operator.
-     */
-    SystemCallDispatcher &operator=(const SystemCallDispatcher &other) = delete;
+    ~SystemCallDispatcher() = delete;
 
-    /**
-     * Destructor.
-     */
-    ~SystemCallDispatcher() = default;
+    static void assign(const Util::System::Code code, void(*func)()) {
+        if (systemCalls[code] != nullptr) {
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "SystemCallDispatcher: Code is already assigned!");
+        }
 
-    void assign(Util::System::Code code, bool(*func)(uint32_t paramCount, va_list params));
+        systemCalls[code] = func;
+    }
 
-    void dispatch(Util::System::Code code, uint16_t paramCount, va_list params, bool &result) const;
+    [[gnu::naked]] static void dispatch();
 
 private:
 
-    bool(*systemCalls[256])(uint32_t paramCount, va_list params){};
+    static void(*systemCalls[256])();
 
 };
 

@@ -90,7 +90,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    bool control(uint32_t request, const Util::Array<uint32_t> &parameters) override;
+    int64_t control(uint32_t request, uint32_t arg0, uint32_t arg1, uint32_t arg2) override;
 
     bool isReadyToRead() override;
 

@@ -44,6 +44,7 @@
 #include "lib/util/network/ip4/Ip4Route.h"
 #include "kernel/service/Service.h"
 #include "lib/util/collection/Array.h"
+#include "util/network/udp/UdpDatagram.h"
 
 namespace Kernel::Network {
 
@@ -89,7 +90,7 @@ Socket::~Socket() {
 
 const Util::Network::NetworkAddress& Socket::getAddress() const {
     if (!isBound()) {
-        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not bound!");
     }
 
     return *bindAddress;
@@ -103,182 +104,202 @@ void Socket::setTimeout(uint32_t timeout) {
     Socket::timeout = timeout;
 }
 
-bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
+Util::Network::Socket::Type Socket::getNetworkType() const {
+    return type;
+}
+
+int64_t Socket::control(uint32_t request, uint32_t arg0, uint32_t arg1, uint32_t) {
     switch (request) {
         case Util::Network::Socket::Request::SET_TIMEOUT: {
-            if (parameters.length() < 1) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: Missing parameters!");
-            }
-
-            timeout = parameters[0];
-            return true;
+            timeout = arg0;
+            return 0;
         }
         case Util::Network::Socket::Request::BIND: {
-            if (parameters.length() < 1) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: Missing parameters!");
-            }
+            const auto *addressBuffer = reinterpret_cast<const uint8_t*>(arg0);
 
-            bind(*reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]));
-            return true;
+            switch (type) {
+                case Util::Network::Socket::ETHERNET:
+                    bind(Util::Network::MacAddress(addressBuffer));
+                    return 0;
+                case Util::Network::Socket::IP4:
+                case Util::Network::Socket::ICMP:
+                    bind(Util::Network::Ip4::Ip4Address(addressBuffer));
+                    return 0;
+                case Util::Network::Socket::UDP:
+                case Util::Network::Socket::TCP:
+                    bind(Util::Network::Ip4::Ip4PortAddress(addressBuffer));
+                    return 0;
+                case Util::Network::Socket::IP6:
+                    return -1;
+            }
+            break;
         }
         case Util::Network::Socket::Request::GET_LOCAL_ADDRESS: {
             if (!isBound()) {
-                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
-            }
-            if (parameters.length() < 1) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: Missing parameters!");
+                return -1;
             }
 
-            auto &address = *reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]);
-            address = *bindAddress;
-            return true;
+            auto *buffer = reinterpret_cast<uint8_t*>(arg0);
+            bindAddress->getAddress(buffer);
+            return 0;
         }
         case Util::Network::Socket::Request::GET_IP4_ADDRESSES: {
             if (type != Util::Network::Socket::ETHERNET) {
-                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
+                return -1;
             }
             if (!isBound()) {
-                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
-            }
-            if (parameters.length() < 1) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: No parameter given!");
+                return -1;
             }
 
+            auto &memoryService = Service::getService<MemoryService>();
             auto &networkService = Service::getService<NetworkService>();
             auto &ip4Module = networkService.getNetworkStack().getIp4Module();
-            auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
+            const auto &device = networkService.getNetworkDevice(
+                reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
 
             auto interfaces = ip4Module.getInterfaces(device.getIdentifier());
-            auto &addresses = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4SubnetAddress>*>(parameters[0]);
+            const auto count = interfaces.length();
+            auto *buffer = static_cast<uint8_t*>(
+                memoryService.allocateUserMemory(count * Util::Network::Ip4::Ip4SubnetAddress::ADDRESS_LENGTH));
 
-            for (uint32_t i = 0; i < interfaces.length() && i < addresses.length(); i++) {
-                addresses[i] = interfaces[i].getSubnetAddress();
+            for (uint32_t i = 0; i < count; i++) {
+                interfaces[i].getSubnetAddress().getAddress(buffer + i * Util::Network::Ip4::Ip4SubnetAddress::ADDRESS_LENGTH);
             }
 
-            return true;
+            *reinterpret_cast<uint8_t**>(arg0) = buffer;
+            return count;
         }
         case Util::Network::Socket::Request::REMOVE_IP4_ADDRESS: {
             if (type != Util::Network::Socket::ETHERNET) {
-                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
+                return -1;
             }
             if (!isBound()) {
-                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
-            }
-            if (parameters.length() < 1) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: No parameter given!");
+                return -1;
             }
 
             auto &networkService = Service::getService<NetworkService>();
             auto &ip4Module = networkService.getNetworkStack().getIp4Module();
-            auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
-            auto &address = *reinterpret_cast<Util::Network::Ip4::Ip4SubnetAddress*>(parameters[0]);
+            const auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
+            auto *buffer = reinterpret_cast<uint8_t*>(arg0);
+            const auto address = Util::Network::Ip4::Ip4SubnetAddress(buffer);
 
-            return ip4Module.removeInterface(address, device.getIdentifier());
+            return ip4Module.removeInterface(address, device.getIdentifier()) ? 0 : -1;
         }
         case Util::Network::Socket::Request::ADD_IP4_ADDRESS: {
             if (type != Util::Network::Socket::ETHERNET) {
-                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
+                return -1;
             }
             if (!isBound()) {
-                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
-            }
-            if (parameters.length() < 1) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: No parameter given!");
+                return -1;
             }
 
             auto &networkService = Service::getService<NetworkService>();
             auto &ip4Module = networkService.getNetworkStack().getIp4Module();
             auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
-            auto &address = *reinterpret_cast<Util::Network::Ip4::Ip4SubnetAddress*>(parameters[0]);
+            auto *buffer = reinterpret_cast<uint8_t*>(arg0);
+            const auto address = Util::Network::Ip4::Ip4SubnetAddress(buffer);
 
-            return ip4Module.registerInterface(address, device);
+            return ip4Module.registerInterface(address, device) ? 0 : -1;
         }
         case Util::Network::Socket::Request::GET_ROUTES: {
             if (type != Util::Network::Socket::IP4) {
-                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not an IPv4 socket!");
+                return -1;
             }
             if (!isBound()) {
-                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
-            }
-            if (parameters.length() < 4) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: Missing parameters!");
+                return -1;
             }
 
             auto &memoryService = Service::getService<MemoryService>();
             auto &networkService = Service::getService<NetworkService>();
             auto &routingModule = networkService.getNetworkStack().getIp4Module().getRoutingModule();
-            auto &sourceAddresses = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4Address>*>(parameters[0]);
-            auto &targetAddresses = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4SubnetAddress>*>(parameters[1]);
-            auto &targetNextHops = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4Address>*>(parameters[2]);
-            auto &targetDevices = *reinterpret_cast<Util::Array<char*>*>(parameters[3]);
 
-            if (sourceAddresses.length() == 0 || sourceAddresses.length() != targetAddresses.length() || sourceAddresses.length() != targetNextHops.length() || sourceAddresses.length() != targetDevices.length()) {
-                return false;
-            }
+            const auto routes = routingModule.getRoutes(*reinterpret_cast<Util::Network::Ip4::Ip4Address*>(bindAddress));
+            const auto count = routes.length();
 
-            auto routes = routingModule.getRoutes(*reinterpret_cast<Util::Network::Ip4::Ip4Address*>(bindAddress));
-            if (routes.length() == 0) {
-                sourceAddresses[0] = Util::Network::Ip4::Ip4Address::ANY;
-                targetAddresses[0] = Util::Network::Ip4::Ip4SubnetAddress();
-                targetNextHops[0] = Util::Network::Ip4::Ip4Address::ANY;
-                targetDevices[0] = static_cast<char*>(memoryService.allocateUserMemory(sizeof(char)));
-                targetDevices[0][0] = '\0';
+            constexpr auto ENTRY_LENGTH = 2 * Util::Network::Ip4::Ip4SubnetAddress::ADDRESS_LENGTH + Util::Network::Ip4::Ip4SubnetAddress::ADDRESS_LENGTH;
+            auto **devices = static_cast<char**>(memoryService.allocateUserMemory(count * sizeof(char*)));
+            auto *addressBuffer = static_cast<uint8_t*>(memoryService.allocateUserMemory(count * ENTRY_LENGTH));
 
-                return true;
-            }
-
-            for (uint32_t i = 0; i < routes.length() && i < targetAddresses.length(); i++) {
+            for (uint32_t i = 0; i < count; i++) {
                 const auto &route = routes[i];
 
-                sourceAddresses[i] = route.getSourceAddress();
-                targetAddresses[i] = route.getTargetAddress();
-                targetNextHops[i] = route.hasNextHop() ? route.getNextHop() : Util::Network::Ip4::Ip4Address::ANY;
-                targetDevices[i] = static_cast<char*>(memoryService.allocateUserMemory((route.getDeviceIdentifier().length() + 1) * sizeof(char)));
-
-                auto source = Util::Address(static_cast<const char*>(route.getDeviceIdentifier()));
-                auto target = Util::Address(targetDevices[i]);
+                devices[i] = static_cast<char*>(memoryService.allocateUserMemory((route.getDeviceIdentifier().length() + 1) * sizeof(char)));
+                const auto source = Util::Address(static_cast<const char*>(route.getDeviceIdentifier()));
+                const auto target = Util::Address(devices[i]);
                 target.copyString(source);
+
+                route.getSourceAddress().getAddress(addressBuffer + i * ENTRY_LENGTH);
+                route.getTargetAddress().getAddress(addressBuffer + i * ENTRY_LENGTH + Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH);
+
+                if (route.hasNextHop()) {
+                    route.getNextHop().getAddress(addressBuffer + i * ENTRY_LENGTH + Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH + Util::Network::Ip4::Ip4SubnetAddress::ADDRESS_LENGTH);
+                } else {
+                    const auto nextHopAddress = Util::Address(addressBuffer).add(i * ENTRY_LENGTH + Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH + Util::Network::Ip4::Ip4SubnetAddress::ADDRESS_LENGTH);
+                    nextHopAddress.setRange(0, Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH);
+                }
             }
 
-            return true;
+            *reinterpret_cast<uint8_t**>(arg0) = addressBuffer;
+            *reinterpret_cast<char***>(arg1) = devices;
+            return count;
         }
         case Util::Network::Socket::Request::REMOVE_ROUTE: {
             if (type != Util::Network::Socket::IP4) {
-                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not an IPv4 socket!");
+                return -1;
             }
             if (!isBound()) {
-                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
-            }
-            if (parameters.length() < 1) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: No parameter given!");
+                return -1;
             }
 
             auto &networkService = Service::getService<NetworkService>();
             auto &routingModule = networkService.getNetworkStack().getIp4Module().getRoutingModule();
-            auto route = *reinterpret_cast<Util::Network::Ip4::Ip4Route*>(parameters[0]);
 
-            return routingModule.removeRoute(route);
+            auto *buffer = reinterpret_cast<uint8_t*>(arg0);
+            auto *device = reinterpret_cast<char*>(arg1);
+
+            const auto sourceAddress = Util::Network::Ip4::Ip4Address(buffer);
+            const auto targetAddress = Util::Network::Ip4::Ip4SubnetAddress(buffer + Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH);
+            const auto nextHop = Util::Network::Ip4::Ip4Address(buffer + Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH + Util::Network::Ip4::Ip4SubnetAddress::ADDRESS_LENGTH);
+
+            if (nextHop == Util::Network::Ip4::Ip4Address::ANY) {
+                const auto route = Util::Network::Ip4::Ip4Route(sourceAddress, targetAddress, device);
+                return routingModule.removeRoute(route) ? 0 : -1;
+            }
+
+            const auto route = Util::Network::Ip4::Ip4Route(sourceAddress, targetAddress, nextHop, device);
+            return routingModule.removeRoute(route) ? 0 : -1;
         }
         case Util::Network::Socket::Request::ADD_ROUTE: {
             if (type != Util::Network::Socket::IP4) {
-                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not an IPv4 socket!");
+                return -1;
             }
             if (!isBound()) {
-                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
-            }
-            if (parameters.length() < 1) {
-                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: No parameter given!");
+                return -1;
             }
 
             auto &networkService = Service::getService<NetworkService>();
             auto &routingModule = networkService.getNetworkStack().getIp4Module().getRoutingModule();
-            auto route = *reinterpret_cast<Util::Network::Ip4::Ip4Route*>(parameters[0]);
 
-            return routingModule.addRoute(route);
+            auto *buffer = reinterpret_cast<uint8_t*>(arg0);
+            auto *device = reinterpret_cast<char*>(arg1);
+
+            const auto sourceAddress = Util::Network::Ip4::Ip4Address(buffer);
+            const auto targetAddress = Util::Network::Ip4::Ip4SubnetAddress(buffer + Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH);
+            const auto nextHop = Util::Network::Ip4::Ip4Address(buffer + Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH + Util::Network::Ip4::Ip4SubnetAddress::ADDRESS_LENGTH);
+
+            if (nextHop == Util::Network::Ip4::Ip4Address::ANY) {
+                const auto route = Util::Network::Ip4::Ip4Route(sourceAddress, targetAddress, device);
+                return routingModule.addRoute(route) ? 0 : -1;
+            }
+
+            const auto route = Util::Network::Ip4::Ip4Route(sourceAddress, targetAddress, nextHop, device);
+            return routingModule.addRoute(route) ? 0 : -1;
         }
         default:
-            return false;
+            return -1;
     }
+
+    return -1;
 }
 
 }

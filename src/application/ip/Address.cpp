@@ -116,7 +116,7 @@ int32_t Address::add() const {
     }
 
     if (!socket.addIp4Address(ipAddress)) {
-        Util::System::error << "ip: Failed to remove IPv4 address '" << ipAddress.toString() << "' from device '" << deviceName << "'!" << Util::Io::PrintStream::lnFlush;
+        Util::System::error << "ip: Failed to add IPv4 address '" << ipAddress.toString() << "' to device '" << deviceName << "'!" << Util::Io::PrintStream::lnFlush;
     }
 
     return 0;

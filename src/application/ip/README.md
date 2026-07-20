@@ -64,7 +64,7 @@ Commands
      The next hop is an optional IP address, only relevant if traffic is routed through another network hop.  
      ```
      [/]> ip addr show eth1
-     eth0:
+     eth1:
          MAC: 52:54:00:12:34:57
      [/]> ip addr add 10.0.2.16/24 eth1
      [/]> ip addr show eth1
@@ -87,7 +87,7 @@ Commands
      [/]> ip route show 10.0.2.15
      10.0.2.15/24 device eth0 source 10.0.2.15
      default via 10.0.2.2 device eth0 source 10.0.2.15
-     [/]> ip route delete 10.0.2.15 eth0
+     [/]> ip route delete 10.0.2.15/24 eth0
      [/]> ip route show 10.0.2.15
      default via 10.0.2.2 device eth0 source 10.0.2.15
      ```

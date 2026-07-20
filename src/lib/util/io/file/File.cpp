@@ -85,9 +85,9 @@ bool File::remove() const {
     return deleteFile(path);
 }
 
-bool File::controlFile(const size_t request, const Array<size_t> &parameters) const {
+int64_t File::control(const size_t request, const size_t arg0, const size_t arg1, const size_t arg2) const {
     ensureFileIsOpened();
-    return ::controlFile(fileDescriptor, request, parameters);
+    return ::controlFile(fileDescriptor, request, arg0, arg1, arg2);
 }
 
 String File::getCanonicalPath(const String &path) {
@@ -143,24 +143,26 @@ int32_t File::open(const String &path) {
     return openFile(path);
 }
 
-bool File::controlFile(const int32_t fileDescriptor, const size_t request, const Array<size_t> &parameters) {
-    return ::controlFile(fileDescriptor, request, parameters);
+int64_t File::controlFile(const int32_t fileDescriptor, const size_t request, const size_t arg0, const size_t arg1,
+    const size_t arg2)
+{
+    return ::controlFile(fileDescriptor, request, arg0, arg1, arg2);
 }
 
 bool File::controlFileDescriptor(const int32_t fileDescriptor, const FileDescriptorRequest request,
-        const Array<size_t> &parameters)
+        const size_t arg0, const size_t arg1, const size_t arg2)
 {
-    return ::controlFileDescriptor(fileDescriptor, request, parameters);
+    return ::controlFileDescriptor(fileDescriptor, request, arg0, arg1, arg2);
 }
 
 bool File::setAccessMode(const int32_t fileDescriptor, const AccessMode accessMode) {
-    return controlFileDescriptor(fileDescriptor, SET_ACCESS_MODE, Util::Array<size_t>({accessMode}));
+    return controlFileDescriptor(fileDescriptor, SET_ACCESS_MODE, accessMode);
 }
 
 bool File::isReadyToRead(const int32_t fileDescriptor) {
     bool readyToRead;
     const auto success = controlFileDescriptor(fileDescriptor, IS_READY_TO_READ,
-        Util::Array<size_t>({reinterpret_cast<size_t>(&readyToRead)}));
+        reinterpret_cast<size_t>(&readyToRead));
 
     if (!success) {
         Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Failed to query readiness!");

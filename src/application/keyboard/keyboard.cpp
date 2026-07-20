@@ -49,7 +49,7 @@ int32_t main(const int32_t argc, char *argv[]) {
 
     const auto success = Util::Io::File::controlFile(Util::Io::STANDARD_INPUT,
         Util::Graphic::Terminal::Command::SET_KEYBOARD_LAYOUT,
-        Util::Array<uint32_t>({reinterpret_cast<uint32_t>(static_cast<const char*>(arguments[0]))}));
+        reinterpret_cast<size_t>(static_cast<const char*>(arguments[0])));
 
     if (!success) {
         Util::System::error << "keyboard: Failed to set layout!" << Util::Io::PrintStream::lnFlush;

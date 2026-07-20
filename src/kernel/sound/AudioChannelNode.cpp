@@ -35,31 +35,25 @@ uint64_t AudioChannelNode::writeData(const uint8_t *sourceBuffer, [[maybe_unused
     return numBytes;
 }
 
-bool AudioChannelNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
+int64_t AudioChannelNode::control(uint32_t request, uint32_t, uint32_t, uint32_t) {
     switch (request) {
         case Util::Sound::AudioChannel::PLAY:
             mixer.controlPlayback(Util::Sound::AudioChannel::PLAY, id);
-            return true;
+            return 0;
         case Util::Sound::AudioChannel::STOP:
             mixer.controlPlayback(Util::Sound::AudioChannel::STOP, id);
-            return true;
+            return 0;
         case Util::Sound::AudioChannel::GET_PLAYBACK_STATE: {
-            auto *state = reinterpret_cast<Util::Sound::AudioChannel::State*>(parameters[0]);
-            *state = channel.getState();
-            return true;
+            return channel.getState();
         }
         case Util::Sound::AudioChannel::GET_REMAINING_BYTES: {
-            auto *remainingBytes = reinterpret_cast<uint32_t*>(parameters[0]);
-            *remainingBytes = channel.getReadableBytes();
-            return true;
+            return channel.getReadableBytes();
         }
         case Util::Sound::AudioChannel::GET_WRITABLE_BYTES: {
-            auto *writableBytes = reinterpret_cast<uint32_t*>(parameters[0]);
-            *writableBytes = channel.getWritableBytes();
-            return true;
+            return channel.getWritableBytes();
         }
         default:
-            return false;
+            return -1;
     }
 
 }

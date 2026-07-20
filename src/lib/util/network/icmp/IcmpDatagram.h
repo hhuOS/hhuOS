@@ -141,14 +141,6 @@ public:
         return code;
     }
 
-    /// Set the ICMP type and code of this datagram to the one of the given datagram.
-    /// This is used by the kernel to copy attributes from a kernel space datagram to a user space datagram.
-    void setAttributes(const Datagram &datagram) override {
-        auto &icmpDatagram = reinterpret_cast<const IcmpDatagram&>(datagram);
-        type = icmpDatagram.getType();
-        code = icmpDatagram.getCode();
-    }
-
 private:
 
     IcmpHeader::Type type = IcmpHeader::ECHO_REQUEST;

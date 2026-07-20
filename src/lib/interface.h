@@ -79,7 +79,7 @@ void* mapIO(size_t physicalAddress, size_t pageCount);
 /// The kernel ignores such unmap requests, but they waste time nonetheless.
 /// To avoid this issue, the `breakCount` parameter can be used to tell the kernel to stop unmapping
 /// after it has encountered the given number of unmapped pages in a row.
-void unmap(void *virtualAddress, size_t pageCount, size_t breakCount = 0);
+bool unmap(void *virtualAddress, size_t pageCount, size_t breakCount = 0);
 
 /// Mount a filesystem driver at the given target path, using the specified device and driver.
 ///
@@ -113,7 +113,7 @@ void closeFile(int32_t fileDescriptor);
 Util::Io::File::Type getFileType(int32_t fileDescriptor);
 
 /// Get the length of the file associated with the given file descriptor in bytes.
-size_t getFileLength(int32_t fileDescriptor);
+uint64_t getFileLength(int32_t fileDescriptor);
 
 /// Get the names of the children of the directory associated with the given file descriptor.
 /// The names are returned as an array of strings.
@@ -128,20 +128,19 @@ uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, u
 /// Write data from the source buffer to the file associated with the given file descriptor.
 /// The write starts at the given position in the file and writes up to the specified length in bytes.
 /// The actual number of bytes written is returned.
-uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint64_t length);
+uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint32_t length);
 
 /// Issue a control request to the file associated with the given file descriptor.
 /// The request is specified by the request code and the parameters.
 /// This can for example be used to manipulate devices via files they expose.
-/// The request and parameters are specific to the device driver.
-/// Return true on success, false otherwise.
-bool controlFile(int32_t fileDescriptor, size_t request, const Util::Array<size_t> &parameters);
+/// The request, its parameters and the return value are specific to the device driver.
+int64_t controlFile(int32_t fileDescriptor, size_t request, size_t arg0, size_t arg1, size_t arg2);
 
 /// Issue a control request to the file descriptor itself.
 /// This can for example be used to change the access mode of the file descriptor (blocking or non-blocking)
 /// or to check if the file descriptor is ready to read.
 /// Return true on success, false otherwise.
-bool controlFileDescriptor(int32_t fileDescriptor, size_t request, const Util::Array<size_t> &parameters);
+bool controlFileDescriptor(int32_t fileDescriptor, size_t request, size_t arg0, size_t arg1, size_t arg2);
 
 /// Change the current working directory of the calling process to the given path.
 /// Return true on success, false otherwise.
@@ -167,17 +166,20 @@ int32_t createSocket(Util::Network::Socket::Type socketType);
 
 /// Send a datagram via the socket associated with the given file descriptor.
 /// Return true on success, false otherwise.
-bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagram);
+bool sendDatagram(int32_t fileDescriptor, Util::Network::Socket::Type socketType,
+    const Util::Network::Datagram &datagram);
 
 /// Receive a datagram via the socket associated with the given file descriptor.
-/// The received datagram is stored in the provided `datagram` object.
 /// Depending on the socket's configuration, this call may block until a datagram is available.
-/// Return true on success, false otherwise.
-bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram);
+/// Return a pointer to received datagram (or nullptr on failure).
+/// The datagram is allocated on the heap and the caller is responsible for deleting it.
+const Util::Network::Datagram* receiveDatagram(int32_t fileDescriptor, Util::Network::Socket::Type socketType);
 
 /// Execute a binary file in a new process with the given input, output, and error files, command, and arguments.
 /// Return a `Util::Async::Process` object representing the created process.
-Util::Async::Process executeBinary(const Util::Io::File &binaryFile, const Util::Io::File &inputFile, const Util::Io::File &outputFile, const Util::Io::File &errorFile, const Util::String &command, const Util::Array<Util::String> &arguments);
+Util::Async::Process executeBinary(const Util::Io::File &binaryFile, const Util::Io::File &inputFile,
+    const Util::Io::File &outputFile, const Util::Io::File &errorFile, const Util::String &command,
+    const Util::Array<Util::String> &arguments);
 
 /// Get a `Util::Async::Process` object representing the currently running process.
 Util::Async::Process getCurrentProcess();
@@ -216,7 +218,7 @@ Util::Time::Timestamp getSystemTime();
 Util::Time::Date getCurrentDate();
 
 /// Set the current system date to the specified date.
-void setDate(const Util::Time::Date &date);
+bool setDate(const Util::Time::Date &date);
 
 /// Shutdown or reboot the machine, depending on the specified shutdown type.
 bool shutdown(Util::Hardware::Machine::ShutdownType type);

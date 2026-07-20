@@ -845,7 +845,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     }
 
     // Ready 'shell' process
-    Util::Async::Process::execute(Util::Io::File("/bin/shell"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "uptime", Util::Array<Util::String>(0));
+    Util::Async::Process::execute(Util::Io::File("/bin/shell"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "echo", Util::Array<Util::String>());
 
     // Clear screen and print banner
     Kernel::Log::removeOutputStream(*terminal);

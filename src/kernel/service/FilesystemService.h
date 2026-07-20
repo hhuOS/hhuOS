@@ -86,6 +86,36 @@ public:
 
 private:
 
+    static int64_t systemCallMount(const char *deviceName, const char *targetPath, const char *driverName);
+
+    static int64_t systemCallUnmount(const char *path);
+
+    static int64_t systemCallOpenFile(const char *path);
+
+    static int64_t systemCallCloseFile(int32_t fileDescriptor);
+
+    static int64_t systemCallCreateFile(const char *path, Util::Io::File::Type type);
+
+    static int64_t systemCallDeleteFile(const char *path);
+
+    static int64_t systemCallGetFileType(int32_t fileDescriptor);
+
+    static int64_t systemCallGetFileLength(int32_t fileDescriptor);
+
+    static int64_t systemCallGetFileChildren(int32_t fileDescriptor, const char ***targetChildren);
+
+    static int64_t systemCallWriteFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint32_t posLow, uint32_t posHigh, uint32_t length);
+
+    static int64_t systemCallReadFile(int32_t fileDescriptor, uint8_t *sourceBuffer, uint32_t posLow, uint32_t posHigh, uint32_t length);
+
+    static int64_t systemCallControlFile(int32_t fileDescriptor, uint32_t request, uint32_t arg0, uint32_t arg1, uint32_t arg2);
+
+    static int64_t systemCallControlFileDescriptor(int32_t fileDescriptor, uint32_t request, uint32_t arg0, uint32_t arg1, uint32_t arg2);
+
+    static int64_t systemCallChangeDirectory(const char *path);
+
+    static int64_t systemCallGetCurrentWorkingDirectory();
+
     Filesystem::Filesystem filesystem;
 };
 

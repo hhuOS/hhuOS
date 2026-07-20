@@ -39,23 +39,22 @@ AudioMixerNode::~AudioMixerNode() {
     delete &audioMixer;
 }
 
-bool AudioMixerNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
-    if (parameters.length() == 1) {
-        switch (request) {
-            case Util::Sound::AudioChannel::CREATE: {
-                auto *id = reinterpret_cast<uint8_t*>(parameters[0]);
-                return audioMixer.createChannel(*id);
+int64_t AudioMixerNode::control(const uint32_t request, const uint32_t arg0, uint32_t, uint32_t) {
+    switch (request) {
+        case Util::Sound::AudioChannel::CREATE_CHANNEL: {
+            uint8_t id;
+            if (audioMixer.createChannel(id)) {
+                return id;
             }
-            case Util::Sound::AudioChannel::DELETE: {
-                const auto id = parameters[0];
-                return audioMixer.deleteChannel(id);
-            }
-            default:
-                break;
+            return -1;
         }
+        case Util::Sound::AudioChannel::DELETE: {
+            const auto id = arg0;
+            return audioMixer.deleteChannel(id) ? 0 : -1;
+        }
+        default:
+            return -1;
     }
-
-    return false;
 }
 
 }

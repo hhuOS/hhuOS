@@ -34,17 +34,17 @@ Util::Io::File::Type SharedMemoryNode::getType() {
     return Util::Io::File::SYSTEM;
 }
 
-bool SharedMemoryNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
+int64_t SharedMemoryNode::control(uint32_t request, uint32_t arg0, uint32_t, uint32_t) {
     switch (request) {
         case Util::Async::SharedMemory::MAP: {
             auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-            const auto address = reinterpret_cast<void*>(parameters[0]);
+            const auto address = reinterpret_cast<void*>(arg0);
 
-            return memoryService.mapSharedMemory(processId, getName(), address);
+            return memoryService.mapSharedMemory(processId, getName(), address) ? 0 : -1;
         }
+        default:
+            return -1;
     }
-
-    return false;
 }
 
 }

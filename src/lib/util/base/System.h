@@ -49,7 +49,7 @@ public:
     ~System() = delete;
 
     /// System call codes
-    enum Code : uint8_t {
+    enum Code {
         YIELD,
         EXIT_PROCESS,
         EXECUTE_BINARY,
@@ -111,6 +111,7 @@ public:
     /// Perform a system call.
     /// The variables for each call may differ in size and type
     /// and must be passed as a variadic list of size_t parameters.
+    /// The return value depends on the system call.
     /// There are high-level APIs for each system call, which should be used instead of this function.
     ///
     /// ### Example
@@ -118,7 +119,32 @@ public:
     /// // Create the file "/user/test.txt". Usually, this would be done using the `Util::Io::File` class.
     /// Util::System::call(Util::System::CREATE_FILE, 2, "/user/test.txt", Util::Io::File::Type::REGULAR);
     /// ```
-    static bool call(Code code, size_t paramCount...);
+    template<typename T = int64_t>
+    static T call(Code code, size_t paramCount...) {
+        if (paramCount > 5) {
+            Util::Panic::fire(Panic::INVALID_ARGUMENT,
+                "System calls with more than five parameters are not supported!");
+        }
+
+        va_list args;
+        va_start(args, paramCount);
+        const auto arg0 = paramCount > 0 ? va_arg(args, size_t) : 0;
+        const auto arg1 = paramCount > 1 ? va_arg(args, size_t) : 0;
+        const auto arg2 = paramCount > 2 ? va_arg(args, size_t) : 0;
+        const auto arg3 = paramCount > 3 ? va_arg(args, size_t) : 0;
+        const auto arg4 = paramCount > 4 ? va_arg(args, size_t) : 0;
+        va_end(args);
+
+        int64_t result;
+        asm volatile (
+                "int $0x86;"
+                : "=A"(result)
+                : "0"(code), "b"(arg0), "c"(arg1), "d"(arg2), "S"(arg3), "D"(arg4)
+                : "cc", "memory"
+                );
+
+        return (T) (result);
+    }
 
     /// Print the current stack trace to a given stream.
     /// This only works for user space applications, not for the kernel.

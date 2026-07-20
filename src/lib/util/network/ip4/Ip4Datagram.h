@@ -81,13 +81,6 @@ public:
         return protocol;
     }
 
-    /// Set the protocol of this datagram to the one of the given datagram.
-    /// This is used by the kernel to copy attributes from a kernel space datagram to a user space datagram.
-    void setAttributes(const Datagram &datagram) override {
-        const auto &ip4Datagram = reinterpret_cast<const Ip4Datagram&>(datagram);
-        protocol = ip4Datagram.getProtocol();
-    }
-
 private:
 
     Ip4Header::Protocol protocol = Ip4Header::INVALID;

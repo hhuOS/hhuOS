@@ -23,6 +23,7 @@
 
 #include "lib/util/base/String.h"
 #include "lib/util/io/file/File.h"
+#include "lib/util/collection/ArrayList.h"
 
 namespace Filesystem {
 
@@ -128,7 +129,7 @@ public:
      *
      * @return true, on success
      */
-    virtual bool control([[maybe_unused]] uint32_t request, [[maybe_unused]] const Util::Array<uint32_t> &parameters) {
+    virtual int64_t control([[maybe_unused]] uint32_t request, [[maybe_unused]] uint32_t arg0, [[maybe_unused]] uint32_t arg1, [[maybe_unused]] uint32_t arg2) {
         return false;
     }
 };

@@ -346,7 +346,8 @@ void CommandLine::executeBinary(const Util::String &path, const Util::String &co
                 auto resolutionY = Util::String::parseNumber<uint16_t>(split2[0]);
                 uint8_t colorDepth = split1.length() > 1 ? Util::String::parseNumber<uint8_t>(split2[1]) : 32;
 
-                lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
+                lfbFile.control(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION,
+                    resolutionX, resolutionY, colorDepth);
             }
         }
 
@@ -382,7 +383,7 @@ void CommandLine::handleDownKey() {
         return;
     }
 
-    Util::Io::File::controlFile(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, {true});
+    Util::Io::File::controlFile(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, true);
     while (Util::Graphic::Ansi::getCursorPosition().row > startPosition.row) {
         Util::Graphic::Ansi::clearLine();
         Util::Graphic::Ansi::moveCursorUp(1);

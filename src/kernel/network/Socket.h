@@ -76,7 +76,9 @@ public:
 
     void setTimeout(uint32_t timeout);
 
-    bool control(uint32_t request, const Util::Array<uint32_t> &parameters) override;
+    Util::Network::Socket::Type getNetworkType() const;
+
+    int64_t control(uint32_t request, uint32_t arg0, uint32_t arg1, uint32_t arg2) override;
 
     virtual bool send(const Util::Network::Datagram &datagram) = 0;
 

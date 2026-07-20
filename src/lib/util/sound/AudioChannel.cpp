@@ -30,12 +30,12 @@ namespace Util {
 namespace Sound {
 
 AudioChannel::~AudioChannel() {
-    audioMixerFile.controlFile(DELETE, Util::Array<size_t>({id}));
+    audioMixerFile.control(DELETE, id);
 }
 
 uint8_t AudioChannel::createChannel() const {
-    uint8_t id = 0;
-    if (!audioMixerFile.controlFile(CREATE, Util::Array<size_t>({reinterpret_cast<size_t>(&id)}))) {
+    const auto id = audioMixerFile.control(CREATE_CHANNEL);
+    if (id < 0) {
         Panic::fire(Panic::ILLEGAL_STATE, "No audio channel available!");
     }
 
@@ -43,7 +43,7 @@ uint8_t AudioChannel::createChannel() const {
 }
 
 bool AudioChannel::stop(const bool waitFlush) {
-    const auto success = audioChannelFile.controlFile(STOP, Util::Array<size_t>());
+    const auto success = audioChannelFile.control(STOP);
     if (success) {
         playing = false;
     }
@@ -58,7 +58,7 @@ bool AudioChannel::stop(const bool waitFlush) {
 }
 
 bool AudioChannel::play() {
-    const auto success = audioChannelFile.controlFile(PLAY, Util::Array<size_t>());
+    const auto success = audioChannelFile.control(PLAY);
     if (success) {
         playing = true;
     }
@@ -68,29 +68,15 @@ bool AudioChannel::play() {
 
 
 AudioChannel::State AudioChannel::getState() const {
-    State state;
-    const auto success = audioChannelFile.controlFile(GET_PLAYBACK_STATE,
-        Util::Array<size_t>({reinterpret_cast<size_t>(&state)}));
-
-    if (!success) {
-        Panic::fire(Panic::ILLEGAL_STATE, "Failed to get audio channel state!");
-    }
-
-    return state;
+    return static_cast<State>(audioChannelFile.control(GET_PLAYBACK_STATE));
 }
 
 size_t AudioChannel::getRemainingBytes() const {
-    size_t remainingBytes = 0;
-    audioChannelFile.controlFile(GET_REMAINING_BYTES, {reinterpret_cast<size_t>(&remainingBytes)});
-
-    return remainingBytes;
+    return audioChannelFile.control(GET_REMAINING_BYTES);
 }
 
 size_t AudioChannel::getWritableBytes() const {
-    size_t writableBytes = 0;
-    audioChannelFile.controlFile(GET_WRITABLE_BYTES, {reinterpret_cast<size_t>(&writableBytes)});
-
-    return writableBytes;
+    return audioChannelFile.control(GET_WRITABLE_BYTES);
 }
 
 }

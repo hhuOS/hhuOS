@@ -55,15 +55,15 @@ Util::String LinearFrameBufferNode::getString() {
     return buffer;
 }
 
-bool LinearFrameBufferNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
+int64_t LinearFrameBufferNode::control(const uint32_t request, const uint32_t arg0, const uint32_t arg1, const uint32_t arg2) {
     switch (request) {
         case Util::Graphic::LinearFrameBuffer::SET_RESOLUTION: {
-            if (vbe == nullptr || parameters.length() < 3) {
-                return false;
+            if (vbe == nullptr) {
+                return -1;
             }
 
-            const auto &mode = vbe->findMode(parameters[0], parameters[1], parameters[2]);
-            Device::Graphic::VesaBiosExtensions::setMode(mode.modeNumber);
+            const auto &mode = vbe->findMode(arg0, arg1, arg2);
+            VesaBiosExtensions::setMode(mode.modeNumber);
 
             physicalAddress = reinterpret_cast<void*>(mode.physicalAddress);
             resolutionX = mode.resolutionX;
@@ -71,10 +71,10 @@ bool LinearFrameBufferNode::control(uint32_t request, const Util::Array<uint32_t
             colorDepth = mode.colorDepth;
             pitch = mode.pitch;
 
-            return true;
+            return 0;
         }
         default:
-            return false;
+            return -1;
     }
 }
 
