@@ -182,8 +182,10 @@ void * VirtualAddressSpace::unmapAlgorithm(const void *virtualAddress) {
         }
     }
 
-    // Delete page table if it is empty
-    if (!kernelAddressSpace && pageTable.isEmpty()) {
+    // Delete page table if it is empty.
+    // Do not unmap page table for kernel addresses,
+    // because the page directory entries for the kernel are shared across all processes.
+    if (reinterpret_cast<uint32_t>(virtualAddress) > MemoryLayout::KERNEL_END && pageTable.isEmpty()) {
         (*virtualPageDirectory)[pageDirectoryIndex].clear();
         (*physicalPageDirectory)[pageDirectoryIndex].clear();
 
