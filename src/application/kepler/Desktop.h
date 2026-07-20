@@ -26,32 +26,62 @@
 #include <util/collection/ArrayList.h>
 #include <util/graphic/Image.h>
 #include <util/graphic/LinearFrameBuffer.h>
+#include <lunar/Container.h>
 
-#include "util/graphic/font/Acorn8x8.h"
+#include "lunar/RootContainer.h"
 
-class Desktop {
+class Desktop : public Lunar::RootContainer {
 
 public:
 
-    Desktop(size_t width, size_t height);
+    Desktop(uint16_t width, uint16_t height);
 
-    ~Desktop();
+    ~Desktop() override;
 
-    void draw(const Util::Graphic::LinearFrameBuffer &lfb) const;
+    void addEntry(const Util::String &name, const Util::String &executable, const Util::Array<Util::String> &args,
+        const Util::String &iconPath) const;
 
-    void addEntry(const Util::String &name, const Util::String &executable, const Util::Array<Util::String> &args, const Util::String &iconPath) {
-        desktopEntries.add(new DesktopEntry(name, executable, args, iconPath));
-    }
-
-    void handleMouseClick(uint16_t x, uint16_t y) const;
+    void draw(const Util::Graphic::LinearFrameBuffer &lfb) override;
 
 private:
 
+    class IconListener : public Lunar::ActionListener {
+    public:
+
+        IconListener(const Util::String &executable, const Util::String &name, const Util::Array<Util::String> &args) :
+            executable(executable), name(name), args(args) {}
+
+        ~IconListener() override = default;
+
+        void onMouseClicked() override;
+
+    private:
+
+        Util::Io::File executable;
+        Util::String name;
+        Util::Array<Util::String> args;
+    };
+
+    class DesktopContainer : public Lunar::Container {
+    public:
+
+        DesktopContainer() = default;
+
+        ~DesktopContainer() override = default;
+
+        void draw(const Util::Graphic::LinearFrameBuffer &lfb) override;
+    };
+
     Util::Graphic::Image *background = nullptr;
-    Util::ArrayList<DesktopEntry*> desktopEntries;
 
     const int32_t rows;
     const int32_t columns;
+
+    Widget *lastHoveredChild = nullptr;
+    Widget *lastPressedChild = nullptr;
+
+    Container *desktopContainer = new DesktopContainer();
+    Container *taskBarContainer = new Container();
 
     static const Util::Graphic::Font &FONT;
 
@@ -59,6 +89,30 @@ private:
     static const int32_t DESKTOP_ENTRY_HEIGHT;
     static constexpr int32_t DESKTOP_ENTRY_TEXT_SPACING = 4;
     static constexpr int32_t DESKTOP_ENTRY_SPACING = 8;
+};
+
+static const Lunar::Theme::WidgetStyle LABEL_STYLE = {
+    {
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::WHITE,
+        Util::Graphic::Colors::INVISIBLE,
+    },
+    {
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::WHITE,
+        Util::Graphic::Colors::INVISIBLE,
+    },
+    {
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::INVISIBLE,
+        Util::Graphic::Colors::WHITE,
+        Util::Graphic::Colors::INVISIBLE,
+    }
 };
 
 #endif

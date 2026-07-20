@@ -27,7 +27,9 @@
 
 namespace Lunar {
 
-InputField::InputField(const size_t width, const Util::Graphic::Font &font) : preferredWidth(width), font(font) {
+InputField::InputField(const size_t width, const Util::Graphic::Font &font) :
+    Widget(false, false), preferredWidth(width), font(font)
+{
     addActionListener(new KeyInputListener(*this));
 }
 

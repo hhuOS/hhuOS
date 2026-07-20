@@ -178,7 +178,7 @@ void * VirtualAddressSpace::unmapAlgorithm(const void *virtualAddress) {
         } else {
             // We are running on an original 386 CPU -> INVLPG is not available!
             // Thus, we have to flush the TLB fully by reloading CR3.
-            Device::Cpu::writeCr0(Device::Cpu::readCr0());
+            Device::Cpu::writeCr3(Device::Cpu::readCr3());
         }
     }
 

@@ -26,6 +26,7 @@
 #include "Theme.h"
 
 namespace Lunar {
+
 Container::~Container() {
     for (const auto &child : children) {
         delete child.widget;

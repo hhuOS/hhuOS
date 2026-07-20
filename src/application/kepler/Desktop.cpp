@@ -20,18 +20,21 @@
 
 #include "Desktop.h"
 
-#include "util/async/Process.h"
-#include "util/graphic/BitmapFile.h"
-#include "util/graphic/Colors.h"
-#include "util/graphic/font/Terminal8x8.h"
+#include <util/async/Process.h>
+#include <util/graphic/BitmapFile.h>
+#include <util/graphic/font/Terminal8x8.h>
+#include <lunar/Label.h>
+#include <lunar/Image.h>
+#include <lunar/BorderLayout.h>
+#include <lunar/GridLayout.h>
+#include <lunar/VerticalLayout.h>
 
-const Util::Graphic::Font &Desktop::FONT = Util::Graphic::Fonts::TERMINAL_8x8;
-const int32_t Desktop::DESKTOP_ENTRY_WIDTH = FONT.getCharWidth() * 8;
-const int32_t Desktop::DESKTOP_ENTRY_HEIGHT = DesktopEntry::ICON_SIZE + FONT.getCharHeight() + DESKTOP_ENTRY_TEXT_SPACING;
+#include "lunar/HorizontalLayout.h"
 
-Desktop::Desktop(const size_t width, const size_t height) :
+Desktop::Desktop(const uint16_t width, const uint16_t height) :
+    RootContainer(width, height),
     rows(height / (DESKTOP_ENTRY_HEIGHT + DESKTOP_ENTRY_SPACING)),
-    columns (width / (DESKTOP_ENTRY_WIDTH + DESKTOP_ENTRY_SPACING))
+    columns(width / (DESKTOP_ENTRY_WIDTH + DESKTOP_ENTRY_SPACING))
 {
     background = Util::Graphic::BitmapFile::open("/user/kepler/background.bmp");
     if (background != nullptr) {
@@ -39,67 +42,78 @@ Desktop::Desktop(const size_t width, const size_t height) :
             background = background->scale(width, height);
         }
     }
-}
 
+    RootContainer::setSize(width, height);
+    setLayout(new Lunar::BorderLayout());
+
+    desktopContainer->setLayout(new Lunar::GridLayout(rows, columns));
+    taskBarContainer->setLayout(new Lunar::BorderLayout());
+
+    taskBarContainer->addChild(new Lunar::Image("/user/kepler/telescope.bmp", 32, 32),
+        Util::Array<size_t>{Lunar::BorderLayout::WEST});
+
+    addChild(desktopContainer, Util::Array<size_t>{Lunar::BorderLayout::CENTER});
+    addChild(taskBarContainer, Util::Array<size_t>{Lunar::BorderLayout::SOUTH});
+}
 Desktop::~Desktop() {
     delete background;
-
-    for (const auto *entry : desktopEntries) {
-        delete entry;
-    }
 }
 
-void Desktop::draw(const Util::Graphic::LinearFrameBuffer &lfb) const {
-    lfb.clear();
-
-    if (background != nullptr) {
-        lfb.drawImage(*background, (lfb.getResolutionX() - background->getWidth()) / 2,
-                    (lfb.getResolutionY() - background->getHeight()) / 2);
+void Desktop::addEntry(const Util::String &name, const Util::String &executable, const Util::Array<Util::String> &args,
+                       const Util::String &iconPath) const
+{
+    Util::Io::File iconFile(iconPath);
+    if (!iconFile.exists() || iconFile.isDirectory()) {
+        iconFile = Util::Io::File("/user/kepler/telescope.bmp");
     }
 
-    int32_t x = 0;
-    int32_t y = 0;
-    for (const auto *entry : desktopEntries) {
-        const int32_t posX = x * (DESKTOP_ENTRY_WIDTH + DESKTOP_ENTRY_TEXT_SPACING);
-        const int32_t posY = y * (DESKTOP_ENTRY_HEIGHT + DESKTOP_ENTRY_SPACING);
-        const auto title = entry->getName().substring(0, 8);
-        const auto stringPosX = posX + (DESKTOP_ENTRY_WIDTH - FONT.getCharWidth() * title.length()) / 2;
+    auto *entry = new DesktopContainer();
+    auto *entryLayout = new Lunar::VerticalLayout(4);
+    auto *label = new Lunar::Label(name);
+    auto *image = new Lunar::Image(iconFile.getCanonicalPath(), DesktopEntry::ICON_SIZE,
+        DesktopEntry::ICON_SIZE);
 
-        lfb.drawImage(entry->getIcon(), posX + (DESKTOP_ENTRY_WIDTH - DesktopEntry::ICON_SIZE) / 2, posY);
-        lfb.drawString(FONT, stringPosX, posY + DesktopEntry::ICON_SIZE + DESKTOP_ENTRY_TEXT_SPACING, title, Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
+    label->setOverrideStyle(LABEL_STYLE);
 
-        if (++y >= rows) {
-            if (++x >= columns) {
-                break;
-            }
+    entry->setLayout(entryLayout);
+    entry->addChild(image);
+    entry->addChild(label);
 
-            y = 0;
-        }
-    }
+    entry->addActionListener(new IconListener(executable, name, args));
+    label->addActionListener(new IconListener(executable, name, args));
+    image->addActionListener(new IconListener(executable, name, args));
+
+    desktopContainer->addChild(entry);
 }
 
-void Desktop::handleMouseClick(const uint16_t clickX, const uint16_t clickY) const {
-    int32_t x = 0;
-    int32_t y = 0;
-    for (const auto *entry : desktopEntries) {
-        const int32_t posX = x * (DESKTOP_ENTRY_WIDTH + DESKTOP_ENTRY_TEXT_SPACING);
-        const int32_t posY = y * (DESKTOP_ENTRY_HEIGHT + DESKTOP_ENTRY_SPACING);
+void Desktop::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
+    lfb.drawImage(*background, (lfb.getResolutionX() - background->getWidth()) / 2,
+        (lfb.getResolutionY() - background->getHeight()) / 2);
 
-        if (clickX >= posX && clickX < posX + DESKTOP_ENTRY_WIDTH && clickY >= posY && clickY < posY + DESKTOP_ENTRY_HEIGHT) {
-            const Util::Io::File executable(entry->getExecutable());
-            if (executable.exists()) {
-                Util::Async::Process::execute(executable, Util::Io::File("/device/null"),
-                    Util::Io::File("/device/null"), Util::Io::File("/device/null"),
-                    entry->getName(), entry->getArgs());
-            }
-        }
-
-        if (++y >= rows) {
-            if (++x >= columns) {
-                break;
-            }
-
-            y = 0;
-        }
+    taskBarContainer->requireRedraw();
+    for (const auto &child : getChildren()) {
+        child.widget->draw(lfb);
     }
+
+    Widget::draw(lfb);
 }
+
+void Desktop::IconListener::onMouseClicked() {
+    const auto nullFile = Util::Io::File("/device/null");
+    Util::Async::Process::execute(executable, nullFile, nullFile, nullFile, name, args);
+}
+
+void Desktop::DesktopContainer::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
+    for (const auto &child : getChildren()) {
+        child.widget->draw(lfb);
+    }
+
+    Widget::draw(lfb);
+}
+
+const Util::Graphic::Font &Desktop::FONT = Util::Graphic::Fonts::TERMINAL_8x8;
+
+const int32_t Desktop::DESKTOP_ENTRY_WIDTH = FONT.getCharWidth() * 8;
+
+const int32_t Desktop::DESKTOP_ENTRY_HEIGHT =
+    DesktopEntry::ICON_SIZE + FONT.getCharHeight() + DESKTOP_ENTRY_TEXT_SPACING;

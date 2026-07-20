@@ -21,51 +21,37 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_LUNAR_WINDOW_H
-#define HHUOS_LIB_LUNAR_WINDOW_H
-
-#include <stdint.h>
+#ifndef HHUOS_LIB_LUNAR_ROOTCONTAINER_H
+#define HHUOS_LIB_LUNAR_ROOTCONTAINER_H
 
 #include "Container.h"
 
-#include <util/async/Thread.h>
-#include <kepler/Client.h>
-#include <kepler/Window.h>
-
-#include "RootContainer.h"
+#include <util/io/key/MouseDecoder.h>
 
 namespace Lunar {
 
-/// A root container that creates a window using the Kepler window manager.
-class Window : public RootContainer, public Kepler::Window, public Kepler::EventListener {
+/// A container that can handle mouse and keyboard events.
+/// It is useful as the root of a layout tree, as it forwards any events to the appropriate child widget.
+class RootContainer : public Container {
 
 public:
-    /// Create a new window instance with the given width, height and title.
-    /// This already opens a window in the Kepler window manager.
-    Window(size_t width, size_t height, const Util::String &title);
+    /// Create a new root container instance with the given width and height.
+    RootContainer(const size_t width, const size_t height) : Container(width, height) {}
 
-    /// Destroy the window instance, closing it in the Kepler window manager.
-    ~Window() override;
+    /// Destroy the root container instance.
+    ~RootContainer() override = default;
 
     /// Handle a mouse hover event.
     /// The event is forwarded to the widget at the given position inside the container.
-    void onMouseHover(uint16_t x, uint16_t y) override;
+    void onMouseHover(uint16_t x, uint16_t y);
 
     /// Handle a mouse click event.
     /// The event is forwarded to the widget at the given position inside the container.
-    void onMouseClick(uint16_t x, uint16_t y, Kepler::Event::MouseClick::Button,
-        Kepler::Event::MouseClick::Action) override;
+    void onMouseClick(uint16_t x, uint16_t y, Util::Io::MouseDecoder::Button button, bool pressed);
 
     /// Handle a keyboard event.
     /// The event is forwarded to focussed widget (i.e., the widget that has lastly been clicked on).
-    void onKeyEvent(const Util::Io::KeyEvent &keyEvent) override;
-
-    /// Handle a close button press event.
-    /// This closes the window in the Kepler window manager.
-    void onCloseButtonPressed() override;
-
-    /// Redraw the window and send a `FLUSH` request to the Kepler window manager.
-    void redraw();
+    void onKeyEvent(const Util::Io::KeyEvent &keyEvent) const;
 
 private:
 

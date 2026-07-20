@@ -28,7 +28,7 @@
 namespace Lunar {
 
 Window::Window(const size_t width, const size_t height, const Util::String &title) :
-    Container(width, height), Kepler::Window(width, height, title)
+    RootContainer(width, height), Kepler::Window(width, height, title)
 {
     registerEventListener(*this);
 }
@@ -38,54 +38,33 @@ Window::~Window() {
 }
 
 void Window::onMouseHover(const uint16_t x, const uint16_t y) {
-    auto *hoveredChild = getChildAtPoint(x, y);
-
-    if (hoveredChild != lastHoveredChild) {
-        if (lastHoveredChild != nullptr) {
-            lastHoveredChild->mouseExited();
-        }
-        if (hoveredChild != nullptr) {
-            hoveredChild->mouseEntered();
-        }
-    }
-
-    lastHoveredChild = hoveredChild;
+    RootContainer::onMouseHover(x, y);
 }
 
 void Window::onMouseClick(const uint16_t x, const uint16_t y, const Kepler::Event::MouseClick::Button button,
     const Kepler::Event::MouseClick::Action action)
 {
-    if (button == Kepler::Event::MouseClick::LEFT) {
-        if (action == Kepler::Event::MouseClick::PRESS) {
-            auto *clickedChild = getChildAtPoint(x, y);
-            if (clickedChild != lastPressedChild && lastPressedChild != nullptr) {
-                lastPressedChild->setFocused(false);
-            }
+    Util::Io::MouseDecoder::Button decodedButton;
 
-            if (clickedChild != nullptr) {
-                clickedChild->setFocused(true);
-                clickedChild->mousePressed();
-            }
-
-            lastPressedChild = clickedChild;
-        } else if (action == Kepler::Event::MouseClick::RELEASE) {
-            if (lastPressedChild != nullptr) {
-                lastPressedChild->mouseReleased();
-                lastPressedChild->mouseClicked();
-            }
-        }
+    switch (button) {
+        case Kepler::Event::MouseClick::LEFT:
+            decodedButton = Util::Io::MouseDecoder::LEFT_BUTTON;
+            break;
+        case Kepler::Event::MouseClick::RIGHT:
+            decodedButton = Util::Io::MouseDecoder::RIGHT_BUTTON;
+            break;
+        case Kepler::Event::MouseClick::MIDDLE:
+            decodedButton = Util::Io::MouseDecoder::MIDDLE_BUTTON;
+            break;
+        default:
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Lunar::Window: Invalid mouse button!");
     }
+
+    RootContainer::onMouseClick(x, y, decodedButton, action == Kepler::Event::MouseClick::PRESS);
 }
 
 void Window::onKeyEvent(const Util::Io::KeyEvent &keyEvent) {
-    if (lastPressedChild != nullptr) {
-        if (keyEvent.isPressed()) {
-            lastPressedChild->keyPressed(keyEvent);
-        } else {
-            lastPressedChild->keyReleased(keyEvent);
-            lastPressedChild->keyTyped(keyEvent);
-        }
-    }
+    RootContainer::onKeyEvent(keyEvent);
 }
 
 void Window::onCloseButtonPressed() {

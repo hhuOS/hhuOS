@@ -45,7 +45,8 @@ public:
     /// A maximum width of 0 means no maximum width (and no automatic wrapping).
     Label(const Util::String &text, const size_t maxWidth,
         const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8) :
-        text(text), maxWidth(maxWidth), font(font), preferredLines(calculateLines(text, maxWidth, font)) {}
+        Widget(false, false), text(text), maxWidth(maxWidth), font(font),
+        preferredLines(calculateLines(text, maxWidth, font)) {}
 
     /// Create a new label instance with the given text and font a maximum width of 0 (no automatic wrapping).
     explicit Label(const Util::String &text, const Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x8) :

@@ -93,6 +93,12 @@ protected:
         Widget::setSize(width, height);
     }
 
+    /// Get the list of children in this container.
+    /// This is useful for subclasses that want to override `draw()`.
+    const Util::ArrayList<Layout::WidgetEntry>& getChildren() const {
+        return children;
+    }
+
 private:
 
     void rearrangeChildren() override;

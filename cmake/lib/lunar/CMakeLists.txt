@@ -33,10 +33,12 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/lunar/FreeLayout.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/GridLayout.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/HorizontalLayout.cpp
+        ${HHUOS_SRC_DIR}/lib/lunar/Image.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/InputField.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/Label.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/RadioButton.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/RadioButtonGroup.cpp
+        ${HHUOS_SRC_DIR}/lib/lunar/RootContainer.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/Theme.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/VerticalLayout.cpp
         ${HHUOS_SRC_DIR}/lib/lunar/Widget.cpp

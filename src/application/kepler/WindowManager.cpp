@@ -100,6 +100,11 @@ void WindowManager::run() {
             keyboardInput = Util::System::in.read();
         }
 
+        // Check if desktop is dirty
+        if (desktop.requiresRedraw()) {
+            fullRedraw = true;
+        }
+
         // Clear screen if a full redraw is needed (e.g., after dragging a window)
         if (fullRedraw) {
             tripleLfb.clear();
@@ -283,9 +288,13 @@ void WindowManager::dispatchMouseEvents() {
             lastHoveredTitleBarWindow = nullptr;
         }
 
-        // Check if mouse is clicked outside a window and forward event to desktop if so
+        // Forward mouse events to the desktop
+        desktop.onMouseHover(mouseX, mouseY);
+
         if (mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::LEFT_BUTTON)) {
-            desktop.handleMouseClick(mouseX, mouseY);
+            desktop.onMouseClick(mouseX, mouseY, Util::Io::MouseDecoder::LEFT_BUTTON, true);
+        } else if (mouseInputHandler.wasButtonReleased(Util::Io::MouseDecoder::LEFT_BUTTON)) {
+            desktop.onMouseClick(mouseX, mouseY, Util::Io::MouseDecoder::LEFT_BUTTON, false);
         }
     } else {
         const auto windowMouseEvent = mouseHoveredWindow->containsPoint(mouseX, mouseY);

@@ -19,32 +19,46 @@
  */
 
 #include "Image.h"
-#include "lunar/Image.h"
 
-namespace Util {
-namespace Graphic {
+#include <util/graphic/BitmapFile.h>
 
-#ifndef HHUOS_KERNEL
-Image* Image::scale(const uint16_t newWidth, const uint16_t newHeight) const {
-    if (width == 0 || height == 0 || newWidth == 0 || newHeight == 0 || pixelBuffer == nullptr) {
-        return new Image(0, 0, nullptr);
+namespace Lunar {
+
+Image::Image(const Util::String &path, const size_t width, const size_t height) :
+    Widget(false, false)
+{
+    const auto *bitmap = Util::Graphic::BitmapFile::open(path);
+    if (bitmap == nullptr) {
+        originalImage = new Util::Graphic::Image(0, 0, nullptr);
+        delete bitmap;
+    } else {
+        originalImage = bitmap->scale(width, height);
+        delete bitmap;
+    }
+}
+
+Image::~Image() {
+    delete originalImage;
+    delete scaledDownImage;
+}
+
+void Image::setSize(const size_t width, const size_t height) {
+    if (width < originalImage->getWidth() || height < originalImage->getHeight()) {
+        scaledDownImage = originalImage->scale(width, height);
+        Widget::setSize(width, height);
+    } else {
+        Widget::setSize(originalImage->getWidth(), originalImage->getHeight());
+    }
+}
+
+void Image::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
+    if (getWidth() < originalImage->getWidth() || getHeight() < originalImage->getHeight()) {
+        lfb.drawImage(*scaledDownImage, getPosX(), getPosY());
+    } else {
+        lfb.drawImage(*originalImage, getPosX(), getPosY());
     }
 
-    auto *newPixelBuffer = new Color[newWidth * newHeight];
-    const auto factorX = static_cast<float>(newWidth) / width;
-    const auto factorY = static_cast<float>(newHeight) / height;
-
-    for (int32_t y = 0; y < newHeight; y++) {
-        for (int32_t x = 0; x < newWidth; x++) {
-            const auto oldX = static_cast<uint16_t>(x / factorX);
-            const auto oldY = static_cast<uint16_t>(y / factorY);
-            newPixelBuffer[newWidth * y + x] = pixelBuffer[width * oldY + oldX];
-        }
-    }
-
-    return new Image(newWidth, newHeight, newPixelBuffer);
+    Widget::draw(lfb);
 }
-#endif
 
-}
 }
