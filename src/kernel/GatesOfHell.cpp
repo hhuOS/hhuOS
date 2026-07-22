@@ -408,11 +408,20 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
             featureString += Util::Hardware::CpuId::getFeatureAsString(feature) + Util::String(" ");
         }
         LOG_INFO("CPU features: %s", static_cast<const char*>(featureString));
+
+        if (info.features & Util::Hardware::CpuId::SEP) {
+            LOG_INFO("SYSENTER/SYSEXIT support detected -> Enabling fast system calls");
+            Kernel::SystemCallDispatcher::enableFastSystemCalls();
+        } else {
+            LOG_INFO("SYSENTER/SYSEXIT not supported -> Using trap gate for system calls");
+        }
     } else {
         LOG_WARN("CPUID not available!");
 
         const auto is386 = Util::Hardware::CpuId::is386();
         LOG_INFO("Detected a %s CPU", is386 ? "386" : "486");
+
+        LOG_INFO("SYSENTER/SYSEXIT not supported -> Using trap gate for system calls");
     }
 
     // Initialize FPU/SIMD instructions
@@ -845,7 +854,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     }
 
     // Ready 'shell' process
-    Util::Async::Process::execute(Util::Io::File("/bin/shell"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "echo", Util::Array<Util::String>());
+    Util::Async::Process::execute(Util::Io::File("/bin/shell"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "shell", Util::Array<Util::String>());
 
     // Clear screen and print banner
     Kernel::Log::removeOutputStream(*terminal);

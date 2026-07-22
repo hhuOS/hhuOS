@@ -33,7 +33,7 @@ public:
      *
      * @param msr The MSR address as listed in IA-32 manual, sec. 4
      */
-    explicit ModelSpecificRegister(uint32_t address);
+    explicit ModelSpecificRegister(const uint32_t address) : address(address) {};
 
     /**
      * Copy Constructor.
@@ -55,14 +55,37 @@ public:
      *
      * @return The read 64 bit value
      */
-    uint64_t readQuadWord() const;
+    uint64_t readQuadWord() const {
+        uint32_t low;
+        uint32_t high;
+
+        // rdmsr writes read value to eax/edx from register specified in ecx; it has no operands
+        asm volatile (
+                "rdmsr"
+                : "=a"(low), "=d"(high)
+                : "c"(address)
+                );
+
+        return low | (static_cast<uint64_t>(high) << 32);
+    }
 
     /**
      * Write to a model specific register.
      *
      * @param value The 64 bit value to write
      */
-    void writeQuadWord(uint64_t value) const;
+    void writeQuadWord(const uint64_t value) const {
+        const uint32_t low = value & 0xFFFFFFFF;
+        const uint32_t high = value >> 32;
+
+        // wrmsr writes values from eax/edx to register specified in ecx; it has no operands
+        asm volatile (
+                "wrmsr"
+                :
+                : "a"(low), "d"(high), "c"(address)
+                );
+
+    }
 
 
 private:

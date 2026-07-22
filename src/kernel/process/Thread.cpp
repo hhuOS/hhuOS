@@ -195,6 +195,7 @@ void Thread::startFirstThread(const Thread &thread) {
 
 void Thread::switchThread(Thread &current, const Thread &next) {
     Service::getService<MemoryService>().switchAddressSpace(next.parent.getAddressSpace());
+    SystemCallDispatcher::setFastSystemCallStack(next.kernelStack + (MemoryLayout::KERNEL_STACK_SIZE / sizeof(uint32_t)));
     switchThread(&current.oldStackPointer, next.oldStackPointer, next.kernelStack + (MemoryLayout::KERNEL_STACK_SIZE / sizeof(uint32_t)));
 }
 

@@ -21,7 +21,7 @@
 #ifndef HHUOS_SYSTEMCALLDISPATCHER_H
 #define HHUOS_SYSTEMCALLDISPATCHER_H
 
-#include "InterruptFrame.h"
+#include "device/cpu/ModelSpecificRegister.h"
 #include "lib/util/base/System.h"
 
 #define ASSIGN_SYSTEM_CALL(code, func) SystemCallDispatcher::assign(code, reinterpret_cast<void(*)()>(&func))
@@ -29,11 +29,18 @@
 namespace Kernel {
 
 class SystemCallDispatcher {
+
 public:
 
     SystemCallDispatcher() = delete;
 
     ~SystemCallDispatcher() = delete;
+
+    static void enableFastSystemCalls();
+
+    static void setFastSystemCallStack(void *stackPointer) {
+        Device::ModelSpecificRegister(IA32_SYSENTER_ESP).writeQuadWord(reinterpret_cast<uint64_t>(stackPointer));
+    }
 
     static void assign(const Util::System::Code code, void(*func)()) {
         if (systemCalls[code] != nullptr) {
@@ -45,10 +52,15 @@ public:
 
     [[gnu::naked]] static void dispatch();
 
+    [[gnu::naked]] static void dispatchFast();
+
 private:
 
     static void(*systemCalls[256])();
 
+    static constexpr uint32_t IA32_SYSENTER_CS = 0x174;
+    static constexpr uint32_t IA32_SYSENTER_ESP = 0x175;
+    static constexpr uint32_t IA32_SYSENTER_EIP = 0x176;
 };
 
 }

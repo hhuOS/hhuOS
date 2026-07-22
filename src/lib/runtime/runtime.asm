@@ -9,6 +9,7 @@ extern main
 extern initMemoryManager
 extern initLibc
 extern appExit
+extern checkSysenterSupport
 
 ; Import linker symbols
 extern ___BSS_START__
@@ -18,7 +19,7 @@ extern ___INIT_ARRAY_END__
 extern ___FINI_ARRAY_START__
 extern ___FINI_ARRAY_END__
 
-section .text
+[section .TEXT]
 
 ; Entry point
 ; Expects stack to be prepared with envp, argv, argc and heapStartAddress
@@ -30,6 +31,11 @@ _start:
     ; Initialize bss
     call clear_bss
 
+    ; Initialize the static variable `Util::System::SYSENTER_SUPPORTED`.
+    ; This is done explicitly before calling `_init`, because during the initialization of other static variables
+    ; system calls may be executed.
+    call checkSysenterSupport
+
     ; Initialize static variables
     call _init
 	
@@ -38,19 +44,19 @@ _start:
     ; Call main method
     call main
     add esp,12
-    push eax      ; Get return value from eax
+    push eax ; Get return value from eax
 
     ; Cleanup static variables and exit process
     call appExit
 
 ; Zero out bss
 clear_bss:
-    mov    edi,___BSS_START__
+    mov edi,___BSS_START__
 clear_bss_loop:
-    cmp    edi,___BSS_END__
+    cmp edi,___BSS_END__
     jge clear_bss_done
-    mov    byte [edi],0
-    inc    edi
+    mov byte [edi],0
+    inc edi
     jmp clear_bss_loop
 clear_bss_done:
     ret
@@ -62,19 +68,19 @@ _init_loop:
     cmp edi,___INIT_ARRAY_END__
     jge _init_done
     call [edi]
-    add    edi,4
+    add edi,4
     jmp _init_loop
 _init_done:
     ret
 
 ; Call destructors of global objects
 _fini:
-    mov     edi,___FINI_ARRAY_START__
+    mov edi,___FINI_ARRAY_START__
 _fini_loop:
-    cmp     edi,___FINI_ARRAY_END__
+    cmp edi,___FINI_ARRAY_END__
     jge _fini_done
     call [edi]
-    add     edi,4
+    add edi,4
     jmp _fini_loop
 _fini_done:
     ret

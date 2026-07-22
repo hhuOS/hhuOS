@@ -30,6 +30,8 @@
 #include <util/io/stream/FileInputStream.h>
 #include <util/io/stream/FileOutputStream.h>
 
+#include "util/hardware/CpuId.h"
+
 namespace Util {
 
 Io::FileInputStream inStream(Io::STANDARD_INPUT);
@@ -43,7 +45,9 @@ Io::FileOutputStream errorStream(Io::STANDARD_ERROR);
 Io::BufferedOutputStream bufferedErrorStream(errorStream);
 Io::PrintStream System::error(bufferedErrorStream);
 
-const char* getSymbolName(const size_t symbolAddress) {
+bool System::SYSENTER_SUPPORTED = (Hardware::CpuId::getCpuInfo().features & Hardware::CpuId::SEP) != 0;
+
+static const char* getSymbolName(const size_t symbolAddress) {
     const auto &addressSpaceHeader = System::getAddressSpaceHeader();
 
     for (size_t i = 0; i < addressSpaceHeader.symbolTableSize / sizeof(Io::ElfFile::SymbolEntry); i++) {
@@ -92,6 +96,10 @@ void System::printStackTrace(Io::PrintStream &stream, size_t minEbp) {
 
 System::AddressSpaceHeader& System::getAddressSpaceHeader() {
     return *reinterpret_cast<AddressSpaceHeader*>(USER_SPACE_MEMORY_START_ADDRESS);
+}
+
+void checkSysenterSupport() {
+    System::SYSENTER_SUPPORTED = (Hardware::CpuId::getCpuInfo().features & Hardware::CpuId::SEP) != 0;
 }
 
 }

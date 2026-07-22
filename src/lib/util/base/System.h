@@ -26,6 +26,7 @@
 #include "BitmapMemoryManager.h"
 #include "FreeListMemoryManager.h"
 
+#include <util/hardware/CpuId.h>
 #include <util/io/file/ElfFile.h>
 #include <util/io/stream/InputStream.h>
 #include <util/io/stream/PrintStream.h>
@@ -49,7 +50,7 @@ public:
     ~System() = delete;
 
     /// System call codes
-    enum Code {
+    enum Code : uint8_t {
         YIELD,
         EXIT_PROCESS,
         EXECUTE_BINARY,
@@ -135,15 +136,39 @@ public:
         const auto arg4 = paramCount > 4 ? va_arg(args, size_t) : 0;
         va_end(args);
 
-        int64_t result;
-        asm volatile (
-                "int $0x86;"
-                : "=A"(result)
-                : "0"(code), "b"(arg0), "c"(arg1), "d"(arg2), "S"(arg3), "D"(arg4)
-                : "cc", "memory"
-                );
+        uint32_t retLow = code;
+        uint32_t retHigh;
 
-        return (T) (result);
+        if (SYSENTER_SUPPORTED) {
+            retHigh = arg0;
+            asm volatile (
+                    // SYSEXIT needs the return address and user ESP, so we must pass them to the system call handler.
+                    // We pass the ESP in the EBP register and and return address on the user stack.
+                    "push %%ebp;" // Push the current EBP so it can be restore later
+                    "mov %%esp, %%ebp;" // Move the user ESP into the EBP register
+                    "push $1f;" // Push the return address onto the stack
+
+                    // Execute the system call
+                    "sysenter;"
+
+                    "1:" // Return address for SYSEXIT
+
+                    "pop %%ebp;" // Restore the EBP register
+                    : "+a"(retLow), "+b"(retHigh) // Return values is passed in EAX:EBX (EDX is used by SYSEXIT)
+                    : "c"(arg1), "d"(arg2), "S"(arg3), "D"(arg4)
+                    : "cc", "memory"
+                    );
+        } else {
+            retHigh = arg2;
+            asm volatile (
+                    "int $0x86;"
+                    : "+a"(retLow), "+d"(retHigh) // Return values is passed in EAX:EDX
+                    : "b"(arg0), "c"(arg1), "S"(arg3), "D"(arg4)
+                    : "cc", "memory"
+                    );
+        }
+
+        return (T) (static_cast<uint64_t>(retLow) | (static_cast<uint64_t>(retHigh) << 32));
     }
 
     /// Print the current stack trace to a given stream.
@@ -189,7 +214,16 @@ public:
     /// Util::System::error << "File not found!" << Io::PrintStream::ln << Io::PrintStream::flush;
     /// ```
     static Io::PrintStream error;
+
+    /// Whether the current CPU supports the SYSENTER instruction.
+    static bool SYSENTER_SUPPORTED;
 };
+
+extern "C" {
+
+void checkSysenterSupport();
+
+}
 
 }
 

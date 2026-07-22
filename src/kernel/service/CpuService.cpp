@@ -42,15 +42,15 @@ CpuService::CpuService() {
     }
 
     // Allocate GDT and Descriptor arrays for a single core (bootstrap processor)
-    gdt = new Kernel::GlobalDescriptorTable[1];
-    gdtDescriptor = new Kernel::GlobalDescriptorTable::Descriptor[1];
-    tss = new Kernel::GlobalDescriptorTable::TaskStateSegment[1]{};
+    gdt = new GlobalDescriptorTable[1];
+    gdtDescriptor = new GlobalDescriptorTable::Descriptor[1];
+    tss = new GlobalDescriptorTable::TaskStateSegment[1]{};
 
-    gdt[0].addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
-    gdt[0].addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
-    gdt[0].addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
-    gdt[0].addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
-    gdt[0].addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(&tss[0]), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
+    gdt[0].addSegment(GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
+    gdt[0].addSegment(GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
+    gdt[0].addSegment(GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
+    gdt[0].addSegment(GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
+    gdt[0].addSegment(GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(&tss[0]), sizeof(GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
 
     // Store current GDT descriptor in array
     gdtDescriptor[0] = gdt[0].getDescriptor();
@@ -60,7 +60,7 @@ void CpuService::loadGdt() {
     auto cpuId = getVirtualCpuId();
 
     // Overwrite TSS entry to make sure it is not marked as busy
-    gdt[cpuId].overwriteSegment(5, Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(&tss[cpuId]), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
+    gdt[cpuId].overwriteSegment(5, GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(&tss[cpuId]), sizeof(GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
 
     // Load GDT
     gdt[cpuId].load();
@@ -84,8 +84,8 @@ void CpuService::setTssStackEntry(const uint32_t *stackPointer) {
 }
 
 void CpuService::startupApplicationProcessors() {
-    auto &timeService = Kernel::Service::getService<Kernel::TimeService>();
-    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
+    auto &timeService = Service::getService<TimeService>();
+    auto &interruptService = Service::getService<InterruptService>();
 
     virtualCpuIds[0] = 0xff;
     prepareGdts();
@@ -129,7 +129,7 @@ void CpuService::startupApplicationProcessors() {
         // Issue the SIPI twice (for xApic):
         for (uint8_t j = 0; j < 2; ++j) {
             Device::LocalApic::clearErrors();
-            Device::LocalApic::sendStartupInterProcessorInterrupt(localApic->getCpuId(), Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress);
+            Device::LocalApic::sendStartupInterProcessorInterrupt(localApic->getCpuId(), MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress);
             Device::LocalApic::waitForInterProcessorInterruptDispatch();
             timeService.busyWait(Util::Time::Timestamp::ofMicroseconds(200));
         }
@@ -159,16 +159,16 @@ void CpuService::startupApplicationProcessors() {
 }
 
 uint8_t CpuService::getCoreCount() {
-    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
+    auto &interruptService = Service::getService<InterruptService>();
     return interruptService.usesApic() ? interruptService.getApic().getCoreCount() : 1;
 }
 
 uint8_t CpuService::getLocalApicId() {
-    if (!Kernel::Service::isServiceRegistered(Kernel::InterruptService::SERVICE_ID)) {
+    if (!Service::isServiceRegistered(InterruptService::SERVICE_ID)) {
         return 0;
     }
 
-    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
+    auto &interruptService = Service::getService<InterruptService>();
     return interruptService.usesApic() ? Device::LocalApic::getId() : 0;
 }
 
@@ -177,7 +177,7 @@ uint8_t* CpuService::getStack(uint8_t cpuId) {
 }
 
 void CpuService::prepareGdts() {
-    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
+    auto &interruptService = Service::getService<InterruptService>();
 
     // Determine CPU count
     auto coreCount = getCoreCount();
@@ -188,18 +188,18 @@ void CpuService::prepareGdts() {
     auto *bootstrapTss = tss;
 
     // Allocate GDT and Descriptor arrays
-    gdt = new Kernel::GlobalDescriptorTable[coreCount];
-    gdtDescriptor = new Kernel::GlobalDescriptorTable::Descriptor[coreCount];
-    tss = new Kernel::GlobalDescriptorTable::TaskStateSegment[coreCount];
+    gdt = new GlobalDescriptorTable[coreCount];
+    gdtDescriptor = new GlobalDescriptorTable::Descriptor[coreCount];
+    tss = new GlobalDescriptorTable::TaskStateSegment[coreCount];
 
     // Create GDTs and Descriptors for each core
     for (const auto *localApic : interruptService.getApic().getLocalApics()) {
         auto virtualCpuId = registerCpu(localApic->getCpuId());
-        gdt[virtualCpuId].addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
-        gdt[virtualCpuId].addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
-        gdt[virtualCpuId].addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
-        gdt[virtualCpuId].addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
-        gdt[virtualCpuId].addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(&tss[virtualCpuId]), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
+        gdt[virtualCpuId].addSegment(GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
+        gdt[virtualCpuId].addSegment(GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
+        gdt[virtualCpuId].addSegment(GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
+        gdt[virtualCpuId].addSegment(GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
+        gdt[virtualCpuId].addSegment(GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(&tss[virtualCpuId]), sizeof(GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
 
         // Store current GDT descriptor in array
         gdtDescriptor[virtualCpuId] = gdt[virtualCpuId].getDescriptor();
@@ -226,7 +226,7 @@ void CpuService::prepareApplicationProcessorStartupCode() {
     }
 
     // Prepare the empty variables in the startup routine at their original location
-    boot_ap_idt = Kernel::InterruptDescriptorTable::Descriptor::read();
+    boot_ap_idt = InterruptDescriptorTable::Descriptor::read();
     boot_ap_cr0 = Device::Cpu::readCr0();
     boot_ap_cr3 = reinterpret_cast<uint32_t>(Device::Cpu::readCr3());
     boot_ap_cr4 = Device::Cpu::readCr4();
@@ -237,7 +237,7 @@ void CpuService::prepareApplicationProcessorStartupCode() {
 
     // Copy the startup routine and prepared variables to the identity mapped page
     const auto startupCode = Util::Address(reinterpret_cast<uint32_t>(&boot_ap));
-    const auto destination = Util::Address(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress);
+    const auto destination = Util::Address(MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress);
     destination.copyRange(startupCode, boot_ap_size);
 }
 
@@ -248,7 +248,7 @@ void CpuService::prepareApplicationProcessorWarmReset() {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds" // GCC complains about the reset vector being out of bounds, but it is not (it is just located at a very low address)
-    *warmResetVector = Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress;
+    *warmResetVector = MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress;
 #pragma GCC diagnostic pop
 }
 
