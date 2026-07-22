@@ -105,6 +105,8 @@ CpuInfo getCpuInfo() {
     "mov $1,%%eax;"
     "cpuid;"
     : "=a"(eax), "=c"(ecx), "=d"(edx)
+    :
+    : "ebx"
     );
 
     uint8_t extendedModel = (eax & EXTENDED_MODEL_BITMASK) >> 16;
