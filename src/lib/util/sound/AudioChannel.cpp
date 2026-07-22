@@ -43,7 +43,7 @@ uint8_t AudioChannel::createChannel() const {
 }
 
 bool AudioChannel::stop(const bool waitFlush) {
-    const auto success = audioChannelFile.control(STOP);
+    const auto success = audioChannelFile.control(STOP) == 0;
     if (success) {
         playing = false;
     }
@@ -58,7 +58,7 @@ bool AudioChannel::stop(const bool waitFlush) {
 }
 
 bool AudioChannel::play() {
-    const auto success = audioChannelFile.control(PLAY);
+    const auto success = audioChannelFile.control(PLAY) == 0;
     if (success) {
         playing = true;
     }

@@ -66,7 +66,7 @@ LinearFrameBuffer::LinearFrameBuffer(const Io::File &file) {
 }
 
 bool LinearFrameBuffer::setResolution(const Io::File &lfbFile, const uint16_t x, const uint16_t y, const uint8_t bpp) {
-    return lfbFile.control(SET_RESOLUTION, x, y, bpp);
+    return lfbFile.control(SET_RESOLUTION, x, y, bpp) == 0;
 }
 
 bool LinearFrameBuffer::setResolution(const Io::File &lfbFile, const String &resolutionString) {

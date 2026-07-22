@@ -49,7 +49,7 @@ int64_t AudioMixerNode::control(const uint32_t request, const uint32_t arg0, uin
             return -1;
         }
         case Util::Sound::AudioChannel::DELETE: {
-            const auto id = arg0;
+            const uint8_t id = arg0;
             return audioMixer.deleteChannel(id) ? 0 : -1;
         }
         default:
