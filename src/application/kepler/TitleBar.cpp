@@ -31,7 +31,7 @@ public:
 
     explicit CloseButtonHandler(ClientWindow &clientWindow) : clientWindow(clientWindow) {}
 
-    void onMousePressed() override {
+    void onMouseClicked() override {
         clientWindow.sendWindowCloseEvent();
     }
 

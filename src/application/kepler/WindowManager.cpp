@@ -437,6 +437,10 @@ void WindowManager::closeWindow(const Client &client) {
         const auto response = Kepler::Response::CloseWindow(false);
         response.writeToStream(outputStream);
     } else {
+        if (window == lastHoveredTitleBarWindow) {
+            lastHoveredTitleBarWindow = nullptr;
+        }
+
         windowStack.remove(window);
         const auto response = Kepler::Response::CloseWindow(true);
         response.writeToStream(outputStream);

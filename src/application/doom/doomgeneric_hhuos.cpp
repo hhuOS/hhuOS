@@ -60,7 +60,7 @@ Util::Time::Timestamp fpsTimer;
 uint32_t fpsCounter = 0;
 uint32_t fps = 0;
 
-bool triangleRunning = true;
+bool isRunning = true;
 
 void (*drawFrame)();
 
@@ -77,7 +77,7 @@ public:
     }
 
     void onCloseButtonPressed() override {
-        triangleRunning = false;
+        isRunning = false;
     }
 };
 
@@ -186,7 +186,7 @@ int32_t main(int argc, char **argv) {
 
     // Run game loop
     auto oldTime = Util::Time::Timestamp::getSystemTime();
-    while (triangleRunning) {
+    while (isRunning) {
         auto newTime = Util::Time::Timestamp::getSystemTime();
         if (oldTime == newTime) {
             Util::Async::Thread::yield();
