@@ -39,8 +39,20 @@ public:
     /// The image will be scaled to the given width and height.
     Image(const Util::String &path, size_t width, size_t height);
 
+    /// Create a new image widget from an already loaded image.
+    /// The widget takes ownership of the image instance and deletes it in its destructor.
+    explicit Image(const Util::Graphic::Image *image);
+
     /// Destroy the image widget, freeing up memory used by the image buffer.
-    virtual ~Image();
+    ~Image() override;
+
+    /// Load the image to display from the given image file.
+    /// The image will be scaled to the given width and height.
+    void setImage(const Util::String &path, size_t width, size_t height);
+
+    /// Set the image to display to the given image.
+    /// The widget takes ownership of the image instance and deletes it in its destructor.
+    void setImage(const Util::Graphic::Image *image);
 
     /// Get the preferred width of the image.
     /// The preferred width is the image width given in the constructor.
@@ -64,8 +76,8 @@ public:
 
 private:
 
-    Util::Graphic::Image *originalImage = nullptr;
-    Util::Graphic::Image *scaledDownImage = nullptr;
+    const Util::Graphic::Image *originalImage = nullptr;
+    const Util::Graphic::Image *scaledDownImage = nullptr;
 };
 
 }

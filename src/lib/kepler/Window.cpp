@@ -95,6 +95,20 @@ bool Window::setTitle(const Util::String &title) const {
     return response.isSuccess();
 }
 
+bool Window::setIcon(const Util::String &iconPath) const {
+    const auto &client = Client::getInstance();
+    if (!client.sendRequest(Request::SetWindowIcon(id, iconPath))) {
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
+    }
+
+    auto response = Response::SetWindowIcon();
+    if (!client.receiveResponse(response)) {
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
+    }
+
+    return response.isSuccess();
+}
+
 bool Window::close() const {
     const auto &client = Client::getInstance();
     if (!client.sendRequest(Request::CloseWindow(id))) {

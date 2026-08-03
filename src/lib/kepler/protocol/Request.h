@@ -34,6 +34,7 @@ enum Command : uint8_t {
     CONNECT,
     CREATE_WINDOW,
     SET_WINDOW_TITLE,
+    SET_WINDOW_ICON,
     FLUSH,
     CLOSE_WINDOW
 };
@@ -138,6 +139,28 @@ public:
 private:
 
     Util::String title;
+};
+
+class SetWindowIcon final : public BasicWindowRequest {
+
+public:
+
+    SetWindowIcon() : BasicWindowRequest(SET_WINDOW_ICON) {}
+
+    explicit SetWindowIcon(const size_t windowId, const Util::String &iconPath) :
+        BasicWindowRequest(SET_WINDOW_ICON, windowId), iconPath(iconPath) {}
+
+    bool writeToStream(Util::Io::OutputStream &stream) const override;
+
+    bool readFromStream(Util::Io::InputStream &stream) override;
+
+    const Util::String& getIconPath() const {
+        return iconPath;
+    }
+
+private:
+
+    Util::String iconPath;
 };
 
 class CloseWindow final : public BasicWindowRequest {

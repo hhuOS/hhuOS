@@ -27,6 +27,19 @@ namespace Lunar {
 Image::Image(const Util::String &path, const size_t width, const size_t height) :
     Widget(false, false)
 {
+    setImage(path, width, height);
+}
+
+Image::Image(const Util::Graphic::Image *image) {
+    setImage(image);
+}
+
+Image::~Image() {
+    delete originalImage;
+    delete scaledDownImage;
+}
+
+void Image::setImage(const Util::String &path, const size_t width, const size_t height) {
     const auto *bitmap = Util::Graphic::BitmapFile::open(path);
     if (bitmap == nullptr) {
         originalImage = new Util::Graphic::Image(0, 0, nullptr);
@@ -37,9 +50,19 @@ Image::Image(const Util::String &path, const size_t width, const size_t height) 
     }
 }
 
-Image::~Image() {
+void Image::setImage(const Util::Graphic::Image *image) {
     delete originalImage;
     delete scaledDownImage;
+
+    originalImage = image;
+
+    const auto width = getWidth();
+    const auto height = getHeight();
+    if (width < image->getWidth() || height < image->getHeight()) {
+        scaledDownImage = image->scale(width, height);
+    } else {
+        scaledDownImage = nullptr;
+    }
 }
 
 void Image::setSize(const size_t width, const size_t height) {
@@ -47,6 +70,8 @@ void Image::setSize(const size_t width, const size_t height) {
         scaledDownImage = originalImage->scale(width, height);
         Widget::setSize(width, height);
     } else {
+        delete scaledDownImage;
+        scaledDownImage = nullptr;
         Widget::setSize(originalImage->getWidth(), originalImage->getHeight());
     }
 }

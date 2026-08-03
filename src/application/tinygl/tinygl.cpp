@@ -166,6 +166,12 @@ int32_t main(const int32_t argc, char *argv[]) {
     EventListener eventListener;
     window.registerEventListener(eventListener);
 
+    if (demoName == "gears") {
+        window.setIcon("/user/kepler/gears.bmp");
+    } else if (demoName == "cubes") {
+        window.setIcon("/user/dino/block/box.bmp");
+    }
+
     const auto scaleFactor = Util::String::parseFloat<float>(
         argumentParser.getArgument("scale", "1.0"));
 

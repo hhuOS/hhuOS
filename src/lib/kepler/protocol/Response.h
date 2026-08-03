@@ -96,6 +96,15 @@ public:
     explicit SetWindowTitle(const bool success) : BasicResponse(success) {}
 };
 
+class SetWindowIcon final : public BasicResponse {
+
+public:
+
+    SetWindowIcon() = default;
+
+    explicit SetWindowIcon(const bool success) : BasicResponse(success) {}
+};
+
 class Flush final : public BasicResponse {
 
 public:

@@ -49,6 +49,8 @@ public:
 
     bool setTitle(const Util::String &title) const;
 
+    bool setIcon(const Util::String &iconPath) const;
+
     bool close() const;
 
     void registerEventListener(EventListener &listener) const {

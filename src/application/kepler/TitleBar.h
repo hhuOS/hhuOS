@@ -24,6 +24,7 @@
 #include "WindowMouseEvent.h"
 #include "lunar/Button.h"
 #include "lunar/Container.h"
+#include "lunar/Image.h"
 #include "lunar/Label.h"
 #include "lunar/Theme.h"
 
@@ -45,6 +46,10 @@ public:
 
     size_t getHeight() const {
         return height;
+    }
+
+    void setIcon(const Util::Graphic::Image &icon) {
+        TitleBar::icon->setImage(icon.scale(16, 16));
     }
 
     void draw(const Util::Graphic::LinearFrameBuffer &lfb, int32_t posX, int32_t posY, uint16_t width, bool focused = false);
@@ -71,6 +76,7 @@ private:
     Lunar::Button *minimizeButton = new Lunar::Button("-");
     Lunar::Button *closeButton = new Lunar::Button("x");
     Lunar::Label *titleLabel = nullptr;
+    Lunar::Image *icon = nullptr;
 
     size_t height = 0;
 

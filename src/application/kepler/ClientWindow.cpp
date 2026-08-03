@@ -24,6 +24,8 @@
 #include "kepler/Window.h"
 #include "util/graphic/Colors.h"
 
+Util::Graphic::Image *ClientWindow::DEFAULT_ICON = Util::Graphic::BitmapFile::open("/user/kepler/telescope.bmp");
+
 ClientWindow::ClientWindow(const size_t id, const size_t processId, const uint16_t posX, const uint16_t posY,
     const uint16_t width, const uint16_t height, const Util::String &title, Util::Async::SharedMemory *buffer) :
     id(id), posX(posX), posY(posY), width(width), height(height), titleBar(*this, title), buffer(buffer),
@@ -31,6 +33,9 @@ ClientWindow::ClientWindow(const size_t id, const size_t processId, const uint16
 
 ClientWindow::~ClientWindow() {
     delete buffer;
+    if (icon != DEFAULT_ICON) {
+        delete icon;
+    }
 }
 
 size_t ClientWindow::getId() const {
@@ -59,6 +64,19 @@ uint16_t ClientWindow::getHeight() const {
 
 Util::String ClientWindow::getTitle() const {
     return titleBar.getTitle();
+}
+
+bool ClientWindow::setIcon(const Util::String &iconPath) {
+    const auto *icon = Util::Graphic::BitmapFile::open(iconPath);
+    if (icon == nullptr) {
+        return false;
+    }
+
+    ClientWindow::icon = icon;
+    titleBar.setIcon(*icon);
+    titleBarDirty = true;
+
+    return true;
 }
 
 bool ClientWindow::isDirty() const {

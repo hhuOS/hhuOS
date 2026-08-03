@@ -28,6 +28,7 @@
 #include "util/io/stream/FileOutputStream.h"
 #include "util/async/SharedMemory.h"
 #include "kepler/protocol/Event.h"
+#include "util/graphic/BitmapFile.h"
 
 class ClientWindow {
 
@@ -67,6 +68,12 @@ public:
         return titleBar;
     }
 
+    bool setIcon(const Util::String &iconPath);
+
+    const Util::Graphic::Image& getIcon() const {
+        return *icon;
+    }
+
     [[nodiscard]] bool isDirty() const;
 
     void setDirty(WindowArea dirtyArea);
@@ -104,6 +111,8 @@ private:
     uint16_t width = 0;
     uint16_t height = 0;
 
+    const Util::Graphic::Image *icon = DEFAULT_ICON;
+
     TitleBar titleBar;
 
     Util::Async::SharedMemory *buffer = nullptr;
@@ -112,6 +121,8 @@ private:
     bool titleBarDirty = true;
     bool borderDirty = true;
     bool contentAreaDirty = true;
+
+    static Util::Graphic::Image *DEFAULT_ICON;
 
     static constexpr uint16_t BORDER_WIDTH = 1;
 };

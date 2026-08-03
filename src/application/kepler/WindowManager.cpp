@@ -219,6 +219,10 @@ bool WindowManager::checkClients() {
                     setWindowTitle(*client);
                     needRedraw = true;
                     break;
+                case Kepler::Request::SET_WINDOW_ICON:
+                    setWindowIcon(*client);
+                    needRedraw = true;
+                    break;
                 case Kepler::Request::FLUSH:
                     flushWindow(*client);
                     needRedraw = true;
@@ -226,6 +230,7 @@ bool WindowManager::checkClients() {
                 case Kepler::Request::CLOSE_WINDOW:
                     closeWindow(*client);
                     fullRedraw = true;
+                    break;
                 default:
                     break;
             }
@@ -463,6 +468,26 @@ void WindowManager::setWindowTitle(const Client &client) {
         response.writeToStream(outputStream);
     } else {
         const auto response = Kepler::Response::SetWindowTitle(false);
+        response.writeToStream(outputStream);
+    }
+}
+
+void WindowManager::setWindowIcon(const Client &client) {
+    auto &inputStream = client.getInputStream();
+    auto &outputStream = client.getOutputStream();
+
+    inputStream.setAccessMode(Util::Io::File::BLOCKING);
+    auto request = Kepler::Request::SetWindowIcon();
+    request.readFromStream(inputStream);
+    inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
+
+    auto *window = windowStack.getWindowById(request.getWindowId());
+    if (window != nullptr) {
+        const auto success = window->setIcon(request.getIconPath());
+        const auto response = Kepler::Response::SetWindowIcon(success);
+        response.writeToStream(outputStream);
+    } else {
+        const auto response = Kepler::Response::SetWindowIcon(false);
         response.writeToStream(outputStream);
     }
 }

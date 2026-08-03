@@ -50,12 +50,22 @@ bool CreateWindow::readFromStream(Util::Io::InputStream &stream) {
 }
 
 bool SetWindowTitle::writeToStream(Util::Io::OutputStream &stream) const {
-    return Util::Io::NumberUtil::writeUnsigned8BitValue(SET_WINDOW_TITLE, stream) &&
+    return BasicWindowRequest::writeToStream(stream) &&
         title.writeToStream(stream);
 }
 
 bool SetWindowTitle::readFromStream(Util::Io::InputStream &stream) {
     return title.readFromStream(stream);
+}
+
+bool SetWindowIcon::writeToStream(Util::Io::OutputStream &stream) const {
+    return BasicWindowRequest::writeToStream(stream) &&
+        iconPath.writeToStream(stream);
+}
+
+bool SetWindowIcon::readFromStream(Util::Io::InputStream &stream) {
+    BasicWindowRequest::readFromStream(stream);
+    return iconPath.readFromStream(stream);
 }
 
 bool BasicWindowRequest::writeToStream(Util::Io::OutputStream &stream) const {

@@ -43,6 +43,8 @@ private:
 TitleBar::TitleBar(ClientWindow &clientWindow, const Util::String &title) : clientWindow(clientWindow) {
     rootContainer.setLayout(new Lunar::BorderLayout());
 
+    icon = new Lunar::Image(clientWindow.getIcon().scale(16, 16));
+
     titleLabel = new Lunar::Label(title);
     titleContainer->setLayout(new Lunar::HorizontalLayout());
     titleContainer->addChild(titleLabel);
@@ -54,6 +56,7 @@ TitleBar::TitleBar(ClientWindow &clientWindow, const Util::String &title) : clie
     buttonContainer->addChild(minimizeButton);
     buttonContainer->addChild(closeButton);
 
+    rootContainer.addChild(icon, Util::Array<size_t>{Lunar::BorderLayout::WEST});
     rootContainer.addChild(titleContainer, Util::Array<size_t>{Lunar::BorderLayout::CENTER});
     rootContainer.addChild(buttonContainer, Util::Array<size_t>{Lunar::BorderLayout::EAST});
 

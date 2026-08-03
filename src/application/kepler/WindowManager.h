@@ -60,6 +60,8 @@ private:
 
     void setWindowTitle(const Client &client);
 
+    void setWindowIcon(const Client &client);
+
     void flushWindow(const Client &client) const;
 
     size_t processId = Util::Async::Process::getCurrentProcess().getId();
