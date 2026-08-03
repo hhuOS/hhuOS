@@ -32,8 +32,17 @@ namespace Lunar {
 class HorizontalLayout final : public Layout {
 
 public:
+    /// Possible alignment options for widgets in the horizontal layout.
+    enum Alignment {
+        /// Align widgets to the left edge of the container.
+        LEFT,
+        /// Center widgets horizontally in the container.
+        CENTER
+    };
+
     /// Create a new horizontal layout instance with the given spacing between widgets.
-    explicit HorizontalLayout(const size_t spacing = 0) : spacing(spacing) {}
+    explicit HorizontalLayout(const size_t spacing = 0, const Alignment alignment = CENTER) :
+        spacing(spacing), alignment(alignment) {}
 
     /// Arrange the given widgets within the container according to the layout's rules.
     /// This sets each widget's position next to the previous widget, with the specified spacing in between.
@@ -51,6 +60,7 @@ public:
 private:
 
     const size_t spacing;
+    Alignment alignment = CENTER;
 };
 
 }

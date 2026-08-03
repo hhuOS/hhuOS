@@ -178,6 +178,11 @@ void WindowManager::run() {
     }
 }
 
+void WindowManager::focusWindow(ClientWindow &window) {
+    windowStack.setFocus(&window);
+    desktop.requireRedraw();
+}
+
 bool WindowManager::checkNextPipe() {
     if (nextPipe->isReadyToRead()) {
         nextPipe->setAccessMode(Util::Io::File::BLOCKING);
@@ -310,7 +315,7 @@ void WindowManager::dispatchMouseEvents() {
                 || mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::RIGHT_BUTTON)
                 || mouseInputHandler.wasButtonPressed(Util::Io::MouseDecoder::MIDDLE_BUTTON))
             {
-                windowStack.setFocus(mouseHoveredWindow);
+                focusWindow(*mouseHoveredWindow);
             }
         }
 
@@ -424,8 +429,9 @@ void WindowManager::createWindow(const Client &client) {
     const auto response = Kepler::Response::CreateWindow(windowId, width, height, lfb.getColorDepth());
     response.writeToStream(outputStream);
 
-    auto *window = new ClientWindow(windowId, client.getProcessId(), posX, posY, width, height, request.getTitle(), sharedBuffer);
+    auto *window = new ClientWindow(*this, windowId, client.getProcessId(), posX, posY, width, height, request.getTitle(), sharedBuffer);
     windowStack.push(window);
+    desktop.windowCreated(*window);
 }
 
 void WindowManager::closeWindow(const Client &client) {
@@ -446,7 +452,9 @@ void WindowManager::closeWindow(const Client &client) {
             lastHoveredTitleBarWindow = nullptr;
         }
 
+        desktop.windowClosed(*window);
         windowStack.remove(window);
+
         const auto response = Kepler::Response::CloseWindow(true);
         response.writeToStream(outputStream);
     }
@@ -464,6 +472,8 @@ void WindowManager::setWindowTitle(const Client &client) {
     auto *window = windowStack.getWindowById(request.getWindowId());
     if (window != nullptr) {
         window->setTitle(request.getTitle());
+        desktop.windowUpdated(*window);
+
         const auto response = Kepler::Response::SetWindowTitle(true);
         response.writeToStream(outputStream);
     } else {
@@ -484,6 +494,10 @@ void WindowManager::setWindowIcon(const Client &client) {
     auto *window = windowStack.getWindowById(request.getWindowId());
     if (window != nullptr) {
         const auto success = window->setIcon(request.getIconPath());
+        if (success) {
+            desktop.windowUpdated(*window);
+        }
+
         const auto response = Kepler::Response::SetWindowIcon(success);
         response.writeToStream(outputStream);
     } else {

@@ -31,7 +31,7 @@ void HorizontalLayout::arrangeWidgets(const Util::ArrayList<WidgetEntry> &widget
     const auto containerHeight = getContainer().getHeight();
 
     size_t widgetWidthSum = 0;
-    for (auto &entry : widgets) {
+    for (const auto &entry : widgets) {
         auto &widget = *entry.widget;
 
         const auto preferredWidth = widget.getPreferredWidth();
@@ -42,8 +42,12 @@ void HorizontalLayout::arrangeWidgets(const Util::ArrayList<WidgetEntry> &widget
     }
     widgetWidthSum = widgetWidthSum > 0 ? widgetWidthSum - spacing : 0;
 
-    auto posX = getContainer().getPosX() + (getContainer().getWidth() - widgetWidthSum) / 2;
-    for (auto &entry : widgets) {
+    size_t posX = spacing; // Alignment LEFT
+    if (alignment == CENTER) {
+        posX = getContainer().getPosX() + (getContainer().getWidth() - widgetWidthSum) / 2;
+    }
+
+    for (const auto &entry : widgets) {
         auto &widget = *entry.widget;
 
         // Not enough space to draw further widgets

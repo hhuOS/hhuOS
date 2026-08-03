@@ -21,14 +21,15 @@
 #include "ClientWindow.h"
 
 #include "TitleBar.h"
+#include "WindowManager.h"
 #include "kepler/Window.h"
 #include "util/graphic/Colors.h"
 
 Util::Graphic::Image *ClientWindow::DEFAULT_ICON = Util::Graphic::BitmapFile::open("/user/kepler/telescope.bmp");
 
-ClientWindow::ClientWindow(const size_t id, const size_t processId, const uint16_t posX, const uint16_t posY,
+ClientWindow::ClientWindow(WindowManager &windowManager, const size_t id, const size_t processId, const uint16_t posX, const uint16_t posY,
     const uint16_t width, const uint16_t height, const Util::String &title, Util::Async::SharedMemory *buffer) :
-    id(id), posX(posX), posY(posY), width(width), height(height), titleBar(*this, title), buffer(buffer),
+    windowManager(windowManager), id(id), posX(posX), posY(posY), width(width), height(height), titleBar(*this, title), buffer(buffer),
     eventOutputStream(Util::String::format(Kepler::Window::EVENT_PIPE_PATH, processId)) {}
 
 ClientWindow::~ClientWindow() {
@@ -36,6 +37,14 @@ ClientWindow::~ClientWindow() {
     if (icon != DEFAULT_ICON) {
         delete icon;
     }
+}
+
+void ClientWindow::focus() {
+    windowManager.focusWindow(*this);
+}
+
+bool ClientWindow::isFocused() const {
+    return windowManager.getFocusedWindow() == this;
 }
 
 size_t ClientWindow::getId() const {

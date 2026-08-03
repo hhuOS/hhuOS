@@ -51,6 +51,19 @@ void Container::addChild(Widget *widget, const Util::Array<size_t> &layoutArgs) 
     reportPreferredSizeChange();
 }
 
+void Container::removeChild(const Widget *widget) {
+    for (auto child : children) {
+        if (child.widget == widget) {
+            children.remove(child);
+            delete child.widget;
+            break;
+        }
+    }
+
+    rearrangeChildren();
+    reportPreferredSizeChange();
+}
+
 bool Container::requiresRedraw() const {
     bool childNeedsRedraw = false;
     for (const auto &child : children) {

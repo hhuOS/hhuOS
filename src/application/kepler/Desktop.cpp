@@ -47,14 +47,11 @@ Desktop::Desktop(const uint16_t width, const uint16_t height) :
     setLayout(new Lunar::BorderLayout());
 
     desktopContainer->setLayout(new Lunar::GridLayout(rows, columns));
-    taskBarContainer->setLayout(new Lunar::BorderLayout());
-
-    taskBarContainer->addChild(new Lunar::Image("/user/kepler/telescope.bmp", 32, 32),
-        Util::Array<size_t>{Lunar::BorderLayout::WEST});
 
     addChild(desktopContainer, Util::Array<size_t>{Lunar::BorderLayout::CENTER});
-    addChild(taskBarContainer, Util::Array<size_t>{Lunar::BorderLayout::SOUTH});
+    addChild(taskBar, Util::Array<size_t>{Lunar::BorderLayout::SOUTH});
 }
+
 Desktop::~Desktop() {
     delete background;
 }
@@ -86,11 +83,23 @@ void Desktop::addEntry(const Util::String &name, const Util::String &executable,
     desktopContainer->addChild(entry);
 }
 
+void Desktop::windowCreated(ClientWindow &window) {
+    taskBar->addEntry(window);
+}
+
+void Desktop::windowClosed(const ClientWindow &window) {
+    taskBar->removeEntry(window);
+}
+
+void Desktop::windowUpdated(const ClientWindow &window) {
+    taskBar->updateEntry(window);
+}
+
 void Desktop::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
     lfb.drawImage(*background, (lfb.getResolutionX() - background->getWidth()) / 2,
         (lfb.getResolutionY() - background->getHeight()) / 2);
 
-    taskBarContainer->requireRedraw();
+    taskBar->requireRedraw();
     for (const auto &child : getChildren()) {
         child.widget->draw(lfb);
     }

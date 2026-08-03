@@ -44,6 +44,12 @@ public:
 
     void run() override;
 
+    void focusWindow(ClientWindow &window);
+
+    ClientWindow* getFocusedWindow() const {
+        return windowStack.getFocusedWindow();
+    }
+
 private:
 
     bool checkNextPipe();

@@ -28,6 +28,8 @@
 #include <util/graphic/LinearFrameBuffer.h>
 #include <lunar/Container.h>
 
+#include "ClientWindow.h"
+#include "TaskBar.h"
 #include "lunar/RootContainer.h"
 
 class Desktop : public Lunar::RootContainer {
@@ -40,6 +42,12 @@ public:
 
     void addEntry(const Util::String &name, const Util::String &executable, const Util::Array<Util::String> &args,
         const Util::String &iconPath) const;
+
+    void windowCreated(ClientWindow &window);
+
+    void windowClosed(const ClientWindow &window);
+
+    void windowUpdated(const ClientWindow &window);
 
     void draw(const Util::Graphic::LinearFrameBuffer &lfb) override;
 
@@ -62,7 +70,7 @@ private:
         Util::Array<Util::String> args;
     };
 
-    class DesktopContainer : public Lunar::Container {
+    class DesktopContainer : public Container {
     public:
 
         DesktopContainer() = default;
@@ -81,7 +89,7 @@ private:
     Widget *lastPressedChild = nullptr;
 
     Container *desktopContainer = new DesktopContainer();
-    Container *taskBarContainer = new Container();
+    TaskBar *taskBar = new TaskBar();
 
     static const Util::Graphic::Font &FONT;
 

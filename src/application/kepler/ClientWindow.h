@@ -30,13 +30,19 @@
 #include "kepler/protocol/Event.h"
 #include "util/graphic/BitmapFile.h"
 
+class WindowManager;
+
 class ClientWindow {
 
 public:
 
-    ClientWindow(size_t id, size_t processId, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const Util::String &title, Util::Async::SharedMemory *buffer);
+    ClientWindow(WindowManager &windowManager, size_t id, size_t processId, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const Util::String &title, Util::Async::SharedMemory *buffer);
 
     ~ClientWindow();
+
+    void focus();
+
+    bool isFocused() const;
 
     [[nodiscard]] size_t getId() const;
 
@@ -103,6 +109,8 @@ public:
     void flush(const Util::Graphic::LinearFrameBuffer &lfb) const;
 
 private:
+
+    WindowManager &windowManager;
 
     size_t id;
 

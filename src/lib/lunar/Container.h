@@ -60,6 +60,11 @@ public:
     /// This means that the container will delete the widget when it is destroyed.
     void addChild(Widget *widget, const Util::Array<size_t> &layoutArgs = Util::Array<size_t>());
 
+    /// Remove the given child widget from the container.
+    /// The widget must be a child of this container, otherwise nothing is done.
+    /// The widget is automatically deleted by this method and may not be used afterward.
+    void removeChild(const Widget *widget);
+
     /// Get the preferred width of the container in pixels.
     /// The preferred width is determined by the layout and the preferred sizes of the child widgets.
     size_t getPreferredWidth() const override {

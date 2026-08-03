@@ -63,6 +63,8 @@ void Image::setImage(const Util::Graphic::Image *image) {
     } else {
         scaledDownImage = nullptr;
     }
+
+    requireRedraw();
 }
 
 void Image::setSize(const size_t width, const size_t height) {
@@ -78,9 +80,15 @@ void Image::setSize(const size_t width, const size_t height) {
 
 void Image::draw(const Util::Graphic::LinearFrameBuffer &lfb) {
     if (getWidth() < originalImage->getWidth() || getHeight() < originalImage->getHeight()) {
-        lfb.drawImage(*scaledDownImage, getPosX(), getPosY());
+        const auto widthDiff = getWidth() - scaledDownImage->getWidth();
+        const auto heightDiff = getHeight() - scaledDownImage->getHeight();
+
+        lfb.drawImage(*scaledDownImage, getPosX() + widthDiff / 2, getPosY() + heightDiff / 2);
     } else {
-        lfb.drawImage(*originalImage, getPosX(), getPosY());
+        const auto widthDiff = getWidth() - originalImage->getWidth();
+        const auto heightDiff = getHeight() - originalImage->getHeight();
+
+        lfb.drawImage(*originalImage, getPosX() + widthDiff / 2, getPosY() + heightDiff / 2);
     }
 
     Widget::draw(lfb);

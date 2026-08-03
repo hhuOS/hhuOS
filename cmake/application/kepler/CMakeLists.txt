@@ -28,11 +28,12 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/kepler/Desktop.cpp
         ${HHUOS_SRC_DIR}/application/kepler/DesktopEntry.cpp
         ${HHUOS_SRC_DIR}/application/kepler/MouseInputHandler.cpp
+        ${HHUOS_SRC_DIR}/application/kepler/TaskBar.cpp
+        ${HHUOS_SRC_DIR}/application/kepler/TaskBarEntry.cpp
         ${HHUOS_SRC_DIR}/application/kepler/TitleBar.cpp
         ${HHUOS_SRC_DIR}/application/kepler/WindowManager.cpp
         ${HHUOS_SRC_DIR}/application/kepler/WindowStack.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.kepler)
 target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.kepler lib.user.lunar)

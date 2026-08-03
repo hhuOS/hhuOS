@@ -4,6 +4,11 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/application/classicube/ClassiCube" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu/clown68000" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu/clown68000/common/clowncommon" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu/clowncommon" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu/clownz80" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu/clownz80/clowncommon" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu/libraries/clown68000" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu/libraries/clown68000/libraries/clowncommon" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu/libraries/clowncommon" vcs="Git" />
