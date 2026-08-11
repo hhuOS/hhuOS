@@ -78,6 +78,10 @@ else()
                 COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i "https://pianoletternotes.blogspot.com/2019/10/tetris-theme-hard-version.html" > "${CMAKE_BINARY_DIR}/beep/tetris.beep"
                 DEPENDS "${CMAKE_BINARY_DIR}/beep/")
 
+        add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/daft_punk.beep"
+                COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i "https://pianoletternotes.blogspot.com/2021/03/harder-better-faster-stronger-by-daft.html" -t 94 > "${CMAKE_BINARY_DIR}/beep/daft_punk.beep"
+                DEPENDS "${CMAKE_BINARY_DIR}/beep/")
+
         add_custom_target(beep-files DEPENDS
                 "${CMAKE_BINARY_DIR}/beep/angel.beep"
                 "${CMAKE_BINARY_DIR}/beep/castlevania.beep"
@@ -89,7 +93,8 @@ else()
                 "${CMAKE_BINARY_DIR}/beep/mario.beep"
                 "${CMAKE_BINARY_DIR}/beep/sonne.beep"
                 "${CMAKE_BINARY_DIR}/beep/star_wars.beep"
-                "${CMAKE_BINARY_DIR}/beep/tetris.beep")
+                "${CMAKE_BINARY_DIR}/beep/tetris.beep"
+                "${CMAKE_BINARY_DIR}/beep/daft_punk.beep")
     endif()
 endif()
 
