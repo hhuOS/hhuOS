@@ -27,6 +27,7 @@
 #include "MouseInputHandler.h"
 #include "WindowStack.h"
 #include "util/async/IdGenerator.h"
+#include "util/async/Process.h"
 #include "util/async/Runnable.h"
 #include "util/collection/ArrayList.h"
 #include "util/graphic/LinearFrameBuffer.h"
@@ -46,8 +47,15 @@ public:
 
     void focusWindow(ClientWindow &window);
 
+    void refocusTopWindow();
+
     ClientWindow* getFocusedWindow() const {
         return windowStack.getFocusedWindow();
+    }
+
+    void requestFullRedraw() {
+        needRedraw = true;
+        fullRedraw = true;
     }
 
 private:

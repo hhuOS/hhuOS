@@ -35,6 +35,17 @@ void WindowStack::remove(ClientWindow *window) {
     delete window;
 }
 
+ClientWindow* WindowStack::getFocusedWindow() const {
+    for (auto i = static_cast<int32_t>(windows.size() - 1); i >= 0; i--) {
+        auto *window = windows.get(i);
+        if (!window->isMinimized()) {
+            return window;
+        }
+    }
+
+    return nullptr;
+}
+
 void WindowStack::setFocus(ClientWindow *window) {
     auto *oldFocus = getFocusedWindow();
     if (window != oldFocus) {
@@ -48,6 +59,10 @@ void WindowStack::setFocus(ClientWindow *window) {
 ClientWindow* WindowStack::getWindowAt(const uint16_t x, const uint16_t y) const {
     for (size_t i = windows.size() - 1; i < windows.size(); i--) {
         auto *window = windows.get(i);
+        if (window->isMinimized()) {
+            continue;
+        }
+
         const auto mouseEvent = window->containsPoint(x, y);
         if (mouseEvent.area != NONE) {
             return window;

@@ -75,6 +75,11 @@ Util::String ClientWindow::getTitle() const {
     return titleBar.getTitle();
 }
 
+void ClientWindow::setMinimized(bool minimized) {
+    ClientWindow::minimized = minimized;
+    windowManager.requestFullRedraw();
+}
+
 bool ClientWindow::setIcon(const Util::String &iconPath) {
     const auto *icon = Util::Graphic::BitmapFile::open(iconPath);
     if (icon == nullptr) {

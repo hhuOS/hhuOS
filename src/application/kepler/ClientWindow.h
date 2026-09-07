@@ -66,6 +66,12 @@ public:
 
     [[nodiscard]] Util::String getTitle() const;
 
+    bool isMinimized() const {
+        return minimized;
+    }
+
+    void setMinimized(bool minimized);
+
     void setTitle(const Util::String &title) const {
         titleBar.setTitle(title);
     }
@@ -118,6 +124,8 @@ private:
     int32_t posY = 0;
     uint16_t width = 0;
     uint16_t height = 0;
+
+    bool minimized = false;
 
     const Util::Graphic::Image *icon = DEFAULT_ICON;
 

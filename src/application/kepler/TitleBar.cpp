@@ -40,6 +40,21 @@ private:
     ClientWindow &clientWindow;
 };
 
+class MinimizeButtonHandler : public Lunar::ActionListener {
+
+public:
+
+    explicit MinimizeButtonHandler(ClientWindow &clientWindow) : clientWindow(clientWindow) {}
+
+    void onMouseClicked() override {
+        clientWindow.setMinimized(true);
+    }
+
+private:
+
+    ClientWindow &clientWindow;
+};
+
 TitleBar::TitleBar(ClientWindow &clientWindow, const Util::String &title) : clientWindow(clientWindow) {
     rootContainer.setLayout(new Lunar::BorderLayout());
 
@@ -51,6 +66,8 @@ TitleBar::TitleBar(ClientWindow &clientWindow, const Util::String &title) : clie
 
     closeButton->setOverrideStyle(CLOSE_BUTTON_STYLE);
     closeButton->addActionListener(new CloseButtonHandler(clientWindow));
+
+    minimizeButton->addActionListener(new MinimizeButtonHandler(clientWindow));
 
     buttonContainer->setLayout(new Lunar::HorizontalLayout(5));
     buttonContainer->addChild(minimizeButton);

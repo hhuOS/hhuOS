@@ -54,6 +54,7 @@ private:
         explicit TaskBarListener(TaskBarEntry &taskBarEntry) : taskBarEntry(taskBarEntry) {}
 
         void onMouseClicked() override {
+            taskBarEntry.window.setMinimized(false);
             taskBarEntry.window.focus();
         }
 

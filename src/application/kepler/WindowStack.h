@@ -37,9 +37,7 @@ public:
 
     void remove(ClientWindow *window);
 
-    ClientWindow* getFocusedWindow() const {
-        return windows.size() > 0 ? windows.get(windows.size() - 1) : nullptr;
-    }
+    ClientWindow* getFocusedWindow() const;
 
     void setFocus(ClientWindow *window);
 

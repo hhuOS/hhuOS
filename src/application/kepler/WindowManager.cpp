@@ -114,9 +114,11 @@ void WindowManager::run() {
         // Draw dirty windows
         const auto *focusedWindow = windowStack.getFocusedWindow();
         for (auto *window : windowStack) {
-            if (window->drawDirtyAreas(tripleLfb, window == focusedWindow, fullRedraw)) {
-                needRedraw = true;
-                yield = false; // Work has been done, do not yield
+            if (!window->isMinimized()) {
+                if (window->drawDirtyAreas(tripleLfb, window == focusedWindow, fullRedraw)) {
+                    needRedraw = true;
+                    yield = false; // Work has been done, do not yield
+                }
             }
         }
 
@@ -267,17 +269,6 @@ void WindowManager::dispatchMouseEvents() {
             window->setPosY(dragY);
             window->setDirty();
             fullRedraw = true;
-
-            // Send mouse release event to title bar
-            auto *mouseHoveredWindow = windowStack.getWindowAt(mouseX, mouseY);
-            const auto windowMouseEvent = mouseHoveredWindow->containsPoint(mouseX, mouseY);
-
-            auto &titleBar = mouseHoveredWindow->getTitleBar();
-            titleBar.onMouseRelease(windowMouseEvent);
-            if (titleBar.needsRedraw()) {
-                mouseHoveredWindow->setDirty(TITLE_BAR);
-                windowStack.markWindowsOnTopDirty(mouseHoveredWindow);
-            }
         }
 
         return;
