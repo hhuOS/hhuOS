@@ -254,7 +254,7 @@ int64_t ProcessService::systemCallExecuteBinary(const char *binaryPath, const ch
         commandArguments[i] = argv[i];
     }
 
-    auto &process = processService.loadBinary(binaryFile, inputFile, outputFile, errorFile, *command, commandArguments);
+    auto &process = processService.loadBinary(binaryFile, inputFile, outputFile, errorFile, command, commandArguments);
     return process.getId();
 }
 
