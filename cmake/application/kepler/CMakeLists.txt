@@ -27,6 +27,7 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/kepler/ClientWindow.cpp
         ${HHUOS_SRC_DIR}/application/kepler/Desktop.cpp
         ${HHUOS_SRC_DIR}/application/kepler/DesktopEntry.cpp
+        ${HHUOS_SRC_DIR}/application/kepler/DesktopFile.cpp
         ${HHUOS_SRC_DIR}/application/kepler/MouseInputHandler.cpp
         ${HHUOS_SRC_DIR}/application/kepler/TaskBar.cpp
         ${HHUOS_SRC_DIR}/application/kepler/TaskBarEntry.cpp

@@ -160,7 +160,9 @@ endfunction(make_includable)
 
 # Add system image as target
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-add_executable(system)
+add_executable(system
+        ../src/application/kepler/DesktopFile.cpp
+        ../src/application/kepler/DesktopFile.h)
 target_link_libraries(system device filesystem kernel lib.kernel.base lib.kernel.network lib.kernel.graphic lib.kernel.sound)
 
 # Add subdirectories

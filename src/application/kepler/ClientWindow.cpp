@@ -25,7 +25,7 @@
 #include "kepler/Window.h"
 #include "util/graphic/Colors.h"
 
-Util::Graphic::Image *ClientWindow::DEFAULT_ICON = Util::Graphic::BitmapFile::open("/user/kepler/telescope.bmp");
+Util::Graphic::Image *ClientWindow::DEFAULT_ICON = Util::Graphic::BitmapFile::open("/user/kepler/default.bmp");
 
 ClientWindow::ClientWindow(WindowManager &windowManager, const size_t id, const size_t processId, const uint16_t posX, const uint16_t posY,
     const uint16_t width, const uint16_t height, const Util::String &title, Util::Async::SharedMemory *buffer) :

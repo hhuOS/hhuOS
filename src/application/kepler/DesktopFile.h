@@ -18,53 +18,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DESKTOPENTRY_H
-#define HHUOS_DESKTOPENTRY_H
+#ifndef HHUOS_DESKTOPFILE_H
+#define HHUOS_DESKTOPFILE_H
 
-#include <util/base/String.h>
-#include <util/graphic/Image.h>
+#include "util/base/String.h"
+#include "util/collection/HashMap.h"
+#include "util/io/file/File.h"
 
-#include "DesktopFile.h"
-
-class DesktopEntry {
+class DesktopFile {
 
 public:
 
-    DesktopEntry() = default;
+    explicit DesktopFile(const Util::String &path);
 
-    DesktopEntry(const DesktopFile &file);
+    explicit DesktopFile(const Util::Io::File &file);
 
-    DesktopEntry(const Util::String &name, const Util::String &executable, const Util::Array<Util::String> &args, const Util::String &iconPath);
+    ~DesktopFile() = default;
 
-    DesktopEntry(const DesktopEntry &other) = delete;
-
-    DesktopEntry& operator=(const DesktopEntry &other) = delete;
-
-    const Util::String& getName() const {
-        return name;
-    }
-
-    const Util::String& getExecutable() const {
-        return executable;
-    }
-
-    const Util::Array<Util::String>& getArgs() const {
-        return args;
-    }
-
-    const Util::String& getIconPath() const {
-        return iconPath;
-    }
+    Util::String getProperty(const Util::String &key, const Util::String &defaultValue = "") const;
 
 private:
 
-    Util::String name;
-    Util::String executable;
-    Util::Array<Util::String> args;
-    Util::String iconPath;
+    Util::HashMap<Util::String, Util::String> properties;
 
-    static constexpr const char *ICON_PATH = "/user/kepler/icon/";
-    static constexpr const char *DEFAULT_ICON_NAME = "default";
 };
 
 #endif

@@ -29,8 +29,6 @@
 #include <lunar/GridLayout.h>
 #include <lunar/VerticalLayout.h>
 
-#include "lunar/HorizontalLayout.h"
-
 Desktop::Desktop(const uint16_t width, const uint16_t height) :
     RootContainer(width, height),
     rows(height / (DESKTOP_ENTRY_HEIGHT + DESKTOP_ENTRY_SPACING)),
@@ -56,31 +54,27 @@ Desktop::~Desktop() {
     delete background;
 }
 
-void Desktop::addEntry(const Util::String &name, const Util::String &executable, const Util::Array<Util::String> &args,
-                       const Util::String &iconPath) const
-{
-    Util::Io::File iconFile(iconPath);
-    if (!iconFile.exists() || iconFile.isDirectory()) {
-        iconFile = Util::Io::File("/user/kepler/telescope.bmp");
-    }
-
-    auto *entry = new DesktopContainer();
+void Desktop::addEntry(const DesktopEntry &entry) const {
+    auto *container = new DesktopContainer();
     auto *entryLayout = new Lunar::VerticalLayout(4);
-    auto *label = new Lunar::Label(name);
-    auto *image = new Lunar::Image(iconFile.getCanonicalPath(), DesktopEntry::ICON_SIZE,
-        DesktopEntry::ICON_SIZE);
+    auto *label = new Lunar::Label(entry.getName());
+    auto *image = new Lunar::Image(entry.getIconPath(), ICON_SIZE, ICON_SIZE);
 
     label->setOverrideStyle(LABEL_STYLE);
 
-    entry->setLayout(entryLayout);
-    entry->addChild(image);
-    entry->addChild(label);
+    container->setLayout(entryLayout);
+    container->addChild(image);
+    container->addChild(label);
 
-    entry->addActionListener(new IconListener(executable, name, args));
+    const auto &executable = entry.getExecutable();
+    const auto &name = entry.getName();
+    const auto &args = entry.getArgs();
+
+    container->addActionListener(new IconListener(executable, name, args));
     label->addActionListener(new IconListener(executable, name, args));
     image->addActionListener(new IconListener(executable, name, args));
 
-    desktopContainer->addChild(entry);
+    desktopContainer->addChild(container);
 }
 
 void Desktop::windowCreated(ClientWindow &window) {
@@ -124,5 +118,4 @@ const Util::Graphic::Font &Desktop::FONT = Util::Graphic::Fonts::TERMINAL_8x8;
 
 const int32_t Desktop::DESKTOP_ENTRY_WIDTH = FONT.getCharWidth() * 8;
 
-const int32_t Desktop::DESKTOP_ENTRY_HEIGHT =
-    DesktopEntry::ICON_SIZE + FONT.getCharHeight() + DESKTOP_ENTRY_TEXT_SPACING;
+const int32_t Desktop::DESKTOP_ENTRY_HEIGHT = ICON_SIZE + FONT.getCharHeight() + DESKTOP_ENTRY_TEXT_SPACING;
