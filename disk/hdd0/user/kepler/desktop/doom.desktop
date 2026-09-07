@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=doom
+Exec=/bin/doom
+Terminal=false
+Icon=doom

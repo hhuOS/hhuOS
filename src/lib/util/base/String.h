@@ -409,13 +409,16 @@ public:
     /// The delimiter itself is not included in the resulting strings.
     /// If the delimiter is not found, the array only contains the original string.
     /// If the string is empty, an empty array is returned.
+    /// If limit is set to a value larger than zero, splitting stops after (limit - 1) elements
+    /// and the remaining string is added as the last element of the array.
     ///
     /// ### Example
     /// ```c++
     /// const auto string = Util::String("abc,def,ghi");
     /// const auto tokens = string.split(","); // tokens = { "abc", "def", "ghi" }
+    /// const auto tokensLimited = string.split(",", 2); // tokensLimited = { "abc", "def,ghi" }
     /// ```
-    Array<String> split(const String &delimiter) const;
+    Array<String> split(const String &delimiter, size_t limit = 0) const;
 
     /// Create a copy of the string with the first occurrence of the given string removed.
     /// If the given string is not found, a copy the original string is returned.

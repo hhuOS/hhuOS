@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=wintest
+Exec=/bin/wintest
+Terminal=false
+Icon=default

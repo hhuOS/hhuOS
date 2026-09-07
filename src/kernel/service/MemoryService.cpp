@@ -386,7 +386,7 @@ void MemoryService::removeAddressSpace(VirtualAddressSpace &addressSpace) {
     delete &addressSpace;
 }
 
-void MemoryService::handlePageFault(uint32_t errorCode) {
+void MemoryService::handlePageFault(uint32_t errorCode, [[maybe_unused]] uint32_t instructionPtr) {
     // The faulted linear address is stored in the cr2 register
     const auto faultAddress = Device::Cpu::readCr2();
 

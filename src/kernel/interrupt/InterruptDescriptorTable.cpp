@@ -22,6 +22,7 @@
 
 #include <stdarg.h>
 
+#include "InterruptFrame.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/InterruptService.h"
 #include "kernel/service/MemoryService.h"
@@ -363,7 +364,7 @@ void InterruptDescriptorTable::handleInterrupt(const InterruptFrame &frame, Inte
 }
 
 void InterruptDescriptorTable::handlePageFault([[maybe_unused]] InterruptFrame *frame, uint32_t errorCode) {
-    Service::getService<MemoryService>().handlePageFault(errorCode);
+    Service::getService<MemoryService>().handlePageFault(errorCode, frame->instructionPointer);
 }
 
 void InterruptDescriptorTable::handleFpuException([[maybe_unused]] InterruptFrame *frame) {

@@ -171,7 +171,7 @@ String String::strip() const {
     return substring(startIndex, endIndex + 1);
 }
 
-Array<String> String::split(const String &delimiter) const {
+Array<String> String::split(const String &delimiter, const size_t limit) const {
     if (len == 0) {
         return Array<String>(0);
     }
@@ -179,13 +179,15 @@ Array<String> String::split(const String &delimiter) const {
     ArrayList<String> result;
     size_t start = 0;
     size_t end = indexOf(delimiter);
+    size_t count = 0;
     String element;
 
-    while (end != SIZE_MAX) {
+    while (end != SIZE_MAX && (limit == 0 || count < limit - 1)) {
         element = substring(start, end);
 
         if (!element.isEmpty()) {
             result.add(element);
+            count++;
         }
 
         start = end + delimiter.len;

@@ -18,53 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DESKTOPENTRY_H
-#define HHUOS_DESKTOPENTRY_H
-
-#include <util/base/String.h>
-#include <util/graphic/Image.h>
-
 #include "DesktopFile.h"
 
-class DesktopEntry {
+#include "util/io/file/File.h"
+#include "util/io/stream/BufferedInputStream.h"
+#include "util/io/stream/FileInputStream.h"
 
-public:
+DesktopFile::DesktopFile(const Util::String &path) : DesktopFile(Util::Io::File(path)) {}
 
-    DesktopEntry() = default;
-
-    DesktopEntry(const DesktopFile &file);
-
-    DesktopEntry(const Util::String &name, const Util::String &executable, const Util::Array<Util::String> &args, const Util::String &iconPath);
-
-    DesktopEntry(const DesktopEntry &other) = delete;
-
-    DesktopEntry& operator=(const DesktopEntry &other) = delete;
-
-    const Util::String& getName() const {
-        return name;
+DesktopFile::DesktopFile(const Util::Io::File &file) {
+    if (!file.exists() || file.isDirectory()) {
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Desktop entry file not found!");
     }
 
-    const Util::String& getExecutable() const {
-        return executable;
+    Util::Io::FileInputStream inputStream(file);
+    Util::Io::BufferedInputStream stream(inputStream);
+
+    auto line = stream.readLine();
+    do {
+        const auto split = line.content.split("=", 2);
+        if (split.length() == 2) {
+            properties.put(split[0], split[1]);
+        }
+
+        line = stream.readLine();
+    } while (!line.endOfFile);
+}
+
+Util::String DesktopFile::getProperty(const Util::String &key, const Util::String &defaultValue) const {
+    if (properties.containsKey(key)) {
+        return properties.get(key);
     }
 
-    const Util::Array<Util::String>& getArgs() const {
-        return args;
-    }
-
-    const Util::String& getIconPath() const {
-        return iconPath;
-    }
-
-private:
-
-    Util::String name;
-    Util::String executable;
-    Util::Array<Util::String> args;
-    Util::String iconPath;
-
-    static constexpr const char *ICON_PATH = "/user/kepler/icon/";
-    static constexpr const char *DEFAULT_ICON_NAME = "default";
-};
-
-#endif
+    return defaultValue;
+}

@@ -40,8 +40,7 @@ public:
 
     ~Desktop() override;
 
-    void addEntry(const Util::String &name, const Util::String &executable, const Util::Array<Util::String> &args,
-        const Util::String &iconPath) const;
+    void addEntry(const DesktopEntry &entry) const;
 
     void windowCreated(ClientWindow &window);
 
@@ -97,6 +96,7 @@ private:
     static const int32_t DESKTOP_ENTRY_HEIGHT;
     static constexpr int32_t DESKTOP_ENTRY_TEXT_SPACING = 4;
     static constexpr int32_t DESKTOP_ENTRY_SPACING = 8;
+    static constexpr int32_t ICON_SIZE = 32;
 };
 
 static const Lunar::Theme::WidgetStyle LABEL_STYLE = {

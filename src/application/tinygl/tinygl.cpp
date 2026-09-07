@@ -167,9 +167,9 @@ int32_t main(const int32_t argc, char *argv[]) {
     window.registerEventListener(eventListener);
 
     if (demoName == "gears") {
-        window.setIcon("/user/kepler/gears.bmp");
+        window.setIcon("/user/kepler/icon/gears.bmp");
     } else if (demoName == "cubes") {
-        window.setIcon("/user/dino/block/box.bmp");
+        window.setIcon("/user/kepler/icon/cubes.bmp");
     }
 
     const auto scaleFactor = Util::String::parseFloat<float>(

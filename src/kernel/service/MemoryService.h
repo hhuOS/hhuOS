@@ -198,7 +198,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void handlePageFault(uint32_t errorCode);
+    void handlePageFault(uint32_t errorCode, uint32_t instructionPtr);
 
     /**
      * Switch to a given address space.

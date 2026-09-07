@@ -41,18 +41,21 @@ WindowManager::WindowManager(Util::Graphic::LinearFrameBuffer &lfb) : lfb(lfb), 
 {
     const auto idString = Util::String::format("%u", processId);
 
-    const auto desktopFile = Util::Io::File("/system/kepler");
-    desktopFile.create(Util::Io::File::REGULAR);
+    const auto keplerFile = Util::Io::File("/system/kepler");
+    keplerFile.create(Util::Io::File::REGULAR);
 
-    auto desktopFileStream = Util::Io::FileOutputStream(desktopFile);
+    auto desktopFileStream = Util::Io::FileOutputStream(keplerFile);
     desktopFileStream.write(static_cast<const uint8_t*>(idString), 0, idString.length());
 
     createNextPipe();
 
-    desktop.addEntry("wintest", "/bin/wintest", Util::Array<Util::String>({""}), "");
-    desktop.addEntry("doom", "/bin/doom", Util::Array<Util::String>({""}), "/user/kepler/doom.bmp");
-    desktop.addEntry("gears", "/bin/tinygl", Util::Array<Util::String>({"gears"}), "/user/kepler/gears.bmp");
-    desktop.addEntry("cubes", "/bin/tinygl", Util::Array<Util::String>({"cubes"}), "/user/dino/block/box.bmp");
+    const auto desktopDir = Util::Io::File("/user/kepler/desktop");
+    for (const auto &child : desktopDir.getChildren()) {
+        DesktopFile desktopFile(child);
+        DesktopEntry entry(desktopFile);
+
+        desktop.addEntry(entry);
+    }
 }
 
 void WindowManager::run() {

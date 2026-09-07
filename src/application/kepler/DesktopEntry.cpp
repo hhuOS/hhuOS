@@ -21,20 +21,21 @@
 #include "DesktopEntry.h"
 
 #include "util/graphic/BitmapFile.h"
+#include "util/io/file/File.h"
+
+DesktopEntry::DesktopEntry(const DesktopFile &file) {
+    const auto exec = file.getProperty("Exec");
+    if (exec.isEmpty()) {
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "DesktopEntry: Exec property is empty!");
+    }
+    executable = exec.substring(0, exec.indexOf(" "));
+    args = exec.substring(executable.length() + 1).split(" ");
+
+    const auto iconProp = file.getProperty("Icon", DEFAULT_ICON_NAME);
+    iconPath = iconProp.contains('/') ? iconProp : Util::String(ICON_PATH) + iconProp + ".bmp";
+
+    name = file.getProperty("Name");
+}
 
 DesktopEntry::DesktopEntry(const Util::String &name, const Util::String &executable, const Util::Array<Util::String> &args, const Util::String &iconPath) :
-    name(name), executable(executable), args(args)
-{
-    Util::Graphic::Image *image = Util::Graphic::BitmapFile::open(iconPath);
-    if (image == nullptr) {
-        image = Util::Graphic::BitmapFile::open(DEFAULT_ICON);
-    }
-
-    if (image->getHeight() != ICON_SIZE || image->getWidth() != ICON_SIZE) {
-        auto *scaledImage = image->scale(ICON_SIZE, ICON_SIZE);
-        delete image;
-        image = scaledImage;
-    }
-
-    icon = image;
-}
+    name(name), executable(executable), args(args), iconPath(iconPath) {}

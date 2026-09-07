@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=cubes
+Exec=/bin/tinygl cubes
+Terminal=false
+Icon=/user/dino/block/box.bmp
