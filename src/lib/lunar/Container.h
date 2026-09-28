@@ -63,7 +63,12 @@ public:
     /// Remove the given child widget from the container.
     /// The widget must be a child of this container, otherwise nothing is done.
     /// The widget is automatically deleted by this method and may not be used afterward.
-    void removeChild(const Widget *widget);
+    void deleteChild(const Widget *widget);
+
+    /// Remove the given child from the container, without deleting it.
+    /// The widget must be a child of this container, otherwise nothing is and nullptr is returned.
+    /// If the child is found, it removed from the container and a pointer to it is returned.
+    Widget* removeChild(const Widget *widget);
 
     /// Get the preferred width of the container in pixels.
     /// The preferred width is determined by the layout and the preferred sizes of the child widgets.

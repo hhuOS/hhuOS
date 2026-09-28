@@ -27,8 +27,8 @@ namespace Lunar {
 GridLayout::GridLayout(const size_t rows, const size_t columns, const size_t verticalGap, const size_t horizontalGap) :
     rows(rows), columns(columns), verticalGap(verticalGap), horizontalGap(horizontalGap)
 {
-    if (rows == 0 && columns == 0) {
-        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "GridLayout: Rows and columns cannot be 0 at the same time!");
+    if (rows == 0 || columns == 0) {
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "GridLayout: Rows or columns cannot be zero!");
     }
 }
 
