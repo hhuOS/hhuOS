@@ -53,7 +53,7 @@ void HorizontalLayout::arrangeWidgets(const Util::ArrayList<WidgetEntry> &widget
         // Not enough space to draw further widgets
         if (posX + widget.getWidth() > containerPosX + containerWidth) {
             widget.setSize(0, 0);
-            break;
+            continue;
         }
 
         // Adapt widget height if it is too high

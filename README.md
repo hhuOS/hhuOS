@@ -129,6 +129,7 @@ When you are done tinkering with the OS, why not try to build your own applicati
 
 Window manager icons:
  - [Telescope](https://icons8.com/icon/12069/telescope) [Icons8](https://icons8.com)
+ - [Rocket](https://icons8.com/icon/24143/rocket) [Icons8](https://icons8.com)
  - [Doom](https://icons8.com/icon/e7DUzb65WlzN/doom-logo) [Icons8](https://icons8.com)
  - [Gears](https://icons8.com/icon/22998/gears) [Icons8](https://icons8.com)
 

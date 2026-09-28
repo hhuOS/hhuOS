@@ -23,6 +23,7 @@
 
 #include "ClientWindow.h"
 #include "lunar/Container.h"
+#include "lunar/GridLayout.h"
 #include "util/collection/HashMap.h"
 
 class TaskBarEntry;
@@ -39,15 +40,52 @@ public:
 
     void removeEntry(const ClientWindow &window);
 
-    void updateEntry(const ClientWindow &window);
+    void updateEntry(const ClientWindow &window) const;
 
-    size_t getPreferredHeight() const override;
+    void setSize(size_t width, size_t height) override;
 
     static constexpr size_t ICON_SIZE = 32;
 
 private:
 
+    class TaskBarSwitchButtonListener : public Lunar::ActionListener {
+
+    public:
+
+        enum Direction {
+            PREVIOUS,
+            NEXT
+        };
+
+        TaskBarSwitchButtonListener(TaskBar &taskBar, const Direction direction) : taskBar(taskBar), direction(direction) {}
+
+        void onMousePressed() override;
+
+    private:
+
+        TaskBar &taskBar;
+        Direction direction;
+    };
+
+    void updateTaskContainer(bool windowAdded = false);
+
+    size_t maxTaskBarEntries = 0;
+    size_t currentTaskBarIndex = 0;
+
+    Lunar::Image *startIcon;
+
+    Container *centerContainer;
+    Container *taskContainer;
+
+    Lunar::Label *currentIndexLabel;
+    Lunar::Label *maxIndexLabel;
+    Lunar::Label *dateLabel;
+    Lunar::Label *clockLabel;
+
     Util::HashMap<size_t, TaskBarEntry*> taskBarEntries;
+    Util::ArrayList<size_t> windowIds;
+
+    static constexpr size_t TASK_BAR_ICON_GAP = 8;
 };
 
 #endif

@@ -51,14 +51,27 @@ void Container::addChild(Widget *widget, const Util::Array<size_t> &layoutArgs) 
     reportPreferredSizeChange();
 }
 
-void Container::removeChild(const Widget *widget) {
-    for (auto child : children) {
+void Container::deleteChild(const Widget *widget) {
+    delete removeChild(widget);
+}
+
+Widget* Container::removeChild(const Widget *widget) {
+    for (const auto &child : children) {
         if (child.widget == widget) {
             children.remove(child);
-            delete child.widget;
-            break;
+
+            rearrangeChildren();
+            reportPreferredSizeChange();
+
+            return child.widget;
         }
     }
+
+    return nullptr;
+}
+
+void Container::removeAllChildren() {
+    children.clear();
 
     rearrangeChildren();
     reportPreferredSizeChange();

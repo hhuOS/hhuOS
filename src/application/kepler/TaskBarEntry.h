@@ -38,12 +38,14 @@ public:
     void setSize(size_t width, size_t height) override;
 
     size_t getPreferredHeight() const override {
-        return TaskBar::ICON_SIZE + 4;
+        return SIZE;
     }
 
     size_t getPreferredWidth() const override {
-        return TaskBar::ICON_SIZE + 4;
+        return SIZE;
     }
+
+    static constexpr size_t SIZE = TaskBar::ICON_SIZE + 4;
 
 private:
 

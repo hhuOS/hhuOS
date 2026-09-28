@@ -49,7 +49,7 @@ void VerticalLayout::arrangeWidgets(const Util::ArrayList<WidgetEntry> &widgets)
         // Not enough space to draw further widgets
         if (posY + widget.getHeight() > containerPosY + containerHeight) {
             widget.setSize(0, 0);
-            break;
+            continue;
         }
 
         // Adapt widget width if it is too wide
