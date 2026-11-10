@@ -116,6 +116,7 @@
 #include "lib/util/time/Timestamp.h"
 #include "device/time/hpet/Hpet.h"
 #include "filesystem/memory/BufferNode.h"
+#include "filesystem/terminal/PseudoTerminalDriver.h"
 #include "util/graphic/BitmapFile.h"
 #include "log/LogNode.h"
 #include "service/CpuService.h"
@@ -680,6 +681,10 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     filesystemService->createDirectory("/device");
     filesystemService->getFilesystem().mountVirtualDriver("/device", deviceDriver);
 
+    auto *terminalDriver = new Filesystem::Terminal::PseudoTerminalDriver();
+    filesystemService->createDirectory("/device/terminals");
+    filesystemService->getFilesystem().mountVirtualDriver("/device/terminals", terminalDriver);
+
     auto *tempDriver = new Filesystem::Memory::MemoryDriver();
     filesystemService->createDirectory("/temp");
     filesystemService->getFilesystem().mountVirtualDriver("/temp", tempDriver);
@@ -854,7 +859,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     }
 
     // Ready 'shell' process
-    Util::Async::Process::execute(Util::Io::File("/bin/kepler"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "kepler", Util::Array<Util::String>(0));
+    Util::Async::Process::execute(Util::Io::File("/bin/shell"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "kepler", Util::Array<Util::String>(0));
 
     // Clear screen and print banner
     Kernel::Log::removeOutputStream(*terminal);
